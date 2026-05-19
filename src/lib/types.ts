@@ -3,6 +3,7 @@ export type Member = {
   role?: string;
   birth: string;
   phone: string;
+  photo?: string;
 };
 
 export type Part = {
@@ -20,6 +21,7 @@ export type Conductor = {
   birth: string;
   phone: string;
   note?: string;
+  photo?: string;
 };
 
 export type Officer = {

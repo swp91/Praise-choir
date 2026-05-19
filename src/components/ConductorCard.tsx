@@ -1,7 +1,22 @@
+import Image from 'next/image';
 import type { Conductor } from '@/lib/types';
 
 const maskPhone = (p: string) => p.replace(/(\d{3,4})-(\d{3,4})-(\d{4})/, '$1-••••-$3');
-const maskBirth = (b: string) => b.replace(/\([\d.]+\)/, '(••••)');
+
+function BirthDisplay({ birth }: { birth: string }) {
+  if (!birth || birth === '—') return <span>—</span>;
+  const lunar = birth.startsWith('음');
+  const date = lunar ? birth.slice(1) : birth;
+  return (
+    <span>
+      {lunar && <span className="mr-1 text-[12px]">☽</span>}
+      {date}
+    </span>
+  );
+}
+
+const cldUrl = (id: string) =>
+  `https://res.cloudinary.com/dmbiqatia/image/upload/w_320,h_320,c_fill,g_face,f_auto,q_auto/${id}`;
 
 const ROLE_EN: Record<string, string> = {
   '지휘': 'Conductor',
@@ -15,24 +30,39 @@ type Props = { conductor: Conductor };
 export default function ConductorCard({ conductor: c }: Props) {
   const phoneDigits = c.phone.replace(/-/g, '');
   return (
-    <article className="grid grid-cols-[88px_1fr] gap-5 p-6 items-start max-[880px]:grid-cols-[70px_1fr] max-[880px]:gap-4 max-[880px]:p-4.5">
-      <div className="w-22 h-22 rounded-full border border-gold bg-[repeating-linear-gradient(45deg,#ebe0c4_0_6px,#ddd0ad_6px_12px)] flex items-center justify-center font-en italic font-semibold text-[32px] text-gold-deep relative after:content-[''] after:absolute after:inset-1.25 after:border after:border-white/70 after:rounded-full max-[880px]:w-17.5 max-[880px]:h-17.5 max-[880px]:text-[26px]">
-        {c.name.charAt(0)}
+    <article className="relative bg-card border border-gold/50 rounded-2xl flex flex-col items-center text-center px-6 pt-8 pb-6"
+      style={{ boxShadow: 'inset 0 0 0 6px rgba(253,249,240,1), inset 0 0 0 7px rgba(184,154,90,0.45)' }}>
+
+
+      {/* Circular photo */}
+      <div className="w-40 h-40 rounded-full border-2 border-gold overflow-hidden relative mb-5 shrink-0 shadow-[0_0_0_5px_#fdf9f0,0_0_0_8px_rgba(184,154,90,0.3)]">
+        {c.photo ? (
+          <Image src={cldUrl(c.photo)} alt={c.name} fill sizes="160px" className="object-cover" />
+        ) : (
+          <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,#ebe0c4_0_6px,#ddd0ad_6px_12px)] flex items-center justify-center font-en italic font-semibold text-[40px] text-gold-deep">
+            {c.name.charAt(0)}
+          </div>
+        )}
       </div>
-      <div>
-        <div className="font-en text-[10px] tracking-[0.3em] text-gold-deep uppercase mb-1">{ROLE_EN[c.role] ?? ''}</div>
-        <div className="font-ko text-[13px] text-ink-mute mb-2.5">{c.role}</div>
-        <h3 className="font-ko text-[22px] font-bold mb-1">{c.name}</h3>
-        <div className="font-en italic text-[12px] text-ink-mute mb-3">Since {c.since}</div>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-[12px] pt-2.5 border-t border-line-soft">
-          <dt className="font-en text-[9px] tracking-[0.18em] text-ink-mute uppercase m-0">BIRTH</dt>
-          <dd className="m-0 font-ko [font-variant-numeric:tabular-nums]">{maskBirth(c.birth)}</dd>
-          <dt className="font-en text-[9px] tracking-[0.18em] text-ink-mute uppercase m-0">TEL.</dt>
-          <dd className="m-0 font-ko [font-variant-numeric:tabular-nums]">
-            <a className="border-b border-dotted border-gold pb-px" href={`tel:${phoneDigits}`}>{maskPhone(c.phone)}</a>
-          </dd>
-        </dl>
-        {c.note && <p className="mt-2 font-en italic text-[11px] text-ink-mute">— {c.note}</p>}
+
+      {/* Name & role */}
+      <h3 className="font-ko text-[17px] font-bold text-ink leading-tight mb-1">{c.name}</h3>
+      <div className="font-en text-[9px] tracking-[0.3em] uppercase text-gold-deep mb-0.5">{ROLE_EN[c.role] ?? ''}</div>
+      <div className="font-ko text-[12px] text-ink-mute mb-5">{c.role}</div>
+
+      {/* Divider */}
+      <div className="w-10 h-px bg-gold/50 mb-4" />
+
+      {/* Details */}
+      <div className="flex flex-col items-center gap-1.5 text-[11px]">
+        <div>
+          <span className="font-en text-[9px] tracking-[0.18em] text-ink-mute uppercase mr-2">BIRTH</span>
+          <span className="font-ko text-ink-soft [font-variant-numeric:tabular-nums]"><BirthDisplay birth={c.birth} /></span>
+        </div>
+        <div>
+          <span className="font-en text-[9px] tracking-[0.18em] text-ink-mute uppercase mr-2">TEL.</span>
+          <a className="font-ko text-ink-soft border-b border-dotted border-gold pb-px [font-variant-numeric:tabular-nums]" href={`tel:${phoneDigits}`}>{maskPhone(c.phone)}</a>
+        </div>
       </div>
     </article>
   );

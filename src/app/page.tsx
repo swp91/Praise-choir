@@ -4,6 +4,7 @@ import MobileHeader from "@/components/MobileHeader";
 import HeroBlock from "@/components/HeroBlock";
 import SectionCap from "@/components/SectionCap";
 import Footer from "@/components/Footer";
+import FeaturedGrid from "@/components/FeaturedGrid";
 import { UsersIcon, MusicIcon, CalendarIcon, CrownIcon } from "@/components/icons";
 
 export const metadata: Metadata = { title: "Overview · 프레이즈찬양대" };
@@ -15,7 +16,7 @@ const STATS = [
   { num: "VII",label: "Annual Aims",  sub: "2026 목표", Icon: CrownIcon },
 ];
 
-const PALETTES = [
+const PALETTES: [string, string, string][] = [
   ["#d4c4a0", "#b89a5a", "#8a7040"],
   ["#c4b0a8", "#a08070", "#705040"],
   ["#b0c4b0", "#80a080", "#507050"],
@@ -23,10 +24,10 @@ const PALETTES = [
 ];
 
 const FEATURED = [
-  { name: "김시혜 집사", roleKo: "지휘" },
-  { name: "이희숙 집사", roleKo: "반주" },
-  { name: "박대섭 장로", roleKo: "대장" },
-  { name: "김성만 집사", roleKo: "총무" },
+  { name: "김시혜 집사", roleKo: "지휘", photo: "kim-si-hye" },
+  { name: "이희숙 집사", roleKo: "반주", photo: "lee-hui-suk" },
+  { name: "박대섭 장로", roleKo: "대장", photo: "park-dae-seop" },
+  { name: "김성만 집사", roleKo: "총무", photo: "kim-seong-man" },
 ];
 
 export default function HomePage() {
@@ -107,34 +108,10 @@ export default function HomePage() {
       </div>
 
 
-      <SectionCap label="Member Gallery" note="— 대원 미리보기" />
+      <SectionCap label="Member Gallery" note="— 대원 더보기" noteHref="/members" />
 
       {/* Polaroid-style member photo grid */}
-      <div className="grid grid-cols-4 gap-6 max-[880px]:grid-cols-2 max-[880px]:mx-4 max-[880px]:gap-4">
-        {featured.map((m) => (
-          <div key={m.name} className="flex flex-col items-center">
-            <div className="group relative bg-white border border-line-soft p-2.5 pb-10 w-[70%] shadow-[0_2px_16px_rgba(42,38,32,0.08)] hover:shadow-[0_8px_32px_rgba(42,38,32,0.18)] hover:scale-105 hover:rotate-[-10deg] hover:z-10 transition-all duration-700 cursor-pointer">
-              <div className="aspect-3/4 relative overflow-hidden">
-                <div
-                  className="absolute inset-0 grayscale group-hover:grayscale-0 transition-all duration-500 ease-out flex items-center justify-center"
-                  style={{
-                    background: `linear-gradient(135deg, ${m.palette[0]} 0%, ${m.palette[1]} 60%, ${m.palette[2]} 100%)`,
-                  }}
-                >
-                  <span className="font-en italic font-bold text-[64px] text-white/40 select-none leading-none">
-                    {m.name.charAt(0)}
-                  </span>
-                </div>
-                {/* Hover reveal */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 transform-[translateY(-100%)] group-hover:transform-[translateY(0%)] transition-transform duration-500 ease-out">
-                  <div className="font-ko font-bold text-[14px] text-white text-center leading-snug px-2">{m.name}</div>
-                  <div className="font-ko text-[11px] text-white/75 mt-1">{m.roleKo}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      <FeaturedGrid members={featured} />
 
       <Footer />
     </main>
