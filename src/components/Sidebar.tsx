@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Crest from './Crest';
+import { usePageTransition } from '@/lib/transition';
 
 const PAGES = [
   { key: 'home',     href: '/',         en: 'Overview',     ko: '메인',   num: '01' },
@@ -14,6 +15,7 @@ const PAGES = [
 
 export default function Sidebar() {
   const path = usePathname();
+  const { navigate } = usePageTransition();
   const isActive = (href: string) =>
     href === '/' ? path === '/' : path.startsWith(href);
 
@@ -36,6 +38,7 @@ export default function Sidebar() {
                 <Link
                   href={p.href}
                   aria-current={active ? 'page' : undefined}
+                  onClick={(e) => { e.preventDefault(); navigate(p.href); }}
                   className={`flex items-baseline gap-3 px-5 py-3.5 font-en text-[13px] tracking-[0.18em] uppercase border-l-2 transition-all duration-200 ${
                     active
                       ? 'text-gold-deep border-gold-deep bg-gold/10 font-medium'

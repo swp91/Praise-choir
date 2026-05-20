@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { HomeIcon, UsersIcon, StarIcon, ClockIcon, CalendarIcon, ImageIcon } from './icons';
+import { usePageTransition } from '@/lib/transition';
 
 const TABS = [
   { key: 'home',     href: '/',         ko: '메인',   Icon: HomeIcon },
@@ -14,6 +15,7 @@ const TABS = [
 
 export default function TabBar() {
   const path = usePathname();
+  const { navigate } = usePageTransition();
   const isActive = (href: string) =>
     href === '/' ? path === '/' : path.startsWith(href);
 
@@ -25,6 +27,7 @@ export default function TabBar() {
             key={t.key}
             href={t.href}
             aria-current={isActive(t.href) ? 'page' : undefined}
+            onClick={(e) => { e.preventDefault(); navigate(t.href); }}
             className={`flex-1 flex flex-col items-center justify-center gap-1 py-2 px-1 font-ko text-[10px] transition-colors duration-150 ${
               isActive(t.href) ? 'text-gold-deep' : 'text-ink-soft'
             }`}
