@@ -13,8 +13,8 @@ function BirthDisplay({ birth }: { birth: string }) {
   const date = lunar ? birth.slice(1) : birth;
   return (
     <span>
-      {lunar && <span className="mr-1 text-[12px]">☽</span>}
       {date}
+      {lunar && <span className="ml-1 text-[13px]">🌙</span>}
     </span>
   );
 }
@@ -67,9 +67,16 @@ export default function ConductorPanel({ conductors }: Props) {
                   <span className="font-en text-[8px] tracking-[0.18em] text-ink-mute uppercase mr-2">BIRTH</span>
                   <span className="font-ko text-[11px] text-ink-soft [font-variant-numeric:tabular-nums]"><BirthDisplay birth={c.birth} /></span>
                 </div>
-                <div>
-                  <span className="font-en text-[8px] tracking-[0.18em] text-ink-mute uppercase mr-2">TEL.</span>
-                  <a className="font-ko text-[11px] text-ink-soft border-b border-dotted border-gold pb-px [font-variant-numeric:tabular-nums]" href={`tel:${c.phone.replace(/-/g, '')}`}>{maskPhone(c.phone)}</a>
+                <div className="flex items-center">
+                  <span className="font-en text-[8px] tracking-[0.18em] text-ink-mute uppercase mr-2 max-[880px]:hidden">TEL.</span>
+                  <a href={`tel:${c.phone.replace(/-/g, '')}`} className="font-ko text-[11px] text-ink-soft [font-variant-numeric:tabular-nums]">
+                    <span className="border-b border-dotted border-gold pb-px max-[880px]:hidden">{c.phone}</span>
+                    <span className="hidden max-[880px]:flex items-center justify-center w-6 h-6 rounded-full border border-gold/60 text-gold-deep">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+                        <path fillRule="evenodd" d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z" clipRule="evenodd" />
+                      </svg>
+                    </span>
+                  </a>
                 </div>
               </div>
             </div>

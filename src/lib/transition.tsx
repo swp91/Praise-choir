@@ -40,10 +40,9 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     setTick(v => v + 1);
     pathRef.current = href;
 
-    // navigate at the moment tiles reach peak coverage (~mid-wave)
-    setTimeout(() => { router.push(href); }, 600);
-    // total wave: TILE_DUR(0.52) + maxDiag(15) * STAGGER(0.044) = ~1.18s
-    setTimeout(() => { setTurning(false); turningRef.current = false; }, 1350);
+    // Route changes while the vellum sheet fully covers the viewport.
+    setTimeout(() => { router.push(href); }, 560);
+    setTimeout(() => { setTurning(false); turningRef.current = false; }, 1420);
   }, [router]);
 
   return (

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Cormorant_Garamond, Nanum_Myeongjo } from 'next/font/google';
+import { Cormorant_Garamond, Noto_Serif_KR } from 'next/font/google';
 import Shell from '@/components/Shell';
 import './globals.css';
 
@@ -11,9 +11,9 @@ const cormorant = Cormorant_Garamond({
   display: 'swap',
 });
 
-const myeongjo = Nanum_Myeongjo({
+const myeongjo = Noto_Serif_KR({
   subsets: ['latin'],
-  weight: ['400', '700', '800'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-myeongjo',
   display: 'swap',
 });

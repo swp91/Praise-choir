@@ -49,7 +49,7 @@ export default function LeadersPage() {
 
       <div className="bg-card border border-line">
         <div className="flex items-center justify-between px-5.5 py-3.5 bg-card-head border-b border-line">
-          <h3 className="font-en text-[11px] tracking-[0.26em] uppercase text-gold-deep font-semibold m-0">임원진 명부</h3>
+          <h3 className="font-en text-[11px] tracking-[0.26em] uppercase text-gold-deep font-semibold m-0">임원진</h3>
           <div><span className="block w-1.5 h-1.5 bg-gold rounded-full" /></div>
         </div>
         <div className="px-6 pt-5 pb-7">

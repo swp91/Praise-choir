@@ -66,11 +66,11 @@ export default function FeaturedGrid({ members }: { members: FeaturedMember[] })
                 )}
                 {/* Desktop hover overlay */}
                 <div
-                  className="absolute inset-0 flex flex-col justify-end pb-4 px-3"
+                  className="absolute inset-0 flex flex-col justify-end pb-4 px-3 text-center"
                   style={{
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 50%)',
-                    transform: showOverlay ? 'translateY(0%)' : 'translateY(-100%)',
-                    transition: 'transform 0.5s ease-out',
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 55%)',
+                    opacity: showOverlay ? 1 : 0,
+                    transition: 'opacity 0.4s ease',
                   }}
                 >
                   <div className="font-ko font-bold text-[14px] text-white leading-snug">{m.name}</div>

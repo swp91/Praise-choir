@@ -9,8 +9,8 @@ function BirthDisplay({ birth }: { birth: string }) {
   const date = lunar ? birth.slice(1) : birth;
   return (
     <span>
-      {lunar && <span className="mr-1 text-[12px]">☽</span>}
       {date}
+      {lunar && <span className="ml-1 text-[13px]">🌙</span>}
     </span>
   );
 }

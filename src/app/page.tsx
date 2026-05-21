@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import MobileHeader from "@/components/MobileHeader";
 import HeroBlock from "@/components/HeroBlock";
 import SectionCap from "@/components/SectionCap";
 import Footer from "@/components/Footer";
 import FeaturedGrid from "@/components/FeaturedGrid";
+import AnimatedHeroTitle from "@/components/AnimatedHeroTitle";
 import { UsersIcon, MusicIcon, CalendarIcon, CrownIcon } from "@/components/icons";
 
 export const metadata: Metadata = { title: "Overview · 프레이즈찬양대" };
@@ -24,9 +24,9 @@ const PALETTES: [string, string, string][] = [
 ];
 
 const FEATURED = [
+  { name: "박대섭 장로", roleKo: "대장", photo: "park-dae-seop" },
   { name: "김시혜 집사", roleKo: "지휘", photo: "kim-si-hye" },
   { name: "이희숙 집사", roleKo: "반주", photo: "lee-hui-suk" },
-  { name: "박대섭 장로", roleKo: "대장", photo: "park-dae-seop" },
   { name: "김성만 집사", roleKo: "총무", photo: "kim-seong-man" },
 ];
 
@@ -39,7 +39,7 @@ export default function HomePage() {
 
       <HeroBlock
         eyebrow="Ministry Overview"
-        title="프레이즈 찬양대"
+        title={<AnimatedHeroTitle text="프레이즈 찬양대" />}
         titleKo="광진교회 프레이즈찬양대"
         watermark="SANCTUS · GLORIA · KYRIE"
         watermarkMid="PRAISE · ALLELUIA"
@@ -97,12 +97,11 @@ export default function HomePage() {
             &ldquo;Rejoicing in the Lord, We Triumph&rdquo;
           </div>
           <div className="mt-7 w-12 h-px bg-gold opacity-40" />
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/church.svg"
             alt="광진교회"
-            width={80}
-            height={60}
-            className="mt-6 max-w-20 mix-blend-screen opacity-30"
+            className="mt-6 w-20 mix-blend-screen opacity-30"
           />
         </div>
       </div>
