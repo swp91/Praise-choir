@@ -2,7 +2,14 @@ import Link from 'next/link';
 import { isAdminAuthConfigured, isAdminAuthenticated } from '@/lib/admin/auth';
 import { loginAdmin, logoutAdmin } from './actions';
 
-const ADMIN_SECTIONS = [
+type AdminSection = {
+  title: string;
+  description: string;
+  status: string;
+  href?: string;
+};
+
+const ADMIN_SECTIONS: AdminSection[] = [
   {
     title: '메인 관리',
     description: '표어, 배경 사진, 대표 사진, 연도별 통계를 관리합니다.',
@@ -11,7 +18,8 @@ const ADMIN_SECTIONS = [
   {
     title: '대원 관리',
     description: '성가대원 정보와 사진, 파트, 악기 구성을 추가하거나 수정합니다.',
-    status: '다음 구현',
+    status: '관리하기',
+    href: '/admin/members',
   },
   {
     title: '임원 관리',
@@ -33,7 +41,7 @@ const ADMIN_SECTIONS = [
     description: 'Supabase Storage에 사진을 업로드하고 앨범을 구성합니다.',
     status: '준비 중',
   },
-] as const;
+];
 
 type Props = {
   searchParams?: Promise<{
@@ -111,12 +119,6 @@ function Dashboard() {
 
           <div className="flex gap-2">
             <Link
-              href="/admin/members"
-              className="border border-gold-deep bg-gold-deep px-4 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
-            >
-              대원 관리
-            </Link>
-            <Link
               href="/"
               className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
             >
@@ -136,6 +138,20 @@ function Dashboard() {
         <section className="mt-7 grid gap-4 min-[720px]:grid-cols-2 min-[1120px]:grid-cols-3">
           {ADMIN_SECTIONS.map((section) => (
             <article key={section.title} className="border border-line bg-card">
+              {section.href ? (
+                <Link href={section.href} className="block transition hover:bg-gold/5">
+                  <div className="flex items-center justify-between border-b border-line bg-card-head px-5 py-3.5">
+                    <h2 className="font-ko text-[16px] font-bold text-ink">{section.title}</h2>
+                    <span className="border border-gold/60 px-2 py-1 font-ko text-[11px] text-gold-deep">
+                      {section.status}
+                    </span>
+                  </div>
+                  <p className="min-h-24 px-5 py-4 font-ko text-[13px] leading-relaxed text-ink-soft">
+                    {section.description}
+                  </p>
+                </Link>
+              ) : (
+                <>
               <div className="flex items-center justify-between border-b border-line bg-card-head px-5 py-3.5">
                 <h2 className="font-ko text-[16px] font-bold text-ink">{section.title}</h2>
                 <span className="border border-gold/60 px-2 py-1 font-ko text-[11px] text-gold-deep">
@@ -145,6 +161,8 @@ function Dashboard() {
               <p className="min-h-24 px-5 py-4 font-ko text-[13px] leading-relaxed text-ink-soft">
                 {section.description}
               </p>
+                </>
+              )}
             </article>
           ))}
         </section>

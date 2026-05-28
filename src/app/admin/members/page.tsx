@@ -115,9 +115,6 @@ export default async function AdminMembersPage({ searchParams }: Props) {
             <h1 className="font-ko text-[clamp(26px,4vw,42px)] font-bold leading-tight text-ink">
               대원 관리
             </h1>
-            <p className="mt-3 max-w-2xl font-ko text-[14px] leading-relaxed text-ink-soft">
-              성가대원 정보를 추가, 수정, 삭제합니다. 삭제는 실제 삭제가 아니라 비활성화로 처리됩니다.
-            </p>
           </div>
           <div className="flex gap-2">
             <Link
