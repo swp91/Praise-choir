@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { AdminMember, AdminMemberOption } from '@/lib/admin/members';
+import BirthPicker from './BirthPicker';
 
 const inputClass =
   'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep';
@@ -80,14 +81,8 @@ export function MemberForm({ member, sections, instruments, action, title, submi
         </div>
 
         <div>
-          <label className={labelClass} htmlFor="birth_label">생일 표시</label>
-          <input
-            id="birth_label"
-            name="birth_label"
-            className={inputClass}
-            defaultValue={member?.birthLabel ?? ''}
-            placeholder="예: 1. 2"
-          />
+          <p className={labelClass}>생일</p>
+          <BirthPicker defaultValue={member?.birthLabel} />
           <label className="mt-2 flex items-center gap-2 font-ko text-[12px] text-ink-soft">
             <input type="checkbox" name="birth_is_lunar" defaultChecked={member?.birthIsLunar ?? false} />
             음력
