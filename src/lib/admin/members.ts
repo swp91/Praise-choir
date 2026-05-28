@@ -8,6 +8,7 @@ type DbError = {
 
 export type AdminMember = MemberFormValue & {
   id: string;
+  sortOrder: number;
   isActive: boolean;
   sectionName: string;
   instrumentName: string | null;
@@ -130,7 +131,7 @@ export async function getAdminMembersData(): Promise<AdminMembersData> {
         showBirth: person.show_birth !== false,
         showPhone: person.show_phone !== false,
         sortOrder: Number(person.sort_order ?? 0),
-        photoUrl: publicAssetUrl(photo),
+        photoUrl: publicAssetUrl(photo) ?? null,
         isActive: person.is_active !== false,
       };
     }),
@@ -140,6 +141,16 @@ export async function getAdminMembersData(): Promise<AdminMembersData> {
 export async function createMember(value: MemberFormValue) {
   const supabase = getSupabaseAdmin();
   const photoAssetId = await getOrCreateExternalPhotoAsset(value.photoUrl, value.displayName);
+
+  const maxResult = await supabase
+    .from('section_memberships')
+    .select('sort_order')
+    .eq('section_id', value.sectionId)
+    .eq('is_active', true)
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextSortOrder = (Number(maxResult.data?.sort_order ?? 0)) + 1;
 
   const person = must<{ id: string }>(
     await supabase
@@ -153,7 +164,7 @@ export async function createMember(value: MemberFormValue) {
         show_birth: value.showBirth,
         show_phone: value.showPhone,
         sort_name: value.displayName,
-        sort_order: value.sortOrder,
+        sort_order: nextSortOrder,
         is_active: true,
       })
       .select('id')
@@ -176,7 +187,7 @@ export async function createMember(value: MemberFormValue) {
       section_id: value.sectionId,
       role_text: value.roleText,
       instrument_id: value.instrumentId,
-      sort_order: value.sortOrder,
+      sort_order: nextSortOrder,
       is_active: true,
     }),
     '소속 등록 실패',
@@ -209,7 +220,6 @@ export async function updateMember(id: string, value: MemberFormValue) {
         show_birth: value.showBirth,
         show_phone: value.showPhone,
         sort_name: value.displayName,
-        sort_order: value.sortOrder,
         is_active: true,
       })
       .eq('id', id),
@@ -241,7 +251,6 @@ export async function updateMember(id: string, value: MemberFormValue) {
     section_id: value.sectionId,
     role_text: value.roleText,
     instrument_id: value.instrumentId,
-    sort_order: value.sortOrder,
     is_active: true,
   };
 
@@ -263,6 +272,27 @@ export async function updateMember(id: string, value: MemberFormValue) {
       entity_table: 'people',
       entity_id: id,
       metadata: { display_name: value.displayName },
+    }),
+    '관리 로그 등록 실패',
+  );
+}
+
+export async function reorderSectionMembers(sectionId: string, orderedPersonIds: string[]) {
+  const supabase = getSupabaseAdmin();
+  await Promise.all(
+    orderedPersonIds.map((personId, index) =>
+      supabase
+        .from('people')
+        .update({ sort_order: index + 1 })
+        .eq('id', personId),
+    ),
+  );
+  must(
+    await supabase.from('admin_audit_logs').insert({
+      action: 'reorder',
+      entity_table: 'section_memberships',
+      entity_id: sectionId,
+      metadata: { ordered_person_ids: orderedPersonIds },
     }),
     '관리 로그 등록 실패',
   );

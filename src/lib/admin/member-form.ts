@@ -8,18 +8,12 @@ export type MemberFormValue = {
   phoneLabel: string | null;
   showBirth: boolean;
   showPhone: boolean;
-  sortOrder: number;
   photoUrl: string | null;
 };
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? '').trim();
   return value || null;
-}
-
-function numberValue(formData: FormData, key: string) {
-  const value = Number(String(formData.get(key) ?? '').trim());
-  return Number.isFinite(value) ? value : 0;
 }
 
 export function parseMemberForm(formData: FormData):
@@ -45,7 +39,6 @@ export function parseMemberForm(formData: FormData):
       phoneLabel: text(formData, 'phone_label'),
       showBirth: formData.get('show_birth') === 'on',
       showPhone: formData.get('show_phone') === 'on',
-      sortOrder: numberValue(formData, 'sort_order'),
       photoUrl: text(formData, 'photo_url'),
     },
   };
