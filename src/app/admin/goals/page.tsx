@@ -7,12 +7,12 @@ import {
   setGoalActiveAction,
   reorderGoalsAction,
   updateGoalTextAction,
-  updateAnnualProfileAction,
 } from './actions';
 import SortableGoalList from './SortableGoalList';
+import AnnualProfileEditor from './AnnualProfileEditor';
 
 const inputClass =
-  'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep';
+  'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep resize-none';
 const labelClass = 'block font-ko text-[12px] font-bold text-ink mb-1.5';
 
 export default async function AdminGoalsPage() {
@@ -55,39 +55,11 @@ export default async function AdminGoalsPage() {
             <div className="border-b border-line bg-card-head px-5 py-4">
               <h2 className="font-ko text-[18px] font-bold text-ink">표어</h2>
             </div>
-            <form action={updateAnnualProfileAction} className="px-5 py-5 space-y-4">
-              <input type="hidden" name="year" value={data.year} />
-              <div>
-                <label className={labelClass} htmlFor="theme_ko">표어 (큰 제목)</label>
-                <input
-                  id="theme_ko"
-                  name="theme_ko"
-                  className={inputClass}
-                  defaultValue={data.themeKo}
-                  placeholder="예: 오직 하나님을 기뻐함으로 승리하는 프레이즈"
-                  required
-                />
-              </div>
-              <div>
-                <label className={labelClass} htmlFor="goal_title_ko">목표 섹션 제목</label>
-                <input
-                  id="goal_title_ko"
-                  name="goal_title_ko"
-                  className={inputClass}
-                  defaultValue={data.goalTitleKo}
-                  placeholder="예: 일곱 가지 목표, 다섯 가지 목표"
-                  required
-                />
-              </div>
-              <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="border border-gold-deep bg-gold-deep px-5 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
-                >
-                  표어 저장
-                </button>
-              </div>
-            </form>
+            <AnnualProfileEditor
+              year={data.year}
+              themeKo={data.themeKo}
+              goalTitleKo={data.goalTitleKo}
+            />
           </section>
 
           {/* 목표 목록 */}
@@ -96,7 +68,7 @@ export default async function AdminGoalsPage() {
               <div>
                 <h2 className="font-ko text-[18px] font-bold text-ink">{data.goalTitleKo}</h2>
                 <p className="mt-1 font-ko text-[12px] text-ink-mute">
-                  번호를 드래그해서 순서를 변경하고, 텍스트를 클릭해서 수정합니다.
+                  번호를 드래그해서 순서를 변경합니다.
                 </p>
               </div>
               <span className="font-en text-[12px] italic text-gold-deep">

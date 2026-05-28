@@ -84,12 +84,7 @@ function GoalRow({
             autoFocus
           />
         ) : (
-          <p
-            className="font-ko text-[13px] leading-relaxed text-ink cursor-text"
-            onClick={() => setEditing(true)}
-          >
-            {text}
-          </p>
+          <p className="font-ko text-[13px] leading-relaxed text-ink">{text}</p>
         )}
       </div>
 
