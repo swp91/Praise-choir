@@ -197,7 +197,22 @@ export default async function AdminMembersPage({ searchParams }: Props) {
                   <tbody>
                     {visibleMembers.map((member) => (
                       <tr key={member.id} className="border-b border-line-soft last:border-b-0">
-                        <td className="px-4 py-3 font-ko text-[13px] font-bold text-ink">{member.displayName}</td>
+                        <td className="px-4 py-2 font-ko text-[13px] font-bold text-ink">
+                          <div className="flex items-center gap-3">
+                            {member.photoUrl ? (
+                              <img
+                                src={member.photoUrl}
+                                alt={member.displayName}
+                                className="h-9 w-9 shrink-0 rounded-full object-cover"
+                              />
+                            ) : (
+                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-line font-ko text-[13px] text-ink-mute">
+                                {member.displayName.charAt(0)}
+                              </span>
+                            )}
+                            {member.displayName}
+                          </div>
+                        </td>
                         <td className="px-4 py-3 font-ko text-[13px] text-ink-soft">{member.sectionName}</td>
                         <td className="px-4 py-3 font-ko text-[13px] text-ink-soft">
                           {[member.roleText, member.instrumentName].filter(Boolean).join(' / ') || '-'}
