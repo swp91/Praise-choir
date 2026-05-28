@@ -36,7 +36,7 @@ export async function createMemberAction(formData: FormData) {
 
   revalidatePath('/members');
   revalidatePath('/admin/members');
-  redirect('/admin/members?saved=created');
+  redirect('/admin/members');
 }
 
 export async function updateMemberAction(formData: FormData) {
@@ -56,7 +56,7 @@ export async function updateMemberAction(formData: FormData) {
 
   revalidatePath('/members');
   revalidatePath('/admin/members');
-  redirect('/admin/members?saved=updated');
+  redirect('/admin/members');
 }
 
 export async function setMemberActiveAction(id: string, active: boolean) {
@@ -87,5 +87,5 @@ export async function deleteMemberAction(formData: FormData) {
 
   revalidatePath('/members');
   revalidatePath('/admin/members');
-  redirect('/admin/members?saved=deleted');
+  redirect('/admin/members');
 }

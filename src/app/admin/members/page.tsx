@@ -11,7 +11,6 @@ import SortableMemberTable from './SortableMemberTable';
 type Props = {
   searchParams?: Promise<{
     edit?: string;
-    saved?: string;
     error?: string;
     section?: string;
   }>;
@@ -58,29 +57,11 @@ function SectionTabs({
   );
 }
 
-function StatusMessage({ saved, error }: { saved?: string; error?: string }) {
-  if (error) {
-    return (
-      <div className="border border-red-200 bg-red-50 px-4 py-3 font-ko text-[13px] text-red-800">
-        {error}
-      </div>
-    );
-  }
-
-  const message =
-    saved === 'created'
-      ? '대원을 추가했습니다.'
-      : saved === 'updated'
-        ? '대원 정보를 수정했습니다.'
-        : saved === 'deleted'
-          ? '대원을 비활성화했습니다.'
-          : '';
-
-  if (!message) return null;
-
+function ErrorMessage({ error }: { error?: string }) {
+  if (!error) return null;
   return (
-    <div className="border border-gold/50 bg-gold/10 px-4 py-3 font-ko text-[13px] text-gold-deep">
-      {message}
+    <div className="border border-red-200 bg-red-50 px-4 py-3 font-ko text-[13px] text-red-800">
+      {error}
     </div>
   );
 }
@@ -133,7 +114,7 @@ export default async function AdminMembersPage({ searchParams }: Props) {
         </header>
 
         <div className="mt-6 space-y-4">
-          <StatusMessage saved={params?.saved} error={params?.error} />
+          <ErrorMessage error={params?.error} />
 
           {!data.configured ? (
             <section className="border border-red-200 bg-red-50 px-5 py-4 font-ko text-[13px] leading-relaxed text-red-800">
