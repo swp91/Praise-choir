@@ -25,6 +25,7 @@ type AnnualProfileRow = {
   year: number;
   theme_ko: string;
   theme_en: string | null;
+  goal_title_ko: string;
   hero_background_asset_id: string | null;
   hero_background_position: string;
 };
@@ -277,6 +278,7 @@ export async function getPracticeData() {
     year,
     themeKo: profile.theme_ko,
     themeEn: profile.theme_en,
+    goalTitleKo: profile.goal_title_ko as string,
     practice: practice.map((slot) => ({
       label: slot.label,
       time: slot.time_text,

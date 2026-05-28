@@ -9,6 +9,16 @@ import { getPracticeData } from '@/lib/supabase/choir';
 
 export const metadata: Metadata = { title: 'Hours & Aims · 프레이즈찬양대' };
 
+function toRoman(n: number): string {
+  const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+  const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+  let result = '';
+  for (let i = 0; i < vals.length; i++) {
+    while (n >= vals[i]) { result += syms[i]; n -= vals[i]; }
+  }
+  return result;
+}
+
 export default async function PracticePage() {
   const data = await getPracticeData();
   const morning = data.practice.filter((_, index) => index <= 2);
@@ -55,7 +65,7 @@ export default async function PracticePage() {
         </div>
       </div>
 
-      <SectionCap label="Annual Aims" note="— Seven Aims for MMXXVI" />
+      <SectionCap label="Annual Aims" note={`— ${data.goalTitleKo}`} />
 
       {/* Theme banner */}
       <div className="px-7 py-9 text-center bg-card-head border-t border-b border-gold my-7">
@@ -67,7 +77,7 @@ export default async function PracticePage() {
 
       <div className="bg-card border border-line">
         <div className="flex items-center justify-between px-5.5 py-3.5 bg-card-head border-b border-line">
-          <h3 className="font-en text-[11px] tracking-[0.26em] uppercase text-gold-deep font-semibold m-0">VII Aims · 일곱 가지 목표</h3>
+          <h3 className="font-en text-[11px] tracking-[0.26em] uppercase text-gold-deep font-semibold m-0">{toRoman(data.goals.length)} Aims · {data.goalTitleKo}</h3>
           <div><span className="block w-1.5 h-1.5 bg-gold rounded-full" /></div>
         </div>
         <div className="grid grid-cols-2 max-[880px]:grid-cols-1">
