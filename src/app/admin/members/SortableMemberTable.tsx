@@ -20,6 +20,7 @@ import { CSS } from '@dnd-kit/utilities';
 import type { AdminMember } from '@/lib/admin/members';
 import type { reorderSectionMembersAction, setMemberActiveAction } from './actions';
 import ToggleActiveButton from './ToggleActiveButton';
+import DeleteMemberButton from './DeleteMemberButton';
 
 type ReorderAction = typeof reorderSectionMembersAction;
 type ToggleAction = typeof setMemberActiveAction;
@@ -75,12 +76,15 @@ function SortableRow({
         />
       </td>
       <td className="px-4 py-3">
-        <Link
-          href={`/admin/members?edit=${member.id}&section=${activeSection}`}
-          className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
-        >
-          수정
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            href={`/admin/members?edit=${member.id}&section=${activeSection}`}
+            className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
+          >
+            수정
+          </Link>
+          <DeleteMemberButton id={member.id} name={member.displayName} />
+        </div>
       </td>
     </tr>
   );

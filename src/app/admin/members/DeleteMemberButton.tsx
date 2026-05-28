@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { deactivateMemberAction } from './actions';
+import { deleteMemberAction } from './actions';
 
 type Props = {
   id: string;
@@ -36,8 +36,8 @@ export default function DeleteMemberButton({ id, name }: Props) {
             </div>
             <div className="px-5 py-5">
               <p className="font-ko text-[14px] leading-relaxed text-ink-soft">
-                {name} 대원을 비활성화합니다. 공개 대원 페이지에서는 더 이상 보이지 않지만,
-                데이터는 복구할 수 있도록 Supabase에 남겨둡니다.
+                <span className="font-bold text-ink">{name}</span> 대원을 완전히 삭제합니다.
+                삭제된 데이터는 복구할 수 없습니다.
               </p>
               <div className="mt-6 flex justify-end gap-2">
                 <button
@@ -47,7 +47,7 @@ export default function DeleteMemberButton({ id, name }: Props) {
                 >
                   취소
                 </button>
-                <form action={deactivateMemberAction}>
+                <form action={deleteMemberAction}>
                   <input type="hidden" name="id" value={id} />
                   <button
                     type="submit"

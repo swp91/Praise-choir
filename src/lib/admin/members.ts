@@ -318,23 +318,19 @@ export async function reorderSectionMembers(sectionId: string, orderedPersonIds:
   );
 }
 
-export async function deactivateMember(id: string) {
+export async function deleteMember(id: string) {
   const supabase = getSupabaseAdmin();
 
   must(
-    await supabase.from('people').update({ is_active: false }).eq('id', id),
-    '대원 비활성화 실패',
+    await supabase.from('section_memberships').delete().eq('person_id', id),
+    '소속 삭제 실패',
   );
   must(
-    await supabase.from('section_memberships').update({ is_active: false }).eq('person_id', id),
-    '소속 비활성화 실패',
+    await supabase.from('person_private').delete().eq('person_id', id),
+    '개인 정보 삭제 실패',
   );
   must(
-    await supabase.from('admin_audit_logs').insert({
-      action: 'deactivate',
-      entity_table: 'people',
-      entity_id: id,
-    }),
-    '관리 로그 등록 실패',
+    await supabase.from('people').delete().eq('id', id),
+    '대원 삭제 실패',
   );
 }

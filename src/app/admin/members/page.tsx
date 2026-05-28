@@ -5,6 +5,7 @@ import { getAdminMembersData, type AdminMember, type AdminMemberOption } from '@
 import { updateMemberAction, reorderSectionMembersAction, setMemberActiveAction } from './actions';
 import { MemberForm } from './MemberForm';
 import ToggleActiveButton from './ToggleActiveButton';
+import DeleteMemberButton from './DeleteMemberButton';
 import SortableMemberTable from './SortableMemberTable';
 
 type Props = {
@@ -215,12 +216,15 @@ export default async function AdminMembersPage({ searchParams }: Props) {
                           />
                         </td>
                         <td className="px-4 py-3">
-                          <Link
-                            href={`/admin/members?edit=${member.id}`}
-                            className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
-                          >
-                            수정
-                          </Link>
+                          <div className="flex gap-2">
+                            <Link
+                              href={`/admin/members?edit=${member.id}`}
+                              className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
+                            >
+                              수정
+                            </Link>
+                            <DeleteMemberButton id={member.id} name={member.displayName} />
+                          </div>
                         </td>
                       </tr>
                     ))}

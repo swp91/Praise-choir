@@ -6,7 +6,7 @@ import { isAdminAuthenticated } from '@/lib/admin/auth';
 import { parseMemberForm } from '@/lib/admin/member-form';
 import {
   createMember,
-  deactivateMember,
+  deleteMember,
   reorderSectionMembers,
   setMemberActive,
   updateMember,
@@ -73,14 +73,14 @@ export async function reorderSectionMembersAction(sectionId: string, orderedPers
   revalidatePath('/admin/members');
 }
 
-export async function deactivateMemberAction(formData: FormData) {
+export async function deleteMemberAction(formData: FormData) {
   await requireAdmin();
 
   const id = String(formData.get('id') ?? '');
   if (!id) errorRedirect('삭제할 대원을 찾지 못했습니다.');
 
   try {
-    await deactivateMember(id);
+    await deleteMember(id);
   } catch {
     errorRedirect('대원을 삭제하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
   }
