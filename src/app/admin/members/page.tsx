@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
 import { getAdminMembersData, type AdminMember, type AdminMemberOption } from '@/lib/admin/members';
-import { updateMemberAction, reorderSectionMembersAction } from './actions';
+import { updateMemberAction, reorderSectionMembersAction, setMemberActiveAction } from './actions';
 import { MemberForm } from './MemberForm';
-import DeleteMemberButton from './DeleteMemberButton';
+import ToggleActiveButton from './ToggleActiveButton';
 import SortableMemberTable from './SortableMemberTable';
 
 type Props = {
@@ -177,6 +177,7 @@ export default async function AdminMembersPage({ searchParams }: Props) {
                 members={visibleMembers}
                 sectionId={activeSection}
                 reorderAction={reorderSectionMembersAction}
+                toggleAction={setMemberActiveAction}
               />
             ) : (
               <div className="overflow-x-auto">
@@ -207,26 +208,19 @@ export default async function AdminMembersPage({ searchParams }: Props) {
                           {member.showPhone ? member.phoneLabel ?? '-' : '비공개'}
                         </td>
                         <td className="px-4 py-3">
-                          <span className={`border px-2 py-1 font-ko text-[11px] ${
-                            member.isActive
-                              ? 'border-gold/60 text-gold-deep'
-                              : 'border-line text-ink-mute'
-                          }`}>
-                            {member.isActive ? '활성' : '비활성'}
-                          </span>
+                          <ToggleActiveButton
+                            id={member.id}
+                            isActive={member.isActive}
+                            action={setMemberActiveAction}
+                          />
                         </td>
                         <td className="px-4 py-3">
-                          <div className="flex gap-2">
-                            <Link
-                              href={`/admin/members?edit=${member.id}`}
-                              className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
-                            >
-                              수정
-                            </Link>
-                            {member.isActive ? (
-                              <DeleteMemberButton id={member.id} name={member.displayName} />
-                            ) : null}
-                          </div>
+                          <Link
+                            href={`/admin/members?edit=${member.id}`}
+                            className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
+                          >
+                            수정
+                          </Link>
                         </td>
                       </tr>
                     ))}

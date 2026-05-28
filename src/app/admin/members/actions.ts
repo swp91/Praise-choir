@@ -8,6 +8,7 @@ import {
   createMember,
   deactivateMember,
   reorderSectionMembers,
+  setMemberActive,
   updateMember,
 } from '@/lib/admin/members';
 
@@ -56,6 +57,13 @@ export async function updateMemberAction(formData: FormData) {
   revalidatePath('/members');
   revalidatePath('/admin/members');
   redirect('/admin/members?saved=updated');
+}
+
+export async function setMemberActiveAction(id: string, active: boolean) {
+  await requireAdmin();
+  await setMemberActive(id, active);
+  revalidatePath('/members');
+  revalidatePath('/admin/members');
 }
 
 export async function reorderSectionMembersAction(sectionId: string, orderedPersonIds: string[]) {

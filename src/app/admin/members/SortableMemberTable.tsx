@@ -18,17 +18,20 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { AdminMember } from '@/lib/admin/members';
-import type { reorderSectionMembersAction } from './actions';
-import DeleteMemberButton from './DeleteMemberButton';
+import type { reorderSectionMembersAction, setMemberActiveAction } from './actions';
+import ToggleActiveButton from './ToggleActiveButton';
 
 type ReorderAction = typeof reorderSectionMembersAction;
+type ToggleAction = typeof setMemberActiveAction;
 
 function SortableRow({
   member,
   activeSection,
+  toggleAction,
 }: {
   member: AdminMember;
   activeSection: string;
+  toggleAction: ToggleAction;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: member.id });
@@ -65,26 +68,19 @@ function SortableRow({
         {member.showPhone ? member.phoneLabel ?? '-' : '비공개'}
       </td>
       <td className="px-4 py-3">
-        <span className={`border px-2 py-1 font-ko text-[11px] ${
-          member.isActive
-            ? 'border-gold/60 text-gold-deep'
-            : 'border-line text-ink-mute'
-        }`}>
-          {member.isActive ? '활성' : '비활성'}
-        </span>
+        <ToggleActiveButton
+          id={member.id}
+          isActive={member.isActive}
+          action={toggleAction}
+        />
       </td>
       <td className="px-4 py-3">
-        <div className="flex gap-2">
-          <Link
-            href={`/admin/members?edit=${member.id}&section=${activeSection}`}
-            className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
-          >
-            수정
-          </Link>
-          {member.isActive ? (
-            <DeleteMemberButton id={member.id} name={member.displayName} />
-          ) : null}
-        </div>
+        <Link
+          href={`/admin/members?edit=${member.id}&section=${activeSection}`}
+          className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
+        >
+          수정
+        </Link>
       </td>
     </tr>
   );
@@ -94,9 +90,10 @@ type Props = {
   members: AdminMember[];
   sectionId: string;
   reorderAction: ReorderAction;
+  toggleAction: ToggleAction;
 };
 
-export default function SortableMemberTable({ members, sectionId, reorderAction }: Props) {
+export default function SortableMemberTable({ members, sectionId, reorderAction, toggleAction }: Props) {
   const [items, setItems] = useState(members);
   const [saving, setSaving] = useState(false);
 
@@ -142,7 +139,7 @@ export default function SortableMemberTable({ members, sectionId, reorderAction 
             </thead>
             <tbody>
               {items.map((member) => (
-                <SortableRow key={member.id} member={member} activeSection={sectionId} />
+                <SortableRow key={member.id} member={member} activeSection={sectionId} toggleAction={toggleAction} />
               ))}
               {!items.length ? (
                 <tr>

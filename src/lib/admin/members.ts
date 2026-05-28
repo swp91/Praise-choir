@@ -277,6 +277,26 @@ export async function updateMember(id: string, value: MemberFormValue) {
   );
 }
 
+export async function setMemberActive(id: string, active: boolean) {
+  const supabase = getSupabaseAdmin();
+  must(
+    await supabase.from('people').update({ is_active: active }).eq('id', id),
+    '상태 변경 실패',
+  );
+  must(
+    await supabase.from('section_memberships').update({ is_active: active }).eq('person_id', id),
+    '소속 상태 변경 실패',
+  );
+  must(
+    await supabase.from('admin_audit_logs').insert({
+      action: active ? 'activate' : 'deactivate',
+      entity_table: 'people',
+      entity_id: id,
+    }),
+    '관리 로그 등록 실패',
+  );
+}
+
 export async function reorderSectionMembers(sectionId: string, orderedPersonIds: string[]) {
   const supabase = getSupabaseAdmin();
   await Promise.all(
