@@ -99,7 +99,7 @@ export default async function AdminGoalsPage({ searchParams }: Props) {
                   name="goal_title_ko"
                   className={inputClass}
                   defaultValue={data.goalTitleKo}
-                  placeholder="예: 일곱 가지 목표"
+                  placeholder="예: 일곱 가지 목표, 다섯 가지 목표"
                   required
                 />
               </div>
