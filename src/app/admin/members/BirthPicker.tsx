@@ -1,17 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { parseBirthLabel } from '@/lib/admin/birth-label';
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 
 const DAYS_IN_MONTH = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-
-function parseBirthLabel(label: string | null | undefined): { month: string; day: string } {
-  if (!label) return { month: '', day: '' };
-  const match = label.match(/(\d+)[.\s]+(\d+)/);
-  if (match) return { month: match[1], day: match[2] };
-  return { month: '', day: '' };
-}
 
 const selectClass =
   'border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep';

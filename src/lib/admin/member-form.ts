@@ -8,12 +8,19 @@ export type MemberFormValue = {
   phoneLabel: string | null;
   showBirth: boolean;
   showPhone: boolean;
-  photoUrl: string | null;
+  existingPhotoAssetId: string | null;
+  photoFile: File | null;
 };
 
 function text(formData: FormData, key: string) {
   const value = String(formData.get(key) ?? '').trim();
   return value || null;
+}
+
+function imageFile(formData: FormData, key: string) {
+  const value = formData.get(key);
+  if (!(value instanceof File) || value.size === 0) return null;
+  return value;
 }
 
 export function parseMemberForm(formData: FormData):
@@ -39,7 +46,8 @@ export function parseMemberForm(formData: FormData):
       phoneLabel: text(formData, 'phone_label'),
       showBirth: formData.get('show_birth') === 'on',
       showPhone: formData.get('show_phone') === 'on',
-      photoUrl: text(formData, 'photo_url'),
+      existingPhotoAssetId: text(formData, 'existing_photo_asset_id'),
+      photoFile: imageFile(formData, 'photo_file'),
     },
   };
 }

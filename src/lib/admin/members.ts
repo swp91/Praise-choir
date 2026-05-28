@@ -9,6 +9,8 @@ type DbError = {
 
 export type AdminMember = MemberFormValue & {
   id: string;
+  photoAssetId: string | null;
+  photoUrl: string | null;
   sortOrder: number;
   isActive: boolean;
   sectionName: string;
@@ -41,27 +43,53 @@ function publicAssetUrl(asset: { bucket: string; path: string; source: string; e
   return asset.external_url;
 }
 
-async function getOrCreateExternalPhotoAsset(photoUrl: string | null, displayName: string) {
-  if (!photoUrl) return null;
+function extensionFromFile(file: File) {
+  const contentType = file.type.split(';')[0].toLowerCase();
+  if (contentType === 'image/png') return 'png';
+  if (contentType === 'image/webp') return 'webp';
+  if (contentType === 'image/gif') return 'gif';
+  if (contentType === 'image/avif') return 'avif';
+  return 'jpg';
+}
+
+function safeFileNameSeed(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9가-힣_-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'member';
+}
+
+async function uploadMemberPhoto(file: File | null, displayName: string) {
+  if (!file) return null;
+  if (!file.type.startsWith('image/')) {
+    throw new Error('사진 파일은 이미지 형식이어야 합니다.');
+  }
 
   const supabase = getSupabaseAdmin();
-  const existing = await supabase
-    .from('media_assets')
-    .select('id')
-    .eq('external_url', photoUrl)
-    .maybeSingle();
+  const path = `members/uploads/${safeFileNameSeed(displayName)}-${randomUUID()}.${extensionFromFile(file)}`;
+  const bytes = new Uint8Array(await file.arrayBuffer());
 
-  if (existing.error) throw new Error(`사진 조회 실패: ${existing.error.message}`);
-  if (existing.data?.id) return existing.data.id as string;
+  const upload = await supabase.storage
+    .from('public-media')
+    .upload(path, bytes, {
+      contentType: file.type || 'image/jpeg',
+      cacheControl: '31536000',
+      upsert: false,
+    });
+
+  if (upload.error) throw new Error(`사진 업로드 실패: ${upload.error.message}`);
 
   const inserted = await supabase
     .from('media_assets')
     .insert({
       bucket: 'public-media',
-      path: `external/members/${randomUUID()}`,
+      path,
       alt_text: `${displayName} 사진`,
-      source: 'external',
-      external_url: photoUrl,
+      source: 'supabase',
+      mime_type: file.type || 'image/jpeg',
+      size_bytes: file.size,
+      metadata: { original_file_name: file.name },
       is_public: true,
     })
     .select('id')
@@ -121,6 +149,7 @@ export async function getAdminMembersData(): Promise<AdminMembersData> {
 
       return {
         id: String(person.id),
+        photoAssetId: person.photo_asset_id ? String(person.photo_asset_id) : null,
         displayName: String(person.display_name),
         sectionId: membership ? String(membership.section_id) : '',
         sectionName: section ? String(section.name_ko) : '미지정',
@@ -133,6 +162,8 @@ export async function getAdminMembersData(): Promise<AdminMembersData> {
         phoneLabel: person.phone_label ? String(person.phone_label) : privateRow?.phone_raw ? String(privateRow.phone_raw) : null,
         showBirth: person.show_birth !== false,
         showPhone: person.show_phone !== false,
+        existingPhotoAssetId: person.photo_asset_id ? String(person.photo_asset_id) : null,
+        photoFile: null,
         sortOrder: Number(person.sort_order ?? 0),
         photoUrl: publicAssetUrl(photo) ?? null,
         isActive: person.is_active !== false,
@@ -143,7 +174,7 @@ export async function getAdminMembersData(): Promise<AdminMembersData> {
 
 export async function createMember(value: MemberFormValue) {
   const supabase = getSupabaseAdmin();
-  const photoAssetId = await getOrCreateExternalPhotoAsset(value.photoUrl, value.displayName);
+  const photoAssetId = await uploadMemberPhoto(value.photoFile, value.displayName);
 
   const maxResult = await supabase
     .from('section_memberships')
@@ -209,7 +240,8 @@ export async function createMember(value: MemberFormValue) {
 
 export async function updateMember(id: string, value: MemberFormValue) {
   const supabase = getSupabaseAdmin();
-  const photoAssetId = await getOrCreateExternalPhotoAsset(value.photoUrl, value.displayName);
+  const uploadedPhotoAssetId = await uploadMemberPhoto(value.photoFile, value.displayName);
+  const photoAssetId = uploadedPhotoAssetId ?? value.existingPhotoAssetId;
 
   must(
     await supabase

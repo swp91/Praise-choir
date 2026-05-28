@@ -13,7 +13,8 @@ test('parses a member form into normalized fields', () => {
   formData.set('birth_is_lunar', 'on');
   formData.set('phone_label', '010-1234-5678');
   formData.set('show_phone', 'on');
-  formData.set('photo_url', ' https://example.com/photo.jpg ');
+  formData.set('existing_photo_asset_id', 'photo-1');
+  formData.set('photo_file', new File(['image'], 'member.jpg', { type: 'image/jpeg' }));
 
   const result = parseMemberForm(formData);
 
@@ -29,7 +30,8 @@ test('parses a member form into normalized fields', () => {
     phoneLabel: '010-1234-5678',
     showBirth: false,
     showPhone: true,
-    photoUrl: 'https://example.com/photo.jpg',
+    existingPhotoAssetId: 'photo-1',
+    photoFile: formData.get('photo_file'),
   });
 });
 
