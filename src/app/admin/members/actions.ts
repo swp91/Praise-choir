@@ -1,0 +1,75 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { isAdminAuthenticated } from '@/lib/admin/auth';
+import { parseMemberForm } from '@/lib/admin/member-form';
+import {
+  createMember,
+  deactivateMember,
+  updateMember,
+} from '@/lib/admin/members';
+
+async function requireAdmin() {
+  if (!(await isAdminAuthenticated())) {
+    redirect('/admin');
+  }
+}
+
+function errorRedirect(error: string): never {
+  redirect(`/admin/members?error=${encodeURIComponent(error)}`);
+}
+
+export async function createMemberAction(formData: FormData) {
+  await requireAdmin();
+
+  const parsed = parseMemberForm(formData);
+  if (!parsed.ok) errorRedirect(parsed.errors.join(' '));
+
+  try {
+    await createMember(parsed.value);
+  } catch {
+    errorRedirect('대원을 등록하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
+  }
+
+  revalidatePath('/members');
+  revalidatePath('/admin/members');
+  redirect('/admin/members?saved=created');
+}
+
+export async function updateMemberAction(formData: FormData) {
+  await requireAdmin();
+
+  const id = String(formData.get('id') ?? '');
+  if (!id) errorRedirect('수정할 대원을 찾지 못했습니다.');
+
+  const parsed = parseMemberForm(formData);
+  if (!parsed.ok) errorRedirect(parsed.errors.join(' '));
+
+  try {
+    await updateMember(id, parsed.value);
+  } catch {
+    errorRedirect('대원 정보를 수정하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
+  }
+
+  revalidatePath('/members');
+  revalidatePath('/admin/members');
+  redirect('/admin/members?saved=updated');
+}
+
+export async function deactivateMemberAction(formData: FormData) {
+  await requireAdmin();
+
+  const id = String(formData.get('id') ?? '');
+  if (!id) errorRedirect('삭제할 대원을 찾지 못했습니다.');
+
+  try {
+    await deactivateMember(id);
+  } catch {
+    errorRedirect('대원을 삭제하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
+  }
+
+  revalidatePath('/members');
+  revalidatePath('/admin/members');
+  redirect('/admin/members?saved=deleted');
+}

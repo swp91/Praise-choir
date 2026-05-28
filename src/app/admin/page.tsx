@@ -111,6 +111,12 @@ function Dashboard() {
 
           <div className="flex gap-2">
             <Link
+              href="/admin/members"
+              className="border border-gold-deep bg-gold-deep px-4 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
+            >
+              대원 관리
+            </Link>
+            <Link
               href="/"
               className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
             >
