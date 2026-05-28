@@ -77,7 +77,7 @@ export default async function AdminGoalsPage({ searchParams }: Props) {
           {/* 연간 프로필 편집 */}
           <section className="border border-line bg-card">
             <div className="border-b border-line bg-card-head px-5 py-4">
-              <h2 className="font-ko text-[18px] font-bold text-ink">{data.year}년 표어</h2>
+              <h2 className="font-ko text-[18px] font-bold text-ink">표어</h2>
             </div>
             <form action={updateAnnualProfileAction} className="px-5 py-5 space-y-4">
               <input type="hidden" name="year" value={data.year} />

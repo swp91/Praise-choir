@@ -10,6 +10,16 @@ import { getHomeData } from "@/lib/supabase/choir";
 
 export const metadata: Metadata = { title: "Overview · 프레이즈찬양대" };
 
+function toRoman(n: number): string {
+  const vals = [1000,900,500,400,100,90,50,40,10,9,5,4,1];
+  const syms = ['M','CM','D','CD','C','XC','L','XL','X','IX','V','IV','I'];
+  let result = '';
+  for (let i = 0; i < vals.length; i++) {
+    while (n >= vals[i]) { result += syms[i]; n -= vals[i]; }
+  }
+  return result;
+}
+
 export default async function HomePage() {
   const home = await getHomeData();
   const stats = [
@@ -52,7 +62,7 @@ export default async function HomePage() {
         ))}
       </div>
 
-      <SectionCap label="Annual Theme" note="— A.D. MMXXVI" />
+      <SectionCap label="Annual Theme" note={`— A.D. ${toRoman(home.year)}`} />
 
       {/* Theme card */}
       <div className="relative border border-line overflow-hidden min-h-[280px] max-[880px]:mx-4 max-[880px]:min-h-[240px]">
