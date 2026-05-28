@@ -12,7 +12,6 @@ test('parses a member form into normalized fields', () => {
   formData.set('birth_is_lunar', 'on');
   formData.set('phone_label', '010-1234-5678');
   formData.set('show_phone', 'on');
-  formData.set('sort_order', '12');
   formData.set('photo_url', ' https://example.com/photo.jpg ');
 
   const result = parseMemberForm(formData);
@@ -29,7 +28,6 @@ test('parses a member form into normalized fields', () => {
     phoneLabel: '010-1234-5678',
     showBirth: false,
     showPhone: true,
-    sortOrder: 12,
     photoUrl: 'https://example.com/photo.jpg',
   });
 });

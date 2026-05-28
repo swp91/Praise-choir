@@ -32,10 +32,12 @@ function must<T>(result: { data: T | null; error: DbError | null }, label: strin
   return result.data as T;
 }
 
-function publicAssetUrl(asset: { bucket: string; path: string; external_url: string | null } | undefined) {
+function publicAssetUrl(asset: { bucket: string; path: string; source: string; external_url: string | null } | undefined) {
   if (!asset) return null;
-  if (asset.external_url) return asset.external_url;
-  return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${asset.bucket}/${asset.path}`;
+  if (asset.source === 'supabase' && asset.bucket && asset.path) {
+    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${asset.bucket}/${asset.path}`;
+  }
+  return asset.external_url;
 }
 
 async function getOrCreateExternalPhotoAsset(photoUrl: string | null, displayName: string) {
@@ -84,7 +86,7 @@ export async function getAdminMembersData(): Promise<AdminMembersData> {
     supabase.from('section_memberships').select('*').order('sort_order'),
     supabase.from('sections').select('*').eq('is_active', true).order('sort_order'),
     supabase.from('instruments').select('*').eq('is_active', true).order('sort_order'),
-    supabase.from('media_assets').select('id,bucket,path,external_url'),
+    supabase.from('media_assets').select('id,bucket,path,source,external_url'),
   ]);
 
   const people = must<Record<string, unknown>[]>(peopleResult, '대원 목록 조회 실패');
@@ -92,7 +94,7 @@ export async function getAdminMembersData(): Promise<AdminMembersData> {
   const memberships = must<Record<string, unknown>[]>(membershipsResult, '소속 정보 조회 실패');
   const sections = must<Record<string, unknown>[]>(sectionsResult, '파트 조회 실패');
   const instruments = must<Record<string, unknown>[]>(instrumentsResult, '악기 조회 실패');
-  const media = must<{ id: string; bucket: string; path: string; external_url: string | null }[]>(mediaResult, '사진 조회 실패');
+  const media = must<{ id: string; bucket: string; path: string; source: string; external_url: string | null }[]>(mediaResult, '사진 조회 실패');
 
   const privateByPersonId = new Map(privateRows.map((row) => [String(row.person_id), row]));
   const sectionById = new Map(sections.map((section) => [String(section.id), section]));

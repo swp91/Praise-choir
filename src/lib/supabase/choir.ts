@@ -5,6 +5,7 @@ type MediaAsset = {
   id: string;
   bucket: string;
   path: string;
+  source: string;
   external_url: string | null;
   legacy_key: string | null;
 };
@@ -41,9 +42,10 @@ const publicStorageBase = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/ob
 
 function mediaUrl(asset?: MediaAsset | null) {
   if (!asset) return undefined;
-  if (asset.external_url) return asset.external_url;
-  if (!asset.bucket || !asset.path) return undefined;
-  return `${publicStorageBase}/${asset.bucket}/${asset.path}`;
+  if (asset.source === 'supabase' && asset.bucket && asset.path) {
+    return `${publicStorageBase}/${asset.bucket}/${asset.path}`;
+  }
+  return asset.external_url ?? undefined;
 }
 
 function birthLabel(person: PersonRow) {
