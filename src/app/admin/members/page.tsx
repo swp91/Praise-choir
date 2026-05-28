@@ -173,6 +173,7 @@ export default async function AdminMembersPage({ searchParams }: Props) {
 
             {activeSection ? (
               <SortableMemberTable
+                key={activeSection}
                 members={visibleMembers}
                 sectionId={activeSection}
                 reorderAction={reorderSectionMembersAction}
