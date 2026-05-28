@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from '@/lib/supabase/admin';
 import type { MemberFormValue } from './member-form';
+import { buildMemberReorderUpdates } from './member-reorder';
 
 type DbError = {
   message?: string;
@@ -301,14 +302,27 @@ export async function setMemberActive(id: string, active: boolean) {
 
 export async function reorderSectionMembers(sectionId: string, orderedPersonIds: string[]) {
   const supabase = getSupabaseAdmin();
-  await Promise.all(
-    orderedPersonIds.map((personId, index) =>
+  const updates = buildMemberReorderUpdates(sectionId, orderedPersonIds);
+
+  const results = await Promise.all(
+    updates.flatMap(({ personId, sortOrder }) => [
       supabase
         .from('people')
-        .update({ sort_order: index + 1 })
+        .update({ sort_order: sortOrder })
         .eq('id', personId),
-    ),
+      supabase
+        .from('section_memberships')
+        .update({ sort_order: sortOrder })
+        .eq('section_id', sectionId)
+        .eq('person_id', personId)
+        .eq('is_active', true),
+    ]),
   );
+
+  results.forEach((result, index) => {
+    must(result, `정렬 변경 실패 ${index + 1}`);
+  });
+
   must(
     await supabase.from('admin_audit_logs').insert({
       action: 'reorder',

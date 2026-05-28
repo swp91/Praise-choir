@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseMemberForm } from './member-form.ts';
+import { buildMemberReorderUpdates } from './member-reorder.ts';
 
 test('parses a member form into normalized fields', () => {
   const formData = new FormData();
@@ -40,4 +41,11 @@ test('rejects missing required member fields', () => {
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.deepEqual(result.errors, ['이름을 입력해 주세요.', '소속 파트를 선택해 주세요.']);
+});
+
+test('builds reorder updates for both people and section memberships', () => {
+  assert.deepEqual(buildMemberReorderUpdates('section-1', ['person-a', 'person-b']), [
+    { personId: 'person-a', sectionId: 'section-1', sortOrder: 1 },
+    { personId: 'person-b', sectionId: 'section-1', sortOrder: 2 },
+  ]);
 });
