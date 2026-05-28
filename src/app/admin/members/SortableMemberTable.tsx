@@ -23,16 +23,6 @@ import DeleteMemberButton from './DeleteMemberButton';
 
 type ReorderAction = typeof reorderSectionMembersAction;
 
-function DragHandle() {
-  return (
-    <span className="mr-2 inline-flex cursor-grab touch-none select-none flex-col gap-[3px] active:cursor-grabbing">
-      {[0, 1, 2].map((i) => (
-        <span key={i} className="block h-[2px] w-4 bg-ink-mute" />
-      ))}
-    </span>
-  );
-}
-
 function SortableRow({
   member,
   activeSection,
@@ -56,10 +46,13 @@ function SortableRow({
       className="border-b border-line-soft last:border-b-0"
     >
       <td className="px-4 py-3 font-ko text-[13px] font-bold text-ink">
-        <span {...attributes} {...listeners}>
-          <DragHandle />
+        <span
+          {...attributes}
+          {...listeners}
+          className="cursor-grab select-none active:cursor-grabbing"
+        >
+          {member.displayName}
         </span>
-        {member.displayName}
       </td>
       <td className="px-4 py-3 font-ko text-[13px] text-ink-soft">{member.sectionName}</td>
       <td className="px-4 py-3 font-ko text-[13px] text-ink-soft">
