@@ -2,11 +2,19 @@
 import { useState } from "react";
 import TimelineItem from "./TimelineItem";
 import Timeline2026 from "./Timeline2026";
-import { CHOIR_DATA } from "@/lib/data";
 import type { ChoirEvent } from "@/lib/types";
 
-export default function YearToggle() {
-  const [year, setYear] = useState<"2026" | "2025">("2026");
+type Props = {
+  scheduleYear: number;
+  reportYear: number;
+  scheduleEvents: ChoirEvent[];
+  reportEvents: ChoirEvent[];
+};
+
+export default function YearToggle({ scheduleYear, reportYear, scheduleEvents, reportEvents }: Props) {
+  const scheduleKey = String(scheduleYear);
+  const reportKey = String(reportYear);
+  const [year, setYear] = useState(scheduleKey);
 
   return (
     <>
@@ -14,48 +22,48 @@ export default function YearToggle() {
         {/* Sliding indicator */}
         <div
           className={`absolute inset-y-0 w-1/2 bg-ink transition-transform duration-300 ease-in-out ${
-            year === "2025" ? "translate-x-full" : "translate-x-0"
+            year === reportKey ? "translate-x-full" : "translate-x-0"
           }`}
         />
         <button
           type="button"
-          aria-pressed={year === "2026"}
+          aria-pressed={year === scheduleKey}
           className={`relative z-10 font-ko text-[13px] px-5.5 py-3 border-r border-line-soft bg-transparent transition-colors duration-300 ${
-            year === "2026" ? "text-cream" : "text-ink-soft"
+            year === scheduleKey ? "text-cream" : "text-ink-soft"
           }`}
-          onClick={() => setYear("2026")}
+          onClick={() => setYear(scheduleKey)}
         >
-          2026 일정
+          {scheduleYear} 일정
         </button>
         <button
           type="button"
-          aria-pressed={year === "2025"}
+          aria-pressed={year === reportKey}
           className={`relative z-10 font-ko text-[13px] px-5.5 py-3 bg-transparent transition-colors duration-300 ${
-            year === "2025" ? "text-cream" : "text-ink-soft"
+            year === reportKey ? "text-cream" : "text-ink-soft"
           }`}
-          onClick={() => setYear("2025")}
+          onClick={() => setYear(reportKey)}
         >
-          2025 보고
+          {reportYear} 보고
         </button>
       </div>
 
       <div className="bg-card border border-line">
         <div className="flex items-center justify-between px-5.5 py-3.5 bg-card-head border-b border-line">
           <h3 className="font-en text-[11px] tracking-[0.26em] uppercase text-gold-deep font-semibold m-0">
-            {year === "2026"
-              ? "2026 행사 예정 · Timeline"
-              : "2025 Events · Concluded"}
+            {year === scheduleKey
+              ? `${scheduleYear} 행사 예정 · Timeline`
+              : `${reportYear} Events · Concluded`}
           </h3>
           <div>
             <span className="block w-1.5 h-1.5 bg-gold rounded-full" />
           </div>
         </div>
 
-        {year === "2026" ? (
-          <Timeline2026 events={CHOIR_DATA.events2026 as ChoirEvent[]} />
+        {year === scheduleKey ? (
+          <Timeline2026 events={scheduleEvents} />
         ) : (
           <div className="py-2">
-            {CHOIR_DATA.events2025.map((e, i) => (
+            {reportEvents.map((e, i) => (
               <TimelineItem key={i} event={e} />
             ))}
           </div>

@@ -1,11 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { imageUrl } from '@/lib/media';
 
 type FeaturedMember = {
   name: string;
   roleKo: string;
-  photo: string;
+  photo?: string;
   palette: [string, string, string];
 };
 
@@ -15,7 +16,7 @@ export default function FeaturedGrid({ members }: { members: FeaturedMember[] })
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 880px)');
-    setIsMobile(mq.matches);
+    queueMicrotask(() => setIsMobile(mq.matches));
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
@@ -43,7 +44,7 @@ export default function FeaturedGrid({ members }: { members: FeaturedMember[] })
               >
                 {m.photo ? (
                   <Image
-                    src={`https://res.cloudinary.com/dmbiqatia/image/upload/w_300,h_400,c_fill,g_face,f_auto,q_auto/${m.photo}`}
+                    src={imageUrl(m.photo, { width: 300, height: 400, crop: 'fill', gravity: 'face' })}
                     alt={m.name}
                     fill
                     sizes="25vw"

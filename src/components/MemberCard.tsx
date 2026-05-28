@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import type { Member } from '@/lib/types';
+import { imageUrl } from '@/lib/media';
 
 const maskPhone = (p: string) => p.replace(/(\d{3,4})-(\d{3,4})-(\d{4})/, '$1-••••-$3');
 
@@ -14,9 +15,6 @@ function BirthDisplay({ birth }: { birth: string }) {
     </span>
   );
 }
-const cldUrl = (id: string) =>
-  `https://res.cloudinary.com/dmbiqatia/image/upload/w_128,h_128,c_fill,g_face,f_auto,q_auto/${id}`;
-
 type Props = { member: Member; isLeader?: boolean };
 
 export default function MemberCard({ member, isLeader }: Props) {
@@ -26,7 +24,7 @@ export default function MemberCard({ member, isLeader }: Props) {
       <div className="w-16 h-16 rounded-full border border-gold relative overflow-hidden shrink-0">
         {member.photo ? (
           <Image
-            src={cldUrl(member.photo)}
+            src={imageUrl(member.photo, { width: 128, height: 128, crop: 'fill', gravity: 'face' })}
             alt={member.name}
             fill
             sizes="64px"

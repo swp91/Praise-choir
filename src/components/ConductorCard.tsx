@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import type { Conductor } from '@/lib/types';
+import { imageUrl } from '@/lib/media';
 
 const maskPhone = (p: string) => p.replace(/(\d{3,4})-(\d{3,4})-(\d{4})/, '$1-••••-$3');
 
@@ -14,9 +15,6 @@ function BirthDisplay({ birth }: { birth: string }) {
     </span>
   );
 }
-
-const cldUrl = (id: string) =>
-  `https://res.cloudinary.com/dmbiqatia/image/upload/w_320,h_320,c_fill,g_face,f_auto,q_auto/${id}`;
 
 const ROLE_EN: Record<string, string> = {
   '지휘': 'Conductor',
@@ -37,7 +35,7 @@ export default function ConductorCard({ conductor: c }: Props) {
       {/* Circular photo */}
       <div className="w-40 h-40 rounded-full border-2 border-gold overflow-hidden relative mb-5 shrink-0 shadow-[0_0_0_5px_#fdf9f0,0_0_0_8px_rgba(184,154,90,0.3)]">
         {c.photo ? (
-          <Image src={cldUrl(c.photo)} alt={c.name} fill sizes="160px" className="object-cover" />
+          <Image src={imageUrl(c.photo, { width: 320, height: 320, crop: 'fill', gravity: 'face' })} alt={c.name} fill sizes="160px" className="object-cover" />
         ) : (
           <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,#ebe0c4_0_6px,#ddd0ad_6px_12px)] flex items-center justify-center font-en italic font-semibold text-[40px] text-gold-deep">
             {c.name.charAt(0)}

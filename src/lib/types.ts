@@ -28,6 +28,8 @@ export type Officer = {
   role: string;
   name: string;
   part: string;
+  photo?: string;
+  roleEn?: string;
 };
 
 export type ChoirEvent = {
@@ -50,4 +52,5 @@ export type Photo = {
   size?: 'feature';
   palette: [string, string, string];
   motif: string;
+  url?: string;
 };

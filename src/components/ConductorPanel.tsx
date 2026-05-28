@@ -1,11 +1,7 @@
 import { Fragment } from 'react';
 import Image from 'next/image';
 import type { Conductor } from '@/lib/types';
-
-const cldUrl = (id: string) =>
-  `https://res.cloudinary.com/dmbiqatia/image/upload/w_240,h_240,c_fill,g_face,f_auto,q_auto/${id}`;
-
-const maskPhone = (p: string) => p.replace(/(\d{3,4})-(\d{3,4})-(\d{4})/, '$1-••••-$3');
+import { imageUrl } from '@/lib/media';
 
 function BirthDisplay({ birth }: { birth: string }) {
   if (!birth || birth === '—') return <span>—</span>;
@@ -48,7 +44,7 @@ export default function ConductorPanel({ conductors }: Props) {
           <div className="flex-1 flex items-center gap-6 px-6 py-7 max-[880px]:px-5 max-[880px]:py-5">
             <div className="w-28 h-28 rounded-full border-2 border-gold overflow-hidden relative shrink-0">
               {c.photo ? (
-                <Image src={cldUrl(c.photo)} alt={c.name} fill sizes="112px" className="object-cover" />
+                <Image src={imageUrl(c.photo, { width: 240, height: 240, crop: 'fill', gravity: 'face' })} alt={c.name} fill sizes="112px" className="object-cover" />
               ) : (
                 <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,#ebe0c4_0_5px,#ddd0ad_5px_10px)] flex items-center justify-center font-en italic font-semibold text-[36px] text-gold-deep">
                   {c.name.charAt(0)}

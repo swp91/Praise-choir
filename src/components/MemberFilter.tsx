@@ -2,11 +2,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import type { Part } from '@/lib/types';
-
-const cldUrl = (id: string) =>
-  `https://res.cloudinary.com/dmbiqatia/image/upload/w_160,h_160,c_fill,g_face,f_auto,q_auto/${id}`;
-
-const maskPhone = (p: string) => p.replace(/(\d{3,4})-(\d{3,4})-(\d{4})/, '$1-••••-$3');
+import { imageUrl } from '@/lib/media';
 
 function BirthDisplay({ birth }: { birth: string }) {
   if (!birth || birth === '—') return <span>—</span>;
@@ -71,7 +67,7 @@ export default function MemberFilter({ parts }: Props) {
               <div key={m.name} className="flex flex-col items-center text-center">
                 <div className="w-24 h-24 rounded-full border-2 border-gold overflow-hidden relative mb-3 max-[880px]:w-16 max-[880px]:h-16">
                   {m.photo ? (
-                    <Image src={cldUrl(m.photo)} alt={m.name} fill sizes="96px" className="object-cover" />
+                    <Image src={imageUrl(m.photo, { width: 160, height: 160, crop: 'fill', gravity: 'face' })} alt={m.name} fill sizes="96px" className="object-cover" />
                   ) : (
                     <div className="w-full h-full bg-[repeating-linear-gradient(45deg,#ebe0c4_0_5px,#ddd0ad_5px_10px)]" />
                   )}

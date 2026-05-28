@@ -4,12 +4,13 @@ import HeroBlock from '@/components/HeroBlock';
 import SectionCap from '@/components/SectionCap';
 import MemberFilter from '@/components/MemberFilter';
 import Footer from '@/components/Footer';
-import { CHOIR_DATA } from '@/lib/data';
-import type { Part } from '@/lib/types';
+import { getMembersData } from '@/lib/supabase/choir';
 
 export const metadata: Metadata = { title: 'Choristers · 프레이즈찬양대' };
 
-export default function MembersPage() {
+export default async function MembersPage() {
+  const parts = await getMembersData();
+
   return (
     <main className="min-h-screen p-8 pb-15 ml-62 max-[880px]:ml-0 max-[880px]:p-0 max-[880px]:pb-20">
       <MobileHeader />
@@ -23,7 +24,7 @@ export default function MembersPage() {
 
       <SectionCap label="Part Roster" note="— 파트별 대원 명부" />
 
-      <MemberFilter parts={CHOIR_DATA.parts as unknown as Part[]} />
+      <MemberFilter parts={parts} />
 
       <Footer />
     </main>

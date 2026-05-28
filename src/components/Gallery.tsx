@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { PHOTOS } from '@/lib/photos';
 import type { Photo } from '@/lib/types';
 
 const RATIOS = [
@@ -22,6 +21,13 @@ const RATIOS = [
 ];
 
 function Placeholder({ photo }: { photo: Photo }) {
+  if (photo.url) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
+    );
+  }
+
   const [c1, c2, c3] = photo.palette;
   const bg = `linear-gradient(135deg, ${c1} 0%, ${c2} 60%, ${c3} 100%)`;
   return (
@@ -38,7 +44,7 @@ function Placeholder({ photo }: { photo: Photo }) {
   );
 }
 
-export default function Gallery() {
+export default function Gallery({ photos }: { photos: Photo[] }) {
   const [active, setActive] = useState<Photo | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -52,8 +58,15 @@ export default function Gallery() {
 
   return (
     <>
+      {photos.length === 0 && (
+        <div className="bg-card border border-line px-6 py-12 text-center">
+          <div className="font-ko text-[15px] font-bold text-ink">아직 등록된 사진이 없습니다.</div>
+          <div className="font-ko text-[12px] text-ink-soft mt-2">관리자 페이지에서 갤러리 사진을 업로드하면 이곳에 표시됩니다.</div>
+        </div>
+      )}
+
       <div className="columns-3 gap-4 max-[880px]:columns-2 max-[880px]:gap-2.5">
-        {PHOTOS.map((p, i) => (
+        {photos.map((p, i) => (
           <div key={p.title} className="break-inside-avoid mb-4 max-[880px]:mb-2.5">
             <button
               type="button"

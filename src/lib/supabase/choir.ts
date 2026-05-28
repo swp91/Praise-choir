@@ -1,0 +1,344 @@
+import { supabase } from './server';
+import type { ChoirEvent, Conductor, Member, Officer, Part, Photo, PracticeSlot } from '@/lib/types';
+
+type MediaAsset = {
+  id: string;
+  bucket: string;
+  path: string;
+  external_url: string | null;
+  legacy_key: string | null;
+};
+
+type PersonRow = {
+  id: string;
+  display_name: string;
+  birth_label: string | null;
+  birth_is_lunar: boolean;
+  phone_label: string | null;
+  photo_asset_id: string | null;
+  show_birth: boolean;
+  show_phone: boolean;
+};
+
+type AnnualProfileRow = {
+  year: number;
+  theme_ko: string;
+  theme_en: string | null;
+  hero_background_asset_id: string | null;
+  hero_background_position: string;
+};
+
+type GalleryItemRow = {
+  title: string;
+  date_label: string | null;
+  taken_date: string | null;
+  is_featured: boolean;
+  media_asset_id: string;
+  gallery_albums?: { key: string } | { key: string }[] | null;
+};
+
+const publicStorageBase = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public`;
+
+function mediaUrl(asset?: MediaAsset | null) {
+  if (!asset) return undefined;
+  if (asset.external_url) return asset.external_url;
+  if (!asset.bucket || !asset.path) return undefined;
+  return `${publicStorageBase}/${asset.bucket}/${asset.path}`;
+}
+
+function birthLabel(person: PersonRow) {
+  if (!person.show_birth || !person.birth_label) return '—';
+  return person.birth_is_lunar ? `음${person.birth_label}` : person.birth_label;
+}
+
+function phoneLabel(person: PersonRow) {
+  if (!person.show_phone || !person.phone_label) return '';
+  return person.phone_label;
+}
+
+function toRoman(value: number) {
+  const numerals: [number, string][] = [
+    [10, 'X'],
+    [9, 'IX'],
+    [5, 'V'],
+    [4, 'IV'],
+    [1, 'I'],
+  ];
+  let n = value;
+  let out = '';
+  for (const [amount, label] of numerals) {
+    while (n >= amount) {
+      out += label;
+      n -= amount;
+    }
+  }
+  return out || '0';
+}
+
+async function must<T = unknown>(promise: PromiseLike<{ data: T | null; error: unknown }>, label: string): Promise<T> {
+  const { data, error } = await promise;
+  if (error) throw new Error(`Failed to load ${label}: ${JSON.stringify(error)}`);
+  return data as T;
+}
+
+export async function getCurrentYear() {
+  const settings = await must<{ current_year_override: number | null }>(
+    supabase.from('site_settings').select('current_year_override').single(),
+    'site settings',
+  );
+
+  return settings?.current_year_override ?? new Date().getFullYear();
+}
+
+export async function getHomeData() {
+  const year = await getCurrentYear();
+  const [
+    annualProfile,
+    peopleCount,
+    sectionsCount,
+    eventsCount,
+    goals,
+    featuredRows,
+  ] = await Promise.all([
+    must<AnnualProfileRow>(
+      supabase
+        .from('annual_profiles')
+        .select('year, theme_ko, theme_en, hero_background_position, hero_background_asset_id')
+        .eq('year', year)
+        .single(),
+      'annual profile',
+    ),
+    must(
+      supabase.from('people').select('id').eq('is_active', true),
+      'people count',
+    ),
+    must(
+      supabase.from('sections').select('id').eq('is_active', true),
+      'sections count',
+    ),
+    must(
+      supabase.from('events').select('id').eq('year', year).eq('is_published', true),
+      'events count',
+    ),
+    must(
+      supabase.from('goal_items').select('id').eq('year', year).eq('is_active', true),
+      'goals count',
+    ),
+    must(
+      supabase
+        .from('home_featured_people')
+        .select('role_label, palette, sort_order, person_id, photo_asset_id')
+        .eq('is_active', true)
+        .order('sort_order'),
+      'home featured people',
+    ),
+  ]);
+
+  const personIds = featuredRows.map((row) => row.person_id).filter(Boolean);
+  const photoIds = [
+    ...featuredRows.map((row) => row.photo_asset_id).filter(Boolean),
+    annualProfile.hero_background_asset_id,
+  ].filter(Boolean);
+
+  const [people, media] = await Promise.all([
+    personIds.length
+      ? must(supabase.from('people').select('*').in('id', personIds), 'featured people')
+      : Promise.resolve([] as PersonRow[]),
+    photoIds.length
+      ? must(supabase.from('media_assets').select('*').in('id', photoIds), 'featured media')
+      : Promise.resolve([] as MediaAsset[]),
+  ]);
+
+  const peopleById = new Map(people.map((person) => [person.id, person]));
+  const mediaById = new Map(media.map((asset) => [asset.id, asset]));
+
+  return {
+    year,
+    themeKo: annualProfile.theme_ko,
+    themeEn: annualProfile.theme_en,
+    heroBackgroundUrl: mediaUrl(mediaById.get(annualProfile.hero_background_asset_id ?? '')) ?? '/praise_photo.png',
+    heroBackgroundPosition: annualProfile.hero_background_position,
+    stats: {
+      people: peopleCount.length,
+      sections: sectionsCount.length,
+      events: eventsCount.length,
+      goals: goals.length,
+      goalsRoman: toRoman(goals.length),
+    },
+    featured: featuredRows.map((row) => {
+      const person = peopleById.get(row.person_id);
+      return {
+        name: person?.display_name ?? '',
+        roleKo: row.role_label,
+        photo: mediaUrl(mediaById.get(row.photo_asset_id ?? '') ?? mediaById.get(person?.photo_asset_id ?? '')),
+        palette: row.palette as [string, string, string],
+      };
+    }),
+  };
+}
+
+export async function getMembersData(): Promise<Part[]> {
+  const [sections, memberships, people, media] = await Promise.all([
+    must(supabase.from('sections').select('*').eq('is_active', true).order('sort_order'), 'sections'),
+    must(supabase.from('section_memberships').select('*').eq('is_active', true).order('sort_order'), 'memberships'),
+    must(supabase.from('people').select('*').eq('is_active', true), 'people'),
+    must(supabase.from('media_assets').select('*'), 'media assets'),
+  ]);
+
+  const peopleById = new Map((people as PersonRow[]).map((person) => [person.id, person]));
+  const mediaById = new Map((media as MediaAsset[]).map((asset) => [asset.id, asset]));
+
+  return sections.map((section: { id: string; key: string; name_ko: string; name_en: string | null }) => {
+    const members = memberships
+      .filter((membership: { section_id: string }) => membership.section_id === section.id)
+      .map((membership: { person_id: string; role_text: string | null; sort_order: number }) => {
+        const person = peopleById.get(membership.person_id);
+        return {
+          name: person?.display_name ?? '',
+          role: membership.role_text ?? '',
+          birth: person ? birthLabel(person) : '—',
+          phone: person ? phoneLabel(person) : '',
+          photo: mediaUrl(mediaById.get(person?.photo_asset_id ?? '')),
+        } satisfies Member;
+      });
+
+    const leader = members.find((member) => member.role === '파트장' || member.role === '악단장')?.name ?? '';
+
+    return {
+      key: section.key,
+      name: section.name_ko,
+      nameEn: section.name_en ?? '',
+      leader,
+      members,
+    };
+  });
+}
+
+export async function getLeadersData() {
+  const [assignments, people, media] = await Promise.all([
+    must(
+      supabase
+        .from('leadership_assignments')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order'),
+      'leadership assignments',
+    ),
+    must(supabase.from('people').select('*').eq('is_active', true), 'people'),
+    must(supabase.from('media_assets').select('*'), 'media assets'),
+  ]);
+
+  const peopleById = new Map((people as PersonRow[]).map((person) => [person.id, person]));
+  const mediaById = new Map((media as MediaAsset[]).map((asset) => [asset.id, asset]));
+
+  const conductors: Conductor[] = [];
+  const officers: Officer[] = [];
+
+  for (const assignment of assignments) {
+    const person = peopleById.get(assignment.person_id);
+    if (!person) continue;
+    const photo = mediaUrl(mediaById.get(assignment.photo_asset_id ?? '') ?? mediaById.get(person.photo_asset_id ?? ''));
+
+    if (assignment.group_key === 'music_ministry') {
+      conductors.push({
+        role: assignment.role_text,
+        name: person.display_name,
+        since: assignment.since_text ?? '—',
+        birth: birthLabel(person),
+        phone: phoneLabel(person),
+        note: assignment.note ?? '',
+        photo,
+      });
+    } else {
+      officers.push({
+        role: assignment.role_text,
+        roleEn: assignment.role_en ?? '',
+        name: person.display_name,
+        part: '',
+        photo,
+      });
+    }
+  }
+
+  return { conductors, officers };
+}
+
+export async function getPracticeData() {
+  const year = await getCurrentYear();
+  const [profile, practice, goals] = await Promise.all([
+    must<AnnualProfileRow>(supabase.from('annual_profiles').select('*').eq('year', year).single(), 'annual profile'),
+    must(supabase.from('practice_slots').select('*').eq('is_active', true).order('sort_order'), 'practice slots'),
+    must(supabase.from('goal_items').select('*').eq('year', year).eq('is_active', true).order('sort_order'), 'goal items'),
+  ]);
+
+  return {
+    year,
+    themeKo: profile.theme_ko,
+    themeEn: profile.theme_en,
+    practice: practice.map((slot) => ({
+      label: slot.label,
+      time: slot.time_text,
+      tag: slot.tag,
+    })) as PracticeSlot[],
+    goals: goals.map((goal) => goal.text as string),
+  };
+}
+
+export async function getEventsData() {
+  const scheduleYear = await getCurrentYear();
+  const reportYear = scheduleYear - 1;
+  const events = await must(
+    supabase
+      .from('events')
+      .select('*')
+      .in('year', [scheduleYear, reportYear])
+      .eq('is_published', true)
+      .order('year', { ascending: false })
+      .order('sort_order'),
+    'events',
+  );
+
+  const toEvent = (event: { date_label: string | null; title: string; detail: string | null; is_highlight: boolean }) =>
+    ({
+      when: event.date_label ?? '미정',
+      title: event.title,
+      detail: event.detail ?? undefined,
+      highlight: event.is_highlight,
+    }) satisfies ChoirEvent;
+
+  return {
+    scheduleYear,
+    reportYear,
+    scheduleEvents: events.filter((event) => event.year === scheduleYear).map(toEvent),
+    reportEvents: events.filter((event) => event.year === reportYear).map(toEvent),
+  };
+}
+
+export async function getGalleryData(): Promise<Photo[]> {
+  const items = await must<GalleryItemRow[]>(
+    supabase
+      .from('gallery_items')
+      .select('title, date_label, taken_date, is_featured, media_asset_id, gallery_albums(key)')
+      .eq('is_published', true)
+      .order('sort_order'),
+    'gallery items',
+  );
+
+  if (!items.length) return [];
+
+  const media = await must(
+    supabase.from('media_assets').select('*').in('id', items.map((item) => item.media_asset_id)),
+    'gallery media',
+  );
+  const mediaById = new Map((media as MediaAsset[]).map((asset) => [asset.id, asset]));
+
+  return items.map((item) => ({
+    title: item.title,
+    date: item.date_label ?? item.taken_date ?? '',
+    album: ((Array.isArray(item.gallery_albums) ? item.gallery_albums[0]?.key : item.gallery_albums?.key) ?? 'practice') as Photo['album'],
+    size: item.is_featured ? 'feature' : undefined,
+    palette: ['#3a2e1f', '#a8843c', '#f0e6d2'],
+    motif: 'Praise',
+    url: mediaUrl(mediaById.get(item.media_asset_id)),
+  }));
+}

@@ -5,11 +5,15 @@ import SectionCap from '@/components/SectionCap';
 import ScheduleRow from '@/components/ScheduleRow';
 import GoalItem from '@/components/GoalItem';
 import Footer from '@/components/Footer';
-import { CHOIR_DATA } from '@/lib/data';
+import { getPracticeData } from '@/lib/supabase/choir';
 
 export const metadata: Metadata = { title: 'Hours & Aims · 프레이즈찬양대' };
 
-export default function PracticePage() {
+export default async function PracticePage() {
+  const data = await getPracticeData();
+  const morning = data.practice.filter((_, index) => index <= 2);
+  const evening = data.practice.filter((_, index) => index > 2);
+
   return (
     <main className="min-h-screen p-8 pb-15 ml-62 max-[880px]:ml-0 max-[880px]:p-0 max-[880px]:pb-20">
       <MobileHeader />
@@ -17,7 +21,7 @@ export default function PracticePage() {
       <HeroBlock
         eyebrow="Hours of Devotion"
         title="Hours &amp; Aims"
-        titleKo="연습 시간 · 2026 목표"
+        titleKo={`연습 시간 · ${data.year} 목표`}
         watermark="HORAE · ORATIO"
       />
 
@@ -31,7 +35,7 @@ export default function PracticePage() {
             <div><span className="block w-1.5 h-1.5 bg-gold rounded-full" /></div>
           </div>
           <div>
-            {[CHOIR_DATA.practice[1], CHOIR_DATA.practice[0], CHOIR_DATA.practice[2]].map((slot, i) => (
+            {[morning[1], morning[0], morning[2]].filter(Boolean).map((slot, i) => (
               <ScheduleRow key={i} slot={slot} />
             ))}
           </div>
@@ -44,7 +48,7 @@ export default function PracticePage() {
             <div><span className="block w-1.5 h-1.5 bg-gold rounded-full" /></div>
           </div>
           <div>
-            {[CHOIR_DATA.practice[4], CHOIR_DATA.practice[3]].map((slot, i) => (
+            {[evening[1], evening[0]].filter(Boolean).map((slot, i) => (
               <ScheduleRow key={i} slot={slot} />
             ))}
           </div>
@@ -55,9 +59,9 @@ export default function PracticePage() {
 
       {/* Theme banner */}
       <div className="px-7 py-9 text-center bg-card-head border-t border-b border-gold my-7">
-        <div className="font-en text-[11px] tracking-[0.4em] text-gold-deep uppercase mb-3">2026 Theme</div>
+        <div className="font-en text-[11px] tracking-[0.4em] text-gold-deep uppercase mb-3">{data.year} Theme</div>
         <p className="font-ko font-bold text-[clamp(22px,3vw,30px)] leading-[1.4] max-w-160 mx-auto">
-          오직 하나님을 기뻐함으로<br />승리하는 프레이즈
+          {data.themeKo.split(' ').slice(0, -2).join(' ')}<br />{data.themeKo.split(' ').slice(-2).join(' ')}
         </p>
       </div>
 
@@ -67,7 +71,7 @@ export default function PracticePage() {
           <div><span className="block w-1.5 h-1.5 bg-gold rounded-full" /></div>
         </div>
         <div className="grid grid-cols-2 max-[880px]:grid-cols-1">
-          {CHOIR_DATA.goals.map((g, i) => (
+          {data.goals.map((g, i) => (
             <GoalItem key={i} index={i} text={g} />
           ))}
         </div>
