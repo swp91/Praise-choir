@@ -139,22 +139,15 @@ export async function getHomeData() {
 
   const personIds = featuredRows.map((row) => row.person_id).filter(Boolean);
 
-  const people = personIds.length
-    ? await must(supabase.from('people').select('*').in('id', personIds), 'featured people')
-    : ([] as PersonRow[]);
-
-  const photoIds = [
-    ...featuredRows.map((row) => row.photo_asset_id).filter(Boolean),
-    ...people.map((p) => p.photo_asset_id).filter(Boolean),
-    annualProfile.hero_background_asset_id,
-  ].filter(Boolean);
-
-  const media = photoIds.length
-    ? await must(supabase.from('media_assets').select('*').in('id', photoIds), 'featured media')
-    : ([] as MediaAsset[]);
+  const [people, media] = await Promise.all([
+    personIds.length
+      ? must(supabase.from('people').select('*').in('id', personIds), 'featured people')
+      : Promise.resolve([] as PersonRow[]),
+    must(supabase.from('media_assets').select('*'), 'media assets'),
+  ]);
 
   const peopleById = new Map(people.map((person) => [person.id, person]));
-  const mediaById = new Map(media.map((asset) => [asset.id, asset]));
+  const mediaById = new Map(media.map((asset: MediaAsset) => [asset.id, asset]));
 
   return {
     year,
