@@ -39,8 +39,10 @@ export async function reorderGoalsAction(orderedIds: string[]) {
   await reorderGoals(orderedIds);
 }
 
-export async function deleteGoalAction(id: string) {
+export async function deleteGoalAction(formData: FormData) {
   await requireAdmin();
+  const id = String(formData.get('id') ?? '');
+  if (!id) return;
   await deleteGoal(id);
   redirect('/admin/goals?saved=deleted');
 }

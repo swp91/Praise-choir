@@ -17,13 +17,13 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { AdminGoal } from '@/lib/admin/goals';
-import type { setGoalActiveAction, reorderGoalsAction, updateGoalTextAction, deleteGoalAction } from './actions';
+import type { setGoalActiveAction, reorderGoalsAction, updateGoalTextAction } from './actions';
+import DeleteGoalButton from './DeleteGoalButton';
 
 type Actions = {
   toggleActive: typeof setGoalActiveAction;
   reorder: typeof reorderGoalsAction;
   updateText: typeof updateGoalTextAction;
-  deleteGoal: typeof deleteGoalAction;
 };
 
 function GoalRow({
@@ -58,11 +58,6 @@ function GoalRow({
     const next = !isActive;
     setIsActive(next);
     startToggle(() => { actions.toggleActive(goal.id, next); });
-  }
-
-  async function handleDelete() {
-    if (!confirm(`목표 ${index + 1}을 삭제할까요?\n"${goal.text}"\n\n삭제된 데이터는 복구할 수 없습니다.`)) return;
-    await actions.deleteGoal(goal.id);
   }
 
   return (
@@ -139,13 +134,7 @@ function GoalRow({
           {isActive ? '활성' : '비활성'}
         </button>
 
-        <button
-          type="button"
-          onClick={handleDelete}
-          className="border border-line bg-cream px-3 py-1.5 font-ko text-[12px] text-ink-soft transition hover:border-red-300 hover:text-red-600"
-        >
-          삭제
-        </button>
+        <DeleteGoalButton id={goal.id} text={goal.text} />
       </div>
     </div>
   );

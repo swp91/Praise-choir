@@ -7,7 +7,6 @@ import {
   setGoalActiveAction,
   reorderGoalsAction,
   updateGoalTextAction,
-  deleteGoalAction,
   updateAnnualProfileAction,
 } from './actions';
 import SortableGoalList from './SortableGoalList';
@@ -45,7 +44,6 @@ export default async function AdminGoalsPage({ searchParams }: Props) {
     toggleActive: setGoalActiveAction,
     reorder: reorderGoalsAction,
     updateText: updateGoalTextAction,
-    deleteGoal: deleteGoalAction,
   };
 
   return (
