@@ -127,26 +127,26 @@ export default function SortableMemberTable({ members, sectionId, reorderAction 
   }
 
   return (
-    <div className="relative overflow-x-auto">
-      {saving ? (
-        <div className="absolute right-4 top-3 font-ko text-[12px] text-gold-deep">
-          저장 중...
-        </div>
-      ) : null}
-      <table className="w-full min-w-[920px] border-collapse">
-        <thead>
-          <tr className="border-b border-line-soft bg-cream/70 text-left">
-            <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">이름</th>
-            <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">파트</th>
-            <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">역할/악기</th>
-            <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">생일</th>
-            <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">전화번호</th>
-            <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">상태</th>
-            <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">관리</th>
-          </tr>
-        </thead>
-        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-          <SortableContext items={items.map((m) => m.id)} strategy={verticalListSortingStrategy}>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={items.map((m) => m.id)} strategy={verticalListSortingStrategy}>
+        <div className="relative overflow-x-auto">
+          {saving ? (
+            <div className="absolute right-4 top-3 font-ko text-[12px] text-gold-deep">
+              저장 중...
+            </div>
+          ) : null}
+          <table className="w-full min-w-[920px] border-collapse">
+            <thead>
+              <tr className="border-b border-line-soft bg-cream/70 text-left">
+                <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">이름</th>
+                <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">파트</th>
+                <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">역할/악기</th>
+                <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">생일</th>
+                <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">전화번호</th>
+                <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">상태</th>
+                <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">관리</th>
+              </tr>
+            </thead>
             <tbody>
               {items.map((member) => (
                 <SortableRow key={member.id} member={member} activeSection={sectionId} />
@@ -159,9 +159,9 @@ export default function SortableMemberTable({ members, sectionId, reorderAction 
                 </tr>
               ) : null}
             </tbody>
-          </SortableContext>
-        </DndContext>
-      </table>
-    </div>
+          </table>
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }
