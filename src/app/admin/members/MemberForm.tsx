@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { AdminMember, AdminMemberOption } from '@/lib/admin/members';
 import BirthPicker from './BirthPicker';
+import PhonePicker from './PhonePicker';
 
 const inputClass =
   'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep';
@@ -94,14 +95,8 @@ export function MemberForm({ member, sections, instruments, action, title, submi
         </div>
 
         <div>
-          <label className={labelClass} htmlFor="phone_label">전화번호</label>
-          <input
-            id="phone_label"
-            name="phone_label"
-            className={inputClass}
-            defaultValue={member?.phoneLabel ?? ''}
-            placeholder="예: 010-0000-0000"
-          />
+          <p className={labelClass}>전화번호</p>
+          <PhonePicker defaultValue={member?.phoneLabel} />
           <label className="mt-2 flex items-center gap-2 font-ko text-[12px] text-ink-soft">
             <input type="checkbox" name="show_phone" defaultChecked={member?.showPhone ?? true} />
             홈페이지에 전화번호 표시
