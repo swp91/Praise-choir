@@ -49,11 +49,11 @@ function SortableRow({
       style={style}
       className="border-b border-line-soft last:border-b-0"
     >
-      <td className="px-4 py-3 font-ko text-[13px] font-bold text-ink">
+      <td className="font-ko text-[13px] font-bold text-ink">
         <span
           {...attributes}
           {...listeners}
-          className="cursor-grab select-none active:cursor-grabbing"
+          className="flex h-full w-full cursor-grab select-none items-center px-4 py-3 active:cursor-grabbing"
         >
           {member.displayName}
         </span>
