@@ -12,8 +12,8 @@
   --color-line: #d4c4a0;
   --color-line-soft: rgba(184, 154, 90, 0.18);
 
-  --font-ko: 'Noto Serif KR', 'Nanum Myeongjo', 'Batang', serif;
-  --font-en: 'Cormorant Garamond', Georgia, var(--font-ko);
+  --font-ko: var(--font-myeongjo), 'Noto Serif KR', serif;
+  --font-en: var(--font-cormorant), var(--font-myeongjo), serif;
 }
 
 
