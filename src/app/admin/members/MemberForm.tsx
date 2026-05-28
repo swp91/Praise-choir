@@ -122,9 +122,6 @@ export function MemberForm({ member, sections, instruments, action, title, submi
               <div className="font-ko text-[13px] font-bold text-ink">
                 {member?.photoUrl ? '현재 사진' : '등록된 사진 없음'}
               </div>
-              <p className="mt-1 font-ko text-[12px] leading-relaxed text-ink-soft">
-                JPG, PNG, WebP 이미지를 선택하면 Supabase Storage에 업로드되고 이 사진으로 교체됩니다.
-              </p>
               <label
                 htmlFor="photo_file"
                 className="mt-3 inline-flex border border-gold-deep bg-gold-deep px-4 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
