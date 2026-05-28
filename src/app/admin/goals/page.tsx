@@ -15,29 +15,9 @@ const inputClass =
   'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep';
 const labelClass = 'block font-ko text-[12px] font-bold text-ink mb-1.5';
 
-type Props = {
-  searchParams?: Promise<{ saved?: string }>;
-};
-
-function StatusMessage({ saved }: { saved?: string }) {
-  const message =
-    saved === 'created' ? '목표를 추가했습니다.' :
-    saved === 'deleted' ? '목표를 삭제했습니다.' :
-    saved === 'profile' ? '연간 프로필을 수정했습니다.' : '';
-
-  if (!message) return null;
-
-  return (
-    <div className="border border-gold/50 bg-gold/10 px-4 py-3 font-ko text-[13px] text-gold-deep">
-      {message}
-    </div>
-  );
-}
-
-export default async function AdminGoalsPage({ searchParams }: Props) {
+export default async function AdminGoalsPage() {
   if (!(await isAdminAuthenticated())) redirect('/admin');
 
-  const params = await searchParams;
   const data = await getAdminGoalsData();
 
   const actions = {
@@ -70,8 +50,6 @@ export default async function AdminGoalsPage({ searchParams }: Props) {
         </header>
 
         <div className="mt-6 space-y-4">
-          <StatusMessage saved={params?.saved} />
-
           {/* 연간 프로필 편집 */}
           <section className="border border-line bg-card">
             <div className="border-b border-line bg-card-head px-5 py-4">

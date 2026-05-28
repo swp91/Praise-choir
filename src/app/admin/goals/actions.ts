@@ -21,7 +21,7 @@ export async function createGoalAction(formData: FormData) {
   const year = Number(formData.get('year'));
   if (!text || !year) return;
   await createGoal(text, year);
-  redirect('/admin/goals?saved=created');
+  redirect('/admin/goals');
 }
 
 export async function updateGoalTextAction(id: string, text: string) {
@@ -44,7 +44,7 @@ export async function deleteGoalAction(formData: FormData) {
   const id = String(formData.get('id') ?? '');
   if (!id) return;
   await deleteGoal(id);
-  redirect('/admin/goals?saved=deleted');
+  redirect('/admin/goals');
 }
 
 export async function updateAnnualProfileAction(formData: FormData) {
@@ -54,5 +54,5 @@ export async function updateAnnualProfileAction(formData: FormData) {
   const goalTitleKo = String(formData.get('goal_title_ko') ?? '').trim();
   if (!year || !themeKo || !goalTitleKo) return;
   await updateAnnualProfile(year, themeKo, goalTitleKo);
-  redirect('/admin/goals?saved=profile');
+  redirect('/admin/goals');
 }
