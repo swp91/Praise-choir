@@ -291,7 +291,7 @@ export default async function AdminEventsPage({ searchParams }: Props) {
             </Link>
             <Link
               href="/admin/events?addYear=1"
-              className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
+              className="border border-gold-deep bg-gold-deep px-4 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
             >
               + 년도 추가
             </Link>
