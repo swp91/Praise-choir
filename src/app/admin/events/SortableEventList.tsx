@@ -152,6 +152,12 @@ export default function SortableEventList({ events: initialEvents, year, actions
           {saving ? (
             <div className="absolute right-4 top-2 font-ko text-[12px] text-gold-deep">저장 중...</div>
           ) : null}
+          <div className="grid grid-cols-[44px_130px_1fr_auto] gap-3 border-b border-line bg-cream/70 px-4 py-2 max-[900px]:hidden">
+            <div className="font-ko text-[11px] font-bold text-ink-mute text-center">순번</div>
+            <div className="font-ko text-[11px] font-bold text-ink-mute text-center">날짜</div>
+            <div className="font-ko text-[11px] font-bold text-ink-mute">내용</div>
+            <div className="font-ko text-[11px] font-bold text-ink-mute text-right">관리</div>
+          </div>
           {events.map((event, index) => (
             <EventRow key={event.id} event={event} index={index} year={year} actions={actions} />
           ))}
