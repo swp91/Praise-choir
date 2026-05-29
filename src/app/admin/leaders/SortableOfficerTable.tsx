@@ -104,7 +104,7 @@ function OfficerRow({
         <ToggleOfficerButton id={officer.id} isActive={officer.isActive} action={actions.setActive} />
       </td>
       <td className="px-4 py-3">
-        <div className="flex gap-2">
+        <div className="flex flex-nowrap gap-2">
           {editing ? (
             <>
               <button
@@ -172,13 +172,13 @@ export default function SortableOfficerTable({ officers: initialOfficers, editId
               저장 중...
             </div>
           ) : null}
-          <table className="w-full min-w-[820px] border-collapse table-fixed">
+          <table className="w-full min-w-[820px] border-collapse">
             <colgroup>
               <col className="w-16" />
               <col />
               <col className="w-32" />
               <col className="w-24" />
-              <col className="w-36" />
+              <col className="w-44" />
             </colgroup>
             <thead>
               <tr className="border-b border-line-soft bg-cream/70 text-left">
