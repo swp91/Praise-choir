@@ -24,7 +24,8 @@ const ADMIN_SECTIONS: AdminSection[] = [
   {
     title: '임원 관리',
     description: '지휘, 반주, 편곡, 총무, 파트장 등 섬김 직무를 관리합니다.',
-    status: '준비 중',
+    status: '관리하기',
+    href: '/admin/leaders',
   },
   {
     title: '표어, 목표관리',

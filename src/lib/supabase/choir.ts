@@ -21,6 +21,24 @@ type PersonRow = {
   show_phone: boolean;
 };
 
+type LeadershipAssignmentRow = {
+  id: string;
+  person_id: string | null;
+  group_key: string;
+  role_text: string;
+  role_en: string | null;
+  since_text: string | null;
+  note: string | null;
+  photo_asset_id: string | null;
+  sort_order: number;
+  is_active: boolean;
+  external_name: string | null;
+  external_birth_label: string | null;
+  external_phone_label: string | null;
+  external_show_birth: boolean | null;
+  external_show_phone: boolean | null;
+};
+
 type AnnualProfileRow = {
   year: number;
   theme_ko: string;
@@ -57,6 +75,22 @@ function birthLabel(person: PersonRow) {
 function phoneLabel(person: PersonRow) {
   if (!person.show_phone || !person.phone_label) return '';
   return person.phone_label;
+}
+
+function externalBirthLabel(assignment: LeadershipAssignmentRow, person?: PersonRow) {
+  if (assignment.external_name) {
+    if (assignment.external_show_birth === false || !assignment.external_birth_label) return '—';
+    return assignment.external_birth_label;
+  }
+  return person ? birthLabel(person) : '—';
+}
+
+function externalPhoneLabel(assignment: LeadershipAssignmentRow, person?: PersonRow) {
+  if (assignment.external_name) {
+    if (assignment.external_show_phone === false || !assignment.external_phone_label) return '';
+    return assignment.external_phone_label;
+  }
+  return person ? phoneLabel(person) : '';
 }
 
 function toRoman(value: number) {
@@ -231,26 +265,28 @@ export async function getLeadersData() {
   const conductors: Conductor[] = [];
   const officers: Officer[] = [];
 
-  for (const assignment of assignments) {
-    const person = peopleById.get(assignment.person_id);
-    if (!person) continue;
-    const photo = mediaUrl(mediaById.get(assignment.photo_asset_id ?? '') ?? mediaById.get(person.photo_asset_id ?? ''));
+  for (const assignment of assignments as LeadershipAssignmentRow[]) {
+    const person = assignment.person_id ? peopleById.get(assignment.person_id) : undefined;
+    const displayName = assignment.external_name ?? person?.display_name;
+    if (!displayName) continue;
+    const photo = mediaUrl(mediaById.get(assignment.photo_asset_id ?? '') ?? mediaById.get(person?.photo_asset_id ?? ''));
 
     if (assignment.group_key === 'music_ministry') {
       conductors.push({
         role: assignment.role_text,
-        name: person.display_name,
+        name: displayName,
         since: assignment.since_text ?? '—',
-        birth: birthLabel(person),
-        phone: phoneLabel(person),
+        birth: externalBirthLabel(assignment, person),
+        phone: externalPhoneLabel(assignment, person),
         note: assignment.note ?? '',
         photo,
       });
     } else {
+      if (!person) continue;
       officers.push({
         role: assignment.role_text,
         roleEn: assignment.role_en ?? '',
-        name: person.display_name,
+        name: displayName,
         part: '',
         photo,
       });
