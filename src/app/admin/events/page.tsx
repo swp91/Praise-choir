@@ -69,6 +69,15 @@ function YearTabs({
   );
 }
 
+function parseEventDateParts(event?: AdminEvent) {
+  const monthVal = event?.month ?? (event?.eventDate ? Number(event.eventDate.split('-')[1]) : null);
+  const dayVal = event?.eventDate ? Number(event.eventDate.split('-')[2]) : null;
+  return {
+    month: monthVal != null && !isNaN(monthVal) ? String(monthVal) : '',
+    day: dayVal != null && !isNaN(dayVal) ? String(dayVal) : '',
+  };
+}
+
 function EventForm({
   year,
   years,
@@ -81,6 +90,7 @@ function EventForm({
   const action = event ? updateEventAction : createEventAction;
   const title = event ? '일정 수정' : '일정 추가';
   const submitLabel = event ? '수정 저장' : '+ 일정 추가';
+  const dateParts = parseEventDateParts(event);
 
   return (
     <section className="border border-line bg-card">
@@ -113,11 +123,11 @@ function EventForm({
             id="month"
             name="month"
             className={inputClass}
-            defaultValue={event?.month ?? ''}
+            defaultValue={dateParts.month}
           >
             <option value="">미정</option>
             {monthOptions.map((m) => (
-              <option key={m} value={m}>{m}월</option>
+              <option key={m} value={String(m)}>{m}월</option>
             ))}
           </select>
         </div>
@@ -128,11 +138,11 @@ function EventForm({
             id="day"
             name="day"
             className={inputClass}
-            defaultValue={event?.eventDate ? Number(event.eventDate.split('-')[2]) : ''}
+            defaultValue={dateParts.day}
           >
             <option value="">미정</option>
             {dayOptions.map((d) => (
-              <option key={d} value={d}>{d}일</option>
+              <option key={d} value={String(d)}>{d}일</option>
             ))}
           </select>
         </div>
