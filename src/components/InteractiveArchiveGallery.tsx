@@ -27,7 +27,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const overlayImageRef = useRef<HTMLImageElement>(null);
-  const cardsRef = useRef<HTMLButtonElement[]>([]);
+  const photoRefs = useRef<HTMLSpanElement[]>([]);
   const positionRef = useRef(0);
   const velocityRef = useRef(0);
   const setWidthRef = useRef(0);
@@ -51,10 +51,10 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       preventDefault: true,
       wheelSpeed: -1,
       onChangeX: (self) => {
-        velocityRef.current += self.deltaX * 0.18;
+        velocityRef.current += self.deltaX * 0.04;
       },
       onChangeY: (self) => {
-        velocityRef.current += self.deltaY * 0.24;
+        velocityRef.current += self.deltaY * 0.055;
       },
     });
 
@@ -63,18 +63,19 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       if (!setWidth) return;
 
       positionRef.current += velocityRef.current;
-      velocityRef.current *= 0.84;
+      velocityRef.current *= 0.8;
 
       if (positionRef.current < -setWidth * 2) positionRef.current += setWidth;
       if (positionRef.current > 0) positionRef.current -= setWidth;
 
-      const lean = gsap.utils.clamp(-6, 6, velocityRef.current * 0.04);
+      const lean = gsap.utils.clamp(-14, 14, velocityRef.current * 0.32);
       gsap.set(track, { x: positionRef.current });
-      gsap.to(cardsRef.current, {
+      gsap.to(photoRefs.current, {
         rotateY: -lean,
-        rotateZ: lean * 0.18,
-        transformPerspective: 900,
-        duration: 0.45,
+        rotateZ: lean * 0.24,
+        transformPerspective: 700,
+        transformOrigin: 'center center',
+        duration: 0.28,
         ease: 'power3.out',
         overwrite: true,
       });
@@ -168,15 +169,17 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
             return (
               <button
                 key={`${photo.id ?? photo.title}-${index}`}
-                ref={(node) => {
-                  if (node) cardsRef.current[index] = node;
-                }}
                 type="button"
                 className="group relative flex h-full shrink-0 items-center overflow-visible bg-transparent will-change-transform"
                 onClick={(event) => openPhoto(photo, event.currentTarget)}
               >
                 {photo.url ? (
-                  <span className="relative block overflow-hidden bg-card shadow-[0_18px_45px_rgba(42,38,32,0.12)]">
+                  <span
+                    ref={(node) => {
+                      if (node) photoRefs.current[index] = node;
+                    }}
+                    className="relative block overflow-hidden bg-card shadow-[0_18px_45px_rgba(42,38,32,0.12)] will-change-transform"
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={photo.url}
