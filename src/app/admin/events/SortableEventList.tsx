@@ -68,13 +68,13 @@ function EventRow({
         type="button"
         {...attributes}
         {...listeners}
-        className="mt-1 cursor-grab border border-line bg-cream px-2 py-1 font-en text-[12px] font-bold text-gold-deep active:cursor-grabbing"
+        className="mt-1 cursor-grab border border-line bg-cream px-2 py-1 font-ko text-[12px] font-bold text-ink-mute active:cursor-grabbing"
         aria-label={`${event.title} 순서 변경`}
       >
         {index + 1}
       </button>
 
-      <div className="font-en text-[13px] italic text-gold-deep max-[900px]:col-start-2">
+      <div className="font-ko text-[13px] font-bold text-ink-soft max-[900px]:col-start-2">
         {displayDate(event)}
       </div>
 
