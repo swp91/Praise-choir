@@ -115,7 +115,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       .fromTo(
         overlay,
         { backgroundColor: 'rgba(247,242,229,0)' },
-        { backgroundColor: 'rgba(247,242,229,1)', duration: 0.4, ease: 'power2.out' },
+        { backgroundColor: 'rgba(247,242,229,1)', duration: 0.5, ease: 'power2.out' },
       )
       .to(image, {
         left: target.left,
@@ -124,7 +124,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         height: target.height,
         duration: 0.85,
         ease: 'expo.out',
-      });
+      }, 0.3);
   }, [active]);
 
   function targetRect(sourceRect: DOMRect) {
@@ -176,9 +176,9 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       .to(overlay, {
         backgroundColor: 'rgba(247,242,229,0)',
         autoAlpha: 0,
-        duration: 0.4,
+        duration: 0.5,
         ease: 'power2.out',
-      });
+      }, 0);
   }
 
   return (
