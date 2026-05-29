@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -123,11 +123,6 @@ export default function SortableEventList({ events: initialEvents, year, actions
   const [events, setEvents] = useState(initialEvents);
   const [saving, setSaving] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor));
-
-  useEffect(() => {
-    setEvents(initialEvents);
-    setSaving(false);
-  }, [initialEvents, year]);
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;

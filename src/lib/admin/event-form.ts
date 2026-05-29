@@ -25,6 +25,19 @@ export type EventYearFormResult =
   | { ok: true; value: EventYearFormValue }
   | { ok: false; errors: string[] };
 
+export type DeleteEventYearFormValue = {
+  year: number;
+};
+
+export type DeleteEventYearFormResult =
+  | { ok: true; value: DeleteEventYearFormValue }
+  | { ok: false; errors: string[] };
+
+export type EventYearLike = {
+  year: number;
+  displayType: EventYearDisplayType;
+};
+
 export type SortableEventLike = {
   id: string;
   eventDate: string | null;
@@ -94,6 +107,16 @@ export function parseEventYearForm(formData: FormData): EventYearFormResult {
 
   if (errors.length) return { ok: false, errors };
   return { ok: true, value: { year, displayType } };
+}
+
+export function parseDeleteEventYearForm(formData: FormData): DeleteEventYearFormResult {
+  const year = Number(formData.get('year'));
+  if (!year) return { ok: false, errors: ['삭제할 연도를 찾지 못했습니다.'] };
+  return { ok: true, value: { year } };
+}
+
+export function sortEventYears<T extends EventYearLike>(years: T[]) {
+  return [...years].sort((a, b) => b.year - a.year);
 }
 
 function sortKey(event: SortableEventLike) {

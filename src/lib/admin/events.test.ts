@@ -1,6 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildEventReorderUpdates, parseEventForm, parseEventYearForm, sortEventsByDate } from './event-form.ts';
+import {
+  buildEventReorderUpdates,
+  parseEventForm,
+  parseEventYearForm,
+  parseDeleteEventYearForm,
+  sortEventYears,
+  sortEventsByDate,
+} from './event-form.ts';
 
 test('parses an event form with a specific date', () => {
   const formData = new FormData();
@@ -83,6 +90,28 @@ test('rejects invalid event year display type', () => {
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.deepEqual(result.errors, ['표시 방식을 선택해 주세요.']);
+});
+
+test('parses a delete event year form', () => {
+  const formData = new FormData();
+  formData.set('year', '2032');
+
+  const result = parseDeleteEventYearForm(formData);
+
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.deepEqual(result.value, { year: 2032 });
+});
+
+test('sorts event years by year descending', () => {
+  assert.deepEqual(
+    sortEventYears([
+      { year: 2026, displayType: 'schedule' },
+      { year: 2025, displayType: 'report' },
+      { year: 2032, displayType: 'report' },
+    ]).map((option) => option.year),
+    [2032, 2026, 2025],
+  );
 });
 
 test('sorts events by specific date, month, then undated items', () => {

@@ -1,6 +1,6 @@
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from '@/lib/supabase/admin';
 import type { EventFormValue, EventYearFormValue } from './event-form';
-import { buildEventReorderUpdates, sortEventsByDate } from './event-form';
+import { buildEventReorderUpdates, sortEventYears, sortEventsByDate } from './event-form';
 
 type DbError = { message?: string };
 
@@ -111,7 +111,7 @@ export async function getAdminEventsData(selectedYearParam?: string): Promise<Ad
     configured: true,
     currentYear,
     selectedYear,
-    yearOptions,
+    yearOptions: sortEventYears(yearOptions),
     candidateYears: yearCandidateOptions(currentYear, yearOptions.map((option) => option.year)),
     events: events.map(toAdminEvent),
   };
@@ -180,6 +180,24 @@ export async function createEventYear(value: EventYearFormValue) {
     action: 'create',
     entity_table: 'event_years',
     metadata: { year: value.year, display_type: value.displayType },
+  });
+}
+
+export async function deleteEventYear(year: number) {
+  const supabase = getSupabaseAdmin();
+  must(
+    await supabase.from('events').delete().eq('year', year),
+    '연도 일정 삭제 실패',
+  );
+  must(
+    await supabase.from('event_years').delete().eq('year', year),
+    '일정 연도 삭제 실패',
+  );
+
+  await supabase.from('admin_audit_logs').insert({
+    action: 'delete',
+    entity_table: 'event_years',
+    metadata: { year },
   });
 }
 

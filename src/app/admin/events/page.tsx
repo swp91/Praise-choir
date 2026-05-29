@@ -10,6 +10,7 @@ import {
   setEventPublishedAction,
   updateEventAction,
 } from './actions';
+import DeleteEventYearButton from './DeleteEventYearButton';
 import SortableEventList from './SortableEventList';
 
 type Props = {
@@ -318,9 +319,12 @@ export default async function AdminEventsPage({ searchParams }: Props) {
             <div className="space-y-3 border-b border-line bg-card-head px-5 py-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="font-ko text-[18px] font-bold text-ink">{data.selectedYear}년 일정</h2>
-                <span className="font-en text-[12px] italic text-gold-deep">
-                  {data.events.filter((event) => event.isPublished).length} published
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className="font-en text-[12px] italic text-gold-deep">
+                    {data.events.filter((event) => event.isPublished).length} published
+                  </span>
+                  <DeleteEventYearButton year={data.selectedYear} eventCount={data.events.length} />
+                </div>
               </div>
               <YearTabs
                 years={data.yearOptions}
@@ -328,7 +332,12 @@ export default async function AdminEventsPage({ searchParams }: Props) {
               />
             </div>
             {data.configured ? (
-              <SortableEventList events={data.events} year={data.selectedYear} actions={actions} />
+              <SortableEventList
+                key={data.selectedYear}
+                events={data.events}
+                year={data.selectedYear}
+                actions={actions}
+              />
             ) : (
               <p className="px-5 py-6 font-ko text-[13px] text-red-700">
                 SUPABASE_SERVICE_ROLE_KEY가 설정되지 않았습니다.

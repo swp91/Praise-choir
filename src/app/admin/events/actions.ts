@@ -3,11 +3,12 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
-import { parseEventForm, parseEventYearForm } from '@/lib/admin/event-form';
+import { parseDeleteEventYearForm, parseEventForm, parseEventYearForm } from '@/lib/admin/event-form';
 import {
   createEvent,
   createEventYear,
   deleteEvent,
+  deleteEventYear,
   reorderEvents,
   setEventHighlight,
   setEventPublished,
@@ -47,6 +48,21 @@ export async function createEventYearAction(formData: FormData) {
 
   revalidateEvents();
   redirect(eventsPath(parsed.value.year));
+}
+
+export async function deleteEventYearAction(formData: FormData) {
+  await requireAdmin();
+  const parsed = parseDeleteEventYearForm(formData);
+  if (!parsed.ok) errorRedirect(parsed.errors.join(' '));
+
+  try {
+    await deleteEventYear(parsed.value.year);
+  } catch {
+    errorRedirect('연도를 삭제하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.', parsed.value.year);
+  }
+
+  revalidateEvents();
+  redirect('/admin/events');
 }
 
 export async function createEventAction(formData: FormData) {
