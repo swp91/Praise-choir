@@ -25,27 +25,15 @@ type Props = {
   reorderAction: typeof reorderGalleryItemsAction;
 };
 
-const ratioPattern = [
-  'aspect-4/3',
-  'aspect-3/4',
-  'aspect-16/9 min-[760px]:col-span-2',
-  'aspect-4/3',
-  'aspect-1/1',
-  'aspect-16/9 min-[760px]:col-span-2',
-  'aspect-3/4',
-  'aspect-4/3 min-[760px]:col-span-2',
-  'aspect-16/9 min-[760px]:col-span-2',
-];
-
 function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.55 : 1 };
 
   return (
-    <article ref={setNodeRef} style={style} className={ratioPattern[index % ratioPattern.length]}>
-      <div className="group relative h-full overflow-hidden border border-line bg-card">
-        <img src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" />
+    <article ref={setNodeRef} style={style}>
+      <div className="group relative overflow-hidden border border-line bg-card">
+        <img src={item.imageUrl} alt={item.title} className="block h-auto w-full" />
         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/80 to-transparent px-3 pb-3 pt-12">
           <h3 className="font-ko text-[13px] font-bold leading-snug text-cream">{item.title}</h3>
         </div>
@@ -97,7 +85,7 @@ export default function SortableGalleryGrid({ items: initialItems, reorderAction
           {saving ? (
             <div className="absolute right-0 top-[-28px] font-ko text-[12px] text-gold-deep">저장 중...</div>
           ) : null}
-          <div className="grid auto-rows-[140px] grid-cols-2 gap-3 min-[760px]:auto-rows-[170px] min-[760px]:grid-cols-4 min-[1160px]:auto-rows-[190px]">
+          <div className="grid grid-cols-2 items-start gap-3 min-[760px]:grid-cols-4">
             {items.map((item, index) => (
               <GalleryCard key={item.id} item={item} index={index} />
             ))}

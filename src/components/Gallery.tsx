@@ -2,24 +2,11 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Photo } from '@/lib/types';
 
-const TILE_CLASSES = [
-  'col-span-1 row-span-1',
-  'col-span-1 row-span-2',
-  'col-span-2 row-span-1',
-  'col-span-1 row-span-1',
-  'col-span-1 row-span-1',
-  'col-span-2 row-span-1',
-  'col-span-1 row-span-2',
-  'col-span-2 row-span-2',
-  'col-span-2 row-span-1',
-  'col-span-1 row-span-1',
-];
-
 function Placeholder({ photo }: { photo: Photo }) {
   if (photo.url) {
     return (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
+      <img src={photo.url} alt={photo.title} className="block h-auto w-full" />
     );
   }
 
@@ -60,15 +47,15 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
         </div>
       )}
 
-      <div className="grid auto-rows-[118px] grid-cols-2 gap-2.5 min-[640px]:auto-rows-[150px] min-[640px]:grid-cols-4 min-[1120px]:auto-rows-[178px]">
+      <div className="columns-2 gap-2.5 min-[720px]:columns-3 min-[1120px]:columns-4">
         {photos.map((p, i) => (
-          <div key={p.id ?? `${p.title}-${i}`} className={TILE_CLASSES[i % TILE_CLASSES.length]}>
+          <div key={p.id ?? `${p.title}-${i}`} className="mb-2.5 break-inside-avoid">
             <button
               type="button"
-              className="group h-full w-full bg-card border border-line-soft p-1.5 cursor-pointer transition-all duration-250 hover:border-gold text-left block"
+              className="group w-full bg-card border border-line-soft p-1.5 cursor-pointer transition-all duration-250 hover:border-gold text-left block"
               onClick={() => setActive(p)}
             >
-              <div className="relative h-full overflow-hidden">
+              <div className="relative overflow-hidden">
                 <Placeholder photo={p} />
                 <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/75 to-transparent px-3 pb-2.5 pt-12 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
                   <span className="block font-ko text-[12px] font-bold leading-snug text-cream">{p.title}</span>
@@ -100,7 +87,14 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
               className="absolute -top-9.5 right-0 bg-card border border-line text-ink w-8 h-8 cursor-pointer font-en text-[18px]"
               onClick={() => setActive(null)}
             >x</button>
-            <div className="aspect-4/3 relative overflow-hidden"><Placeholder photo={active} /></div>
+            <div className="relative max-h-[72vh] overflow-hidden">
+              {active.url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={active.url} alt={active.title} className="mx-auto block max-h-[72vh] w-auto max-w-full" />
+              ) : (
+                <Placeholder photo={active} />
+              )}
+            </div>
             <div className="pt-3.5 px-1.5 pb-1 text-center">
               <h3 id="gallery-modal-title" className="font-ko text-[20px] font-bold mb-1">{active.title}</h3>
               <p className="font-en italic text-gold-deep">{active.date}</p>
