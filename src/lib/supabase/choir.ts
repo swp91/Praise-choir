@@ -26,16 +26,8 @@ type LeadershipAssignmentRow = {
   person_id: string | null;
   group_key: string;
   role_text: string;
-  since_text: string | null;
-  note: string | null;
   photo_asset_id: string | null;
-  sort_order: number;
-  is_active: boolean;
   external_name: string | null;
-  external_birth_label: string | null;
-  external_phone_label: string | null;
-  external_show_birth: boolean | null;
-  external_show_phone: boolean | null;
 };
 
 type AnnualProfileRow = {
@@ -74,22 +66,6 @@ function birthLabel(person: PersonRow) {
 function phoneLabel(person: PersonRow) {
   if (!person.show_phone || !person.phone_label) return '';
   return person.phone_label;
-}
-
-function externalBirthLabel(assignment: LeadershipAssignmentRow, person?: PersonRow) {
-  if (assignment.external_name) {
-    if (assignment.external_show_birth === false || !assignment.external_birth_label) return '—';
-    return assignment.external_birth_label;
-  }
-  return person ? birthLabel(person) : '—';
-}
-
-function externalPhoneLabel(assignment: LeadershipAssignmentRow, person?: PersonRow) {
-  if (assignment.external_name) {
-    if (assignment.external_show_phone === false || !assignment.external_phone_label) return '';
-    return assignment.external_phone_label;
-  }
-  return person ? phoneLabel(person) : '';
 }
 
 function toRoman(value: number) {
@@ -245,7 +221,7 @@ export async function getMembersData(): Promise<Part[]> {
 }
 
 export async function getLeadersData() {
-  const [assignments, people, media] = await Promise.all([
+  const [assignments, sections, memberships, people, media] = await Promise.all([
     must(
       supabase
         .from('leadership_assignments')
@@ -254,14 +230,33 @@ export async function getLeadersData() {
         .order('sort_order'),
       'leadership assignments',
     ),
+    must(supabase.from('sections').select('id,key').eq('is_active', true), 'sections'),
+    must(supabase.from('section_memberships').select('*').eq('is_active', true).order('sort_order'), 'memberships'),
     must(supabase.from('people').select('*').eq('is_active', true), 'people'),
     must(supabase.from('media_assets').select('*'), 'media assets'),
   ]);
 
   const peopleById = new Map((people as PersonRow[]).map((person) => [person.id, person]));
   const mediaById = new Map((media as MediaAsset[]).map((asset) => [asset.id, asset]));
+  const staffSection = sections.find((section) => section.key === 'staff');
 
-  const conductors: Conductor[] = [];
+  const conductors: Conductor[] = staffSection
+    ? memberships
+        .filter((membership: { section_id: string }) => membership.section_id === staffSection.id)
+        .flatMap((membership: { person_id: string; role_text: string | null }) => {
+          const person = peopleById.get(membership.person_id);
+          if (!person) return [];
+          return [{
+            role: membership.role_text ?? '',
+            name: person.display_name,
+            since: '—',
+            birth: birthLabel(person),
+            phone: phoneLabel(person),
+            note: '',
+            photo: mediaUrl(mediaById.get(person.photo_asset_id ?? '')),
+          } satisfies Conductor];
+        })
+    : [];
   const officers: Officer[] = [];
 
   for (const assignment of assignments as LeadershipAssignmentRow[]) {
@@ -270,17 +265,7 @@ export async function getLeadersData() {
     if (!displayName) continue;
     const photo = mediaUrl(mediaById.get(assignment.photo_asset_id ?? '') ?? mediaById.get(person?.photo_asset_id ?? ''));
 
-    if (assignment.group_key === 'music_ministry') {
-      conductors.push({
-        role: assignment.role_text,
-        name: displayName,
-        since: assignment.since_text ?? '—',
-        birth: externalBirthLabel(assignment, person),
-        phone: externalPhoneLabel(assignment, person),
-        note: assignment.note ?? '',
-        photo,
-      });
-    } else {
+    if (assignment.group_key === 'officers') {
       if (!person) continue;
       officers.push({
         role: assignment.role_text,

@@ -5,11 +5,12 @@ import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
 import {
   createOfficer,
-  deleteMusicStaff,
   deleteOfficer,
   parseMusicStaffForm,
   parseOfficerForm,
+  reorderMusicStaff,
   reorderOfficers,
+  setMusicStaffActive,
   setOfficerActive,
   updateMusicStaff,
   updateOfficer,
@@ -31,33 +32,30 @@ function revalidateLeadership() {
 export async function updateMusicStaffAction(formData: FormData) {
   await requireAdmin();
   const parsed = parseMusicStaffForm(formData);
-  if (!parsed.id || !parsed.roleText || !parsed.name) {
-    errorRedirect('상단 스태프의 직무와 이름을 입력해 주세요.');
+  if (!parsed.id || !parsed.roleText) {
+    errorRedirect('수정할 스태프와 직무를 확인해 주세요.');
   }
 
   try {
     await updateMusicStaff(parsed);
   } catch {
-    errorRedirect('상단 스태프 정보를 저장하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
+    errorRedirect('스태프 정보를 저장하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
   }
 
   revalidateLeadership();
   redirect(`/admin/leaders#staff-${parsed.id}`);
 }
 
-export async function deleteMusicStaffAction(formData: FormData) {
+export async function setMusicStaffActiveAction(id: string, active: boolean) {
   await requireAdmin();
-  const id = String(formData.get('id') ?? '');
-  if (!id) errorRedirect('삭제할 스태프를 찾지 못했습니다.');
-
-  try {
-    await deleteMusicStaff(id);
-  } catch {
-    errorRedirect('상단 스태프를 삭제하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
-  }
-
+  await setMusicStaffActive(id, active);
   revalidateLeadership();
-  redirect('/admin/leaders#music-staff');
+}
+
+export async function reorderMusicStaffAction(orderedIds: string[]) {
+  await requireAdmin();
+  await reorderMusicStaff(orderedIds);
+  revalidateLeadership();
 }
 
 export async function createOfficerAction(formData: FormData) {

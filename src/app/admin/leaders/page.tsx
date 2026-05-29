@@ -1,19 +1,17 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
-import {
-  getAdminLeadershipData,
-  type AdminLeaderPersonOption,
-  type AdminMusicStaff,
-} from '@/lib/admin/leadership';
+import { getAdminLeadershipData, type AdminLeaderPersonOption } from '@/lib/admin/leadership';
 import {
   createOfficerAction,
+  reorderMusicStaffAction,
   reorderOfficersAction,
+  setMusicStaffActiveAction,
   setOfficerActiveAction,
   updateMusicStaffAction,
   updateOfficerAction,
 } from './actions';
-import DeleteMusicStaffButton from './DeleteMusicStaffButton';
+import SortableMusicStaffTable from './SortableMusicStaffTable';
 import SortableOfficerTable from './SortableOfficerTable';
 
 type Props = {
@@ -27,7 +25,6 @@ type Props = {
 
 const inputClass =
   'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep';
-const labelClass = 'mb-1.5 block font-ko text-[12px] font-bold text-ink';
 
 function ErrorMessage({ error }: { error?: string }) {
   if (!error) return null;
@@ -35,131 +32,6 @@ function ErrorMessage({ error }: { error?: string }) {
     <div className="border border-red-200 bg-red-50 px-4 py-3 font-ko text-[13px] text-red-800">
       {error}
     </div>
-  );
-}
-
-function PhotoPreview({ src, name }: { src: string | null; name: string }) {
-  if (src) {
-    return <img src={src} alt={name} className="h-16 w-16 rounded-full border border-line object-cover" />;
-  }
-
-  return (
-    <span className="flex h-16 w-16 items-center justify-center rounded-full border border-line bg-cream font-ko text-[18px] text-ink-mute">
-      {name.charAt(0) || '?'}
-    </span>
-  );
-}
-
-function MusicStaffCard({ staff, editing }: { staff: AdminMusicStaff; editing: boolean }) {
-  if (editing) {
-    return (
-      <form
-        id={`staff-${staff.id}`}
-        action={updateMusicStaffAction}
-        encType="multipart/form-data"
-        className="scroll-mt-6 border border-line bg-card"
-      >
-        <input type="hidden" name="id" value={staff.id} />
-        <div className="flex items-center gap-4 border-b border-line bg-card-head px-5 py-4">
-          <PhotoPreview src={staff.photoUrl} name={staff.name} />
-          <div>
-            <h3 className="font-ko text-[17px] font-bold text-ink">{staff.roleText}</h3>
-            <p className="mt-1 font-ko text-[12px] text-ink-soft">{staff.name || '이름 미입력'}</p>
-          </div>
-        </div>
-
-        <div className="grid gap-4 px-5 py-5 min-[760px]:grid-cols-2">
-          <div>
-            <label className={labelClass} htmlFor={`role-${staff.id}`}>직무</label>
-            <input id={`role-${staff.id}`} name="role_text" className={inputClass} defaultValue={staff.roleText} />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor={`name-${staff.id}`}>이름</label>
-            <input id={`name-${staff.id}`} name="name" className={inputClass} defaultValue={staff.name} />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor={`since-${staff.id}`}>섬김 기간</label>
-            <input id={`since-${staff.id}`} name="since_text" className={inputClass} defaultValue={staff.sinceText} />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor={`birth-${staff.id}`}>생일</label>
-            <input id={`birth-${staff.id}`} name="birth_label" className={inputClass} defaultValue={staff.birthLabel} />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor={`phone-${staff.id}`}>전화번호</label>
-            <input id={`phone-${staff.id}`} name="phone_label" className={inputClass} defaultValue={staff.phoneLabel} />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor={`photo-${staff.id}`}>사진 변경</label>
-            <input
-              id={`photo-${staff.id}`}
-              name="photo_file"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              className={inputClass}
-            />
-          </div>
-          <div className="min-[760px]:col-span-2">
-            <label className={labelClass} htmlFor={`note-${staff.id}`}>메모</label>
-            <input id={`note-${staff.id}`} name="note" className={inputClass} defaultValue={staff.note} />
-          </div>
-        </div>
-
-        <div className="flex justify-end gap-2 border-t border-line px-5 py-4">
-          <Link
-            href={`/admin/leaders#staff-${staff.id}`}
-            className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
-          >
-            취소
-          </Link>
-          <button
-            type="submit"
-            className="border border-gold-deep bg-gold-deep px-4 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
-          >
-            저장
-          </button>
-        </div>
-      </form>
-    );
-  }
-
-  return (
-      <article id={`staff-${staff.id}`} className="scroll-mt-6 border border-line bg-card">
-      <div className="flex items-center gap-4 border-b border-line bg-card-head px-5 py-4">
-        <PhotoPreview src={staff.photoUrl} name={staff.name} />
-        <div>
-          <h3 className="font-ko text-[17px] font-bold text-ink">{staff.roleText}</h3>
-          <p className="mt-1 font-ko text-[12px] text-ink-soft">{staff.name || '이름 미입력'}</p>
-        </div>
-      </div>
-      <dl className="grid gap-3 px-5 py-5 font-ko text-[13px]">
-        <div>
-          <dt className="text-[12px] font-bold text-ink-mute">섬김 기간</dt>
-          <dd className="mt-1 text-ink-soft">{staff.sinceText || '-'}</dd>
-        </div>
-        <div>
-          <dt className="text-[12px] font-bold text-ink-mute">생일</dt>
-          <dd className="mt-1 text-ink-soft">{staff.birthLabel || '-'}</dd>
-        </div>
-        <div>
-          <dt className="text-[12px] font-bold text-ink-mute">전화번호</dt>
-          <dd className="mt-1 text-ink-soft">{staff.phoneLabel || '-'}</dd>
-        </div>
-        <div>
-          <dt className="text-[12px] font-bold text-ink-mute">메모</dt>
-          <dd className="mt-1 text-ink-soft">{staff.note || '-'}</dd>
-        </div>
-      </dl>
-      <div className="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
-        <Link
-          href={`/admin/leaders?editStaff=${staff.id}#staff-${staff.id}`}
-          className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
-        >
-          수정
-        </Link>
-        <DeleteMusicStaffButton id={staff.id} name={staff.name || '이름 미입력'} role={staff.roleText || '직무 미입력'} />
-      </div>
-    </article>
   );
 }
 
@@ -200,6 +72,11 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
   const params = await searchParams;
   const data = await getAdminLeadershipData();
 
+  const staffActions = {
+    reorder: reorderMusicStaffAction,
+    setActive: setMusicStaffActiveAction,
+    update: updateMusicStaffAction,
+  };
   const officerActions = {
     reorder: reorderOfficersAction,
     setActive: setOfficerActiveAction,
@@ -243,15 +120,16 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
             </section>
           ) : null}
 
-          <section id="music-staff" className="scroll-mt-6 space-y-4">
-            <div className="border-b border-line pb-2">
-              <h2 className="font-ko text-[22px] font-bold text-ink">지휘 · 반주 · 편곡</h2>
+          <section id="music-staff" className="scroll-mt-6 border border-line bg-card">
+            <div className="border-b border-line bg-card-head px-5 py-4">
+              <h2 className="font-ko text-[22px] font-bold text-ink">스태프</h2>
             </div>
-            <div className="grid gap-4 min-[1000px]:grid-cols-3">
-              {data.musicStaff.map((staff) => (
-                <MusicStaffCard key={staff.id} staff={staff} editing={params?.editStaff === staff.id} />
-              ))}
-            </div>
+            <SortableMusicStaffTable
+              key={params?.editStaff ?? 'staff'}
+              staff={data.musicStaff}
+              editId={params?.editStaff}
+              actions={staffActions}
+            />
           </section>
 
           <section id="officers" className="scroll-mt-6 border border-line bg-card">

@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { getSupabaseAdmin, isSupabaseAdminConfigured } from '@/lib/supabase/admin';
 
 type DbError = { message?: string };
@@ -22,15 +21,13 @@ export type AdminLeaderPersonOption = {
 
 export type AdminMusicStaff = {
   id: string;
+  personId: string;
   roleText: string;
   name: string;
-  sinceText: string;
-  birthLabel: string;
-  phoneLabel: string;
-  note: string;
+  sectionName: string;
   photoUrl: string | null;
-  photoAssetId: string | null;
   sortOrder: number;
+  isActive: boolean;
 };
 
 export type AdminOfficer = {
@@ -54,12 +51,6 @@ export type AdminLeadershipData = {
 export type MusicStaffFormValue = {
   id: string;
   roleText: string;
-  name: string;
-  sinceText: string | null;
-  birthLabel: string | null;
-  phoneLabel: string | null;
-  note: string | null;
-  photoFile: File | null;
 };
 
 export type OfficerFormValue = {
@@ -91,73 +82,10 @@ function publicAssetUrl(asset: MediaRow | undefined) {
   return asset.external_url;
 }
 
-function extensionFromFile(file: File) {
-  const contentType = file.type.split(';')[0].toLowerCase();
-  if (contentType === 'image/png') return 'png';
-  if (contentType === 'image/webp') return 'webp';
-  if (contentType === 'image/gif') return 'gif';
-  if (contentType === 'image/avif') return 'avif';
-  return 'jpg';
-}
-
-function safeFileNameSeed(value: string) {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9가-힣_-]+/g, '-')
-    .replace(/^-+|-+$/g, '') || 'leader';
-}
-
-function fileFromForm(formData: FormData) {
-  const file = formData.get('photo_file');
-  if (!(file instanceof File) || !file.size) return null;
-  return file;
-}
-
-async function uploadLeadershipPhoto(file: File | null, name: string) {
-  if (!file) return null;
-  if (!file.type.startsWith('image/')) throw new Error('사진 파일은 이미지 형식이어야 합니다.');
-
-  const supabase = getSupabaseAdmin();
-  const path = `leaders/uploads/${safeFileNameSeed(name)}-${randomUUID()}.${extensionFromFile(file)}`;
-  const bytes = new Uint8Array(await file.arrayBuffer());
-
-  const upload = await supabase.storage.from('public-media').upload(path, bytes, {
-    contentType: file.type || 'image/jpeg',
-    cacheControl: '31536000',
-    upsert: false,
-  });
-
-  if (upload.error) throw new Error(`사진 업로드 실패: ${upload.error.message}`);
-
-  const inserted = await supabase
-    .from('media_assets')
-    .insert({
-      bucket: 'public-media',
-      path,
-      alt_text: `${name} 사진`,
-      source: 'supabase',
-      mime_type: file.type || 'image/jpeg',
-      size_bytes: file.size,
-      metadata: { original_file_name: file.name },
-      is_public: true,
-    })
-    .select('id')
-    .single();
-
-  return must<{ id: string }>(inserted, '사진 등록 실패').id;
-}
-
 export function parseMusicStaffForm(formData: FormData): MusicStaffFormValue {
   return {
     id: requiredText(formData.get('id')),
     roleText: requiredText(formData.get('role_text')),
-    name: requiredText(formData.get('name')),
-    sinceText: text(formData.get('since_text')),
-    birthLabel: text(formData.get('birth_label')),
-    phoneLabel: text(formData.get('phone_label')),
-    note: text(formData.get('note')),
-    photoFile: fileFromForm(formData),
   };
 }
 
@@ -179,8 +107,8 @@ export async function getAdminLeadershipData(): Promise<AdminLeadershipData> {
   const [assignmentsResult, peopleResult, membershipsResult, sectionsResult, mediaResult] = await Promise.all([
     supabase.from('leadership_assignments').select('*').order('group_key').order('sort_order'),
     supabase.from('people').select('*').order('is_active', { ascending: false }).order('sort_order').order('display_name'),
-    supabase.from('section_memberships').select('*').eq('is_active', true),
-    supabase.from('sections').select('id,name_ko,sort_order').eq('is_active', true),
+    supabase.from('section_memberships').select('*').order('sort_order'),
+    supabase.from('sections').select('id,key,name_ko,sort_order').eq('is_active', true),
     supabase.from('media_assets').select('id,bucket,path,source,external_url'),
   ]);
 
@@ -192,27 +120,27 @@ export async function getAdminLeadershipData(): Promise<AdminLeadershipData> {
 
   const peopleById = new Map(people.map((person) => [String(person.id), person]));
   const sectionById = new Map(sections.map((section) => [String(section.id), section]));
-  const membershipByPersonId = new Map(memberships.map((membership) => [String(membership.person_id), membership]));
+  const activeMemberships = memberships.filter((membership) => membership.is_active !== false);
+  const membershipByPersonId = new Map(activeMemberships.map((membership) => [String(membership.person_id), membership]));
+  const staffSection = sections.find((section) => section.key === 'staff');
   const mediaById = new Map(media.map((asset) => [asset.id, asset]));
 
   return {
     configured: true,
-    musicStaff: assignments
-      .filter((assignment) => assignment.group_key === 'music_ministry')
-      .map((assignment) => {
-        const person = assignment.person_id ? peopleById.get(String(assignment.person_id)) : undefined;
-        const photo = mediaById.get(String(assignment.photo_asset_id ?? person?.photo_asset_id ?? ''));
+    musicStaff: memberships
+      .filter((membership) => staffSection && membership.section_id === staffSection.id)
+      .map((membership) => {
+        const person = peopleById.get(String(membership.person_id));
+        const photo = mediaById.get(String(person?.photo_asset_id ?? ''));
         return {
-          id: String(assignment.id),
-          roleText: String(assignment.role_text ?? ''),
-          name: String(assignment.external_name ?? person?.display_name ?? ''),
-          sinceText: String(assignment.since_text ?? ''),
-          birthLabel: String(assignment.external_birth_label ?? person?.birth_label ?? ''),
-          phoneLabel: String(assignment.external_phone_label ?? person?.phone_label ?? ''),
-          note: String(assignment.note ?? ''),
+          id: String(membership.id),
+          personId: String(membership.person_id ?? ''),
+          roleText: String(membership.role_text ?? ''),
+          name: String(person?.display_name ?? ''),
+          sectionName: staffSection ? String(staffSection.name_ko) : '스태프',
           photoUrl: publicAssetUrl(photo),
-          photoAssetId: assignment.photo_asset_id ? String(assignment.photo_asset_id) : null,
-          sortOrder: Number(assignment.sort_order ?? 0),
+          sortOrder: Number(membership.sort_order ?? 0),
+          isActive: membership.is_active !== false && person?.is_active !== false,
         };
       }),
     officers: assignments
@@ -256,36 +184,28 @@ export async function getAdminLeadershipData(): Promise<AdminLeadershipData> {
 }
 
 export async function updateMusicStaff(value: MusicStaffFormValue) {
-  if (!value.id || !value.roleText || !value.name) throw new Error('필수 입력값이 없습니다.');
+  if (!value.id || !value.roleText) throw new Error('필수 입력값이 없습니다.');
   const supabase = getSupabaseAdmin();
-  const photoAssetId = await uploadLeadershipPhoto(value.photoFile, value.name);
-
-  const payload: Record<string, unknown> = {
-    person_id: null,
-    group_key: 'music_ministry',
-    role_text: value.roleText,
-    since_text: value.sinceText,
-    note: value.note,
-    external_name: value.name,
-    external_birth_label: value.birthLabel,
-    external_phone_label: value.phoneLabel,
-    external_show_birth: true,
-    external_show_phone: true,
-    is_active: true,
-  };
-  if (photoAssetId) payload.photo_asset_id = photoAssetId;
-
   must(
-    await supabase.from('leadership_assignments').update(payload).eq('id', value.id),
-    '상단 스태프 수정 실패',
+    await supabase.from('section_memberships').update({ role_text: value.roleText }).eq('id', value.id),
+    '스태프 수정 실패',
   );
 }
 
-export async function deleteMusicStaff(id: string) {
+export async function setMusicStaffActive(id: string, active: boolean) {
   const supabase = getSupabaseAdmin();
   must(
-    await supabase.from('leadership_assignments').delete().eq('id', id).eq('group_key', 'music_ministry'),
-    '상단 스태프 삭제 실패',
+    await supabase.from('section_memberships').update({ is_active: active }).eq('id', id),
+    '스태프 공개 상태 변경 실패',
+  );
+}
+
+export async function reorderMusicStaff(orderedIds: string[]) {
+  const supabase = getSupabaseAdmin();
+  await Promise.all(
+    orderedIds.map((id, index) =>
+      supabase.from('section_memberships').update({ sort_order: index }).eq('id', id),
+    ),
   );
 }
 
