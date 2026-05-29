@@ -172,7 +172,14 @@ export default function SortableOfficerTable({ officers: initialOfficers, editId
               저장 중...
             </div>
           ) : null}
-          <table className="w-full min-w-[820px] border-collapse">
+          <table className="w-full min-w-[820px] border-collapse table-fixed">
+            <colgroup>
+              <col className="w-16" />
+              <col />
+              <col className="w-32" />
+              <col className="w-24" />
+              <col className="w-36" />
+            </colgroup>
             <thead>
               <tr className="border-b border-line-soft bg-cream/70 text-left">
                 <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">순서</th>
