@@ -292,8 +292,15 @@ export async function getEventsData() {
       .order('year', { ascending: false }),
     'event years',
   );
-  const scheduleYear = yearRows.find((row) => row.display_type === 'schedule')?.year ?? currentYear;
-  const reportYear = yearRows.find((row) => row.display_type === 'report')?.year ?? scheduleYear - 1;
+  // 일정(schedule) 우선, 보고(report) 나중 → 연도 내림차순
+  const sorted = [...yearRows].sort((a, b) => {
+    const typeOrder = (t: string) => (t === 'schedule' ? 0 : 1);
+    const typeDiff = typeOrder(a.display_type) - typeOrder(b.display_type);
+    if (typeDiff !== 0) return typeDiff;
+    return b.year - a.year;
+  });
+  const scheduleYear = sorted.find((row) => row.display_type === 'schedule')?.year ?? currentYear;
+  const reportYear = sorted.find((row) => row.display_type === 'report')?.year ?? scheduleYear - 1;
   const events = await must(
     supabase
       .from('events')

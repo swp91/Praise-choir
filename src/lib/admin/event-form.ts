@@ -116,7 +116,12 @@ export function parseDeleteEventYearForm(formData: FormData): DeleteEventYearFor
 }
 
 export function sortEventYears<T extends EventYearLike>(years: T[]) {
-  return [...years].sort((a, b) => b.year - a.year);
+  return [...years].sort((a, b) => {
+    const typeOrder = (t: string) => (t === 'schedule' ? 0 : 1);
+    const typeDiff = typeOrder(a.displayType) - typeOrder(b.displayType);
+    if (typeDiff !== 0) return typeDiff;
+    return b.year - a.year;
+  });
 }
 
 function sortKey(event: SortableEventLike) {
