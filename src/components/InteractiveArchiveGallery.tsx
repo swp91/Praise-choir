@@ -17,7 +17,6 @@ type ActivePhoto = {
 };
 
 const heightPattern = [300, 380, 330, 420, 310, 360, 440, 320, 390, 340];
-const yPattern = [4, -3, 7, 0, 5, -2, 6, 3, -4, 2];
 
 function tripled<T>(items: T[]) {
   return [...items, ...items, ...items];
@@ -165,7 +164,6 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
           {loopedPhotos.map((photo, index) => {
             const originalIndex = index % photos.length;
             const height = heightPattern[originalIndex % heightPattern.length];
-            const y = yPattern[originalIndex % yPattern.length];
 
             return (
               <button
@@ -175,7 +173,6 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
                 }}
                 type="button"
                 className="group relative shrink-0 overflow-hidden bg-card shadow-[0_18px_45px_rgba(42,38,32,0.12)] will-change-transform"
-                style={{ transform: `translateY(${y}px)` }}
                 onClick={(event) => openPhoto(photo, event.currentTarget)}
               >
                 {photo.url ? (
