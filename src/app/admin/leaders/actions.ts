@@ -8,6 +8,8 @@ import {
   deleteOfficer,
   parseMusicStaffForm,
   parseOfficerForm,
+  reorderOfficers,
+  setOfficerActive,
   updateMusicStaff,
   updateOfficer,
 } from '@/lib/admin/leadership';
@@ -62,7 +64,7 @@ export async function createOfficerAction(formData: FormData) {
 export async function updateOfficerAction(formData: FormData) {
   await requireAdmin();
   const parsed = parseOfficerForm(formData);
-  if (!parsed.id || !parsed.personId || !parsed.roleText) {
+  if (!parsed.id || !parsed.roleText) {
     errorRedirect('수정할 임원과 직무를 확인해 주세요.');
   }
 
@@ -74,6 +76,18 @@ export async function updateOfficerAction(formData: FormData) {
 
   revalidateLeadership();
   redirect('/admin/leaders');
+}
+
+export async function setOfficerActiveAction(id: string, active: boolean) {
+  await requireAdmin();
+  await setOfficerActive(id, active);
+  revalidateLeadership();
+}
+
+export async function reorderOfficersAction(orderedIds: string[]) {
+  await requireAdmin();
+  await reorderOfficers(orderedIds);
+  revalidateLeadership();
 }
 
 export async function deleteOfficerAction(formData: FormData) {

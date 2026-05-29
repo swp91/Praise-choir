@@ -26,7 +26,6 @@ type LeadershipAssignmentRow = {
   person_id: string | null;
   group_key: string;
   role_text: string;
-  role_en: string | null;
   since_text: string | null;
   note: string | null;
   photo_asset_id: string | null;
@@ -285,7 +284,6 @@ export async function getLeadersData() {
       if (!person) continue;
       officers.push({
         role: assignment.role_text,
-        roleEn: assignment.role_en ?? '',
         name: displayName,
         part: '',
         photo,

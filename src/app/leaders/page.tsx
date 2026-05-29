@@ -50,7 +50,6 @@ export default async function LeadersPage() {
                   </div>
                   <div className="font-ko text-[13px] font-bold leading-snug max-[880px]:text-[12px]">{o.name}</div>
                   <div className="font-ko text-[11px] text-ink-soft mt-0.5 max-[880px]:text-[10px]">{o.role}</div>
-                  <div className="font-en text-[9px] tracking-[0.18em] uppercase text-gold-deep italic mt-0.5">{o.roleEn ?? ''}</div>
                 </div>
               );
             })}

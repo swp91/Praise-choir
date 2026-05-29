@@ -29,7 +29,6 @@ export type Officer = {
   name: string;
   part: string;
   photo?: string;
-  roleEn?: string;
 };
 
 export type ChoirEvent = {
