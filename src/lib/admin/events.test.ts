@@ -9,13 +9,13 @@ import {
   sortEventsByDate,
 } from './event-form.ts';
 
-test('parses an event form with a specific date', () => {
+test('parses an event form with a specific month and day', () => {
   const formData = new FormData();
   formData.set('year', '2026');
   formData.set('title', '  제27회 광진찬양제 ');
   formData.set('detail', '  2026.07.05 예정 ');
-  formData.set('event_date', '2026-07-05');
-  formData.set('month', '');
+  formData.set('month', '7');
+  formData.set('day', '5');
   formData.set('is_highlight', 'on');
   formData.set('is_published', 'on');
 
@@ -29,8 +29,7 @@ test('parses an event form with a specific date', () => {
     detail: '2026.07.05 예정',
     eventDate: '2026-07-05',
     month: 7,
-    dateLabel: '26.07',
-    category: null,
+    dateLabel: '26.07.05',
     isHighlight: true,
     isPublished: true,
   });
@@ -103,14 +102,14 @@ test('parses a delete event year form', () => {
   assert.deepEqual(result.value, { year: 2032 });
 });
 
-test('sorts event years by year descending', () => {
+test('sorts event years by display type, then year descending', () => {
   assert.deepEqual(
     sortEventYears([
       { year: 2026, displayType: 'schedule' },
       { year: 2025, displayType: 'report' },
       { year: 2032, displayType: 'report' },
     ]).map((option) => option.year),
-    [2032, 2026, 2025],
+    [2026, 2032, 2025],
   );
 });
 
