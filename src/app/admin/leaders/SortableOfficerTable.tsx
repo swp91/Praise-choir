@@ -176,7 +176,7 @@ export default function SortableOfficerTable({ officers: initialOfficers, editId
             <colgroup>
               <col className="w-16" />
               <col />
-              <col className="w-32" />
+              <col className="w-44" />
               <col className="w-24" />
               <col className="w-44" />
             </colgroup>
