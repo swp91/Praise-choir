@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
 import {
   createOfficer,
+  deleteMusicStaff,
   deleteOfficer,
   parseMusicStaffForm,
   parseOfficerForm,
@@ -42,6 +43,21 @@ export async function updateMusicStaffAction(formData: FormData) {
 
   revalidateLeadership();
   redirect(`/admin/leaders#staff-${parsed.id}`);
+}
+
+export async function deleteMusicStaffAction(formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get('id') ?? '');
+  if (!id) errorRedirect('삭제할 스태프를 찾지 못했습니다.');
+
+  try {
+    await deleteMusicStaff(id);
+  } catch {
+    errorRedirect('상단 스태프를 삭제하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
+  }
+
+  revalidateLeadership();
+  redirect('/admin/leaders#music-staff');
 }
 
 export async function createOfficerAction(formData: FormData) {

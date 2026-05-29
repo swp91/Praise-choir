@@ -13,6 +13,7 @@ import {
   updateMusicStaffAction,
   updateOfficerAction,
 } from './actions';
+import DeleteMusicStaffButton from './DeleteMusicStaffButton';
 import SortableOfficerTable from './SortableOfficerTable';
 
 type Props = {
@@ -102,10 +103,6 @@ function MusicStaffCard({ staff, editing }: { staff: AdminMusicStaff; editing: b
             <label className={labelClass} htmlFor={`note-${staff.id}`}>메모</label>
             <input id={`note-${staff.id}`} name="note" className={inputClass} defaultValue={staff.note} />
           </div>
-          <label className="flex items-center gap-2 font-ko text-[13px] text-ink">
-            <input type="checkbox" name="is_active" defaultChecked={staff.isActive} />
-            공개
-          </label>
         </div>
 
         <div className="flex justify-end gap-2 border-t border-line px-5 py-4">
@@ -127,7 +124,7 @@ function MusicStaffCard({ staff, editing }: { staff: AdminMusicStaff; editing: b
   }
 
   return (
-    <article id={`staff-${staff.id}`} className={`scroll-mt-6 border border-line bg-card ${!staff.isActive ? 'opacity-60' : ''}`}>
+      <article id={`staff-${staff.id}`} className="scroll-mt-6 border border-line bg-card">
       <div className="flex items-center gap-4 border-b border-line bg-card-head px-5 py-4">
         <PhotoPreview src={staff.photoUrl} name={staff.name} />
         <div>
@@ -153,22 +150,14 @@ function MusicStaffCard({ staff, editing }: { staff: AdminMusicStaff; editing: b
           <dd className="mt-1 text-ink-soft">{staff.note || '-'}</dd>
         </div>
       </dl>
-      <div className="flex items-center justify-between border-t border-line px-5 py-4">
-        <span
-          className={`border px-3 py-1 font-ko text-[11px] ${
-            staff.isActive
-              ? 'border-green-400 bg-green-50 text-green-700'
-              : 'border-red-300 bg-red-50 text-red-600'
-          }`}
-        >
-          {staff.isActive ? '공개' : '비공개'}
-        </span>
+      <div className="flex items-center justify-end gap-2 border-t border-line px-5 py-4">
         <Link
           href={`/admin/leaders?editStaff=${staff.id}#staff-${staff.id}`}
           className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
         >
           수정
         </Link>
+        <DeleteMusicStaffButton id={staff.id} name={staff.name || '이름 미입력'} role={staff.roleText || '직무 미입력'} />
       </div>
     </article>
   );
@@ -254,7 +243,7 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
             </section>
           ) : null}
 
-          <section className="space-y-4">
+          <section id="music-staff" className="scroll-mt-6 space-y-4">
             <div className="border-b border-line pb-2">
               <h2 className="font-ko text-[22px] font-bold text-ink">지휘 · 반주 · 편곡</h2>
             </div>

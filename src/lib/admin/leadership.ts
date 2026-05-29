@@ -31,7 +31,6 @@ export type AdminMusicStaff = {
   photoUrl: string | null;
   photoAssetId: string | null;
   sortOrder: number;
-  isActive: boolean;
 };
 
 export type AdminOfficer = {
@@ -60,7 +59,6 @@ export type MusicStaffFormValue = {
   birthLabel: string | null;
   phoneLabel: string | null;
   note: string | null;
-  isActive: boolean;
   photoFile: File | null;
 };
 
@@ -159,7 +157,6 @@ export function parseMusicStaffForm(formData: FormData): MusicStaffFormValue {
     birthLabel: text(formData.get('birth_label')),
     phoneLabel: text(formData.get('phone_label')),
     note: text(formData.get('note')),
-    isActive: formData.get('is_active') === 'on',
     photoFile: fileFromForm(formData),
   };
 }
@@ -216,7 +213,6 @@ export async function getAdminLeadershipData(): Promise<AdminLeadershipData> {
           photoUrl: publicAssetUrl(photo),
           photoAssetId: assignment.photo_asset_id ? String(assignment.photo_asset_id) : null,
           sortOrder: Number(assignment.sort_order ?? 0),
-          isActive: assignment.is_active !== false,
         };
       }),
     officers: assignments
@@ -275,13 +271,21 @@ export async function updateMusicStaff(value: MusicStaffFormValue) {
     external_phone_label: value.phoneLabel,
     external_show_birth: true,
     external_show_phone: true,
-    is_active: value.isActive,
+    is_active: true,
   };
   if (photoAssetId) payload.photo_asset_id = photoAssetId;
 
   must(
     await supabase.from('leadership_assignments').update(payload).eq('id', value.id),
     '상단 스태프 수정 실패',
+  );
+}
+
+export async function deleteMusicStaff(id: string) {
+  const supabase = getSupabaseAdmin();
+  must(
+    await supabase.from('leadership_assignments').delete().eq('id', id).eq('group_key', 'music_ministry'),
+    '상단 스태프 삭제 실패',
   );
 }
 
