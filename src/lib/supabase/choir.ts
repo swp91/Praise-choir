@@ -149,7 +149,7 @@ export async function getHomeData() {
       'people count',
     ),
     must(
-      supabase.from('sections').select('id').eq('is_active', true),
+      supabase.from('sections').select('id').eq('is_active', true).neq('kind', 'other'),
       'sections count',
     ),
     must(
