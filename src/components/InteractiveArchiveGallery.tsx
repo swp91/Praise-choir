@@ -175,10 +175,9 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       })
       .to(overlay, {
         backgroundColor: 'rgba(247,242,229,0)',
-        autoAlpha: 0,
         duration: 0.5,
         ease: 'power2.out',
-      }, 0);
+      }, 0.18);
   }
 
   return (
