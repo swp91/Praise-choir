@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import type { Photo } from '@/lib/types';
 import InteractiveArchiveGallery from './InteractiveArchiveGallery';
 
@@ -29,13 +29,11 @@ function Placeholder({ photo }: { photo: Photo }) {
 
 export default function Gallery({ photos }: { photos: Photo[] }) {
   const [active, setActive] = useState<Photo | null>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!active) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setActive(null); };
     document.addEventListener('keydown', onKey);
-    closeRef.current?.focus();
     return () => document.removeEventListener('keydown', onKey);
   }, [active]);
 
@@ -83,13 +81,6 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
           onClick={e => { if (e.target === e.currentTarget) setActive(null); }}
         >
           <div className="max-w-200 w-full bg-card border border-gold p-3.5 relative">
-            <button
-              ref={closeRef}
-              type="button"
-              aria-label="닫기"
-              className="absolute -top-9.5 right-0 bg-card border border-line text-ink w-8 h-8 cursor-pointer font-en text-[18px]"
-              onClick={() => setActive(null)}
-            >x</button>
             <div className="relative max-h-[72vh] overflow-hidden">
               {active.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
