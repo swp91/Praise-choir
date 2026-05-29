@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { updateAnnualProfileAction } from './actions';
 
 const inputClass =
-  'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep';
-const labelClass = 'block font-ko text-[12px] font-bold text-ink mb-1.5';
+  'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[15px] text-ink outline-none transition focus:border-gold-deep';
+const labelClass = 'block font-ko text-[14px] font-bold text-ink mb-1.5';
 
 type Props = {
   year: number;
@@ -21,11 +21,11 @@ export default function AnnualProfileEditor({ year, themeKo, goalTitleKo }: Prop
       <div className="px-5 py-5 space-y-4">
         <div>
           <p className={labelClass}>표어 (큰 제목)</p>
-          <p className="font-ko text-[14px] leading-relaxed text-ink">{themeKo || '—'}</p>
+          <p className="font-ko text-[18px] font-bold leading-relaxed text-ink">{themeKo || '—'}</p>
         </div>
         <div>
           <p className={labelClass}>목표 섹션 제목</p>
-          <p className="font-ko text-[13px] text-ink">{goalTitleKo || '—'}</p>
+          <p className="font-ko text-[16px] font-bold text-ink">{goalTitleKo || '—'}</p>
         </div>
         <div className="flex justify-end">
           <button

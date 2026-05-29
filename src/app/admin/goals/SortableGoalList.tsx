@@ -80,11 +80,11 @@ function GoalRow({
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={2}
-            className="w-full border border-gold-deep bg-cream px-3 py-2 font-ko text-[13px] text-ink outline-none resize-none"
+            className="w-full border border-gold-deep bg-cream px-3 py-2 font-ko text-[15px] text-ink outline-none resize-none"
             autoFocus
           />
         ) : (
-          <p className="font-ko text-[13px] leading-relaxed text-ink">{text}</p>
+          <p className="font-ko text-[15px] leading-relaxed text-ink">{text}</p>
         )}
       </div>
 
