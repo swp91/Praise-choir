@@ -172,18 +172,20 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
                   if (node) cardsRef.current[index] = node;
                 }}
                 type="button"
-                className="group relative shrink-0 overflow-hidden bg-card shadow-[0_18px_45px_rgba(42,38,32,0.12)] will-change-transform"
+                className="group relative flex h-full shrink-0 items-center overflow-visible bg-transparent will-change-transform"
                 onClick={(event) => openPhoto(photo, event.currentTarget)}
               >
                 {photo.url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={photo.url}
-                    alt={photo.title}
-                    className="block w-auto object-contain"
-                    style={{ height }}
-                    draggable={false}
-                  />
+                  <span className="relative block overflow-hidden bg-card shadow-[0_18px_45px_rgba(42,38,32,0.12)]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={photo.url}
+                      alt={photo.title}
+                      className="block w-auto object-contain"
+                      style={{ height }}
+                      draggable={false}
+                    />
+                  </span>
                 ) : null}
               </button>
             );
