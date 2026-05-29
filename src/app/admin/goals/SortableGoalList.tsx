@@ -126,7 +126,7 @@ function GoalRow({
               : 'border-red-300 bg-red-50 text-red-600'
           }`}
         >
-          {isActive ? '활성' : '비활성'}
+          {isActive ? '공개' : '비공개'}
         </button>
 
         <DeleteGoalButton id={goal.id} text={goal.text} />
