@@ -62,7 +62,12 @@ function OfficerRow({
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 };
 
   return (
-    <tr ref={setNodeRef} style={style} className="border-b border-line-soft last:border-b-0">
+    <tr
+      id={`officer-${officer.id}`}
+      ref={setNodeRef}
+      style={style}
+      className="scroll-mt-6 border-b border-line-soft last:border-b-0"
+    >
       <td className="px-4 py-3">
         <button
           type="button"
@@ -110,7 +115,7 @@ function OfficerRow({
                 저장
               </button>
               <Link
-                href="/admin/leaders"
+                href={`/admin/leaders#officer-${officer.id}`}
                 className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
               >
                 취소
@@ -119,7 +124,7 @@ function OfficerRow({
           ) : (
             <>
               <Link
-                href={`/admin/leaders?editOfficer=${officer.id}`}
+                href={`/admin/leaders?editOfficer=${officer.id}#officer-${officer.id}`}
                 className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
               >
                 수정

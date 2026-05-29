@@ -19,7 +19,7 @@ async function requireAdmin() {
 }
 
 function errorRedirect(error: string): never {
-  redirect(`/admin/leaders?error=${encodeURIComponent(error)}`);
+  redirect(`/admin/leaders?error=${encodeURIComponent(error)}#leaders-message`);
 }
 
 function revalidateLeadership() {
@@ -41,7 +41,7 @@ export async function updateMusicStaffAction(formData: FormData) {
   }
 
   revalidateLeadership();
-  redirect('/admin/leaders');
+  redirect(`/admin/leaders#staff-${parsed.id}`);
 }
 
 export async function createOfficerAction(formData: FormData) {
@@ -58,7 +58,7 @@ export async function createOfficerAction(formData: FormData) {
   }
 
   revalidateLeadership();
-  redirect('/admin/leaders');
+  redirect('/admin/leaders#officers');
 }
 
 export async function updateOfficerAction(formData: FormData) {
@@ -75,7 +75,7 @@ export async function updateOfficerAction(formData: FormData) {
   }
 
   revalidateLeadership();
-  redirect('/admin/leaders');
+  redirect(`/admin/leaders#officer-${parsed.id}`);
 }
 
 export async function setOfficerActiveAction(id: string, active: boolean) {
@@ -102,5 +102,5 @@ export async function deleteOfficerAction(formData: FormData) {
   }
 
   revalidateLeadership();
-  redirect('/admin/leaders');
+  redirect('/admin/leaders#officers');
 }

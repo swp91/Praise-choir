@@ -52,7 +52,12 @@ function PhotoPreview({ src, name }: { src: string | null; name: string }) {
 function MusicStaffCard({ staff, editing }: { staff: AdminMusicStaff; editing: boolean }) {
   if (editing) {
     return (
-      <form action={updateMusicStaffAction} encType="multipart/form-data" className="border border-line bg-card">
+      <form
+        id={`staff-${staff.id}`}
+        action={updateMusicStaffAction}
+        encType="multipart/form-data"
+        className="scroll-mt-6 border border-line bg-card"
+      >
         <input type="hidden" name="id" value={staff.id} />
         <div className="flex items-center gap-4 border-b border-line bg-card-head px-5 py-4">
           <PhotoPreview src={staff.photoUrl} name={staff.name} />
@@ -105,7 +110,7 @@ function MusicStaffCard({ staff, editing }: { staff: AdminMusicStaff; editing: b
 
         <div className="flex justify-end gap-2 border-t border-line px-5 py-4">
           <Link
-            href="/admin/leaders"
+            href={`/admin/leaders#staff-${staff.id}`}
             className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
           >
             취소
@@ -122,7 +127,7 @@ function MusicStaffCard({ staff, editing }: { staff: AdminMusicStaff; editing: b
   }
 
   return (
-    <article className={`border border-line bg-card ${!staff.isActive ? 'opacity-60' : ''}`}>
+    <article id={`staff-${staff.id}`} className={`scroll-mt-6 border border-line bg-card ${!staff.isActive ? 'opacity-60' : ''}`}>
       <div className="flex items-center gap-4 border-b border-line bg-card-head px-5 py-4">
         <PhotoPreview src={staff.photoUrl} name={staff.name} />
         <div>
@@ -159,7 +164,7 @@ function MusicStaffCard({ staff, editing }: { staff: AdminMusicStaff; editing: b
           {staff.isActive ? '공개' : '비공개'}
         </span>
         <Link
-          href={`/admin/leaders?editStaff=${staff.id}`}
+          href={`/admin/leaders?editStaff=${staff.id}#staff-${staff.id}`}
           className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
         >
           수정
@@ -240,7 +245,7 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
           </div>
         </header>
 
-        <div className="mt-6 space-y-6">
+        <div id="leaders-message" className="mt-6 space-y-6">
           <ErrorMessage error={params?.error} />
 
           {!data.configured ? (
@@ -260,11 +265,11 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
             </div>
           </section>
 
-          <section className="border border-line bg-card">
+          <section id="officers" className="scroll-mt-6 border border-line bg-card">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-card-head px-5 py-4">
               <h2 className="font-ko text-[22px] font-bold text-ink">임원진</h2>
               <Link
-                href="/admin/leaders?addOfficer=1"
+                href="/admin/leaders?addOfficer=1#officers"
                 className="border border-gold-deep bg-gold-deep px-4 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
               >
                 + 임원 추가
