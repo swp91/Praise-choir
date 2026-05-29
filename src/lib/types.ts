@@ -37,6 +37,8 @@ export type ChoirEvent = {
   title: string;
   detail?: string;
   highlight?: boolean;
+  eventDate?: string;
+  month?: number;
 };
 
 export type PracticeSlot = {

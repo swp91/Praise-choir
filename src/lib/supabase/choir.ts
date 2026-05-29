@@ -296,12 +296,21 @@ export async function getEventsData() {
     'events',
   );
 
-  const toEvent = (event: { date_label: string | null; title: string; detail: string | null; is_highlight: boolean }) =>
+  const toEvent = (event: {
+    date_label: string | null;
+    title: string;
+    detail: string | null;
+    is_highlight: boolean;
+    event_date: string | null;
+    month: number | null;
+  }) =>
     ({
       when: event.date_label ?? '미정',
       title: event.title,
       detail: event.detail ?? undefined,
       highlight: event.is_highlight,
+      eventDate: event.event_date ?? undefined,
+      month: event.month ?? undefined,
     }) satisfies ChoirEvent;
 
   return {

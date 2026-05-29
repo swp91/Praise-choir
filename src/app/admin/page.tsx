@@ -35,7 +35,8 @@ const ADMIN_SECTIONS: AdminSection[] = [
   {
     title: '일정 관리',
     description: '연도별 일정과 보고 일정을 추가, 수정, 삭제합니다.',
-    status: '준비 중',
+    status: '관리하기',
+    href: '/admin/events',
   },
   {
     title: '갤러리 관리',

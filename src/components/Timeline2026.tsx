@@ -3,6 +3,11 @@ import { useMemo } from 'react';
 import type { ChoirEvent } from '@/lib/types';
 
 function parseSpecificDate(event: ChoirEvent): Date | null {
+  if (event.eventDate) {
+    const [year, month, day] = event.eventDate.split('-').map(Number);
+    if (year && month && day) return new Date(year, month - 1, day);
+  }
+
   if (!event.detail) return null;
   const m1 = event.detail.match(/20(\d{2})\.(\d{2})\.(\d{2})/);
   if (m1) return new Date(2000 + parseInt(m1[1]), parseInt(m1[2]) - 1, parseInt(m1[3]));
