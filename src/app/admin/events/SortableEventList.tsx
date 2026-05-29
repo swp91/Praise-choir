@@ -156,7 +156,7 @@ export default function SortableEventList({ events: initialEvents, year, actions
             <div className="text-center font-ko text-[12px] text-ink-mute">순번</div>
             <div className="text-center font-ko text-[12px] text-ink-mute">날짜</div>
             <div className="font-ko text-[12px] text-ink-mute">내용</div>
-            <div />
+            <div className="font-ko text-[12px] text-ink-mute">관리</div>
           </div>
           {events.map((event, index) => (
             <EventRow key={event.id} event={event} index={index} year={year} actions={actions} />
