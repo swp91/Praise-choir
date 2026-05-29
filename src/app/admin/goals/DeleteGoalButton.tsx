@@ -16,7 +16,7 @@ export default function DeleteGoalButton({ id, text }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="border border-line bg-cream px-3 py-1.5 font-ko text-[12px] text-ink-soft transition hover:border-red-300 hover:text-red-600"
+        className="border border-red-200 bg-red-50 px-3 py-1.5 font-ko text-[12px] font-bold text-red-700 transition hover:border-red-500 hover:bg-red-100 hover:text-red-800"
       >
         삭제
       </button>

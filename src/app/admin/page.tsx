@@ -27,7 +27,7 @@ const ADMIN_SECTIONS: AdminSection[] = [
     status: '준비 중',
   },
   {
-    title: '목표 관리',
+    title: '표어, 목표관리',
     description: '연도별 큰 제목과 일곱 가지 목표 항목을 관리합니다.',
     status: '관리하기',
     href: '/admin/goals',

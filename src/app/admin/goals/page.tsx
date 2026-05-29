@@ -35,7 +35,7 @@ export default async function AdminGoalsPage() {
               Praise Choir Admin
             </p>
             <h1 className="font-ko text-[clamp(26px,4vw,42px)] font-bold leading-tight text-ink">
-              목표 관리
+              표어, 목표관리
             </h1>
             <p className="mt-3 font-ko text-[14px] leading-relaxed text-ink-soft">
               연도별 표어와 목표 항목을 관리합니다.
