@@ -40,6 +40,7 @@ type AnnualProfileRow = {
 };
 
 type GalleryItemRow = {
+  id: string;
   title: string;
   date_label: string | null;
   taken_date: string | null;
@@ -360,7 +361,7 @@ export async function getGalleryData(): Promise<Photo[]> {
   const items = await must<GalleryItemRow[]>(
     supabase
       .from('gallery_items')
-      .select('title, date_label, taken_date, is_featured, media_asset_id, gallery_albums(key)')
+      .select('id, title, date_label, taken_date, is_featured, media_asset_id, gallery_albums(key)')
       .eq('is_published', true)
       .order('sort_order'),
     'gallery items',
@@ -375,6 +376,7 @@ export async function getGalleryData(): Promise<Photo[]> {
   const mediaById = new Map((media as MediaAsset[]).map((asset) => [asset.id, asset]));
 
   return items.map((item) => ({
+    id: item.id,
     title: item.title,
     date: item.date_label ?? item.taken_date ?? '',
     album: ((Array.isArray(item.gallery_albums) ? item.gallery_albums[0]?.key : item.gallery_albums?.key) ?? 'practice') as Photo['album'],

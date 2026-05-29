@@ -2,22 +2,17 @@
 import { useState, useEffect, useRef } from 'react';
 import type { Photo } from '@/lib/types';
 
-const RATIOS = [
-  'aspect-16/9',
-  'aspect-3/4',
-  'aspect-1/1',
-  'aspect-3/4',
-  'aspect-4/3',
-  'aspect-4/3',
-  'aspect-3/4',
-  'aspect-16/9',
-  'aspect-3/4',
-  'aspect-1/1',
-  'aspect-16/9',
-  'aspect-3/4',
-  'aspect-4/3',
-  'aspect-3/4',
-  'aspect-1/1',
+const TILE_CLASSES = [
+  'col-span-1 row-span-1',
+  'col-span-1 row-span-2',
+  'col-span-2 row-span-1',
+  'col-span-1 row-span-1',
+  'col-span-1 row-span-1',
+  'col-span-2 row-span-1',
+  'col-span-1 row-span-2',
+  'col-span-2 row-span-2',
+  'col-span-2 row-span-1',
+  'col-span-1 row-span-1',
 ];
 
 function Placeholder({ photo }: { photo: Photo }) {
@@ -65,20 +60,24 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
         </div>
       )}
 
-      <div className="columns-3 gap-4 max-[880px]:columns-2 max-[880px]:gap-2.5">
+      <div className="grid auto-rows-[118px] grid-cols-2 gap-2.5 min-[640px]:auto-rows-[150px] min-[640px]:grid-cols-4 min-[1120px]:auto-rows-[178px]">
         {photos.map((p, i) => (
-          <div key={p.title} className="break-inside-avoid mb-4 max-[880px]:mb-2.5">
+          <div key={p.id ?? `${p.title}-${i}`} className={TILE_CLASSES[i % TILE_CLASSES.length]}>
             <button
               type="button"
-              className="w-full bg-card border border-line-soft p-2.5 cursor-pointer transition-all duration-250 hover:border-gold hover:-translate-y-0.5 text-left block"
+              className="group h-full w-full bg-card border border-line-soft p-1.5 cursor-pointer transition-all duration-250 hover:border-gold text-left block"
               onClick={() => setActive(p)}
             >
-              <div className={`relative overflow-hidden ${RATIOS[i % RATIOS.length]}`}>
+              <div className="relative h-full overflow-hidden">
                 <Placeholder photo={p} />
-              </div>
-              <div className="pt-2.5 px-1 pb-1 flex justify-between gap-3 items-baseline">
-                <span className="font-ko text-[13px] font-bold">{p.title}</span>
-                <span className="font-en italic text-[11px] text-gold-deep [font-variant-numeric:tabular-nums]">{p.date}</span>
+                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/75 to-transparent px-3 pb-2.5 pt-12 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <span className="block font-ko text-[12px] font-bold leading-snug text-cream">{p.title}</span>
+                  {p.date ? (
+                    <span className="mt-0.5 block font-en italic text-[10px] text-cream/80 [font-variant-numeric:tabular-nums]">
+                      {p.date}
+                    </span>
+                  ) : null}
+                </div>
               </div>
             </button>
           </div>
@@ -90,7 +89,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
           role="dialog"
           aria-modal="true"
           aria-labelledby="gallery-modal-title"
-          className="fixed inset-0 bg-[rgba(45,36,24,0.92)] backdrop-blur-sm z-200 flex items-center justify-center p-6"
+          className="fixed inset-0 bg-cream/95 backdrop-blur-sm z-200 flex items-center justify-center p-6"
           onClick={e => { if (e.target === e.currentTarget) setActive(null); }}
         >
           <div className="max-w-200 w-full bg-card border border-gold p-3.5 relative">
@@ -98,9 +97,9 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
               ref={closeRef}
               type="button"
               aria-label="닫기"
-              className="absolute -top-9.5 right-0 bg-transparent border border-white/50 text-white/95 w-8 h-8 cursor-pointer font-en text-[18px]"
+              className="absolute -top-9.5 right-0 bg-card border border-line text-ink w-8 h-8 cursor-pointer font-en text-[18px]"
               onClick={() => setActive(null)}
-            >×</button>
+            >x</button>
             <div className="aspect-4/3 relative overflow-hidden"><Placeholder photo={active} /></div>
             <div className="pt-3.5 px-1.5 pb-1 text-center">
               <h3 id="gallery-modal-title" className="font-ko text-[20px] font-bold mb-1">{active.title}</h3>

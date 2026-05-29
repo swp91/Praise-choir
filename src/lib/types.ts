@@ -47,6 +47,7 @@ export type PracticeSlot = {
 };
 
 export type Photo = {
+  id?: string;
   title: string;
   date: string;
   album: 'cantata' | 'festival' | 'revival' | 'outing' | 'practice';

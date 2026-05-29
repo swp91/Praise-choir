@@ -41,8 +41,9 @@ const ADMIN_SECTIONS: AdminSection[] = [
   },
   {
     title: '갤러리 관리',
-    description: 'Supabase Storage에 사진을 업로드하고 앨범을 구성합니다.',
-    status: '준비 중',
+    description: 'Supabase Storage에 사진을 한 장씩 업로드하고 공개 갤러리 순서를 관리합니다.',
+    status: '관리하기',
+    href: '/admin/gallery',
   },
 ];
 
