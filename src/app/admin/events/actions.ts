@@ -3,9 +3,10 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
-import { parseEventForm } from '@/lib/admin/event-form';
+import { parseEventForm, parseEventYearForm } from '@/lib/admin/event-form';
 import {
   createEvent,
+  createEventYear,
   deleteEvent,
   reorderEvents,
   setEventHighlight,
@@ -31,6 +32,21 @@ function revalidateEvents() {
   revalidatePath('/events');
   revalidatePath('/admin/events');
   revalidatePath('/');
+}
+
+export async function createEventYearAction(formData: FormData) {
+  await requireAdmin();
+  const parsed = parseEventYearForm(formData);
+  if (!parsed.ok) errorRedirect(parsed.errors.join(' '));
+
+  try {
+    await createEventYear(parsed.value);
+  } catch {
+    errorRedirect('연도를 추가하지 못했습니다. 이미 등록된 연도인지 확인해 주세요.');
+  }
+
+  revalidateEvents();
+  redirect(eventsPath(parsed.value.year));
 }
 
 export async function createEventAction(formData: FormData) {

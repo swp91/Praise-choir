@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
-import { getAdminEventsData, type AdminEvent } from '@/lib/admin/events';
+import { getAdminEventsData, type AdminEvent, type AdminEventYear } from '@/lib/admin/events';
 import {
   createEventAction,
+  createEventYearAction,
   reorderEventsAction,
   setEventHighlightAction,
   setEventPublishedAction,
@@ -15,6 +16,7 @@ type Props = {
   searchParams?: Promise<{
     year?: string;
     edit?: string;
+    addYear?: string;
     error?: string;
   }>;
 };
@@ -37,21 +39,19 @@ function ErrorMessage({ error }: { error?: string }) {
 function YearTabs({
   years,
   selectedYear,
-  currentYear,
 }: {
-  years: number[];
+  years: AdminEventYear[];
   selectedYear: number;
-  currentYear: number;
 }) {
   return (
     <div className="flex flex-wrap gap-2">
-      {years.map((year) => {
-        const active = year === selectedYear;
-        const label = year === currentYear ? `${year} 일정` : year === currentYear - 1 ? `${year} 보고` : `${year}`;
+      {years.map((option) => {
+        const active = option.year === selectedYear;
+        const label = `${option.year} ${option.displayType === 'schedule' ? '일정' : '보고'}`;
         return (
           <Link
-            key={year}
-            href={`/admin/events?year=${year}`}
+            key={option.year}
+            href={`/admin/events?year=${option.year}`}
             className={`border px-3 py-1.5 font-ko text-[12px] transition ${
               active
                 ? 'border-gold-deep bg-gold-deep text-cream'
@@ -68,9 +68,11 @@ function YearTabs({
 
 function EventForm({
   year,
+  years,
   event,
 }: {
   year: number;
+  years: AdminEventYear[];
   event?: AdminEvent;
 }) {
   const action = event ? updateEventAction : createEventAction;
@@ -87,16 +89,19 @@ function EventForm({
 
         <div>
           <label className={labelClass} htmlFor="year">연도</label>
-          <input
+          <select
             id="year"
             name="year"
-            type="number"
-            min="2000"
-            max="2100"
             className={inputClass}
             defaultValue={event?.year ?? year}
             required
-          />
+          >
+            {years.map((option) => (
+              <option key={option.year} value={option.year}>
+                {option.year} {option.displayType === 'schedule' ? '일정' : '보고'}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
@@ -202,12 +207,65 @@ function EventForm({
   );
 }
 
+function YearCreateForm({
+  currentYear,
+  candidateYears,
+}: {
+  currentYear: number;
+  candidateYears: number[];
+}) {
+  return (
+    <section className="border border-line bg-card">
+      <div className="border-b border-line bg-card-head px-5 py-4">
+        <h2 className="font-ko text-[18px] font-bold text-ink">년도 추가</h2>
+      </div>
+      <form action={createEventYearAction} className="grid gap-4 px-5 py-5 min-[720px]:grid-cols-[1fr_1fr_auto] min-[720px]:items-end">
+        <div>
+          <label className={labelClass} htmlFor="new_event_year">년도</label>
+          <select id="new_event_year" name="year" className={inputClass} defaultValue={candidateYears[0] ?? currentYear + 1}>
+            {candidateYears.length ? (
+              candidateYears.map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))
+            ) : (
+              <option value="">추가 가능한 년도가 없습니다</option>
+            )}
+          </select>
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="display_type">표시 방식</label>
+          <select id="display_type" name="display_type" className={inputClass} defaultValue="schedule">
+            <option value="schedule">일정</option>
+            <option value="report">보고</option>
+          </select>
+        </div>
+        <div className="flex justify-end gap-2">
+          <Link
+            href="/admin/events"
+            className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
+          >
+            취소
+          </Link>
+          <button
+            type="submit"
+            disabled={!candidateYears.length}
+            className="border border-gold-deep bg-gold-deep px-5 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink disabled:cursor-not-allowed disabled:border-line disabled:bg-ink-mute"
+          >
+            추가
+          </button>
+        </div>
+      </form>
+    </section>
+  );
+}
+
 export default async function AdminEventsPage({ searchParams }: Props) {
   if (!(await isAdminAuthenticated())) redirect('/admin');
 
   const params = await searchParams;
   const data = await getAdminEventsData(params?.year);
   const editingEvent = params?.edit ? data.events.find((event) => event.id === params.edit) : undefined;
+  const showYearCreate = params?.addYear === '1';
 
   const actions = {
     reorder: reorderEventsAction,
@@ -227,12 +285,20 @@ export default async function AdminEventsPage({ searchParams }: Props) {
               일정 관리
             </h1>
           </div>
-          <Link
-            href="/admin"
-            className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
-          >
-            대시보드로
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              href="/admin/events?addYear=1"
+              className="border border-gold-deep bg-gold-deep px-4 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
+            >
+              + 년도추가
+            </Link>
+            <Link
+              href="/admin"
+              className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
+            >
+              대시보드로
+            </Link>
+          </div>
         </header>
 
         <div className="mt-6 space-y-4">
@@ -242,6 +308,10 @@ export default async function AdminEventsPage({ searchParams }: Props) {
             <section className="border border-red-200 bg-red-50 px-5 py-4 font-ko text-[13px] leading-relaxed text-red-800">
               관리자 쓰기 기능을 사용하려면 환경변수 SUPABASE_SERVICE_ROLE_KEY를 설정해야 합니다.
             </section>
+          ) : null}
+
+          {showYearCreate ? (
+            <YearCreateForm currentYear={data.currentYear} candidateYears={data.candidateYears} />
           ) : null}
 
           <section className="border border-line bg-card">
@@ -255,7 +325,6 @@ export default async function AdminEventsPage({ searchParams }: Props) {
               <YearTabs
                 years={data.yearOptions}
                 selectedYear={data.selectedYear}
-                currentYear={data.currentYear}
               />
             </div>
             {data.configured ? (
@@ -267,7 +336,7 @@ export default async function AdminEventsPage({ searchParams }: Props) {
             )}
           </section>
 
-          <EventForm year={data.selectedYear} event={editingEvent} />
+          <EventForm year={data.selectedYear} years={data.yearOptions} event={editingEvent} />
         </div>
       </div>
     </main>

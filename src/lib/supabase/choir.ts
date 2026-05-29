@@ -283,8 +283,17 @@ export async function getPracticeData() {
 }
 
 export async function getEventsData() {
-  const scheduleYear = await getCurrentYear();
-  const reportYear = scheduleYear - 1;
+  const currentYear = await getCurrentYear();
+  const yearRows = await must<{ year: number; display_type: string }[]>(
+    supabase
+      .from('event_years')
+      .select('year,display_type')
+      .eq('is_active', true)
+      .order('year', { ascending: false }),
+    'event years',
+  );
+  const scheduleYear = yearRows.find((row) => row.display_type === 'schedule')?.year ?? currentYear;
+  const reportYear = yearRows.find((row) => row.display_type === 'report')?.year ?? scheduleYear - 1;
   const events = await must(
     supabase
       .from('events')

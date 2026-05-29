@@ -14,6 +14,25 @@ export type EventFormResult =
   | { ok: true; value: EventFormValue }
   | { ok: false; errors: string[] };
 
+export type EventYearDisplayType = 'schedule' | 'report';
+
+export type EventYearFormValue = {
+  year: number;
+  displayType: EventYearDisplayType;
+};
+
+export type EventYearFormResult =
+  | { ok: true; value: EventYearFormValue }
+  | { ok: false; errors: string[] };
+
+export type SortableEventLike = {
+  id: string;
+  eventDate: string | null;
+  month: number | null;
+  sortOrder: number;
+  createdAt?: string | null;
+};
+
 function optionalText(value: FormDataEntryValue | null) {
   const text = String(value ?? '').trim();
   return text || null;
@@ -63,4 +82,34 @@ export function parseEventForm(formData: FormData): EventFormResult {
 
 export function buildEventReorderUpdates(orderedIds: string[]) {
   return orderedIds.map((id, sortOrder) => ({ id, sortOrder }));
+}
+
+export function parseEventYearForm(formData: FormData): EventYearFormResult {
+  const year = Number(formData.get('year'));
+  const displayType = String(formData.get('display_type') ?? '') as EventYearDisplayType;
+  const errors: string[] = [];
+
+  if (!year) errors.push('연도를 선택해 주세요.');
+  if (displayType !== 'schedule' && displayType !== 'report') errors.push('표시 방식을 선택해 주세요.');
+
+  if (errors.length) return { ok: false, errors };
+  return { ok: true, value: { year, displayType } };
+}
+
+function sortKey(event: SortableEventLike) {
+  if (event.eventDate) {
+    const [, month, day] = event.eventDate.split('-');
+    return `${month}-${day}-0`;
+  }
+  if (event.month) return `${String(event.month).padStart(2, '0')}-99-1`;
+  return '99-99-2';
+}
+
+export function sortEventsByDate<T extends SortableEventLike>(events: T[]) {
+  return [...events].sort((a, b) => {
+    const dateCompare = sortKey(a).localeCompare(sortKey(b));
+    if (dateCompare !== 0) return dateCompare;
+    if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+    return String(a.createdAt ?? '').localeCompare(String(b.createdAt ?? ''));
+  });
 }
