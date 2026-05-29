@@ -31,7 +31,7 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.55 : 1 };
 
   return (
-    <article ref={setNodeRef} style={style}>
+    <article ref={setNodeRef} style={style} className="mb-3 break-inside-avoid">
       <div className="group relative overflow-hidden border border-line bg-card">
         <img src={item.imageUrl} alt={item.title} className="block h-auto w-full" />
         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/80 to-transparent px-3 pb-3 pt-12">
@@ -85,7 +85,7 @@ export default function SortableGalleryGrid({ items: initialItems, reorderAction
           {saving ? (
             <div className="absolute right-0 top-[-28px] font-ko text-[12px] text-gold-deep">저장 중...</div>
           ) : null}
-          <div className="grid grid-cols-2 items-start gap-3 min-[760px]:grid-cols-4">
+          <div className="columns-2 gap-3 min-[760px]:columns-4">
             {items.map((item, index) => (
               <GalleryCard key={item.id} item={item} index={index} />
             ))}
