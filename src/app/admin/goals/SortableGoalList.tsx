@@ -164,7 +164,7 @@ export default function SortableGoalList({ goals: initialGoals, actions }: Props
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext id="admin-goals" sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={goals.map((g) => g.id)} strategy={verticalListSortingStrategy}>
         <div className="relative">
           {saving && (

@@ -142,7 +142,7 @@ export default function SortableEventList({ events: initialEvents, year, actions
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext id={`admin-events-${year}`} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={events.map((event) => event.id)} strategy={verticalListSortingStrategy}>
         <div className="relative">
           {saving ? (

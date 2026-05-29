@@ -132,7 +132,7 @@ export default function SortableMemberTable({ members, sectionId, reorderAction,
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext id={`admin-members-${sectionId}`} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
       <SortableContext items={items.map((m) => m.id)} strategy={verticalListSortingStrategy}>
         <div className="relative overflow-x-auto">
           {saving ? (
