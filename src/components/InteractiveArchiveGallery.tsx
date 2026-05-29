@@ -17,7 +17,7 @@ type ActivePhoto = {
 };
 
 const heightPattern = [300, 380, 330, 420, 310, 360, 440, 320, 390, 340];
-const yPattern = [20, -16, 68, 4, 44, -6, 58, 14, -22, 36];
+const yPattern = [4, -3, 7, 0, 5, -2, 6, 3, -4, 2];
 
 function tripled<T>(items: T[]) {
   return [...items, ...items, ...items];
@@ -52,10 +52,10 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       preventDefault: true,
       wheelSpeed: -1,
       onChangeX: (self) => {
-        velocityRef.current += self.deltaX * 0.7;
+        velocityRef.current += self.deltaX * 0.18;
       },
       onChangeY: (self) => {
-        velocityRef.current += self.deltaY * 0.9;
+        velocityRef.current += self.deltaY * 0.24;
       },
     });
 
@@ -64,12 +64,12 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       if (!setWidth) return;
 
       positionRef.current += velocityRef.current;
-      velocityRef.current *= 0.9;
+      velocityRef.current *= 0.84;
 
       if (positionRef.current < -setWidth * 2) positionRef.current += setWidth;
       if (positionRef.current > 0) positionRef.current -= setWidth;
 
-      const lean = gsap.utils.clamp(-9, 9, velocityRef.current * 0.035);
+      const lean = gsap.utils.clamp(-6, 6, velocityRef.current * 0.04);
       gsap.set(track, { x: positionRef.current });
       gsap.to(cardsRef.current, {
         rotateY: -lean,
@@ -159,7 +159,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
 
       <div
         ref={viewportRef}
-        className="absolute inset-x-0 top-[46%] z-10 h-[46vh] -translate-y-1/2 cursor-grab overflow-hidden active:cursor-grabbing"
+        className="absolute inset-x-0 top-1/2 z-10 h-[46vh] -translate-y-1/2 cursor-grab overflow-hidden active:cursor-grabbing"
       >
         <div ref={trackRef} className="flex h-full w-max items-center gap-8 px-[12vw] will-change-transform">
           {loopedPhotos.map((photo, index) => {
