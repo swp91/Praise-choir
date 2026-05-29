@@ -53,7 +53,7 @@ export default async function AdminGoalsPage() {
           {/* 연간 프로필 편집 */}
           <section className="border border-line bg-card">
             <div className="border-b border-line bg-card-head px-5 py-4">
-              <h2 className="font-ko text-[18px] font-bold text-ink">표어</h2>
+              <h2 className="font-ko text-[22px] font-bold text-ink">표어</h2>
             </div>
             <AnnualProfileEditor
               year={data.year}
@@ -66,7 +66,7 @@ export default async function AdminGoalsPage() {
           <section className="border border-line bg-card">
             <div className="border-b border-line bg-card-head px-5 py-4 flex items-center justify-between">
               <div>
-                <h2 className="font-ko text-[18px] font-bold text-ink">{data.goalTitleKo}</h2>
+                <h2 className="font-ko text-[22px] font-bold text-ink">{data.goalTitleKo}</h2>
                 <p className="mt-1 font-ko text-[12px] text-ink-mute">
                   번호를 드래그해서 순서를 변경합니다.
                 </p>
