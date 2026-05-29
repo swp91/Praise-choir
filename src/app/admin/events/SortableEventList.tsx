@@ -74,7 +74,7 @@ function EventRow({
         {index + 1}
       </button>
 
-      <div className="font-ko text-[13px] font-bold text-ink-soft max-[900px]:col-start-2">
+      <div className="font-ko text-[13px] font-bold text-ink-soft text-center max-[900px]:col-start-2">
         {displayDate(event)}
       </div>
 
