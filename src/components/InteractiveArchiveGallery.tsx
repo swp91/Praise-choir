@@ -122,9 +122,9 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         top: target.top,
         width: target.width,
         height: target.height,
-        duration: 0.85,
-        ease: 'expo.out',
-      });
+        duration: 1.05,
+        ease: 'power3.inOut',
+      }, '-=0.08');
   }, [active]);
 
   function targetRect(sourceRect: DOMRect) {
@@ -170,15 +170,15 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         top: active.rect.top,
         width: active.rect.width,
         height: active.rect.height,
-        duration: 0.68,
-        ease: 'expo.inOut',
+        duration: 0.9,
+        ease: 'power3.inOut',
       })
       .to(overlay, {
         backgroundColor: 'rgba(247,242,229,0)',
         autoAlpha: 0,
         duration: 0.4,
         ease: 'power2.out',
-      });
+      }, '-=0.08');
   }
 
   return (
