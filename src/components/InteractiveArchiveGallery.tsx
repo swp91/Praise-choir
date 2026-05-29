@@ -31,6 +31,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
   const positionRef = useRef(0);
   const velocityRef = useRef(0);
   const setWidthRef = useRef(0);
+  const closingRef = useRef(false);
   const [active, setActive] = useState<ActivePhoto | null>(null);
   const loopedPhotos = useMemo(() => tripled(photos), [photos]);
 
@@ -51,10 +52,10 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       preventDefault: true,
       wheelSpeed: -1,
       onChangeX: (self) => {
-        velocityRef.current += self.deltaX * 0.04;
+        velocityRef.current += self.deltaX * 0.055;
       },
       onChangeY: (self) => {
-        velocityRef.current += self.deltaY * 0.055;
+        velocityRef.current += self.deltaY * 0.075;
       },
     });
 
@@ -98,13 +99,10 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
 
     const overlay = overlayRef.current;
     const image = overlayImageRef.current;
-    const targetWidth = Math.min(window.innerWidth * 0.68, 980);
-    const sourceRatio = active.rect.width / active.rect.height;
-    const targetHeight = Math.min(targetWidth / sourceRatio, window.innerHeight * 0.72);
-    const finalWidth = targetHeight * sourceRatio;
-    const finalLeft = (window.innerWidth - finalWidth) / 2;
-    const finalTop = (window.innerHeight - targetHeight) / 2;
+    const target = targetRect(active.rect);
 
+    closingRef.current = false;
+    gsap.killTweensOf([overlay, image]);
     gsap.set(overlay, { autoAlpha: 1 });
     gsap.set(image, {
       left: active.rect.left,
@@ -112,20 +110,36 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       width: active.rect.width,
       height: active.rect.height,
     });
-    gsap.fromTo(
-      overlay,
-      { backgroundColor: 'rgba(247,242,229,0)' },
-      { backgroundColor: 'rgba(247,242,229,1)', duration: 0.28, ease: 'power2.out' },
-    );
-    gsap.to(image, {
-      left: finalLeft,
-      top: finalTop,
-      width: finalWidth,
-      height: targetHeight,
-      duration: 0.85,
-      ease: 'expo.out',
-    });
+    gsap
+      .timeline()
+      .fromTo(
+        overlay,
+        { backgroundColor: 'rgba(247,242,229,0)' },
+        { backgroundColor: 'rgba(247,242,229,1)', duration: 0.26, ease: 'power2.out' },
+      )
+      .to(image, {
+        left: target.left,
+        top: target.top,
+        width: target.width,
+        height: target.height,
+        duration: 0.85,
+        ease: 'expo.out',
+      }, '+=0.5');
   }, [active]);
+
+  function targetRect(sourceRect: DOMRect) {
+    const targetWidth = Math.min(window.innerWidth * 0.68, 980);
+    const sourceRatio = sourceRect.width / sourceRect.height;
+    const targetHeight = Math.min(targetWidth / sourceRatio, window.innerHeight * 0.72);
+    const width = targetHeight * sourceRatio;
+
+    return {
+      left: (window.innerWidth - width) / 2,
+      top: (window.innerHeight - targetHeight) / 2,
+      width,
+      height: targetHeight,
+    };
+  }
 
   function openPhoto(photo: Photo, element: HTMLButtonElement) {
     const image = element.querySelector('img');
@@ -134,16 +148,37 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
   }
 
   function closePhoto() {
-    if (!overlayRef.current) {
+    if (closingRef.current) return;
+    if (!active || !overlayRef.current || !overlayImageRef.current) {
       setActive(null);
       return;
     }
-    gsap.to(overlayRef.current, {
-      autoAlpha: 0,
-      duration: 0.26,
-      ease: 'power2.out',
-      onComplete: () => setActive(null),
-    });
+
+    closingRef.current = true;
+    const overlay = overlayRef.current;
+    const image = overlayImageRef.current;
+    gsap.killTweensOf([overlay, image]);
+    gsap
+      .timeline({
+        onComplete: () => {
+          closingRef.current = false;
+          setActive(null);
+        },
+      })
+      .to(image, {
+        left: active.rect.left,
+        top: active.rect.top,
+        width: active.rect.width,
+        height: active.rect.height,
+        duration: 0.68,
+        ease: 'expo.inOut',
+      })
+      .to(overlay, {
+        backgroundColor: 'rgba(247,242,229,0)',
+        autoAlpha: 0,
+        duration: 0.22,
+        ease: 'power2.out',
+      }, '-=0.12');
   }
 
   return (
@@ -213,7 +248,10 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
             type="button"
             aria-label="닫기"
             className="absolute right-8 top-8 z-20 border border-line bg-card px-3 py-2 font-en text-[14px] text-ink"
-            onClick={closePhoto}
+            onClick={(event) => {
+              event.stopPropagation();
+              closePhoto();
+            }}
           >
             Close
           </button>
