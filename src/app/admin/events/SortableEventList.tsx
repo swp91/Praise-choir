@@ -60,7 +60,7 @@ function EventRow({
     <div
       ref={setNodeRef}
       style={style}
-      className={`grid grid-cols-[44px_130px_1fr_auto] items-start gap-3 border-b border-line-soft px-4 py-3 last:border-b-0 max-[900px]:grid-cols-[36px_1fr] ${
+      className={`grid grid-cols-[44px_130px_1fr_320px] items-start gap-3 border-b border-line-soft px-4 py-3 last:border-b-0 max-[900px]:grid-cols-[36px_1fr] ${
         !event.isPublished ? 'opacity-55' : ''
       }`}
     >
@@ -152,7 +152,7 @@ export default function SortableEventList({ events: initialEvents, year, actions
           {saving ? (
             <div className="absolute right-4 top-2 font-ko text-[12px] text-gold-deep">저장 중...</div>
           ) : null}
-          <div className="grid grid-cols-[44px_130px_1fr_auto] gap-3 border-b border-line-soft bg-cream/70 px-4 py-3 text-left max-[900px]:hidden">
+          <div className="grid grid-cols-[44px_130px_1fr_320px] gap-3 border-b border-line-soft bg-cream/70 px-4 py-3 text-left max-[900px]:hidden">
             <div className="text-center font-ko text-[12px] text-ink-mute">순번</div>
             <div className="text-center font-ko text-[12px] text-ink-mute">날짜</div>
             <div className="font-ko text-[12px] text-ink-mute">내용</div>
