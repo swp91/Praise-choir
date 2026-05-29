@@ -5,7 +5,6 @@ export type EventFormValue = {
   eventDate: string | null;
   month: number | null;
   dateLabel: string | null;
-  category: string | null;
   isHighlight: boolean;
   isPublished: boolean;
 };
@@ -51,24 +50,17 @@ function optionalText(value: FormDataEntryValue | null) {
   return text || null;
 }
 
-function yearShortLabel(year: number, month: number) {
-  return `${String(year).slice(-2)}.${String(month).padStart(2, '0')}`;
-}
-
-function monthFromDate(value: string | null) {
-  if (!value) return null;
-  const match = value.match(/^\d{4}-(\d{2})-\d{2}$/);
-  return match ? Number(match[1]) : null;
+function pad(n: number) {
+  return String(n).padStart(2, '0');
 }
 
 export function parseEventForm(formData: FormData): EventFormResult {
   const year = Number(formData.get('year'));
   const title = String(formData.get('title') ?? '').trim();
   const detail = optionalText(formData.get('detail'));
-  const eventDate = optionalText(formData.get('event_date'));
-  const category = optionalText(formData.get('category'));
-  const dateMonth = monthFromDate(eventDate);
-  const month = (dateMonth ?? Number(formData.get('month') || 0)) || null;
+  const month = Number(formData.get('month') || 0) || null;
+  const dayRaw = String(formData.get('day') ?? '').trim();
+  const day = dayRaw && dayRaw !== '0' ? Number(dayRaw) : null;
   const errors: string[] = [];
 
   if (!year) errors.push('연도를 입력해 주세요.');
@@ -76,6 +68,13 @@ export function parseEventForm(formData: FormData): EventFormResult {
   if (month && (month < 1 || month > 12)) errors.push('월은 1월부터 12월 사이로 입력해 주세요.');
 
   if (errors.length) return { ok: false, errors };
+
+  const eventDate = month && day ? `${year}-${pad(month)}-${pad(day)}` : null;
+  const dateLabel = month
+    ? day
+      ? `${String(year).slice(-2)}.${pad(month)}.${pad(day)}`
+      : `${String(year).slice(-2)}.${pad(month)}`
+    : null;
 
   return {
     ok: true,
@@ -85,8 +84,7 @@ export function parseEventForm(formData: FormData): EventFormResult {
       detail,
       eventDate,
       month,
-      dateLabel: month ? yearShortLabel(year, month) : null,
-      category,
+      dateLabel,
       isHighlight: formData.get('is_highlight') === 'on',
       isPublished: formData.get('is_published') === 'on',
     },

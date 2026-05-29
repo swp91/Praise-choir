@@ -26,7 +26,8 @@ const inputClass =
   'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep';
 const labelClass = 'block font-ko text-[12px] font-bold text-ink mb-1.5';
 
-const monthOptions = Array.from({ length: 12 }, (_, index) => index + 1);
+const monthOptions = Array.from({ length: 12 }, (_, i) => i + 1);
+const dayOptions = Array.from({ length: 31 }, (_, i) => i + 1);
 
 function ErrorMessage({ error }: { error?: string }) {
   if (!error) return null;
@@ -106,40 +107,33 @@ function EventForm({
         </div>
 
         <div>
-          <label className={labelClass} htmlFor="event_date">정확한 날짜</label>
-          <input
-            id="event_date"
-            name="event_date"
-            type="date"
-            className={inputClass}
-            defaultValue={event?.eventDate ?? ''}
-          />
-        </div>
-
-        <div>
-          <label className={labelClass} htmlFor="month">월만 알 때</label>
+          <label className={labelClass} htmlFor="month">월</label>
           <select
             id="month"
             name="month"
             className={inputClass}
-            defaultValue={event?.eventDate ? '' : event?.month ?? ''}
+            defaultValue={event?.month ?? ''}
           >
-            <option value="">날짜가 있거나 미정이면 비워둠</option>
-            {monthOptions.map((month) => (
-              <option key={month} value={month}>{month}월</option>
+            <option value="">미정</option>
+            {monthOptions.map((m) => (
+              <option key={m} value={m}>{m}월</option>
             ))}
           </select>
         </div>
 
         <div>
-          <label className={labelClass} htmlFor="category">분류</label>
-          <input
-            id="category"
-            name="category"
+          <label className={labelClass} htmlFor="day">일</label>
+          <select
+            id="day"
+            name="day"
             className={inputClass}
-            defaultValue={event?.category ?? ''}
-            placeholder="예: 예배, 찬양제, 부흥회"
-          />
+            defaultValue={event?.eventDate ? Number(event.eventDate.split('-')[2]) : ''}
+          >
+            <option value="">미정</option>
+            {dayOptions.map((d) => (
+              <option key={d} value={d}>{d}일</option>
+            ))}
+          </select>
         </div>
 
         <div className="min-[780px]:col-span-2">

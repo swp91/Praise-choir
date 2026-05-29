@@ -17,7 +17,6 @@ export type AdminEvent = {
   eventDate: string | null;
   month: number | null;
   dateLabel: string | null;
-  category: string | null;
   isHighlight: boolean;
   sortOrder: number;
   isPublished: boolean;
@@ -47,7 +46,6 @@ function toAdminEvent(row: Record<string, unknown>): AdminEvent {
     eventDate: row.event_date ? String(row.event_date) : null,
     month: row.month ? Number(row.month) : null,
     dateLabel: row.date_label ? String(row.date_label) : null,
-    category: row.category ? String(row.category) : null,
     isHighlight: Boolean(row.is_highlight),
     sortOrder: Number(row.sort_order ?? 0),
     isPublished: row.is_published !== false,
@@ -125,7 +123,6 @@ function eventPayload(value: EventFormValue) {
     event_date: value.eventDate,
     month: value.month,
     date_label: value.dateLabel,
-    category: value.category,
     is_highlight: value.isHighlight,
     is_published: value.isPublished,
   };
