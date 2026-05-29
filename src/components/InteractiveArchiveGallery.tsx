@@ -243,17 +243,31 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
           className="fixed inset-0 z-[1000] opacity-0"
           onClick={closePhoto}
         >
-          <button
-            type="button"
-            aria-label="닫기"
-            className="absolute right-8 top-8 z-20 border border-line bg-card px-3 py-2 font-en text-[14px] text-ink"
-            onClick={(event) => {
-              event.stopPropagation();
-              closePhoto();
-            }}
-          >
-            Close
-          </button>
+          <div className="absolute right-8 top-8 z-20 flex gap-2">
+            {active.photo.url ? (
+              <a
+                href={active.photo.url}
+                download
+                target="_blank"
+                rel="noreferrer"
+                className="border border-line bg-card px-3 py-2 font-en text-[14px] text-ink transition hover:border-gold"
+                onClick={(event) => event.stopPropagation()}
+              >
+                Download
+              </a>
+            ) : null}
+            <button
+              type="button"
+              aria-label="닫기"
+              className="border border-line bg-card px-3 py-2 font-en text-[14px] text-ink transition hover:border-gold"
+              onClick={(event) => {
+                event.stopPropagation();
+                closePhoto();
+              }}
+            >
+              Close
+            </button>
+          </div>
           {active.photo.url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
