@@ -15,14 +15,16 @@ export default async function GalleryPage() {
     <main className="min-h-screen p-8 pb-15 ml-62 max-[880px]:ml-0 max-[880px]:p-0 max-[880px]:pb-20">
       <MobileHeader />
 
-      <HeroBlock
-        eyebrow="Photo Archive"
-        title="The Archive"
-        titleKo="갤러리 · 함께한 순간들"
-        watermark="ARCHIVUM · MEMORIA"
-      />
+      <div className="min-[881px]:hidden">
+        <HeroBlock
+          eyebrow="Photo Archive"
+          title="The Archive"
+          titleKo="갤러리 · 함께한 순간들"
+          watermark="ARCHIVUM · MEMORIA"
+        />
 
-      <SectionCap label="Albums" note="— Filter by Category" />
+        <SectionCap label="Albums" note="Photo Archive" />
+      </div>
 
       <Gallery photos={photos} />
 

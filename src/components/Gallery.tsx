@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import type { Photo } from '@/lib/types';
+import InteractiveArchiveGallery from './InteractiveArchiveGallery';
 
 function Placeholder({ photo }: { photo: Photo }) {
   if (photo.url) {
@@ -47,7 +48,9 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
         </div>
       )}
 
-      <div className="columns-2 gap-2.5 min-[720px]:columns-3 min-[1120px]:columns-4">
+      {photos.length > 0 ? <InteractiveArchiveGallery photos={photos} /> : null}
+
+      <div className="columns-2 gap-2.5 min-[720px]:columns-3 min-[881px]:hidden">
         {photos.map((p, i) => (
           <div key={p.id ?? `${p.title}-${i}`} className="mb-2.5 break-inside-avoid">
             <button
