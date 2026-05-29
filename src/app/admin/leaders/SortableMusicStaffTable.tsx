@@ -173,7 +173,7 @@ export default function SortableMusicStaffTable({ staff: initialStaff, editId, a
           {saving && <div className="absolute right-4 top-3 font-ko text-[12px] text-gold-deep">저장 중...</div>}
 
           {/* 데스크탑 테이블 */}
-          <div className="hidden overflow-x-auto min-[900px]:block">
+          <div className="overflow-x-auto max-[900px]:hidden">
             <table className="w-full min-w-[760px] border-collapse">
               <colgroup>
                 <col className="w-16" /><col /><col className="w-44" /><col className="w-24" /><col className="w-44" />
