@@ -18,6 +18,7 @@ type Props = {
     year?: string;
     edit?: string;
     addYear?: string;
+    addEvent?: string;
     error?: string;
   }>;
 };
@@ -261,6 +262,7 @@ export default async function AdminEventsPage({ searchParams }: Props) {
   const data = await getAdminEventsData(params?.year);
   const editingEvent = params?.edit ? data.events.find((event) => event.id === params.edit) : undefined;
   const showYearCreate = params?.addYear === '1';
+  const showEventForm = params?.addEvent === '1' || Boolean(editingEvent);
 
   const actions = {
     reorder: reorderEventsAction,
@@ -282,10 +284,16 @@ export default async function AdminEventsPage({ searchParams }: Props) {
           </div>
           <div className="flex gap-2">
             <Link
-              href="/admin/events?addYear=1"
+              href={`/admin/events?year=${data.selectedYear}&addEvent=1#event-form`}
               className="border border-gold-deep bg-gold-deep px-4 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
             >
-              + 년도추가
+              + 일정 추가
+            </Link>
+            <Link
+              href="/admin/events?addYear=1"
+              className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
+            >
+              + 년도 추가
             </Link>
             <Link
               href="/admin"
@@ -339,7 +347,11 @@ export default async function AdminEventsPage({ searchParams }: Props) {
             )}
           </section>
 
-          <EventForm year={data.selectedYear} years={data.yearOptions} event={editingEvent} />
+          {showEventForm ? (
+            <div id="event-form">
+              <EventForm year={data.selectedYear} years={data.yearOptions} event={editingEvent} />
+            </div>
+          ) : null}
         </div>
       </div>
     </main>

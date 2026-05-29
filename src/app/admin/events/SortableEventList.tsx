@@ -108,7 +108,7 @@ function EventRow({
           action={actions.setHighlight}
         />
         <Link
-          href={`/admin/events?year=${year}&edit=${event.id}`}
+          href={`/admin/events?year=${year}&edit=${event.id}#event-form`}
           className="border border-line bg-cream px-3 py-1.5 font-ko text-[12px] text-ink transition hover:border-gold"
         >
           수정
