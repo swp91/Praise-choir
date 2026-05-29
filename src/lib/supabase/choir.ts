@@ -384,5 +384,6 @@ export async function getGalleryData(): Promise<Photo[]> {
     palette: ['#3a2e1f', '#a8843c', '#f0e6d2'],
     motif: 'Praise',
     url: mediaUrl(mediaById.get(item.media_asset_id)),
+    downloadUrl: `/gallery/download/${item.id}`,
   }));
 }

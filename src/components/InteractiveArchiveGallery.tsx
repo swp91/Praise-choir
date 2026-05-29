@@ -244,12 +244,9 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
           onClick={closePhoto}
         >
           <div className="absolute right-8 top-8 z-20 flex gap-2">
-            {active.photo.url ? (
+            {active.photo.downloadUrl ? (
               <a
-                href={active.photo.url}
-                download
-                target="_blank"
-                rel="noreferrer"
+                href={active.photo.downloadUrl}
                 className="border border-line bg-card px-3 py-2 font-en text-[14px] text-ink transition hover:border-gold"
                 onClick={(event) => event.stopPropagation()}
               >

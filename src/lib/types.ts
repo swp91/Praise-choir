@@ -55,4 +55,5 @@ export type Photo = {
   palette: [string, string, string];
   motif: string;
   url?: string;
+  downloadUrl?: string;
 };
