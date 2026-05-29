@@ -1,5 +1,11 @@
 @import 'tailwindcss';
 
+/* 어드민 페이지: 서체를 가독성 높은 시스템 폰트로 교체 */
+.admin-ui {
+  --font-ko: 'Apple SD Gothic Neo', 'Malgun Gothic', 'Noto Sans KR', system-ui, sans-serif;
+  --font-en: system-ui, -apple-system, sans-serif;
+}
+
 @theme {
   --color-gold: #b89a5a;
   --color-gold-deep: #8a6f2f;

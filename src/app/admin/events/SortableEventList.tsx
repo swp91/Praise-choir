@@ -33,8 +33,12 @@ type Props = {
 };
 
 function displayDate(event: AdminEvent) {
-  if (event.eventDate) return event.eventDate.replaceAll('-', '.');
-  return event.dateLabel ?? '미정';
+  if (event.eventDate) {
+    const [, month, day] = event.eventDate.split('-');
+    return `${Number(month)}/${Number(day)}`;
+  }
+  if (event.month) return `${event.month}월`;
+  return '미정';
 }
 
 function EventRow({
