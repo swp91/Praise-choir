@@ -63,8 +63,8 @@ export default function MemberFilter({ parts }: Props) {
         </div>
         <div className="px-6 pt-5 pb-7 max-[880px]:px-4">
           <div className="grid grid-cols-5 gap-x-4 gap-y-7 max-[880px]:grid-cols-3 max-[880px]:gap-x-3 max-[880px]:gap-y-6">
-            {part.members.map((m) => (
-              <div key={m.name} className="flex flex-col items-center text-center">
+            {part.members.map((m, i) => (
+              <div key={`${m.name}-${i}`} className="flex flex-col items-center text-center">
                 <div className="w-24 h-24 rounded-full border-2 border-gold overflow-hidden relative mb-3 max-[880px]:w-16 max-[880px]:h-16">
                   {m.photo ? (
                     <Image src={imageUrl(m.photo, { width: 160, height: 160, crop: 'fill', gravity: 'face' })} alt={m.name} fill sizes="96px" className="object-cover" />

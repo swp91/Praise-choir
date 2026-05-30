@@ -30,7 +30,7 @@ export default function FeaturedGrid({ members }: { members: FeaturedMember[] })
         const showOverlay = !isMobile && isHovered;
 
         return (
-          <div key={m.name} className="flex justify-center">
+          <div key={`${m.name}-${i}`} className="flex justify-center">
             <div className="w-4/5">
               <div
                 className="aspect-3/4 relative overflow-hidden cursor-pointer"
