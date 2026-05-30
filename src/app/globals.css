@@ -408,4 +408,17 @@
       margin-right: 0 !important;
     }
   }
+
+  /* 시네마틱 스크롤 리빌 효과 */
+  .reveal-item {
+    opacity: 0;
+    transform: translateY(32px);
+    transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+  }
+  
+  .revealed .reveal-item {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
