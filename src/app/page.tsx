@@ -41,9 +41,10 @@ export default async function HomePage() {
   };
 
   return (
-    <main className="min-h-screen ml-62 max-[880px]:ml-0 relative overflow-hidden bg-cream animate-fadeIn">
+    <main className="min-h-screen ml-62 p-0 max-[880px]:ml-0 max-[880px]:p-0 relative overflow-hidden bg-cream animate-fadeIn">
       
       {/* 1. 완벽한 화면 꽉 참 (Edge-to-Edge, 100vh) 시네마틱 Hero 섹션 */}
+
       <section className="relative w-full h-screen flex flex-col justify-between p-10 md:p-16 pb-12 md:pb-14 z-10 overflow-hidden">
         
         {/* 생생한 원본 사진 복원 (어두운 sepia/brightness 필터 및 왜곡 전면 제거) */}
