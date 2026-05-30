@@ -1,37 +1,10 @@
 import type { Metadata } from "next";
-import SectionCap from "@/components/SectionCap";
-import Footer from "@/components/Footer";
-import FeaturedGrid from "@/components/FeaturedGrid";
-import ScrollReveal from "@/components/ScrollReveal";
 import { getHomeData } from "@/lib/supabase/choir";
 
 export const metadata: Metadata = { title: "Overview · 프레이즈찬양대" };
 
-function toRoman(n: number): string {
-  const vals = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
-  const syms = ['M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I'];
-  let result = '';
-  for (let i = 0; i < vals.length; i++) {
-    while (n >= vals[i]) {
-      result += syms[i];
-      n -= vals[i];
-    }
-  }
-  return result;
-}
-
 export default async function HomePage() {
   const home = await getHomeData();
-
-  // 7대 목표 비대칭 아티스틱 그리드 열 너비 계산 헬퍼
-  const getCardSpan = (index: number) => {
-    if (index === 0 || index === 1) return 'col-span-12 md:col-span-6';
-    if (index >= 2 && index <= 4) {
-      const stagger = index % 2 === 0 ? 'md:translate-y-4' : '';
-      return `col-span-12 md:col-span-4 ${stagger}`;
-    }
-    return 'col-span-12 md:col-span-6';
-  };
 
   return (
     <main className="main-content min-h-screen p-0 relative overflow-hidden bg-cream animate-fadeIn">
@@ -84,91 +57,6 @@ export default async function HomePage() {
 
       </section>
 
-      {/* Hero 이후 하위 콘텐츠 그룹 (기존 여백 패딩 px-8 복원 및 모바일 대응) */}
-      <div className="px-8 py-16 max-[880px]:px-4 max-[880px]:py-10 max-w-7xl mx-auto relative z-10">
-        
-        {/* 2. 시네마틱 주제어 브릿지 섹션 (The Sacred Theme Pillar - 스크롤 리빌 오케스트레이션) */}
-        <ScrollReveal className="py-24 text-center select-none relative z-10 flex flex-col items-center">
-          <span 
-            className="reveal-item font-en text-[10px] tracking-[0.35em] uppercase text-gold mb-6 block font-semibold"
-            style={{ transitionDelay: '0ms' }}
-          >
-            — A.D. {home.year} Annual Theme
-          </span>
-          <h2 
-            className="reveal-item font-ko text-[clamp(24px,3vw,38px)] font-bold text-ink leading-[1.48] tracking-wide mb-5 max-w-2xl"
-            style={{ transitionDelay: '100ms' }}
-          >
-            “오직 하나님을 기뻐함으로 <br /> 승리하는 프레이즈”
-          </h2>
-          <p 
-            className="reveal-item font-en italic text-gold-deep text-[15px] opacity-90 tracking-wide font-medium"
-            style={{ transitionDelay: '200ms' }}
-          >
-            &ldquo;{home.themeEn}&rdquo;
-          </p>
-          {/* 위에서 아래로 흐르며 그려지는 골드 드롭 실선 */}
-          <div 
-            className="reveal-line mt-12 w-[1px] h-12 bg-gradient-to-b from-gold to-transparent"
-            style={{ transitionDelay: '350ms' }}
-          />
-        </ScrollReveal>
-
-        {/* 3. 백그라운드 라틴어 워터마크 마키 연출 (주제어 브릿지 바로 하단에 흐르도록 - 양옆 그라데이션 페이드 적용) */}
-        <div 
-          className="absolute top-[320px] left-0 right-0 overflow-hidden pointer-events-none select-none leading-none z-0 opacity-45"
-          style={{
-            WebkitMaskImage: 'linear-gradient(to right, transparent, white 15%, white 85%, transparent)',
-            maskImage: 'linear-gradient(to right, transparent, white 15%, white 85%, transparent)'
-          }}
-        >
-          <div className="animate-marquee flex whitespace-nowrap">
-            {Array.from({ length: 10 }, (_, i) => (
-              <span key={i} className="font-en tracking-[0.18em] uppercase text-gold/6 text-[clamp(40px,7vw,80px)] pr-20 shrink-0">
-                SANCTUS · GLORIA · KYRIE · ALLELUIA
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* 4. 7대 목표 비대칭 아티스틱 그리드 카드 영역 (스크롤 순차 등장 이식) */}
-        {home.goalsList && home.goalsList.length > 0 && (
-          <div className="mb-24 max-[880px]:mb-16 relative z-10">
-            <SectionCap label="Annual Goals" note="— 올해의 실천 목표" />
-            
-            <ScrollReveal className="grid grid-cols-12 gap-6 max-[880px]:gap-4 md:pb-8">
-              {home.goalsList.map((goal, i) => (
-                <div
-                  key={i}
-                  className={`reveal-item border border-line-soft bg-card/45 backdrop-blur-xs rounded-xl px-7 py-6.5 flex flex-col justify-start relative overflow-hidden transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_12px_32px_rgba(184,154,90,0.06)] hover:border-gold/60 ${getCardSpan(i)}`}
-                  style={{ transitionDelay: `${i * 80}ms` }}
-                >
-                  {/* Subtle glassmorphism glow effect inside card */}
-                  <div className="absolute -right-12 -bottom-12 w-24 h-24 bg-gold/4 rounded-full blur-xl pointer-events-none" />
-
-                  {/* 로마자 골드 인덱스 */}
-                  <span className="font-en text-[22px] md:text-[25px] font-bold text-gold/30 tracking-wider select-none leading-none mb-3 block">
-                    {toRoman(i + 1)}
-                  </span>
-                  
-                  {/* 목표 국문 내용 */}
-                  <p className="font-ko text-[13.5px] md:text-[14.5px] font-semibold leading-relaxed text-ink tracking-wide">
-                    {goal}
-                  </p>
-                </div>
-              ))}
-            </ScrollReveal>
-          </div>
-        )}
-
-        {/* 5. 섬기는 대원진 그리드 영역 */}
-        <div className="mb-20 max-[880px]:mb-12 relative z-10">
-          <SectionCap label="Member Gallery" note="— 대원 더보기" noteHref="/members" />
-          <FeaturedGrid members={home.featured} />
-        </div>
-
-        <Footer />
-      </div>
     </main>
   );
 }
