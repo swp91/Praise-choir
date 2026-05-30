@@ -221,12 +221,12 @@ export default function HomeClient({ home }: Props) {
               </span>
             </motion.div>
 
-            <h1 className="font-ko text-[clamp(34px,4.5vw,66px)] font-light leading-[1.14] text-[#f5edd8] tracking-tight mb-5 select-none">
+            <h1 className="font-ko text-[clamp(30px,4.5vw,66px)] font-light leading-[1.14] text-[#f5edd8] tracking-tight mb-5 select-none">
               <motion.span 
                 initial={{ opacity: 0, y: 36 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.28 }}
-                className="inline-block"
+                className="inline-block mr-2 md:mr-0"
               >
                 광진교회
               </motion.span>
@@ -251,7 +251,7 @@ export default function HomeClient({ home }: Props) {
                 initial={{ opacity: 0, y: 36 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.64 }}
-                className="inline-block font-en font-extralight italic text-[clamp(26px,3.5vw,48px)] text-[#ffd899]/80 ml-3.5 align-baseline shrink-0"
+                className="inline-block font-en font-extralight italic text-[clamp(22px,3.5vw,48px)] text-[#ffd899]/80 ml-3.5 align-baseline shrink-0"
               >
                 Praise
               </motion.span>
