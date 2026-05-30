@@ -134,7 +134,7 @@ export async function getHomeData() {
       'events count',
     ),
     must(
-      supabase.from('goal_items').select('id').eq('year', year).eq('is_active', true),
+      supabase.from('goal_items').select('id, text').eq('year', year).eq('is_active', true).order('sort_order'),
       'goals count',
     ),
     must(
@@ -165,6 +165,7 @@ export async function getHomeData() {
     themeEn: annualProfile.theme_en,
     heroBackgroundUrl: mediaUrl(mediaById.get(annualProfile.hero_background_asset_id ?? '')) ?? '/praise_photo.png',
     heroBackgroundPosition: annualProfile.hero_background_position,
+    goalsList: (goals as { text: string }[]).map((g) => g.text),
     stats: {
       people: peopleCount.length,
       sections: sectionsCount.length,
