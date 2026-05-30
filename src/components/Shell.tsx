@@ -1,8 +1,7 @@
-﻿'use client';
+'use client';
 
 import { usePathname } from 'next/navigation';
-import Sidebar from './Sidebar';
-import TabBar from './TabBar';
+import Header from './Header';
 import PageTransition from './PageTransition';
 import { TransitionProvider } from '@/lib/transition';
 
@@ -18,9 +17,8 @@ export default function Shell({ children }: Props) {
   return (
     <TransitionProvider>
       <div className="min-h-screen">
-        <Sidebar />
+        <Header />
         {children}
-        <TabBar />
         <PageTransition />
       </div>
     </TransitionProvider>

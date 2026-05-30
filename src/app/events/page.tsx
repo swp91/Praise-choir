@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import MobileHeader from '@/components/MobileHeader';
 import HeroBlock from '@/components/HeroBlock';
 import SectionCap from '@/components/SectionCap';
 import YearToggle from '@/components/YearToggle';
@@ -13,8 +12,6 @@ export default async function EventsPage() {
 
   return (
     <main className="min-h-screen p-8 pb-15 ml-62 max-[880px]:ml-0 max-[880px]:p-0 max-[880px]:pb-20">
-      <MobileHeader />
-
       <HeroBlock
         eyebrow="A Year in Praise"
         title="The Calendar"

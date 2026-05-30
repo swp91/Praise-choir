@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import MobileHeader from '@/components/MobileHeader';
 import HeroBlock from '@/components/HeroBlock';
 import SectionCap from '@/components/SectionCap';
 import ScheduleRow from '@/components/ScheduleRow';
@@ -26,8 +25,6 @@ export default async function PracticePage() {
 
   return (
     <main className="min-h-screen p-8 pb-15 ml-62 max-[880px]:ml-0 max-[880px]:p-0 max-[880px]:pb-20">
-      <MobileHeader />
-
       <HeroBlock
         eyebrow="Hours of Devotion"
         title="Hours &amp; Aims"

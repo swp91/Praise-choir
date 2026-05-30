@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import MobileHeader from '@/components/MobileHeader';
 import HeroBlock from '@/components/HeroBlock';
 import SectionCap from '@/components/SectionCap';
 import Gallery from '@/components/Gallery';
@@ -12,8 +11,6 @@ export default async function GalleryPage() {
 
   return (
     <main className="h-screen overflow-hidden p-0 ml-62 max-[880px]:ml-0 max-[880px]:min-h-screen max-[880px]:h-auto max-[880px]:overflow-visible max-[880px]:pb-20">
-      <MobileHeader />
-
       <div className="min-[881px]:hidden">
         <HeroBlock
           eyebrow="Photo Archive"

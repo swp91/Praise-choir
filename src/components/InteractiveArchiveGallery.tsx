@@ -22,6 +22,20 @@ function tripled<T>(items: T[]) {
   return [...items, ...items, ...items];
 }
 
+function targetRect(sourceRect: DOMRect) {
+  const targetWidth = Math.min(window.innerWidth * 0.68, 980);
+  const sourceRatio = sourceRect.width / sourceRect.height;
+  const targetHeight = Math.min(targetWidth / sourceRatio, window.innerHeight * 0.72);
+  const width = targetHeight * sourceRatio;
+
+  return {
+    left: (window.innerWidth - width) / 2,
+    top: (window.innerHeight - targetHeight) / 2,
+    width,
+    height: targetHeight,
+  };
+}
+
 export default function InteractiveArchiveGallery({ photos }: Props) {
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -126,20 +140,6 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         ease: 'expo.out',
       }, 0.3);
   }, [active]);
-
-  function targetRect(sourceRect: DOMRect) {
-    const targetWidth = Math.min(window.innerWidth * 0.68, 980);
-    const sourceRatio = sourceRect.width / sourceRect.height;
-    const targetHeight = Math.min(targetWidth / sourceRatio, window.innerHeight * 0.72);
-    const width = targetHeight * sourceRatio;
-
-    return {
-      left: (window.innerWidth - width) / 2,
-      top: (window.innerHeight - targetHeight) / 2,
-      width,
-      height: targetHeight,
-    };
-  }
 
   function openPhoto(photo: Photo, element: HTMLButtonElement) {
     const image = element.querySelector('img');

@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import MobileHeader from '@/components/MobileHeader';
 import HeroBlock from '@/components/HeroBlock';
 import SectionCap from '@/components/SectionCap';
 import ConductorPanel from '@/components/ConductorPanel';
@@ -15,8 +14,6 @@ export default async function LeadersPage() {
 
   return (
     <main className="min-h-screen p-8 pb-15 ml-62 max-[880px]:ml-0 max-[880px]:p-0 max-[880px]:pb-20">
-      <MobileHeader />
-
       <HeroBlock
         eyebrow="Organizational Hierarchy"
         title="Serving Ministers"
