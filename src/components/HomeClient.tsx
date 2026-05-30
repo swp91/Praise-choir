@@ -22,8 +22,8 @@ export default function HomeClient({ home }: Props) {
 
   // 2. 1섹션 (Hero) 스타일 변환값 정의
   const heroOpacity = useTransform(scrollYProgress, [0, 0.42, 0.48], [1, 0.15, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.48], [1, 1.05]);
-  const heroBlur = useTransform(scrollYProgress, [0, 0.4], ["blur(0px)", "blur(6px)"]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.48], [1, 1.04]);
+  const heroBlur = useTransform(scrollYProgress, [0, 0.4], ["blur(0px)", "blur(5px)"]);
 
   // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.48 ~ 0.58 지점에서 화면을 완전히 덮어 완벽한 심리스 전환 보증)
   const transitionOverlayOpacity = useTransform(
@@ -34,16 +34,14 @@ export default function HomeClient({ home }: Props) {
 
   // 4. 2섹션 (The Sacred Space) 스타일 변환값 정의
   const section2Opacity = useTransform(scrollYProgress, [0.48, 0.62, 0.98], [0, 1, 1]);
-  const section2Scale = useTransform(scrollYProgress, [0.48, 0.65], [0.95, 1]);
+  const section2Scale = useTransform(scrollYProgress, [0.48, 0.65], [0.96, 1]);
   const section2Y = useTransform(scrollYProgress, [0.48, 0.65], [24, 0]);
 
-  // 5. 3D 입체 투영(Perspective Tilt)을 위한 모션 변환값
-  // 스크롤이 내려감에 따라 광원 자체가 3D 가상 공간 상에서 기울어지며 차원 입체감을 부여
-  const rotateX = useTransform(scrollYProgress, [0, 0.48], [0, 12]);   // X축 회전 기울기
-  const rotateY = useTransform(scrollYProgress, [0, 0.48], [0, -8]);   // Y축 회전 기울기
-  const translateZ = useTransform(scrollYProgress, [0, 0.48], [0, 80]); // Z축 앞으로 튀어나오는 입체 깊이
+  // 5. 입체적인 종형 조명 정밀 정렬을 위한 3D 가상 공간 깊이 틸트
+  const rotateX = useTransform(scrollYProgress, [0, 0.48], [0, 8]);
+  const translateZ = useTransform(scrollYProgress, [0, 0.48], [0, 60]);
 
-  // 6. 고해상도 HTML5 Canvas 기반 다중 레이어 입체 '3D 볼류메트릭 슈퍼노바' 렌더링 루프
+  // 6. 고해상도 HTML5 Canvas 기반 단일 '성스러운 태양기둥 (Sun Pillar / Light Shaft)' 렌더링 루프
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -82,189 +80,86 @@ export default function HomeClient({ home }: Props) {
       if (activeAlpha > 0) {
         const centerX = width / 2;
         const centerY = height / 2;
+
+        // 스크롤 진척도에 따라 기둥의 굵기와 퍼짐 정도가 자연스럽게 팽창
+        const scale = progress * 24; 
         
-        // 가시적 스케일 팽창 (최대 32배)
-        const scale = progress * 32; 
-
-        // -------------------------------------------------------------
-        // [3D 효과 핵심 1] 다중 회전 축 패럴랙스 (Multi-axial Counter-Rotation)
-        // 레이어 간의 회전 속도와 방향을 다르게 설정하여 평면(2D)이 아닌 입체(3D) 느낌을 즉시 확보합니다.
-        // -------------------------------------------------------------
-        const angleLayerA = progress * Math.PI * 2.0;   // 시계 방향 고속 회전
-        const angleLayerB = -progress * Math.PI * 1.2;  // 반시계 방향 저속 회전
-        const angleLayerC = progress * Math.PI * 0.6;   // 시계 방향 배경 미세 회전
-
-        // ==========================================
-        // LAYER C: 배경 볼류메트릭 아날로그 연무 (Soft Depth Aura)
-        // ==========================================
         ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(angleLayerC);
+
+        // -------------------------------------------------------------
+        // [1] 전역 블렌딩 모드를 'screen'으로 설정하여 실제 대기 중의 빛처럼 자연스럽게 섞이도록 연출
+        // -------------------------------------------------------------
+        ctx.globalCompositeOperation = 'screen';
+
+        // -------------------------------------------------------------
+        // [2] 수직으로 길게 하늘로 뻗은 태양기둥 몸체 (Vertical Light Column)
+        // -------------------------------------------------------------
+        // 화면 위쪽 끝부터 아래쪽 끝까지 뻗어나가는 soft하고 웅장한 수직 빔
+        const beamWidth = 45 * (1.0 + progress * 8.5); // 스크롤 시 굵어짐
         
-        // 흐릿하게 퍼지는 입체 안개 성운 느낌의 3D 백그라운드 구형 드로잉
-        const bgGlowRadius = 140 * scale;
-        const bgGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, bgGlowRadius);
-        bgGlow.addColorStop(0, `rgba(255, 230, 170, ${activeAlpha * 0.28})`);
-        bgGlow.addColorStop(0.4, `rgba(184, 154, 90, ${activeAlpha * 0.12})`);
-        bgGlow.addColorStop(1, 'rgba(184, 154, 90, 0)');
-        ctx.fillStyle = bgGlow;
+        const beamGrd = ctx.createLinearGradient(centerX - beamWidth, 0, centerX + beamWidth, 0);
+        beamGrd.addColorStop(0, 'rgba(184, 154, 90, 0)');
+        beamGrd.addColorStop(0.3, `rgba(255, 230, 175, ${activeAlpha * 0.18})`);
+        beamGrd.addColorStop(0.5, `rgba(255, 255, 255, ${activeAlpha * 0.42})`);
+        beamGrd.addColorStop(0.7, `rgba(255, 230, 175, ${activeAlpha * 0.18})`);
+        beamGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
+
+        ctx.fillStyle = beamGrd;
+        ctx.fillRect(centerX - beamWidth, 0, beamWidth * 2, height);
+
+        // -------------------------------------------------------------
+        // [3] 레퍼런스 스타일: 중앙 수직 다이아몬드형 빛무리 (Vertical Diamond Spindle Flare)
+        // -------------------------------------------------------------
+        // 레퍼런스 사진처럼 중앙이 볼록하고 위아래로 길게 뻗어나가는 신비로운 마름모꼴/방추형 형태 드로잉
+        const spindleHeight = 350 * scale; // 수직 확장성 극대화
+        const spindleWidth = 75 * scale;   // 수평 굵기
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+
+        // 3D 느낌을 위해 미세한 대기 진동(Twinkle shiver) 효과 부여
+        const shiver = Math.sin(Date.now() * 0.0035) * 2.2;
+        ctx.translate(0, shiver);
+
+        // 방추형 다이아몬드 가이드 패스
         ctx.beginPath();
-        ctx.arc(0, 0, bgGlowRadius, 0, Math.PI * 2);
+        ctx.moveTo(0, -spindleHeight / 2); // 맨 위 꼭짓점
+        ctx.bezierCurveTo(spindleWidth * 0.6, -spindleHeight * 0.15, spindleWidth * 0.6, spindleHeight * 0.15, 0, spindleHeight / 2); // 우측 곡선 바늘
+        ctx.bezierCurveTo(-spindleWidth * 0.6, spindleHeight * 0.15, -spindleWidth * 0.6, -spindleHeight * 0.15, 0, -spindleHeight / 2); // 좌측 곡선 바늘
+        ctx.closePath();
+
+        // 방추형 내부를 채우는 은은한 방사형 그라데이션 (대기 중 수증기에 부서지는 광채 시뮬레이션)
+        const spindleGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, spindleHeight * 0.4);
+        spindleGrd.addColorStop(0, `rgba(255, 255, 255, ${activeAlpha * 1.0})`);
+        spindleGrd.addColorStop(0.18, `rgba(255, 240, 185, ${activeAlpha * 0.8})`);
+        spindleGrd.addColorStop(0.45, `rgba(184, 154, 90, ${activeAlpha * 0.32})`);
+        spindleGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
+
+        ctx.fillStyle = spindleGrd;
         ctx.fill();
         ctx.restore();
 
-        // ==========================================
-        // LAYER B: 후면 원거리 침상 광선 (Background Fine Spikes)
-        // ==========================================
+        // -------------------------------------------------------------
+        // [4] 태양 기둥 중심의 눈부신 코어 글로우 (Incandescent Sun Core)
+        // -------------------------------------------------------------
+        // 마우스 스크롤이 끝에 다다르면 화면 전체를 황금빛 성스러움으로 덮어버리는 마스터 광원볼
         ctx.save();
         ctx.translate(centerX, centerY);
-        ctx.rotate(angleLayerB);
         
-        const backgroundRayCount = 12;
-        for (let i = 0; i < backgroundRayCount; i++) {
-          const angle = (i * Math.PI * 2) / backgroundRayCount;
-          // 후면용 미세 스파이크 길이 (미세하게 작고 부드러움)
-          const rayLength = 150 * scale;
-          const rayWidth = 6 * scale * 0.1;
+        const coreRadius = 75 * scale;
+        const coreGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius);
+        coreGrd.addColorStop(0, `rgba(255, 255, 255, ${activeAlpha * 1.0})`);
+        coreGrd.addColorStop(0.12, `rgba(255, 254, 245, ${activeAlpha * 0.95})`);
+        coreGrd.addColorStop(0.35, `rgba(255, 235, 170, ${activeAlpha * 0.72})`);
+        coreGrd.addColorStop(0.65, `rgba(184, 154, 90, ${activeAlpha * 0.28})`);
+        coreGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
 
-          ctx.save();
-          ctx.rotate(angle);
-
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(rayWidth, 0);
-          ctx.lineTo(0, rayLength);
-          ctx.lineTo(-rayWidth, 0);
-          ctx.closePath();
-
-          // 깊이감을 위한 약간 더 오렌지/앰버 톤의 깊은 색채 설계
-          const rayGrd = ctx.createLinearGradient(0, 0, 0, rayLength);
-          rayGrd.addColorStop(0, `rgba(255, 220, 140, ${activeAlpha * 0.72})`);
-          rayGrd.addColorStop(0.3, `rgba(212, 175, 55, ${activeAlpha * 0.42})`);
-          rayGrd.addColorStop(1, 'rgba(212, 175, 55, 0)');
-
-          ctx.fillStyle = rayGrd;
-          ctx.fill();
-          ctx.restore();
-        }
-        ctx.restore();
-
-        // ==========================================
-        // LAYER A: 전면 근거리 주 광선 (Foreground Sharp Spikes)
-        // -----------------------------------------------------------
-        // [3D 효과 핵심 2] 색수차 시뮬레이션 (Chromatic Dispersion)
-        // 렌즈 굴절에 의해 생기는 붉은색/푸른색의 빛 분산을 모방하여 시네마틱한 사실감을 더합니다.
-        // ==========================================
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        ctx.rotate(angleLayerA);
-
-        const foregroundRayCount = 8;
-        for (let i = 0; i < foregroundRayCount; i++) {
-          const angle = (i * Math.PI * 2) / foregroundRayCount;
-          const isExtraLong = i % 2 === 0;
-          const rayLength = (isExtraLong ? 360 : 220) * scale;
-          const rayWidth = (isExtraLong ? 18 : 10) * scale * 0.1;
-
-          ctx.save();
-          ctx.rotate(angle);
-
-          // 1. 색수차용 우측 레드/오렌지 플레어 오프셋 레이어
-          ctx.save();
-          ctx.translate(1.5 * (1 + progress * 2), 0);
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(rayWidth, 0);
-          ctx.lineTo(0, rayLength * 0.98);
-          ctx.lineTo(-rayWidth, 0);
-          ctx.closePath();
-          const redGrd = ctx.createLinearGradient(0, 0, 0, rayLength);
-          redGrd.addColorStop(0, `rgba(255, 120, 50, ${activeAlpha * 0.45})`);
-          redGrd.addColorStop(0.6, 'rgba(255, 120, 50, 0)');
-          ctx.fillStyle = redGrd;
-          ctx.fill();
-          ctx.restore();
-
-          // 2. 색수차용 좌측 블루/시안 플레어 오프셋 레이어
-          ctx.save();
-          ctx.translate(-1.5 * (1 + progress * 2), 0);
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(rayWidth, 0);
-          ctx.lineTo(0, rayLength * 0.98);
-          ctx.lineTo(-rayWidth, 0);
-          ctx.closePath();
-          const blueGrd = ctx.createLinearGradient(0, 0, 0, rayLength);
-          blueGrd.addColorStop(0, `rgba(0, 200, 255, ${activeAlpha * 0.38})`);
-          blueGrd.addColorStop(0.6, 'rgba(0, 200, 255, 0)');
-          ctx.fillStyle = blueGrd;
-          ctx.fill();
-          ctx.restore();
-
-          // 3. 메인 브라이트 화이트-골드 침상 광선
-          ctx.beginPath();
-          ctx.moveTo(0, 0);
-          ctx.lineTo(rayWidth, 0);
-          ctx.lineTo(0, rayLength);
-          ctx.lineTo(-rayWidth, 0);
-          ctx.closePath();
-
-          const mainRayGrd = ctx.createLinearGradient(0, 0, 0, rayLength);
-          mainRayGrd.addColorStop(0, `rgba(255, 255, 255, ${activeAlpha * 1.0})`);
-          mainRayGrd.addColorStop(0.1, `rgba(255, 238, 180, ${activeAlpha * 0.92})`);
-          mainRayGrd.addColorStop(0.45, `rgba(184, 154, 90, ${activeAlpha * 0.42})`);
-          mainRayGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
-
-          ctx.fillStyle = mainRayGrd;
-          ctx.fill();
-          ctx.restore();
-        }
-        ctx.restore();
-
-        // -------------------------------------------------------------
-        // [3] 입체 렌즈 링 & 2중 헤일로 (Soft Double Halo Rings)
-        // -------------------------------------------------------------
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        const halo1Radius = 100 * scale;
-        const halo1Grd = ctx.createRadialGradient(0, 0, halo1Radius * 0.88, 0, 0, halo1Radius);
-        halo1Grd.addColorStop(0, 'rgba(255, 235, 175, 0)');
-        halo1Grd.addColorStop(0.9, `rgba(255, 220, 130, ${activeAlpha * 0.07})`);
-        halo1Grd.addColorStop(0.96, `rgba(255, 235, 185, ${activeAlpha * 0.16})`);
-        halo1Grd.addColorStop(1, 'rgba(255, 235, 175, 0)');
-        ctx.fillStyle = halo1Grd;
+        ctx.fillStyle = coreGrd;
         ctx.beginPath();
-        ctx.arc(0, 0, halo1Radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        const halo2Radius = 145 * scale;
-        const halo2Grd = ctx.createRadialGradient(0, 0, halo2Radius * 0.93, 0, 0, halo2Radius);
-        halo2Grd.addColorStop(0, 'rgba(255, 235, 175, 0)');
-        halo2Grd.addColorStop(0.97, `rgba(255, 235, 185, ${activeAlpha * 0.05})`);
-        halo2Grd.addColorStop(1, 'rgba(255, 235, 175, 0)');
-        ctx.fillStyle = halo2Grd;
-        ctx.beginPath();
-        ctx.arc(0, 0, halo2Radius, 0, Math.PI * 2);
+        ctx.arc(0, 0, coreRadius, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
-        // -------------------------------------------------------------
-        // [4] 초강력 입체 코어 글로우 볼 (Volumetric Core Glow)
-        // -------------------------------------------------------------
-        ctx.save();
-        ctx.translate(centerX, centerY);
-        const glowRadius = 90 * scale;
-        const glowGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, glowRadius);
-        glowGrd.addColorStop(0, `rgba(255, 255, 255, ${activeAlpha * 1.0})`);
-        glowGrd.addColorStop(0.12, `rgba(255, 254, 250, ${activeAlpha * 0.98})`);
-        glowGrd.addColorStop(0.35, `rgba(255, 232, 160, ${activeAlpha * 0.85})`);
-        glowGrd.addColorStop(0.68, `rgba(184, 154, 90, ${activeAlpha * 0.32})`);
-        glowGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
-
-        ctx.fillStyle = glowGrd;
-        ctx.beginPath();
-        ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
-        ctx.fill();
         ctx.restore();
       }
 
@@ -336,15 +231,13 @@ export default function HomeClient({ home }: Props) {
         </motion.section>
 
 
-        {/* ---------------- 2. 단일 거대 슈퍼노바 렌즈 플레어 드로잉 캔버스 ---------------- */}
-        {/* [3D 효과 핵심 3] CSS 3DPerspective Matrix 적용 */}
-        {/* 스크롤 가속에 따라 캔버스 프레임 자체가 가상 3D 공간 상에서 3차원 기울어짐 모션을 작동하여 완벽한 체적 깊이를 창조합니다. */}
+        {/* ---------------- 2. 단일 거대 '태양기둥 (Sun Pillar)' 조명 드로잉 캔버스 ---------------- */}
+        {/* 가상 3D 공간의 깊이를 주어 태양기둥 조명이 입체적으로 다가오도록 틸트 처리 */}
         <motion.div
           style={{
-            perspective: 1200,
+            perspective: 1000,
             transformStyle: 'preserve-3d',
             rotateX: rotateX,
-            rotateY: rotateY,
             z: translateZ
           }}
           className="absolute inset-0 z-20 pointer-events-none w-full h-full flex items-center justify-center"
