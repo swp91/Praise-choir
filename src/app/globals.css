@@ -455,3 +455,32 @@ body::-webkit-scrollbar,
     padding-bottom: 0 !important;
   }
 }
+
+/* 빛무리 포탈 전환용 전용 광원 스타일 */
+.glow-portal-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250px;
+  height: 250px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 230, 150, 1) 0%, rgba(184, 154, 90, 0.6) 35%, rgba(184, 154, 90, 0.1) 60%, transparent 100%);
+  filter: blur(12px);
+  pointer-events: none;
+  z-index: 20;
+  will-change: transform, opacity;
+}
+
+.glow-portal-overlay-secondary {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 180px;
+  height: 180px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 1) 0%, rgba(255, 235, 175, 0.8) 40%, transparent 70%);
+  filter: blur(8px);
+  pointer-events: none;
+  z-index: 21;
+  will-change: transform, opacity;
+}
