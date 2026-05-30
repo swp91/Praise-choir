@@ -50,13 +50,13 @@ export default function Header() {
         { opacity: 1, backdropFilter: 'blur(24px)', backgroundColor: 'rgba(253, 249, 240, 0.98)', duration: 0.3, ease: 'power2.out' }
       );
 
-      // 2. 메뉴 아이템 순차 스태거 등장
+      // 2. 메뉴 아이템 순차 스태거 등장 (인스턴트 페이드 인)
       const items = overlayRef.current?.querySelectorAll('.menu-item');
       if (items && items.length > 0) {
         gsap.fromTo(
           items,
-          { y: 35, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.5, stagger: 0.04, ease: 'power3.out', delay: 0 }
+          { opacity: 0 },
+          { opacity: 1, duration: 0.4, stagger: 0.03, ease: 'power2.out', delay: 0 }
         );
       }
     } else {
@@ -73,11 +73,10 @@ export default function Header() {
     const items = overlayRef.current?.querySelectorAll('.menu-item');
     if (items && items.length > 0) {
       gsap.to(items, {
-        y: -25,
         opacity: 0,
-        duration: 0.35,
-        stagger: 0.04,
-        ease: 'power3.in',
+        duration: 0.25,
+        stagger: 0.02,
+        ease: 'power2.in',
       });
     }
 
@@ -179,7 +178,7 @@ export default function Header() {
           </div>
 
           <nav className="relative z-10 w-full pr-12">
-            <ul className="flex flex-col gap-6 md:gap-8">
+            <ul className="flex flex-col gap-3 md:gap-4">
               {PAGES.map((p) => {
                 const active = isActive(p.href);
                 return (
@@ -187,20 +186,20 @@ export default function Header() {
                     <button
                       type="button"
                       onClick={() => handleLinkClick(p.href)}
-                      className={`menu-item group flex items-baseline gap-4 md:gap-6 font-en text-[clamp(24px,4vw,48px)] uppercase tracking-[0.04em] transition-all duration-300 select-none bg-transparent border-0 p-0 text-left cursor-pointer whitespace-nowrap ${
+                      className={`menu-item group flex items-baseline gap-3.5 md:gap-5 font-en text-[clamp(28px,4.8vw,54px)] uppercase tracking-[0.04em] transition-all duration-300 select-none bg-transparent border-0 p-0 text-left cursor-pointer whitespace-nowrap ${
                         active
                           ? 'text-gold-deep font-semibold'
                           : 'text-ink hover:text-gold'
                       }`}
                     >
                       {/* 순번 표시 */}
-                      <span className="font-en italic text-gold/60 text-[clamp(15px,2vw,22px)] group-hover:text-gold transition-colors duration-300">
+                      <span className="font-en italic text-gold/60 text-[clamp(16px,2vw,22px)] group-hover:text-gold transition-colors duration-300">
                         {p.num}
                       </span>
                       {/* 영어 타이틀 */}
                       <span className="font-semibold">{p.en}</span>
                       {/* 한국어 타이틀 */}
-                      <span className="font-ko text-[clamp(14px,1.8vw,20px)] text-ink-soft ml-2 md:ml-4 tracking-normal normal-case font-medium group-hover:text-gold-deep transition-colors duration-300">
+                      <span className="font-ko text-[clamp(16px,1.8vw,21px)] text-ink-soft ml-2.5 md:ml-4 tracking-normal normal-case font-medium group-hover:text-gold-deep transition-colors duration-300">
                         {p.ko}
                       </span>
                     </button>
