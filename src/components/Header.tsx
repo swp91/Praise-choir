@@ -181,7 +181,7 @@ export default function Header() {
           ref={overlayRef}
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[998] flex flex-col justify-center items-center overflow-hidden"
+          className="fixed inset-0 z-[998] flex flex-col justify-center items-start pl-10 md:pl-28 lg:pl-36 overflow-hidden"
         >
           {/* 장식용 은은한 성가대 배경 워터마크 */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-max text-center pointer-events-none select-none opacity-[0.02] z-0 font-en font-bold italic tracking-[0.2em] text-[16vw] uppercase leading-none">
@@ -190,7 +190,7 @@ export default function Header() {
             GLORIA
           </div>
 
-          <nav className="relative z-10 w-full max-w-[680px] px-8">
+          <nav className="relative z-10 w-full pr-12">
             <ul className="flex flex-col gap-6 md:gap-8">
               {PAGES.map((p) => {
                 const active = isActive(p.href);
@@ -199,7 +199,7 @@ export default function Header() {
                     <button
                       type="button"
                       onClick={() => handleLinkClick(p.href)}
-                      className={`menu-item group flex items-baseline gap-4 md:gap-6 font-en text-[clamp(28px,4.5vw,56px)] uppercase tracking-[0.04em] transition-all duration-300 select-none bg-transparent border-0 p-0 text-left cursor-pointer ${
+                      className={`menu-item group flex items-baseline gap-4 md:gap-6 font-en text-[clamp(24px,4vw,48px)] uppercase tracking-[0.04em] transition-all duration-300 select-none bg-transparent border-0 p-0 text-left cursor-pointer whitespace-nowrap ${
                         active
                           ? 'text-gold-deep font-semibold'
                           : 'text-ink hover:text-gold'
@@ -223,7 +223,7 @@ export default function Header() {
           </nav>
 
           {/* 하단 푸터 데코레이션 */}
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-center select-none z-10 pointer-events-none">
+          <div className="absolute bottom-10 left-10 md:left-28 lg:left-36 select-none z-10 pointer-events-none text-left">
             <div className="font-en italic text-[11px] tracking-[0.24em] text-ink-mute uppercase">
               PRAISE CHOIR · A.D. MMXXVI
             </div>

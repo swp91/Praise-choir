@@ -379,9 +379,8 @@
     padding-top: 140px !important; /* 플로팅 헤더의 스크롤 침범 최소화 공간 확보 */
     padding-left: 2rem !important;
     padding-right: 2rem !important;
-    max-width: 1200px;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
     box-sizing: border-box;
   }
 
