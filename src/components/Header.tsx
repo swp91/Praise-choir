@@ -138,17 +138,17 @@ export default function Header() {
     // 기본 글자는 위로 밀려 사라짐 (탄력)
     gsap.to(defaults, {
       yPercent: -100,
-      duration: 0.45,
-      stagger: 0.015,
-      ease: 'back.out(1.4)',
+      duration: 0.72,
+      stagger: 0.024,
+      ease: 'back.out(1.2)',
     });
     
     // 호버 글자는 아래에서 위로 튀어오름 (탄력)
     gsap.to(hovers, {
       yPercent: -100,
-      duration: 0.45,
-      stagger: 0.015,
-      ease: 'back.out(1.4)',
+      duration: 0.72,
+      stagger: 0.024,
+      ease: 'back.out(1.2)',
     });
   };
 
@@ -165,9 +165,9 @@ export default function Header() {
     // 기본 글자 제자리로 복귀 (탄력)
     gsap.to(defaults, {
       yPercent: 0,
-      duration: 0.45,
-      stagger: 0.012,
-      ease: 'back.out(1.4)',
+      duration: 0.65,
+      stagger: 0.018,
+      ease: 'back.out(1.2)',
       onComplete: () => {
         gsap.set(defaults, { clearProps: 'transform' });
       }
@@ -176,9 +176,9 @@ export default function Header() {
     // 호버 글자 원래 위치(아래쪽)로 하강 (탄력)
     gsap.to(hovers, {
       yPercent: 0,
-      duration: 0.45,
-      stagger: 0.012,
-      ease: 'back.out(1.4)',
+      duration: 0.65,
+      stagger: 0.018,
+      ease: 'back.out(1.2)',
       onComplete: () => {
         gsap.set(hovers, { clearProps: 'transform' });
       }
