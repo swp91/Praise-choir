@@ -8,7 +8,7 @@ export default async function HomePage() {
   const home = await getHomeData();
 
   return (
-    <main className="main-content min-h-screen p-0 relative overflow-hidden bg-cream animate-fadeIn">
+    <main className="main-content min-h-screen p-0 relative bg-cream animate-fadeIn">
       <HomeClient home={home} />
     </main>
   );
