@@ -112,10 +112,10 @@ export default function Header() {
     <>
       {/* 1. 중앙 상단 플로팅 글래스모피즘 헤더 바 */}
       <header
-        className={`fixed left-1/2 -translate-x-1/2 z-[999] w-[90%] max-w-[620px] transition-all duration-300 rounded-full flex items-center justify-between border border-line-soft shadow-[0_12px_32px_rgba(42,38,32,0.06)] ${
+        className={`fixed left-1/2 -translate-x-1/2 z-[999] w-[90%] max-w-[240px] transition-all duration-300 rounded-full flex items-center justify-between border border-line-soft shadow-[0_12px_32px_rgba(42,38,32,0.06)] ${
           isScrolled
-            ? 'top-4 h-13 md:h-14 bg-cream/90 backdrop-blur-xl px-5 shadow-[0_18px_40px_rgba(42,38,32,0.1)]'
-            : 'top-6 h-15 md:h-16 bg-cream/70 backdrop-blur-lg px-6'
+            ? 'top-4 h-12 bg-cream/90 backdrop-blur-xl px-4 shadow-[0_18px_40px_rgba(42,38,32,0.1)]'
+            : 'top-6 h-14 bg-cream/70 backdrop-blur-lg px-5'
         }`}
       >
         {/* 좌측: 로고와 브랜드 타이틀 */}
@@ -133,18 +133,6 @@ export default function Header() {
           <span className="font-en text-[11px] md:text-[12px] font-bold tracking-[0.24em] uppercase text-ink leading-none pt-0.5">
             Praise
           </span>
-        </Link>
-
-        {/* 중앙: 2026 표어 액션 버튼 */}
-        <Link
-          href="/practice"
-          onClick={(e) => {
-            e.preventDefault();
-            handleLinkClick('/practice');
-          }}
-          className="font-ko text-[11px] md:text-[12px] font-bold tracking-[0.06em] text-gold-deep border border-gold-deep/20 px-3.5 py-1.5 rounded-full bg-gold/5 hover:bg-gold/10 hover:border-gold-deep/40 transition duration-200 select-none"
-        >
-          2026 표어 →
         </Link>
 
         {/* 우측: 프리미엄 햄버거 토글러 */}
