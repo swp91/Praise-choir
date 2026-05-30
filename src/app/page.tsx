@@ -70,9 +70,9 @@ export default async function HomePage() {
             </span>
           </h1>
 
-          {/* 올해의 표어 (서브 카피 - 하얀 성가복 가독성 대응 다중 섀도우 & 연골드 튜닝) */}
+          {/* 올해의 표어 (서브 카피 - 하얀 성가복 가독성 대응 다중 섀도우 & 크림색 복원 튜닝) */}
           <p 
-            className="font-ko text-[14px] md:text-[16.5px] text-[#ffd899] tracking-[0.04em] leading-relaxed max-w-md font-bold"
+            className="font-ko text-[14px] md:text-[16.5px] text-[#f5edd8] tracking-[0.04em] leading-relaxed max-w-md font-bold"
             style={{ textShadow: '0 2px 10px rgba(0,0,0,0.95), 0 4px 24px rgba(0,0,0,0.6)' }}
           >
             “오직 하나님을 기뻐함으로 승리하는 프레이즈”
