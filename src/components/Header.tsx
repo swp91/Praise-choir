@@ -43,20 +43,39 @@ export default function Header() {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
 
-      // 1. 오버레이 컨테이너 등장 애니메이션 (정적 클래스로 블러를 처리하여 텍스트 번짐 방지)
+      // 1. 오버레이 컨테이너 등장 애니메이션 (포인터 이벤트 차단으로 호버 간섭 방지)
       gsap.fromTo(
         overlayRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.3, ease: 'power2.out' }
+        { opacity: 0, pointerEvents: 'none' },
+        {
+          opacity: 1,
+          pointerEvents: 'auto',
+          duration: 0.3,
+          ease: 'power2.out',
+          onComplete: () => {
+            gsap.set(overlayRef.current, { clearProps: 'opacity,pointerEvents' });
+          }
+        }
       );
 
-      // 2. 메뉴 아이템 순차 스태거 등장 (인스턴트 페이드 인)
+      // 2. 메뉴 아이템 순차 스태거 등장 (물리엔진 탄력적 튀어나오기 + 포인터 차단 + inline style 제거로 서브픽셀 복원)
       const items = overlayRef.current?.querySelectorAll('.menu-item');
       if (items && items.length > 0) {
         gsap.fromTo(
           items,
-          { opacity: 0 },
-          { opacity: 1, duration: 0.4, stagger: 0.03, ease: 'power2.out', delay: 0 }
+          { opacity: 0, yPercent: 120, pointerEvents: 'none' },
+          {
+            opacity: 1,
+            yPercent: 0,
+            pointerEvents: 'auto',
+            duration: 0.55,
+            stagger: 0.04,
+            ease: 'back.out(1.4)',
+            delay: 0,
+            onComplete: () => {
+              gsap.set(items, { clearProps: 'opacity,yPercent,pointerEvents' });
+            }
+          }
         );
       }
     } else {
@@ -74,6 +93,7 @@ export default function Header() {
     if (items && items.length > 0) {
       gsap.to(items, {
         opacity: 0,
+        yPercent: 100,
         duration: 0.25,
         stagger: 0.02,
         ease: 'power2.in',
@@ -103,6 +123,111 @@ export default function Header() {
 
   const isActive = (href: string) =>
     href === '/' ? pathname === '/' : pathname.startsWith(href);
+
+  // 개별 글자 단위 슬롯머신 호버 애니메이션 (진입)
+  const handleMouseEnter = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const btn = e.currentTarget;
+    if (btn.getAttribute('data-active') === 'true') return; // 활성 페이지 메뉴는 호버 롤링 비활성화 (앵커 고정)
+    
+    const defaults = btn.querySelectorAll('.char-default');
+    const hovers = btn.querySelectorAll('.char-hover');
+    
+    gsap.killTweensOf([defaults, hovers]);
+    
+    // 기본 글자는 위로 밀려 사라짐 (탄력)
+    gsap.to(defaults, {
+      yPercent: -100,
+      duration: 0.45,
+      stagger: 0.015,
+      ease: 'back.out(1.4)',
+    });
+    
+    // 호버 글자는 아래에서 위로 튀어오름 (탄력)
+    gsap.to(hovers, {
+      yPercent: -100,
+      duration: 0.45,
+      stagger: 0.015,
+      ease: 'back.out(1.4)',
+    });
+  };
+
+  // 개별 글자 단위 슬롯머신 호버 애니메이션 (이탈)
+  const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const btn = e.currentTarget;
+    if (btn.getAttribute('data-active') === 'true') return; // 활성 페이지 메뉴는 호버 이탈 비활성화
+    
+    const defaults = btn.querySelectorAll('.char-default');
+    const hovers = btn.querySelectorAll('.char-hover');
+    
+    gsap.killTweensOf([defaults, hovers]);
+    
+    // 기본 글자 제자리로 복귀 (탄력)
+    gsap.to(defaults, {
+      yPercent: 0,
+      duration: 0.45,
+      stagger: 0.012,
+      ease: 'back.out(1.4)',
+      onComplete: () => {
+        gsap.set(defaults, { clearProps: 'transform' });
+      }
+    });
+    
+    // 호버 글자 원래 위치(아래쪽)로 하강 (탄력)
+    gsap.to(hovers, {
+      yPercent: 0,
+      duration: 0.45,
+      stagger: 0.012,
+      ease: 'back.out(1.4)',
+      onComplete: () => {
+        gsap.set(hovers, { clearProps: 'transform' });
+      }
+    });
+  };
+
+  // 글자 개별 분할 렌더링 헬퍼 (슬롯머신 텍스트 롤용 마스크 구조 생성)
+  const renderSplitText = (text: string, active: boolean, isKo: boolean = false, isNum: boolean = false) => {
+    let defaultColorClass = '';
+    let hoverColorClass = '';
+    
+    if (isNum) {
+      defaultColorClass = active ? 'text-gold-deep' : 'text-gold/60';
+      hoverColorClass = 'text-gold';
+    } else if (isKo) {
+      defaultColorClass = active ? 'text-gold-deep' : 'text-ink-soft';
+      hoverColorClass = active ? 'text-gold' : 'text-gold-deep';
+    } else {
+      defaultColorClass = active ? 'text-gold-deep' : 'text-ink';
+      hoverColorClass = 'text-gold';
+    }
+
+    const fontClass = isNum 
+      ? 'font-en italic text-[clamp(16px,2vw,22px)]' 
+      : isKo 
+        ? 'font-ko text-[clamp(16px,1.8vw,21px)] ml-2.5 md:ml-4 tracking-normal normal-case font-medium' 
+        : 'font-semibold';
+
+    return (
+      <span className={`inline-flex items-baseline ${fontClass}`}>
+        {text.split('').map((char, i) => {
+          if (char === ' ') {
+            return <span key={i} className="inline-block">&nbsp;</span>;
+          }
+          return (
+            <span key={i} className="relative overflow-hidden inline-flex flex-col h-[1.18em] leading-none select-none">
+              {/* 기본 글자 */}
+              <span className={`char-default inline-block h-full shrink-0 leading-none transition-colors duration-300 ${defaultColorClass}`}>
+                {char}
+              </span>
+              {/* 호버 시 튀어오를 글자 */}
+              <span className={`char-hover inline-block h-full shrink-0 leading-none transition-colors duration-300 ${hoverColorClass}`}>
+                {char}
+              </span>
+            </span>
+          );
+        })}
+      </span>
+    );
+  };
 
   return (
     <>
@@ -159,13 +284,13 @@ export default function Header() {
         </button>
       </header>
 
-      {/* 2. GSAP 연동 풀스크린 내비게이션 오버레이 */}
+      {/* 2. GSAP 연동 풀스크린 내비게이션 오버레이 (무거운 backdrop-blur-2xl 제거하여 텍스트 렌더링 번짐/플리커 해결) */}
       {isOpen && (
         <div
           ref={overlayRef}
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[998] flex flex-col justify-center items-start pl-10 md:pl-28 lg:pl-36 overflow-hidden bg-cream/98 backdrop-blur-2xl"
+          className="fixed inset-0 z-[998] flex flex-col justify-center items-start pl-10 md:pl-28 lg:pl-36 overflow-hidden bg-cream/98"
         >
           {/* 장식용 은은한 성가대 배경 워터마크 */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-max text-center pointer-events-none select-none opacity-[0.02] z-0 font-en font-bold italic tracking-[0.2em] text-[16vw] uppercase leading-none">
@@ -179,26 +304,29 @@ export default function Header() {
               {PAGES.map((p) => {
                 const active = isActive(p.href);
                 return (
-                  <li key={p.key} className="flex justify-start">
+                  <li key={p.key} className="flex justify-start overflow-hidden -my-1.5 py-1.5 relative">
+                    {/* 활성 메뉴 뒷배경의 은은한 성스러운 아우라 (골드 광채 백라이트) */}
+                    {active && (
+                      <div
+                        className="absolute inset-y-1 -left-4 w-[75%] max-w-[320px] pointer-events-none z-0 rounded-full opacity-80"
+                        style={{
+                          background: 'radial-gradient(ellipse at left, rgba(184, 154, 90, 0.15) 0%, rgba(253, 249, 240, 0) 75%)',
+                        }}
+                      />
+                    )}
                     <button
                       type="button"
                       onClick={() => handleLinkClick(p.href)}
-                      className={`menu-item group flex items-baseline gap-3.5 md:gap-5 font-en text-[clamp(28px,4.8vw,54px)] uppercase tracking-[0.04em] transition-all duration-300 select-none bg-transparent border-0 p-0 text-left cursor-pointer whitespace-nowrap ${
-                        active
-                          ? 'text-gold-deep font-semibold'
-                          : 'text-ink hover:text-gold'
-                      }`}
+                      onMouseEnter={handleMouseEnter}
+                      onMouseLeave={handleMouseLeave}
+                      data-active={active}
+                      className="menu-item group select-none bg-transparent border-0 p-0 text-left cursor-pointer whitespace-nowrap font-en text-[clamp(28px,4.8vw,54px)] uppercase tracking-[0.04em] relative z-10"
                     >
-                      {/* 순번 표시 */}
-                      <span className="font-en italic text-gold/60 text-[clamp(16px,2vw,22px)] group-hover:text-gold transition-colors duration-300">
-                        {p.num}
-                      </span>
-                      {/* 영어 타이틀 */}
-                      <span className="font-semibold">{p.en}</span>
-                      {/* 한국어 타이틀 */}
-                      <span className="font-ko text-[clamp(16px,1.8vw,21px)] text-ink-soft ml-2.5 md:ml-4 tracking-normal normal-case font-medium group-hover:text-gold-deep transition-colors duration-300">
-                        {p.ko}
-                      </span>
+                      <div className="flex items-baseline gap-3.5 md:gap-5">
+                        {renderSplitText(p.num, active, false, true)}
+                        {renderSplitText(p.en, active, false, false)}
+                        {renderSplitText(p.ko, active, true, false)}
+                      </div>
                     </button>
                   </li>
                 );
