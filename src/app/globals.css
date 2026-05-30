@@ -384,6 +384,13 @@
     box-sizing: border-box;
   }
 
+  /* 갤러리 등 몰입형 꽉 찬 페이지(p-0) 대응 */
+  main.ml-62.p-0 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+  }
+
   @media (max-width: 880px) {
     main.ml-62 {
       padding-top: 110px !important;

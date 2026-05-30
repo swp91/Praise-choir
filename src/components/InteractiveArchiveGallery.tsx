@@ -195,7 +195,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         ref={viewportRef}
         className="absolute inset-x-0 top-1/2 z-10 h-[46vh] -translate-y-1/2 cursor-grab overflow-hidden active:cursor-grabbing"
       >
-        <div ref={trackRef} className="flex h-full w-max items-center gap-8 px-[12vw] will-change-transform">
+        <div ref={trackRef} className="flex h-full w-max items-center gap-8 px-[4vw] will-change-transform">
           {loopedPhotos.map((photo, index) => {
             const originalIndex = index % photos.length;
             const height = heightPattern[originalIndex % heightPattern.length];
