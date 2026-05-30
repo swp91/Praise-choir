@@ -34,7 +34,7 @@ export default async function HomePage() {
   };
 
   return (
-    <main className="min-h-screen ml-62 p-0 max-[880px]:ml-0 max-[880px]:p-0 relative overflow-hidden bg-cream animate-fadeIn">
+    <main className="main-content min-h-screen p-0 relative overflow-hidden bg-cream animate-fadeIn">
       
       {/* 1. 완벽한 화면 꽉 참 (Edge-to-Edge, 100vh) 시네마틱 Hero 섹션 */}
       <section className="relative w-full h-screen flex flex-col justify-between p-10 md:p-16 pb-12 md:pb-14 z-10 overflow-hidden">

@@ -24,7 +24,7 @@ export default async function PracticePage() {
   const evening = data.practice.filter((_, index) => index > 2);
 
   return (
-    <main className="min-h-screen p-8 pb-15 ml-62 max-[880px]:ml-0 max-[880px]:p-0 max-[880px]:pb-20">
+    <main className="main-content min-h-screen">
       <HeroBlock
         eyebrow="Hours of Devotion"
         title="Hours &amp; Aims"

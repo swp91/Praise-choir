@@ -10,7 +10,7 @@ export default async function GalleryPage() {
   const photos = await getGalleryData();
 
   return (
-    <main className="h-screen overflow-hidden p-0 ml-62 max-[880px]:ml-0 max-[880px]:min-h-screen max-[880px]:h-auto max-[880px]:overflow-visible max-[880px]:pb-20">
+    <main className="main-content h-screen overflow-hidden p-0 max-[880px]:min-h-screen max-[880px]:h-auto max-[880px]:overflow-visible">
       <div className="min-[881px]:hidden">
         <HeroBlock
           eyebrow="Photo Archive"

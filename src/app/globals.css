@@ -90,13 +90,6 @@
 }
 
 @layer base {
-  html, body {
-    -ms-overflow-style: none; /* IE, Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-  ::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, Opera */
-  }
   body {
     background-color: var(--color-cream);
     color: var(--color-ink);
@@ -380,35 +373,6 @@
     }
   }
 
-  /* 사이드바 폐기 및 플로팅 헤더 레이아웃 오버라이드 (여백 최적화) */
-  main.ml-62 {
-    margin-left: 0 !important;
-    padding-top: 88px !important; /* 플로팅 헤더와의 균형을 위한 여백 압축 */
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    box-sizing: border-box;
-  }
-
-  /* 갤러리 등 몰입형 꽉 찬 페이지(p-0) 대응 */
-  main.ml-62.p-0 {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    padding-top: 0 !important;
-  }
-
-  @media (max-width: 880px) {
-    main.ml-62 {
-      padding-top: 76px !important; /* 모바일 플로팅 헤더 최적화 여백 */
-      padding-left: 1.25rem !important;
-      padding-right: 1.25rem !important;
-      padding-bottom: 4rem !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
-    }
-  }
-
   /* 시네마틱 스크롤 리빌 효과 */
   .reveal-item {
     opacity: 0;
@@ -434,5 +398,60 @@
   .revealed .reveal-line {
     opacity: 1;
     transform: scaleY(1);
+  }
+}
+
+/* ==========================================
+   Unlayered Custom Core Styles (Highest Priority)
+   ========================================== */
+
+/* 전역 스크롤바 강제 비활성화 (모든 브라우저 대응) */
+html, body {
+  -ms-overflow-style: none !important; /* IE, Edge */
+  scrollbar-width: none !important; /* Firefox */
+  overflow-x: hidden; /* 가로 스크롤 방지 */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari, Opera, Edge */
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* 메인 콘텐츠 기본 레이아웃 (사이드바 폐기 대응 - 100% 꽉 찬 너비 보증) */
+.main-content, main.ml-62 {
+  margin-left: 0 !important;
+  padding-top: 88px !important; /* 플로팅 헤더와의 균형을 위한 여백 압축 */
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* 갤러리/메인 Hero 등 몰입형 꽉 찬 페이지(p-0) 대응 */
+.main-content.p-0, main.ml-62.p-0 {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+@media (max-width: 880px) {
+  .main-content, main.ml-62 {
+    padding-top: 76px !important; /* 모바일 플로팅 헤더 최적화 여백 */
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+    padding-bottom: 4rem !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  
+  .main-content.p-0, main.ml-62.p-0 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
   }
 }

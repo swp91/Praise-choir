@@ -11,7 +11,7 @@ export default async function EventsPage() {
   const events = await getEventsData();
 
   return (
-    <main className="min-h-screen p-8 pb-15 ml-62 max-[880px]:ml-0 max-[880px]:p-0 max-[880px]:pb-20">
+    <main className="main-content min-h-screen">
       <HeroBlock
         eyebrow="A Year in Praise"
         title="The Calendar"
