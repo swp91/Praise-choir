@@ -43,11 +43,11 @@ export default function Header() {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
 
-      // 1. 오버레이 컨테이너 등장 애니메이션
+      // 1. 오버레이 컨테이너 등장 애니메이션 (정적 클래스로 블러를 처리하여 텍스트 번짐 방지)
       gsap.fromTo(
         overlayRef.current,
-        { opacity: 0, backdropFilter: 'blur(0px)', backgroundColor: 'rgba(253, 249, 240, 0)' },
-        { opacity: 1, backdropFilter: 'blur(24px)', backgroundColor: 'rgba(253, 249, 240, 0.98)', duration: 0.3, ease: 'power2.out' }
+        { opacity: 0 },
+        { opacity: 1, duration: 0.3, ease: 'power2.out' }
       );
 
       // 2. 메뉴 아이템 순차 스태거 등장 (인스턴트 페이드 인)
@@ -82,11 +82,8 @@ export default function Header() {
 
     gsap.to(overlayRef.current, {
       opacity: 0,
-      backdropFilter: 'blur(0px)',
-      backgroundColor: 'rgba(253, 249, 240, 0)',
-      duration: 0.4,
+      duration: 0.3,
       ease: 'power2.inOut',
-      delay: 0.08,
       onComplete: () => {
         setIsOpen(false);
       },
@@ -168,7 +165,7 @@ export default function Header() {
           ref={overlayRef}
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[998] flex flex-col justify-center items-start pl-10 md:pl-28 lg:pl-36 overflow-hidden"
+          className="fixed inset-0 z-[998] flex flex-col justify-center items-start pl-10 md:pl-28 lg:pl-36 overflow-hidden bg-cream/98 backdrop-blur-2xl"
         >
           {/* 장식용 은은한 성가대 배경 워터마크 */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-max text-center pointer-events-none select-none opacity-[0.02] z-0 font-en font-bold italic tracking-[0.2em] text-[16vw] uppercase leading-none">
