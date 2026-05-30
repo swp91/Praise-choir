@@ -87,71 +87,78 @@ export default function HomeClient({ home }: Props) {
         ctx.save();
 
         // -------------------------------------------------------------
-        // [1] 전역 블렌딩 모드를 'screen'으로 설정하여 실제 대기 중의 빛처럼 자연스럽게 섞이도록 연출
+        // [3D 체적화 핵심 A] 초고화질 가우시안 블러 필터 적용
+        // 벡터 드로잉의 날카로운 선(2D 그림 느낌)을 완벽히 제거하고, 빛이 대기 중에 안개처럼 부서지는 3D 체적광 구현
+        // -------------------------------------------------------------
+        ctx.filter = 'blur(20px)';
+
+        // -------------------------------------------------------------
+        // [3D 체적화 핵심 B] 스크린 블렌딩 모드로 오리지널 이미지와 결합
+        // 단순 레이어 덮어쓰기가 아닌, 배경 찬양대 사진과 자연스럽게 가색 혼합되어 실제 태양광 질감 복원
         // -------------------------------------------------------------
         ctx.globalCompositeOperation = 'screen';
 
         // -------------------------------------------------------------
-        // [2] 수직으로 길게 하늘로 뻗은 태양기둥 몸체 (Vertical Light Column)
+        // [1] 수직으로 길게 하늘로 뻗은 다중 입체 태양기둥 (Volumetric Light Shafts)
         // -------------------------------------------------------------
-        // 화면 위쪽 끝부터 아래쪽 끝까지 뻗어나가는 soft하고 웅장한 수직 빔
-        const beamWidth = 45 * (1.0 + progress * 8.5); // 스크롤 시 굵어짐
-        
-        const beamGrd = ctx.createLinearGradient(centerX - beamWidth, 0, centerX + beamWidth, 0);
-        beamGrd.addColorStop(0, 'rgba(184, 154, 90, 0)');
-        beamGrd.addColorStop(0.3, `rgba(255, 230, 175, ${activeAlpha * 0.18})`);
-        beamGrd.addColorStop(0.5, `rgba(255, 255, 255, ${activeAlpha * 0.42})`);
-        beamGrd.addColorStop(0.7, `rgba(255, 230, 175, ${activeAlpha * 0.18})`);
-        beamGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
+        // 여러 겹의 세부 광선줄기가 수평으로 흔들리며 스며나오는 리얼한 햇빛 아지랑이 연출
+        const beamCount = 5;
+        for (let i = 0; i < beamCount; i++) {
+          // 각 광선마다 독자적인 속도의 흔들림(shimmer) 값 적용
+          const offset = (i - (beamCount - 1) / 2) * 45;
+          const rayWidth = (28 + Math.sin(Date.now() * 0.0018 + i) * 10) * (1.0 + progress * 6.0);
+          const rayAlpha = (0.05 + Math.cos(Date.now() * 0.0012 + i) * 0.02) * activeAlpha;
 
-        ctx.fillStyle = beamGrd;
-        ctx.fillRect(centerX - beamWidth, 0, beamWidth * 2, height);
+          const beamGrd = ctx.createLinearGradient(centerX + offset - rayWidth, 0, centerX + offset + rayWidth, 0);
+          beamGrd.addColorStop(0, 'rgba(184, 154, 90, 0)');
+          beamGrd.addColorStop(0.5, `rgba(255, 245, 220, ${rayAlpha})`);
+          beamGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
+
+          ctx.fillStyle = beamGrd;
+          ctx.fillRect(centerX + offset - rayWidth, 0, rayWidth * 2, height);
+        }
 
         // -------------------------------------------------------------
-        // [3] 레퍼런스 스타일: 중앙 수직 다이아몬드형 빛무리 (Vertical Diamond Spindle Flare)
+        // [2] 3D 방추형 마름모꼴 태양기둥 오버레이 (No-Clipping Spindle Flare)
+        // 패스를 따서 채우는 강제 벡터 클리핑(2D 스티커 느낌의 주범)을 100% 걷어내고, 
+        // 캔버스의 좌표계 가로세로 스케일 배율을 왜곡하여 완벽하게 부드러운 3D 그라데이션 방추형을 성형합니다.
         // -------------------------------------------------------------
-        // 레퍼런스 사진처럼 중앙이 볼록하고 위아래로 길게 뻗어나가는 신비로운 마름모꼴/방추형 형태 드로잉
-        const spindleHeight = 350 * scale; // 수직 확장성 극대화
-        const spindleWidth = 75 * scale;   // 수평 굵기
-
         ctx.save();
         ctx.translate(centerX, centerY);
 
-        // 3D 느낌을 위해 미세한 대기 진동(Twinkle shiver) 효과 부여
-        const shiver = Math.sin(Date.now() * 0.0035) * 2.2;
+        // 미세한 대기 진동(Twinkle shiver) 효과 부여
+        const shiver = Math.sin(Date.now() * 0.003) * 3;
         ctx.translate(0, shiver);
 
-        // 방추형 다이아몬드 가이드 패스
-        ctx.beginPath();
-        ctx.moveTo(0, -spindleHeight / 2); // 맨 위 꼭짓점
-        ctx.bezierCurveTo(spindleWidth * 0.6, -spindleHeight * 0.15, spindleWidth * 0.6, spindleHeight * 0.15, 0, spindleHeight / 2); // 우측 곡선 바늘
-        ctx.bezierCurveTo(-spindleWidth * 0.6, spindleHeight * 0.15, -spindleWidth * 0.6, -spindleHeight * 0.15, 0, -spindleHeight / 2); // 좌측 곡선 바늘
-        ctx.closePath();
+        // 가로 스케일은 1.1배, 세로 스케일은 5.2배로 좌표계를 늘려 자연스러운 수직 다이아몬드형 성형
+        // (경계선이 없는 완벽한 부드러운 그라데이션)
+        ctx.scale(1.1, 5.2);
 
-        // 방추형 내부를 채우는 은은한 방사형 그라데이션 (대기 중 수증기에 부서지는 광채 시뮬레이션)
-        const spindleGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, spindleHeight * 0.4);
+        const spindleRadius = 45 * scale;
+        const spindleGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, spindleRadius);
         spindleGrd.addColorStop(0, `rgba(255, 255, 255, ${activeAlpha * 1.0})`);
-        spindleGrd.addColorStop(0.18, `rgba(255, 240, 185, ${activeAlpha * 0.8})`);
-        spindleGrd.addColorStop(0.45, `rgba(184, 154, 90, ${activeAlpha * 0.32})`);
-        spindleGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
+        spindleGrd.addColorStop(0.2, `rgba(255, 244, 210, ${activeAlpha * 0.95})`);
+        spindleGrd.addColorStop(0.5, `rgba(218, 185, 115, ${activeAlpha * 0.38})`);
+        spindleGrd.addColorStop(1, 'rgba(218, 185, 115, 0)'); // 경계선이 0으로 완벽히 수렴
 
         ctx.fillStyle = spindleGrd;
+        ctx.beginPath();
+        ctx.arc(0, 0, spindleRadius, 0, Math.PI * 2);
         ctx.fill();
         ctx.restore();
 
         // -------------------------------------------------------------
-        // [4] 태양 기둥 중심의 눈부신 코어 글로우 (Incandescent Sun Core)
+        // [3] 태양 기둥 중심의 안개형 근원 코어 글로우 (Soft Atmospheric Core Glow)
         // -------------------------------------------------------------
-        // 마우스 스크롤이 끝에 다다르면 화면 전체를 황금빛 성스러움으로 덮어버리는 마스터 광원볼
         ctx.save();
         ctx.translate(centerX, centerY);
         
-        const coreRadius = 75 * scale;
+        const coreRadius = 90 * scale;
         const coreGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, coreRadius);
         coreGrd.addColorStop(0, `rgba(255, 255, 255, ${activeAlpha * 1.0})`);
-        coreGrd.addColorStop(0.12, `rgba(255, 254, 245, ${activeAlpha * 0.95})`);
-        coreGrd.addColorStop(0.35, `rgba(255, 235, 170, ${activeAlpha * 0.72})`);
-        coreGrd.addColorStop(0.65, `rgba(184, 154, 90, ${activeAlpha * 0.28})`);
+        coreGrd.addColorStop(0.18, `rgba(255, 253, 245, ${activeAlpha * 0.92})`);
+        coreGrd.addColorStop(0.42, `rgba(255, 235, 170, ${activeAlpha * 0.65})`);
+        coreGrd.addColorStop(0.72, `rgba(184, 154, 90, ${activeAlpha * 0.22})`);
         coreGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
 
         ctx.fillStyle = coreGrd;
