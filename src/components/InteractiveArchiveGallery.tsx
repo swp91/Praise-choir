@@ -86,8 +86,8 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       const lean = gsap.utils.clamp(-14, 14, velocityRef.current * 0.32);
       gsap.set(track, { x: positionRef.current });
       gsap.to(photoRefs.current, {
-        rotateY: -lean,
-        rotateZ: lean * 0.24,
+        rotateY: lean, // 물리적 관성 및 바람 저항 방향과 직관적으로 일치하도록 부호 반전
+        rotateZ: -lean * 0.24,
         transformPerspective: 700,
         transformOrigin: 'center center',
         duration: 0.28,
@@ -181,19 +181,30 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
   }
 
   return (
-    <section className="relative hidden min-h-[calc(100vh-64px)] overflow-hidden bg-cream px-0 py-8 min-[881px]:block">
-      <div className="pointer-events-none relative z-20 mx-auto text-center">
-        <h1 className="font-en text-[clamp(44px,6vw,80px)] font-bold leading-[0.78] tracking-normal text-ink">
+    <section className="relative hidden h-screen flex-col justify-between bg-cream px-0 pt-20 pb-8 overflow-hidden min-[881px]:flex">
+      {/* 백그라운드 흘러가는 성가대 아카이브 라틴어 마키 연출 (일관성 확보) */}
+      <div className="absolute top-8 left-0 right-0 overflow-hidden pointer-events-none select-none leading-none z-0">
+        <div className="animate-marquee flex whitespace-nowrap">
+          {Array.from({ length: 10 }, (_, i) => (
+            <span key={i} className="font-en tracking-[0.18em] uppercase text-gold/6 text-[clamp(40px,7vw,80px)] pr-20 shrink-0">
+              ARCHIVUM · MEMORIA
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0">
+        <h1 className="font-en text-[clamp(44px,5.2vw,72px)] font-bold leading-[0.85] tracking-normal text-ink">
           The Archive
         </h1>
-        <p className="mt-3.5 font-ko text-[clamp(15px,1.8vw,21px)] font-bold tracking-normal text-ink">
+        <p className="mt-4 font-ko text-[clamp(13px,1.5vw,17px)] font-medium tracking-normal text-ink-soft">
           갤러리 · 함께한 순간들
         </p>
       </div>
 
       <div
         ref={viewportRef}
-        className="absolute inset-x-0 top-1/2 z-10 h-[46vh] -translate-y-1/2 cursor-grab overflow-hidden active:cursor-grabbing"
+        className="relative z-10 w-full flex-1 flex items-center h-[46vh] my-4 cursor-grab overflow-hidden active:cursor-grabbing"
       >
         <div ref={trackRef} className="flex h-full w-max items-center gap-8 px-[4vw] will-change-transform">
           {loopedPhotos.map((photo, index) => {
@@ -230,7 +241,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         </div>
       </div>
 
-      <div className="pointer-events-none absolute inset-x-0 bottom-10 z-0 text-center font-en text-[11px] uppercase tracking-[0.3em] text-ink-mute">
+      <div className="pointer-events-none w-full text-center shrink-0 z-10 font-en text-[10px] uppercase tracking-[0.32em] text-ink-mute mt-2">
         Scroll to browse
       </div>
 
