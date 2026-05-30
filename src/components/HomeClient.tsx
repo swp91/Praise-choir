@@ -209,7 +209,7 @@ export default function HomeClient({ home }: Props) {
           <div className="absolute inset-0 bg-black/15 z-0" />
 
           {/* 좌측 대형 타이포그래피 콘텐츠 */}
-          <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-20 -translate-y-12">
+          <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-20 -translate-y-24">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -230,7 +230,7 @@ export default function HomeClient({ home }: Props) {
               >
                 광진교회
               </motion.span>
-              <br className="hidden md:inline" />
+              <br />
               <motion.span 
                 initial={{ opacity: 0, y: 36 }}
                 animate={{ opacity: 1, y: 0 }}
