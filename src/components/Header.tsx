@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import Crest from './Crest';
 import { usePageTransition } from '@/lib/transition';
+import { motion } from 'framer-motion';
 
 const PAGES = [
   { key: 'home',     href: '/',         en: 'Overview',     ko: '메인',   num: '01' },
@@ -232,8 +233,11 @@ export default function Header() {
   return (
     <>
       {/* 1. 중앙 상단 플로팅 글래스모피즘 헤더 바 (컴팩트 압축 & 크기 고정) */}
-      <header
-        className={`fixed z-[999] w-[90%] max-w-[190px] transition-all duration-300 rounded-full flex items-center justify-between border border-line-soft/40 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-3.5 ${
+      <motion.header
+        initial={{ y: -64, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+        className={`fixed z-[999] w-[90%] max-w-[190px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-between border border-line-soft/40 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-3.5 ${
           isScrolled
             ? 'bg-cream/45 backdrop-blur-md shadow-[0_12px_32px_rgba(42,38,32,0.06)] border-line-soft/60'
             : 'bg-cream/25 backdrop-blur-sm'
@@ -282,7 +286,7 @@ export default function Header() {
             />
           </div>
         </button>
-      </header>
+      </motion.header>
 
       {/* 2. GSAP 연동 풀스크린 내비게이션 오버레이 (무거운 backdrop-blur-2xl 제거하여 텍스트 렌더링 번짐/플리커 해결) */}
       {isOpen && (

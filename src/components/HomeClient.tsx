@@ -210,13 +210,23 @@ export default function HomeClient({ home }: Props) {
 
           {/* 좌측 대형 타이포그래피 콘텐츠 */}
           <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-16 -translate-y-8">
-            <div className="mb-6 select-none">
+            <motion.div 
+              initial={{ opacity: 0, y: 36 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+              className="mb-6 select-none"
+            >
               <span className="font-en text-[10px] tracking-[0.24em] uppercase text-[#ffd899] opacity-95 font-semibold">
                 Praise Choir
               </span>
-            </div>
+            </motion.div>
 
-            <h1 className="font-ko text-[clamp(34px,4.5vw,66px)] font-light leading-[1.14] text-[#f5edd8] tracking-tight mb-5 select-none">
+            <motion.h1 
+              initial={{ opacity: 0, y: 54 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1], delay: 0.32 }}
+              className="font-ko text-[clamp(34px,4.5vw,66px)] font-light leading-[1.14] text-[#f5edd8] tracking-tight mb-5 select-none"
+            >
               광진교회 <br className="hidden md:inline" />
               <span className="font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent">
                 프레이즈 찬양대
@@ -224,7 +234,7 @@ export default function HomeClient({ home }: Props) {
               <span className="font-en font-extralight italic text-[clamp(26px,3.5vw,48px)] text-[#ffd899]/80 ml-3.5 align-baseline shrink-0">
                 Praise
               </span>
-            </h1>
+            </motion.h1>
           </div>
 
           {/* 2026 로고 워터마크 데코 */}
