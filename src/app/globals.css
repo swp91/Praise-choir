@@ -421,4 +421,18 @@
     opacity: 1;
     transform: translateY(0);
   }
+
+  /* 위에서 아래로 그려지듯 채워지는 골드 드롭 실선 */
+  .reveal-line {
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+  }
+
+  .revealed .reveal-line {
+    opacity: 1;
+    transform: scaleY(1);
+  }
 }

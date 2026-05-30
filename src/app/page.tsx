@@ -109,13 +109,19 @@ export default async function HomePage() {
           </p>
           {/* 위에서 아래로 흐르며 그려지는 골드 드롭 실선 */}
           <div 
-            className="reveal-item mt-12 w-[1px] h-12 bg-gradient-to-b from-gold to-transparent"
+            className="reveal-line mt-12 w-[1px] h-12 bg-gradient-to-b from-gold to-transparent"
             style={{ transitionDelay: '350ms' }}
           />
         </ScrollReveal>
 
-        {/* 3. 백그라운드 라틴어 워터마크 마키 연출 (주제어 브릿지 바로 하단에 흐르도록) */}
-        <div className="absolute top-[320px] left-0 right-0 overflow-hidden pointer-events-none select-none leading-none z-0 opacity-40">
+        {/* 3. 백그라운드 라틴어 워터마크 마키 연출 (주제어 브릿지 바로 하단에 흐르도록 - 양옆 그라데이션 페이드 적용) */}
+        <div 
+          className="absolute top-[320px] left-0 right-0 overflow-hidden pointer-events-none select-none leading-none z-0 opacity-45"
+          style={{
+            WebkitMaskImage: 'linear-gradient(to right, transparent, white 15%, white 85%, transparent)',
+            maskImage: 'linear-gradient(to right, transparent, white 15%, white 85%, transparent)'
+          }}
+        >
           <div className="animate-marquee flex whitespace-nowrap">
             {Array.from({ length: 10 }, (_, i) => (
               <span key={i} className="font-en tracking-[0.18em] uppercase text-gold/6 text-[clamp(40px,7vw,80px)] pr-20 shrink-0">
@@ -137,6 +143,9 @@ export default async function HomePage() {
                   className={`reveal-item border border-line-soft bg-card/45 backdrop-blur-xs rounded-xl px-7 py-6.5 flex flex-col justify-start relative overflow-hidden transition-all duration-500 hover:-translate-y-1.5 hover:shadow-[0_12px_32px_rgba(184,154,90,0.06)] hover:border-gold/60 ${getCardSpan(i)}`}
                   style={{ transitionDelay: `${i * 80}ms` }}
                 >
+                  {/* Subtle glassmorphism glow effect inside card */}
+                  <div className="absolute -right-12 -bottom-12 w-24 h-24 bg-gold/4 rounded-full blur-xl pointer-events-none" />
+
                   {/* 로마자 골드 인덱스 */}
                   <span className="font-en text-[22px] md:text-[25px] font-bold text-gold/30 tracking-wider select-none leading-none mb-3 block">
                     {toRoman(i + 1)}
