@@ -409,7 +409,6 @@
 html, body {
   -ms-overflow-style: none !important; /* IE, Edge */
   scrollbar-width: none !important; /* Firefox */
-  overflow-x: hidden; /* 가로 스크롤 방지 */
 }
 html::-webkit-scrollbar,
 body::-webkit-scrollbar,

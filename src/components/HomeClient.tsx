@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 type Props = {
   home: {
@@ -13,31 +13,216 @@ type Props = {
   };
 };
 
+interface Sparkle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  alpha: number;
+  twinkleSpeed: number;
+  phase: number;
+  type: 'circle' | 'star';
+  angle: number;
+  rotationSpeed: number;
+}
+
 export default function HomeClient({ home }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   
-  // 1. 전체 스크롤 진척도 감지 (0 to 1)
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
+  // 1. 브라우저 전체 스크롤 진척도 감지 (0 to 1)
+  const { scrollYProgress } = useScroll();
 
   // 2. 1섹션 (Hero) 스타일 변환값 정의
-  // 스크롤이 내려감에 따라 (0 -> 0.4), 첫화면은 점점 흐려지고 페이드아웃 및 줌인
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.4, 0.5], [1, 0.15, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.48], [1, 1.06]);
-  const heroBlur = useTransform(scrollYProgress, [0, 0.4], ["blur(0px)", "blur(8px)"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.42, 0.48], [1, 0.15, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 0.48], [1, 1.05]);
+  const heroBlur = useTransform(scrollYProgress, [0, 0.4], ["blur(0px)", "blur(6px)"]);
 
-  // 3. 빛무리 포탈 (Glow-Burst) 스타일 변환값 정의
-  // 스크롤 0 -> 0.48 지점까지 빛무리가 중앙에서 스케일 0 -> 24로 폭발적으로 확장, 65%까지 유지 후 걷힘
-  const portalScale = useTransform(scrollYProgress, [0, 0.38, 0.48, 0.58], [0, 1.5, 20, 24]);
-  const portalOpacity = useTransform(scrollYProgress, [0, 0.1, 0.38, 0.48, 0.58, 0.72], [0, 0.6, 1, 1, 1, 0]);
+  // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.48 ~ 0.58 지점에서 화면을 완전히 덮어 완벽한 심리스 전환 보증)
+  const transitionOverlayOpacity = useTransform(
+    scrollYProgress,
+    [0.38, 0.48, 0.58, 0.68],
+    [0, 1, 1, 0]
+  );
 
   // 4. 2섹션 (The Sacred Space) 스타일 변환값 정의
-  // 스크롤 0.45 -> 0.65 지점에서 서서히 선명하게 등장 (스케일 0.94 -> 1.0)
-  const section2Opacity = useTransform(scrollYProgress, [0.45, 0.62, 0.98], [0, 1, 1]);
-  const section2Scale = useTransform(scrollYProgress, [0.45, 0.65], [0.94, 1]);
-  const section2Y = useTransform(scrollYProgress, [0.45, 0.65], [30, 0]);
+  const section2Opacity = useTransform(scrollYProgress, [0.48, 0.62, 0.98], [0, 1, 1]);
+  const section2Scale = useTransform(scrollYProgress, [0.48, 0.65], [0.95, 1]);
+  const section2Y = useTransform(scrollYProgress, [0.48, 0.65], [24, 0]);
+
+  // 5. 고성능 HTML5 Canvas 기반 황금빛 별빛 & 보케 흩날림 시네마틱 루프
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationFrameId: number;
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    // 창 크기 조절 대응
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    // 황금빛 별빛 입자 생성
+    const sparkles: Sparkle[] = [];
+    const maxSparkles = 95;
+
+    for (let i = 0; i < maxSparkles; i++) {
+      sparkles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.62, // 미세한 수평 표류
+        vy: -Math.random() * 0.95 - 0.35,  // 은은하게 위로 상승 (햇빛 아지랑이 느낌)
+        size: Math.random() * 2.8 + 1.2,
+        alpha: Math.random() * 0.8 + 0.2,
+        twinkleSpeed: Math.random() * 0.04 + 0.015,
+        phase: Math.random() * Math.PI * 2,
+        type: Math.random() > 0.45 ? 'star' : 'circle', // 십자 별빛과 보케 보강
+        angle: Math.random() * Math.PI * 2,
+        rotationSpeed: (Math.random() - 0.5) * 0.015
+      });
+    }
+
+    // 빛줄기(God Rays) 회전용 각도 변수
+    let rayAngle = 0;
+
+    // 렌더링 루프
+    const render = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // 현재 스크롤 진척도 확보
+      const progress = scrollYProgress.get();
+
+      // 빛무리 효과 전체 불투명도 계산 (스크롤 0% ~ 48%에 등장, 58% ~ 72%에 걷힘)
+      let activeAlpha = 0;
+      if (progress < 0.48) {
+        activeAlpha = progress / 0.48; // 서서히 충전
+      } else if (progress <= 0.58) {
+        activeAlpha = 1.0;            // 최대 밝기 유지
+      } else if (progress < 0.75) {
+        activeAlpha = Math.max(0, 1.0 - (progress - 0.58) / 0.17); // 걷힘
+      }
+
+      if (activeAlpha > 0) {
+        // [이펙트 A] 중앙 회전 황금빛 햇빛 (God Rays) 연출
+        ctx.save();
+        ctx.translate(width / 2, height / 2);
+        ctx.rotate(rayAngle);
+        rayAngle += 0.0024; // 미세 회전속도
+
+        const rayCount = 8;
+        const maxRadius = Math.max(width, height) * 0.85;
+
+        for (let i = 0; i < rayCount; i++) {
+          const angleStart = (i * Math.PI * 2) / rayCount;
+          const angleWidth = 0.24; // 빛줄기 너비
+
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.arc(0, 0, maxRadius, angleStart, angleStart + angleWidth);
+          ctx.closePath();
+
+          // 부드러운 방사형 그라데이션 광선
+          const rayGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, maxRadius);
+          rayGrd.addColorStop(0, `rgba(255, 238, 190, ${0.11 * activeAlpha})`);
+          rayGrd.addColorStop(0.3, `rgba(255, 215, 120, ${0.055 * activeAlpha})`);
+          rayGrd.addColorStop(1, 'rgba(255, 215, 120, 0)');
+
+          ctx.fillStyle = rayGrd;
+          ctx.fill();
+        }
+        ctx.restore();
+
+        // [이펙트 B] 별빛 및 보케 입자 흩날림 연출
+        sparkles.forEach((p) => {
+          // 스크롤 진척도에 따라 중앙에서 바깥으로 퍼지는 3D 입체 카메라 속도 매핑
+          const speedMultiplier = 1.0 + progress * 8.5; 
+          
+          p.y += p.vy * speedMultiplier;
+          p.x += p.vx * speedMultiplier;
+          p.phase += p.twinkleSpeed;
+          p.angle += p.rotationSpeed;
+
+          // 화면 밖으로 나간 입자 재배치 (끊임없는 순환 구조)
+          if (p.y < -50) {
+            p.y = height + 50;
+            p.x = Math.random() * width;
+          }
+          if (p.x < -50 || p.x > width + 50) {
+            p.x = Math.random() * width;
+            p.y = height + 50;
+          }
+
+          // 반짝임 알파값 계산
+          const currentAlpha = Math.max(0.1, Math.min(1.0, p.alpha * (Math.sin(p.phase) * 0.36 + 0.64))) * activeAlpha;
+
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+
+          if (p.type === 'star') {
+            // 1. 레퍼런스 스타일: 정교한 십자형 플레어 별빛 (Twinkle Starburst)
+            const flareSize = p.size * (1.0 + progress * 2.2);
+
+            // 부드러운 중앙 글로우 볼
+            const starGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, flareSize * 2.0);
+            starGrd.addColorStop(0, `rgba(255, 255, 255, ${currentAlpha})`);
+            starGrd.addColorStop(0.35, `rgba(255, 218, 115, ${currentAlpha * 0.72})`);
+            starGrd.addColorStop(1, 'rgba(255, 218, 115, 0)');
+            ctx.fillStyle = starGrd;
+            ctx.beginPath();
+            ctx.arc(0, 0, flareSize * 2.0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 정교한 십자 별빛 꼬리 드로잉 (네 갈래 광선 플레어)
+            ctx.fillStyle = `rgba(255, 245, 210, ${currentAlpha * 0.95})`;
+            
+            // 가로 광선
+            ctx.beginPath();
+            ctx.ellipse(0, 0, flareSize * 6.2, flareSize * 0.32, 0, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 세로 광선
+            ctx.beginPath();
+            ctx.ellipse(0, 0, flareSize * 0.32, flareSize * 6.2, 0, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            // 2. 둥근 골드 아웃포커싱 보케 (Soft Gold Bokeh)
+            const bokehRadius = p.size * (1.2 + progress * 3.5);
+            
+            const bokehGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, bokehRadius);
+            bokehGrd.addColorStop(0, `rgba(255, 235, 160, ${currentAlpha * 0.85})`);
+            bokehGrd.addColorStop(0.5, `rgba(212, 175, 55, ${currentAlpha * 0.32})`);
+            bokehGrd.addColorStop(1, 'rgba(212, 175, 55, 0)');
+            
+            ctx.fillStyle = bokehGrd;
+            ctx.beginPath();
+            ctx.arc(0, 0, bokehRadius, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          ctx.restore();
+        });
+      }
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [scrollYProgress]);
 
   return (
     <div ref={containerRef} className="relative h-[220vh] bg-cream">
@@ -66,7 +251,7 @@ export default function HomeClient({ home }: Props) {
           {/* 텍스트 가독성을 방해하지 않는 극도로 은은한 반투명 소프트 필터 레이어 */}
           <div className="absolute inset-0 bg-black/15 z-0" />
 
-          {/* 좌측 대형 타이포그래피 콘텐츠 (가독성 드롭 섀도우 극대화) */}
+          {/* 좌측 대형 타이포그래피 콘텐츠 */}
           <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-16 -translate-y-8">
             <div className="mb-6 select-none">
               <span className="font-en text-[10px] tracking-[0.24em] uppercase text-[#ffd899] opacity-95 font-semibold">
@@ -96,34 +281,21 @@ export default function HomeClient({ home }: Props) {
         </motion.section>
 
 
-        {/* ---------------- 2. 빛무리 포탈 (Glow-Burst Overlay) ---------------- */}
-        <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center">
-          {/* 외곽 골드 광원 레이어 */}
-          <motion.div 
-            style={{ 
-              scale: portalScale, 
-              opacity: portalOpacity,
-              x: '-50%',
-              y: '-50%',
-              transformOrigin: 'center center'
-            }}
-            className="glow-portal-overlay" 
-          />
-          {/* 내곽 소프트 화이트 광원 레이어 */}
-          <motion.div 
-            style={{ 
-              scale: portalScale, 
-              opacity: portalOpacity,
-              x: '-50%',
-              y: '-50%',
-              transformOrigin: 'center center'
-            }}
-            className="glow-portal-overlay-secondary" 
-          />
-        </div>
+        {/* ---------------- 2. 고화질 실시간 별빛 & 햇빛 흩날림 캔버스 ---------------- */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 z-20 pointer-events-none w-full h-full"
+        />
 
 
-        {/* ---------------- 3섹션: 성스러운 공간 (The Sacred Space - 2섹션) ---------------- */}
+        {/* ---------------- 3. 심리스 포탈용 황금빛 안개 장막 (Aura Intersection) ---------------- */}
+        <motion.div
+          style={{ opacity: transitionOverlayOpacity }}
+          className="absolute inset-0 bg-[#fbf7ee] z-15 pointer-events-none"
+        />
+
+
+        {/* ---------------- 4섹션: 성스러운 공간 (The Sacred Space - 2섹션) ---------------- */}
         <motion.section 
           style={{ 
             opacity: section2Opacity,
