@@ -90,6 +90,13 @@
 }
 
 @layer base {
+  html, body {
+    -ms-overflow-style: none; /* IE, Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  ::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+  }
   body {
     background-color: var(--color-cream);
     color: var(--color-ink);
@@ -373,10 +380,10 @@
     }
   }
 
-  /* 사이드바 폐기 및 플로팅 헤더 레이아웃 오버라이드 */
+  /* 사이드바 폐기 및 플로팅 헤더 레이아웃 오버라이드 (여백 최적화) */
   main.ml-62 {
     margin-left: 0 !important;
-    padding-top: 140px !important; /* 플로팅 헤더의 스크롤 침범 최소화 공간 확보 */
+    padding-top: 88px !important; /* 플로팅 헤더와의 균형을 위한 여백 압축 */
     padding-left: 2rem !important;
     padding-right: 2rem !important;
     width: 100% !important;
@@ -393,7 +400,7 @@
 
   @media (max-width: 880px) {
     main.ml-62 {
-      padding-top: 110px !important;
+      padding-top: 76px !important; /* 모바일 플로팅 헤더 최적화 여백 */
       padding-left: 1.25rem !important;
       padding-right: 1.25rem !important;
       padding-bottom: 4rem !important;

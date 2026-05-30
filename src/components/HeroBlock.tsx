@@ -16,7 +16,7 @@ export default function HeroBlock({
   meta,
 }: Props) {
   return (
-    <section className="relative pt-10 mb-7 overflow-hidden max-[880px]:pt-6 max-[880px]:px-4">
+    <section className="relative pt-2 mb-7 overflow-hidden max-[880px]:pt-2 max-[880px]:px-4">
       <div className="absolute -top-1 left-0 right-0 overflow-hidden pointer-events-none select-none leading-none">
         <div className="animate-marquee flex whitespace-nowrap">
           {Array.from({ length: 10 }, (_, i) => (
