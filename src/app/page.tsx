@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import SectionCap from "@/components/SectionCap";
 import Footer from "@/components/Footer";
 import FeaturedGrid from "@/components/FeaturedGrid";
-import { UsersIcon, MusicIcon, CalendarIcon, CrownIcon } from "@/components/icons";
 import { getHomeData } from "@/lib/supabase/choir";
 
 export const metadata: Metadata = { title: "Overview · 프레이즈찬양대" };
@@ -23,12 +21,6 @@ function toRoman(n: number): string {
 
 export default async function HomePage() {
   const home = await getHomeData();
-  const stats = [
-    { num: String(home.stats.people), label: "Choristers", sub: "총 단원", Icon: UsersIcon },
-    { num: String(home.stats.sections), label: "Sections", sub: "파트 · 악단", Icon: MusicIcon },
-    { num: String(home.stats.events), label: "Events / Year", sub: "연중행사", Icon: CalendarIcon },
-    { num: home.stats.goalsRoman, label: "Annual Aims", sub: `${home.year} 목표`, Icon: CrownIcon },
-  ];
 
   // 7대 목표 비대칭 아티스틱 그리드 열 너비 계산 헬퍼
   const getCardSpan = (index: number) => {
@@ -44,7 +36,6 @@ export default async function HomePage() {
     <main className="min-h-screen ml-62 p-0 max-[880px]:ml-0 max-[880px]:p-0 relative overflow-hidden bg-cream animate-fadeIn">
       
       {/* 1. 완벽한 화면 꽉 참 (Edge-to-Edge, 100vh) 시네마틱 Hero 섹션 */}
-
       <section className="relative w-full h-screen flex flex-col justify-between p-10 md:p-16 pb-12 md:pb-14 z-10 overflow-hidden">
         
         {/* 생생한 원본 사진 복원 (어두운 sepia/brightness 필터 및 왜곡 전면 제거) */}
@@ -61,12 +52,11 @@ export default async function HomePage() {
 
         {/* 좌측 대형 타이포그래피 콘텐츠 (가독성 드롭 섀도우 극대화) */}
         <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)]">
-          {/* 미니멀 아이브로우 & 가로선 */}
-          <div className="flex items-center gap-3 mb-6 select-none">
-            <span className="font-en text-[10px] tracking-[0.24em] uppercase text-[#f5edd8] opacity-95">
-              [01] Praise Choir Ministry
+          {/* 미니멀 아이브로우 */}
+          <div className="mb-6 select-none">
+            <span className="font-en text-[10px] tracking-[0.24em] uppercase text-[#ffd899] opacity-95 font-semibold">
+              Praise Choir
             </span>
-            <div className="w-10 h-[1.2px] bg-[#f5edd8]/60" />
           </div>
 
           {/* 메인 타이틀: 명조 & 금빛 그라데이션과 이탤릭 영문의 격조 높은 만남 */}
@@ -81,29 +71,12 @@ export default async function HomePage() {
           </h1>
 
           {/* 올해의 표어 (서브 카피) */}
-          <p className="font-ko text-[14px] md:text-[16px] text-[#f5edd8] tracking-[0.04em] leading-relaxed max-w-md opacity-95 mb-8.5 font-semibold">
+          <p className="font-ko text-[14px] md:text-[16px] text-[#f5edd8] tracking-[0.04em] leading-relaxed max-w-md opacity-95 font-semibold">
             “오직 하나님을 기뻐함으로 승리하는 프레이즈”
             <span className="block font-en italic text-gold text-[12px] opacity-90 mt-1.5 font-semibold tracking-wide">
               &ldquo;{home.themeEn}&rdquo;
             </span>
           </p>
-
-          {/* 마이크로 인터랙티브 버튼 세트 */}
-          <div className="flex flex-wrap gap-4.5">
-            <Link
-              href="/members"
-              className="px-6 py-3 bg-[#1e160e]/90 border border-gold/60 rounded-full font-ko text-[13px] font-bold text-[#f5edd8] transition-all duration-300 hover:scale-[1.03] hover:border-gold hover:shadow-[0_0_24px_rgba(184,154,90,0.25)] hover:bg-[#2c2014] flex items-center gap-2.5 group"
-            >
-              대원 소개
-              <span className="transition-transform duration-300 group-hover:translate-x-1 font-en">→</span>
-            </Link>
-            <Link
-              href="/practice"
-              className="px-6 py-3 border border-[#f5edd8]/40 bg-black/25 backdrop-blur-xs rounded-full font-ko text-[13px] font-bold text-[#f5edd8] transition-all duration-300 hover:scale-[1.03] hover:text-white hover:border-[#f5edd8]/85 hover:bg-black/40"
-            >
-              연습 및 목표
-            </Link>
-          </div>
         </div>
 
         {/* 2026 로고 워터마크 데코 */}
@@ -114,30 +87,6 @@ export default async function HomePage() {
             alt="광진교회"
             className="w-24 mix-blend-screen"
           />
-        </div>
-
-        {/* 하단 미니멀 통계 메타 바 (The Sacred Metrics Line - 가독성 섀도우) */}
-        <div className="relative z-10 mt-auto w-full pt-7 border-t border-white/20 drop-shadow-[0_2px_8px_rgba(0,0,0,0.7)]">
-          <div className="grid grid-cols-4 gap-6 max-[880px]:grid-cols-2">
-            {stats.map((s, i) => (
-              <div key={i} className="flex items-center gap-3.5 px-2 py-1 rounded-lg">
-                <div className="text-gold [&>svg]:w-5 [&>svg]:h-5 shrink-0 opacity-95">
-                  <s.Icon />
-                </div>
-                <div>
-                  <div className="flex items-baseline gap-1.5 leading-none">
-                    <span className="font-en text-[20px] md:text-[24px] font-extralight text-[#f5edd8] tracking-tight">
-                      {s.num}
-                    </span>
-                    <span className="font-en text-[8px] tracking-[0.2em] uppercase text-gold-deep shrink-0 font-semibold">
-                      {s.label}
-                    </span>
-                  </div>
-                  <div className="text-[10px] text-[#f5edd8]/85 font-ko mt-1 font-semibold">{s.sub}</div>
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
       </section>
@@ -193,5 +142,3 @@ export default async function HomePage() {
     </main>
   );
 }
-
-
