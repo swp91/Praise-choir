@@ -47,7 +47,7 @@ export default function Header() {
       gsap.fromTo(
         overlayRef.current,
         { opacity: 0, backdropFilter: 'blur(0px)', backgroundColor: 'rgba(253, 249, 240, 0)' },
-        { opacity: 1, backdropFilter: 'blur(24px)', backgroundColor: 'rgba(253, 249, 240, 0.98)', duration: 0.45, ease: 'power2.out' }
+        { opacity: 1, backdropFilter: 'blur(24px)', backgroundColor: 'rgba(253, 249, 240, 0.98)', duration: 0.3, ease: 'power2.out' }
       );
 
       // 2. 메뉴 아이템 순차 스태거 등장
@@ -56,7 +56,7 @@ export default function Header() {
         gsap.fromTo(
           items,
           { y: 35, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.6, stagger: 0.07, ease: 'power3.out', delay: 0.15 }
+          { y: 0, opacity: 1, duration: 0.5, stagger: 0.04, ease: 'power3.out', delay: 0 }
         );
       }
     } else {
