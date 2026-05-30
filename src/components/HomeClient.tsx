@@ -21,25 +21,26 @@ export default function HomeClient({ home }: Props) {
   const { scrollYProgress } = useScroll();
 
   // 2. 1섹션 (Hero) 스타일 변환값 정의
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.42, 0.48], [1, 0.15, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.48], [1, 1.04]);
-  const heroBlur = useTransform(scrollYProgress, [0, 0.4], ["blur(0px)", "blur(5px)"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.42, 0.48, 1], [1, 0.15, 0, 0], { clamp: true });
+  const heroScale = useTransform(scrollYProgress, [0, 0.48, 1], [1, 1.04, 1.04], { clamp: true });
+  const heroBlur = useTransform(scrollYProgress, [0, 0.4, 1], ["blur(0px)", "blur(5px)", "blur(5px)"], { clamp: true });
 
   // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.48 ~ 0.58 지점에서 화면을 완전히 덮어 완벽한 심리스 전환 보증)
   const transitionOverlayOpacity = useTransform(
     scrollYProgress,
-    [0.38, 0.48, 0.58, 0.68],
-    [0, 1, 1, 0]
+    [0.38, 0.48, 0.58, 0.68, 1],
+    [0, 1, 1, 0, 0],
+    { clamp: true }
   );
 
   // 4. 2섹션 (The Sacred Space) 스타일 변환값 정의
-  const section2Opacity = useTransform(scrollYProgress, [0.48, 0.62, 0.98], [0, 1, 1]);
-  const section2Scale = useTransform(scrollYProgress, [0.48, 0.65], [0.96, 1]);
-  const section2Y = useTransform(scrollYProgress, [0.48, 0.65], [24, 0]);
+  const section2Opacity = useTransform(scrollYProgress, [0.48, 0.62, 1], [0, 1, 1], { clamp: true });
+  const section2Scale = useTransform(scrollYProgress, [0.48, 0.65, 1], [0.96, 1, 1], { clamp: true });
+  const section2Y = useTransform(scrollYProgress, [0.48, 0.65, 1], [24, 0, 0], { clamp: true });
 
   // 5. 입체적인 종형 조명 정밀 정렬을 위한 3D 가상 공간 깊이 틸트
-  const rotateX = useTransform(scrollYProgress, [0, 0.48], [0, 8]);
-  const translateZ = useTransform(scrollYProgress, [0, 0.48], [0, 60]);
+  const rotateX = useTransform(scrollYProgress, [0, 0.48, 1], [0, 8, 8], { clamp: true });
+  const translateZ = useTransform(scrollYProgress, [0, 0.48, 1], [0, 60, 60], { clamp: true });
 
   // 6. 고해상도 HTML5 Canvas 기반 단일 '성스러운 태양기둥 (Sun Pillar / Light Shaft)' 렌더링 루프
   useEffect(() => {
