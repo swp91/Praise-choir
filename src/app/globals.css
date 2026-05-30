@@ -90,6 +90,10 @@
 }
 
 @layer base {
+  html, body {
+    max-width: 100%;
+    overflow-x: clip;
+  }
   body {
     background-color: var(--color-cream);
     color: var(--color-ink);
