@@ -209,11 +209,11 @@ export default function HomeClient({ home }: Props) {
           <div className="absolute inset-0 bg-black/15 z-0" />
 
           {/* 좌측 대형 타이포그래피 콘텐츠 */}
-          <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-16 -translate-y-8">
+          <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-20 -translate-y-12">
             <motion.div 
-              initial={{ opacity: 0, y: 36 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+              transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
               className="mb-6 select-none"
             >
               <span className="font-en text-[10px] tracking-[0.24em] uppercase text-[#ffd899] opacity-95 font-semibold">
@@ -221,20 +221,41 @@ export default function HomeClient({ home }: Props) {
               </span>
             </motion.div>
 
-            <motion.h1 
-              initial={{ opacity: 0, y: 54 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.05, ease: [0.16, 1, 0.3, 1], delay: 0.32 }}
-              className="font-ko text-[clamp(34px,4.5vw,66px)] font-light leading-[1.14] text-[#f5edd8] tracking-tight mb-5 select-none"
-            >
-              광진교회 <br className="hidden md:inline" />
-              <span className="font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent">
-                프레이즈 찬양대
-              </span>
-              <span className="font-en font-extralight italic text-[clamp(26px,3.5vw,48px)] text-[#ffd899]/80 ml-3.5 align-baseline shrink-0">
+            <h1 className="font-ko text-[clamp(34px,4.5vw,66px)] font-light leading-[1.14] text-[#f5edd8] tracking-tight mb-5 select-none">
+              <motion.span 
+                initial={{ opacity: 0, y: 36 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.28 }}
+                className="inline-block"
+              >
+                광진교회
+              </motion.span>
+              <br className="hidden md:inline" />
+              <motion.span 
+                initial={{ opacity: 0, y: 36 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+                className="inline-block font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent mr-2 md:mr-3"
+              >
+                프레이즈
+              </motion.span>
+              <motion.span 
+                initial={{ opacity: 0, y: 36 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
+                className="inline-block font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent"
+              >
+                찬양대
+              </motion.span>
+              <motion.span 
+                initial={{ opacity: 0, y: 36 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.64 }}
+                className="inline-block font-en font-extralight italic text-[clamp(26px,3.5vw,48px)] text-[#ffd899]/80 ml-3.5 align-baseline shrink-0"
+              >
                 Praise
-              </span>
-            </motion.h1>
+              </motion.span>
+            </h1>
           </div>
 
           {/* 2026 로고 워터마크 데코 */}
