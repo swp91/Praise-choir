@@ -51,12 +51,13 @@ export default function MemberFilter({ parts }: Props) {
       {/* Selected part card */}
       <div className="bg-card border border-line">
         <div className="flex items-center justify-between px-5.5 py-3.5 bg-card-head border-b border-line">
-          <h3 className="font-en text-[11px] tracking-[0.26em] uppercase text-gold-deep font-semibold m-0">
-            {part.name}
+          <h3 className="font-ko text-[14px] md:text-[15px] font-bold text-gold-deep m-0 flex items-baseline gap-1">
+            <span>{part.name}</span>
             {part.leader && (
-              <small className="font-en italic text-[12px] tracking-[0.04em] text-ink-soft ml-2.5 normal-case font-medium">
-                파트장 · {part.leader}
-              </small>
+              <span className="font-ko text-[11px] md:text-[12px] text-ink-soft font-normal flex items-center">
+                <span className="mx-1.5 opacity-40 select-none">·</span>
+                파트장 {part.leader}
+              </span>
             )}
           </h3>
           <span className="font-en italic text-gold text-[13px]">{num} / {part.members.length} voices</span>
