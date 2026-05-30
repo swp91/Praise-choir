@@ -231,12 +231,12 @@ export default function Header() {
 
   return (
     <>
-      {/* 1. 중앙 상단 플로팅 글래스모피즘 헤더 바 */}
+      {/* 1. 중앙 상단 플로팅 글래스모피즘 헤더 바 (컴팩트 압축 & 크기 고정) */}
       <header
-        className={`fixed z-[999] w-[90%] max-w-[260px] transition-all duration-300 rounded-full flex items-center justify-between border border-line-soft/40 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 ${
+        className={`fixed z-[999] w-[90%] max-w-[190px] transition-all duration-300 rounded-full flex items-center justify-between border border-line-soft/40 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-3.5 ${
           isScrolled
-            ? 'top-1.5 h-13 bg-cream/45 backdrop-blur-md px-4 shadow-[0_12px_32px_rgba(42,38,32,0.06)] border-line-soft/60'
-            : 'top-3 h-15 bg-cream/25 backdrop-blur-sm px-5'
+            ? 'bg-cream/45 backdrop-blur-md shadow-[0_12px_32px_rgba(42,38,32,0.06)] border-line-soft/60'
+            : 'bg-cream/25 backdrop-blur-sm'
         }`}
       >
         {/* 좌측: 로고와 브랜드 타이틀 */}
