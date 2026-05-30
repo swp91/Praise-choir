@@ -37,7 +37,13 @@ export default function HomeClient({ home }: Props) {
   const section2Scale = useTransform(scrollYProgress, [0.48, 0.65], [0.95, 1]);
   const section2Y = useTransform(scrollYProgress, [0.48, 0.65], [24, 0]);
 
-  // 5. 고해상도 HTML5 Canvas 기반 단일 '슈퍼노바 렌즈 플레어 (Lens Flare)' 렌더링 루프
+  // 5. 3D 입체 투영(Perspective Tilt)을 위한 모션 변환값
+  // 스크롤이 내려감에 따라 광원 자체가 3D 가상 공간 상에서 기울어지며 차원 입체감을 부여
+  const rotateX = useTransform(scrollYProgress, [0, 0.48], [0, 12]);   // X축 회전 기울기
+  const rotateY = useTransform(scrollYProgress, [0, 0.48], [0, -8]);   // Y축 회전 기울기
+  const translateZ = useTransform(scrollYProgress, [0, 0.48], [0, 80]); // Z축 앞으로 튀어나오는 입체 깊이
+
+  // 6. 고해상도 HTML5 Canvas 기반 다중 레이어 입체 '3D 볼류메트릭 슈퍼노바' 렌더링 루프
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -76,34 +82,54 @@ export default function HomeClient({ home }: Props) {
       if (activeAlpha > 0) {
         const centerX = width / 2;
         const centerY = height / 2;
+        
+        // 가시적 스케일 팽창 (최대 32배)
+        const scale = progress * 32; 
 
-        // 스크롤에 따라 포탈의 스케일과 회전 각도 매핑
-        // 정점에서 백그라운드를 완전히 덮을 수 있도록 scale 폭을 크게 설계 (최대 30배)
-        const scale = progress * 30; 
-        const rotation = progress * Math.PI * 1.8; // 스크롤에 따라 빛줄기가 다이내믹하게 회전
+        // -------------------------------------------------------------
+        // [3D 효과 핵심 1] 다중 회전 축 패럴랙스 (Multi-axial Counter-Rotation)
+        // 레이어 간의 회전 속도와 방향을 다르게 설정하여 평면(2D)이 아닌 입체(3D) 느낌을 즉시 확보합니다.
+        // -------------------------------------------------------------
+        const angleLayerA = progress * Math.PI * 2.0;   // 시계 방향 고속 회전
+        const angleLayerB = -progress * Math.PI * 1.2;  // 반시계 방향 저속 회전
+        const angleLayerC = progress * Math.PI * 0.6;   // 시계 방향 배경 미세 회전
 
+        // ==========================================
+        // LAYER C: 배경 볼류메트릭 아날로그 연무 (Soft Depth Aura)
+        // ==========================================
         ctx.save();
         ctx.translate(centerX, centerY);
-        ctx.rotate(rotation);
+        ctx.rotate(angleLayerC);
+        
+        // 흐릿하게 퍼지는 입체 안개 성운 느낌의 3D 백그라운드 구형 드로잉
+        const bgGlowRadius = 140 * scale;
+        const bgGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, bgGlowRadius);
+        bgGlow.addColorStop(0, `rgba(255, 230, 170, ${activeAlpha * 0.28})`);
+        bgGlow.addColorStop(0.4, `rgba(184, 154, 90, ${activeAlpha * 0.12})`);
+        bgGlow.addColorStop(1, 'rgba(184, 154, 90, 0)');
+        ctx.fillStyle = bgGlow;
+        ctx.beginPath();
+        ctx.arc(0, 0, bgGlowRadius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
 
-        // -------------------------------------------------------------
-        // [1] 레퍼런스 스타일: 방사형 침상 광선 플레어 (Sharp Needle Spikes)
-        // -------------------------------------------------------------
-        // 총 16개의 날카롭고 얇은 금빛/흰빛 바늘 스파이크를 드로잉
-        const rayCount = 16;
-        for (let i = 0; i < rayCount; i++) {
-          const angle = (i * Math.PI * 2) / rayCount;
-          
-          // 긴 광선, 중간 광선, 짧은 광선을 불규칙하게 배치하여 격조 높은 입체감 연출
-          const isExtraLong = i % 4 === 0;
-          const isLong = i % 2 === 0;
-          const rayLength = (isExtraLong ? 340 : (isLong ? 210 : 120)) * scale;
-          const rayWidth = (isExtraLong ? 16 : (isLong ? 8 : 4)) * scale * 0.1;
+        // ==========================================
+        // LAYER B: 후면 원거리 침상 광선 (Background Fine Spikes)
+        // ==========================================
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angleLayerB);
+        
+        const backgroundRayCount = 12;
+        for (let i = 0; i < backgroundRayCount; i++) {
+          const angle = (i * Math.PI * 2) / backgroundRayCount;
+          // 후면용 미세 스파이크 길이 (미세하게 작고 부드러움)
+          const rayLength = 150 * scale;
+          const rayWidth = 6 * scale * 0.1;
 
           ctx.save();
           ctx.rotate(angle);
 
-          // 십자 별빛 바늘 드로잉 (삼각형 폴리곤 결합)
           ctx.beginPath();
           ctx.moveTo(0, 0);
           ctx.lineTo(rayWidth, 0);
@@ -111,51 +137,134 @@ export default function HomeClient({ home }: Props) {
           ctx.lineTo(-rayWidth, 0);
           ctx.closePath();
 
-          // 꼬리 부분으로 갈수록 부드럽게 페이드아웃되는 선형 그라데이션 광선
+          // 깊이감을 위한 약간 더 오렌지/앰버 톤의 깊은 색채 설계
           const rayGrd = ctx.createLinearGradient(0, 0, 0, rayLength);
-          rayGrd.addColorStop(0, `rgba(255, 255, 255, ${activeAlpha * 0.95})`);
-          rayGrd.addColorStop(0.12, `rgba(255, 228, 160, ${activeAlpha * 0.85})`);
-          rayGrd.addColorStop(0.4, `rgba(184, 154, 90, ${activeAlpha * 0.35})`);
-          rayGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
+          rayGrd.addColorStop(0, `rgba(255, 220, 140, ${activeAlpha * 0.72})`);
+          rayGrd.addColorStop(0.3, `rgba(212, 175, 55, ${activeAlpha * 0.42})`);
+          rayGrd.addColorStop(1, 'rgba(212, 175, 55, 0)');
 
           ctx.fillStyle = rayGrd;
           ctx.fill();
-
           ctx.restore();
         }
+        ctx.restore();
+
+        // ==========================================
+        // LAYER A: 전면 근거리 주 광선 (Foreground Sharp Spikes)
+        // -----------------------------------------------------------
+        // [3D 효과 핵심 2] 색수차 시뮬레이션 (Chromatic Dispersion)
+        // 렌즈 굴절에 의해 생기는 붉은색/푸른색의 빛 분산을 모방하여 시네마틱한 사실감을 더합니다.
+        // ==========================================
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(angleLayerA);
+
+        const foregroundRayCount = 8;
+        for (let i = 0; i < foregroundRayCount; i++) {
+          const angle = (i * Math.PI * 2) / foregroundRayCount;
+          const isExtraLong = i % 2 === 0;
+          const rayLength = (isExtraLong ? 360 : 220) * scale;
+          const rayWidth = (isExtraLong ? 18 : 10) * scale * 0.1;
+
+          ctx.save();
+          ctx.rotate(angle);
+
+          // 1. 색수차용 우측 레드/오렌지 플레어 오프셋 레이어
+          ctx.save();
+          ctx.translate(1.5 * (1 + progress * 2), 0);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(rayWidth, 0);
+          ctx.lineTo(0, rayLength * 0.98);
+          ctx.lineTo(-rayWidth, 0);
+          ctx.closePath();
+          const redGrd = ctx.createLinearGradient(0, 0, 0, rayLength);
+          redGrd.addColorStop(0, `rgba(255, 120, 50, ${activeAlpha * 0.45})`);
+          redGrd.addColorStop(0.6, 'rgba(255, 120, 50, 0)');
+          ctx.fillStyle = redGrd;
+          ctx.fill();
+          ctx.restore();
+
+          // 2. 색수차용 좌측 블루/시안 플레어 오프셋 레이어
+          ctx.save();
+          ctx.translate(-1.5 * (1 + progress * 2), 0);
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(rayWidth, 0);
+          ctx.lineTo(0, rayLength * 0.98);
+          ctx.lineTo(-rayWidth, 0);
+          ctx.closePath();
+          const blueGrd = ctx.createLinearGradient(0, 0, 0, rayLength);
+          blueGrd.addColorStop(0, `rgba(0, 200, 255, ${activeAlpha * 0.38})`);
+          blueGrd.addColorStop(0.6, 'rgba(0, 200, 255, 0)');
+          ctx.fillStyle = blueGrd;
+          ctx.fill();
+          ctx.restore();
+
+          // 3. 메인 브라이트 화이트-골드 침상 광선
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.lineTo(rayWidth, 0);
+          ctx.lineTo(0, rayLength);
+          ctx.lineTo(-rayWidth, 0);
+          ctx.closePath();
+
+          const mainRayGrd = ctx.createLinearGradient(0, 0, 0, rayLength);
+          mainRayGrd.addColorStop(0, `rgba(255, 255, 255, ${activeAlpha * 1.0})`);
+          mainRayGrd.addColorStop(0.1, `rgba(255, 238, 180, ${activeAlpha * 0.92})`);
+          mainRayGrd.addColorStop(0.45, `rgba(184, 154, 90, ${activeAlpha * 0.42})`);
+          mainRayGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
+
+          ctx.fillStyle = mainRayGrd;
+          ctx.fill();
+          ctx.restore();
+        }
+        ctx.restore();
 
         // -------------------------------------------------------------
-        // [2] 소프트 렌즈 플레어 헤일로 링 (Secondary Halo Ring)
+        // [3] 입체 렌즈 링 & 2중 헤일로 (Soft Double Halo Rings)
         // -------------------------------------------------------------
-        const haloRadius = 100 * scale;
-        const haloGrd = ctx.createRadialGradient(0, 0, haloRadius * 0.85, 0, 0, haloRadius);
-        haloGrd.addColorStop(0, 'rgba(255, 235, 175, 0)');
-        haloGrd.addColorStop(0.88, `rgba(255, 215, 120, ${activeAlpha * 0.08})`);
-        haloGrd.addColorStop(0.95, `rgba(255, 238, 185, ${activeAlpha * 0.2})`);
-        haloGrd.addColorStop(1, 'rgba(255, 238, 185, 0)');
-        
-        ctx.fillStyle = haloGrd;
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        const halo1Radius = 100 * scale;
+        const halo1Grd = ctx.createRadialGradient(0, 0, halo1Radius * 0.88, 0, 0, halo1Radius);
+        halo1Grd.addColorStop(0, 'rgba(255, 235, 175, 0)');
+        halo1Grd.addColorStop(0.9, `rgba(255, 220, 130, ${activeAlpha * 0.07})`);
+        halo1Grd.addColorStop(0.96, `rgba(255, 235, 185, ${activeAlpha * 0.16})`);
+        halo1Grd.addColorStop(1, 'rgba(255, 235, 175, 0)');
+        ctx.fillStyle = halo1Grd;
         ctx.beginPath();
-        ctx.arc(0, 0, haloRadius, 0, Math.PI * 2);
+        ctx.arc(0, 0, halo1Radius, 0, Math.PI * 2);
         ctx.fill();
 
+        const halo2Radius = 145 * scale;
+        const halo2Grd = ctx.createRadialGradient(0, 0, halo2Radius * 0.93, 0, 0, halo2Radius);
+        halo2Grd.addColorStop(0, 'rgba(255, 235, 175, 0)');
+        halo2Grd.addColorStop(0.97, `rgba(255, 235, 185, ${activeAlpha * 0.05})`);
+        halo2Grd.addColorStop(1, 'rgba(255, 235, 175, 0)');
+        ctx.fillStyle = halo2Grd;
+        ctx.beginPath();
+        ctx.arc(0, 0, halo2Radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+
         // -------------------------------------------------------------
-        // [3] 초강력 중심 코어 글로우 볼 (Supernova White Core)
+        // [4] 초강력 입체 코어 글로우 볼 (Volumetric Core Glow)
         // -------------------------------------------------------------
-        // 스크롤이 끝에 도달할 때 이 거대한 흰빛 광원이 화면의 100%를 삼켜 완벽하게 눈부신 페이드 역할 수행
+        ctx.save();
+        ctx.translate(centerX, centerY);
         const glowRadius = 90 * scale;
         const glowGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, glowRadius);
         glowGrd.addColorStop(0, `rgba(255, 255, 255, ${activeAlpha * 1.0})`);
-        glowGrd.addColorStop(0.15, `rgba(255, 254, 248, ${activeAlpha * 0.98})`);
-        glowGrd.addColorStop(0.38, `rgba(255, 232, 160, ${activeAlpha * 0.8})`);
-        glowGrd.addColorStop(0.7, `rgba(184, 154, 90, ${activeAlpha * 0.28})`);
+        glowGrd.addColorStop(0.12, `rgba(255, 254, 250, ${activeAlpha * 0.98})`);
+        glowGrd.addColorStop(0.35, `rgba(255, 232, 160, ${activeAlpha * 0.85})`);
+        glowGrd.addColorStop(0.68, `rgba(184, 154, 90, ${activeAlpha * 0.32})`);
         glowGrd.addColorStop(1, 'rgba(184, 154, 90, 0)');
 
         ctx.fillStyle = glowGrd;
         ctx.beginPath();
         ctx.arc(0, 0, glowRadius, 0, Math.PI * 2);
         ctx.fill();
-
         ctx.restore();
       }
 
@@ -197,7 +306,7 @@ export default function HomeClient({ home }: Props) {
           {/* 텍스트 가독성을 방해하지 않는 극도로 은은한 반투명 소프트 필터 레이어 */}
           <div className="absolute inset-0 bg-black/15 z-0" />
 
-          {/* 좌측 대형 타이포그래피 콘텐츠 (가독성 드롭 섀도우 극대화) */}
+          {/* 좌측 대형 타이포그래피 콘텐츠 */}
           <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-16 -translate-y-8">
             <div className="mb-6 select-none">
               <span className="font-en text-[10px] tracking-[0.24em] uppercase text-[#ffd899] opacity-95 font-semibold">
@@ -228,10 +337,23 @@ export default function HomeClient({ home }: Props) {
 
 
         {/* ---------------- 2. 단일 거대 슈퍼노바 렌즈 플레어 드로잉 캔버스 ---------------- */}
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 z-20 pointer-events-none w-full h-full"
-        />
+        {/* [3D 효과 핵심 3] CSS 3DPerspective Matrix 적용 */}
+        {/* 스크롤 가속에 따라 캔버스 프레임 자체가 가상 3D 공간 상에서 3차원 기울어짐 모션을 작동하여 완벽한 체적 깊이를 창조합니다. */}
+        <motion.div
+          style={{
+            perspective: 1200,
+            transformStyle: 'preserve-3d',
+            rotateX: rotateX,
+            rotateY: rotateY,
+            z: translateZ
+          }}
+          className="absolute inset-0 z-20 pointer-events-none w-full h-full flex items-center justify-center"
+        >
+          <canvas
+            ref={canvasRef}
+            className="w-full h-full"
+          />
+        </motion.div>
 
 
         {/* ---------------- 3. 심리스 포탈용 황금빛 안개 장막 (Aura Intersection) ---------------- */}
