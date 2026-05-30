@@ -183,10 +183,10 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
   return (
     <section className="relative hidden min-h-[calc(100vh-64px)] overflow-hidden bg-cream px-0 py-8 min-[881px]:block">
       <div className="pointer-events-none relative z-20 mx-auto text-center">
-        <h1 className="font-en text-[clamp(36px,5vw,60px)] font-bold leading-[0.78] tracking-normal text-ink">
+        <h1 className="font-en text-[clamp(44px,6vw,80px)] font-bold leading-[0.78] tracking-normal text-ink">
           The Archive
         </h1>
-        <p className="mt-3.5 font-ko text-[clamp(14px,1.5vw,18px)] font-bold tracking-normal text-ink">
+        <p className="mt-3.5 font-ko text-[clamp(15px,1.8vw,21px)] font-bold tracking-normal text-ink">
           갤러리 · 함께한 순간들
         </p>
       </div>

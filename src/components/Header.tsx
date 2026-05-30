@@ -112,10 +112,10 @@ export default function Header() {
     <>
       {/* 1. 중앙 상단 플로팅 글래스모피즘 헤더 바 */}
       <header
-        className={`fixed left-1/2 -translate-x-1/2 z-[999] w-[90%] max-w-[240px] transition-all duration-300 flex items-center justify-between ${
+        className={`fixed left-1/2 -translate-x-1/2 z-[999] w-[90%] max-w-[240px] transition-all duration-300 rounded-full flex items-center justify-between border border-line-soft/40 shadow-[0_8px_24px_rgba(42,38,32,0.04)] ${
           isScrolled
-            ? 'top-1.5 h-12 px-3'
-            : 'top-3 h-14 px-4'
+            ? 'top-1.5 h-12 bg-cream/45 backdrop-blur-md px-4 shadow-[0_12px_32px_rgba(42,38,32,0.06)] border-line-soft/60'
+            : 'top-3 h-14 bg-cream/25 backdrop-blur-sm px-5'
         }`}
       >
         {/* 좌측: 로고와 브랜드 타이틀 */}
