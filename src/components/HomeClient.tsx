@@ -13,35 +13,60 @@ type Props = {
   };
 };
 
+// 정적 인트로 사진 목록 (실제 파일 배치용 경로, 1~7번째 사진)
+const INTRO_PHOTOS = [
+  '/intro/intro_1.jpg',
+  '/intro/intro_2.jpg',
+  '/intro/intro_3.jpg',
+  '/intro/intro_4.jpg',
+  '/intro/intro_5.jpg',
+  '/intro/intro_6.jpg',
+  '/intro/intro_7.jpg',
+];
+
+// 사진 대체 및 테스트용 럭셔리 브론즈 계열 컬러 칩
+const PLACEHOLDER_COLORS = [
+  '#6b5b45', // idx 0
+  '#8c7a65', // idx 1
+  '#a89379', // idx 2
+  '#594c3d', // idx 3
+  '#bdab90', // idx 4
+  '#c5b493', // idx 5
+  '#7c6a51', // idx 6
+  '#4a3e2e', // idx 7 (최종)
+];
+
 export default function HomeClient({ home }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // A. 인트로 애니메이션 제어용 상태 (Shed.design 영감 시네마틱 개방)
   const [isIntroActive, setIsIntroActive] = useState(true);
-  const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 6 (6단계가 최종 팽창)
+  const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 13 (13단계가 최종 팽창)
 
-  // B. 점진적 가속 몽타주 플래시 타이머 (1.0s -> 0.9s -> 0.8s -> 0.7s -> 0.5s -> 0.2s 대기 후 팽창)
+  // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 8단계 + 최종 팽창)
   useEffect(() => {
     if (!isIntroActive) return;
 
-    // 각 단계를 시작하기 전에 기다릴 대기 시간(delay) 정의 (이전 단계의 시작 이후 점진적으로 빨라지는 딜레이)
-    // 0 -> 1 : t=0에 즉시 1단계(다크잉크) 시작 (duration: 1.1s)
-    // 1 -> 2 : t=800ms에 2단계(크림색) 시작 (duration: 1.1s)
-    // 2 -> 3 : t=1400ms(800+600)에 3단계(딥골드) 시작 (duration: 1.1s)
-    // 3 -> 4 : t=1900ms(1400+500)에 4단계(실버골드) 시작 (duration: 1.1s)
-    // 4 -> 5 : t=2300ms(1900+400)에 5단계(최종 사진) 시작 (duration: 1.1s)
-    // 5 -> 6 : t=3400ms에 5단계 안착 완료. 150ms 숨고르기 후 t=3550ms에 6단계(팽창) 시작!
+    // 각 단계를 시작하기 전에 기다릴 대기 시간(delay) 정의
+    // 이전 단계가 시작되고 이 대기시간이 지나면 다음 단계가 작동합니다.
     const steps = [
-      { index: 1, delay: 0 },
-      { index: 2, delay: 800 },
-      { index: 3, delay: 600 },
-      { index: 4, delay: 500 },
-      { index: 5, delay: 400 },
-      { index: 6, delay: 1100 + 150 }
+      { index: 1, delay: 0 },         // 1단계: 다크잉크 (#2a2620)
+      { index: 2, delay: 500 },       // 2단계: 차콜 브라운 (#4a3e2e - 기존 크림색 대체)
+      { index: 3, delay: 450 },       // 3단계: 딥골드 (#8a6f2f)
+      { index: 4, delay: 400 },       // 4단계: 실버골드 (#d4c4a0)
+      { index: 5, delay: 350 },       // 5단계: 사진 1
+      { index: 6, delay: 200 },       // 6단계: 사진 2
+      { index: 7, delay: 180 },       // 7단계: 사진 3
+      { index: 8, delay: 160 },       // 8단계: 사진 4
+      { index: 9, delay: 150 },       // 9단계: 사진 5
+      { index: 10, delay: 140 },      // 10단계: 사진 6
+      { index: 11, delay: 130 },      // 11단계: 사진 7
+      { index: 12, delay: 130 },      // 12단계: 사진 8 (최종 히어로 사진 안착)
+      { index: 13, delay: 800 + 150 } // 13단계: 팽창 시작! (최종 히어로 800ms 동안 감상 후 150ms 숨고르기)
     ];
 
-    let timers: NodeJS.Timeout[] = [];
+    const timers: NodeJS.Timeout[] = [];
 
     const runStep = (stepIdx: number) => {
       if (stepIdx >= steps.length) return;
@@ -257,7 +282,7 @@ export default function HomeClient({ home }: Props) {
               borderRadius: "0px",
             }}
             animate={
-              montageIndex === 6
+              montageIndex === 13
                 ? {
                     width: "100vw",
                     height: "100vh",
@@ -274,7 +299,7 @@ export default function HomeClient({ home }: Props) {
               ease: [0.16, 1, 0.3, 1], // 갤러리식 감속을 재현하는 초고격조 expo.out 베지에 곡선
             }}
             onAnimationComplete={(definition) => {
-              if (montageIndex === 6 && (definition as any).width === "100vw") {
+              if (montageIndex === 13 && typeof definition === 'object' && definition !== null && 'width' in definition && definition.width === "100vw") {
                 setIsIntroActive(false);
               }
             }}
@@ -288,12 +313,12 @@ export default function HomeClient({ home }: Props) {
               className="absolute inset-0 bg-[#2a2620]"
             />
 
-            {/* 2단계: 크림색 (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
+            {/* 2단계: 차콜 브라운 (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 2 ? { y: 0 } : { y: "-100%" }}
               transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-              className="absolute inset-0 bg-[#fdf9f0]"
+              className="absolute inset-0 bg-[#4a3e2e]"
             />
 
             {/* 3단계: 딥골드 (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
@@ -312,39 +337,49 @@ export default function HomeClient({ home }: Props) {
               className="absolute inset-0 bg-[#d4c4a0]"
             />
 
-            {/* 5단계: 최종 배경 이미지 (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
-            <motion.div
-              initial={{ y: "-100%" }}
-              animate={montageIndex >= 5 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-              className="absolute inset-0 bg-center bg-cover overflow-hidden"
-              style={{
-                backgroundImage: `url('${home.heroBackgroundUrl}')`,
-                backgroundPosition: home.heroBackgroundPosition,
-              }}
-            >
-              {/* 이미지 자체의 부드러운 스케일 축소 효과 및 팽창 단계에서의 미세 줌인으로 입체감 극대화 */}
-              <motion.div
-                initial={{ scale: 1.15 }}
-                animate={
-                  montageIndex === 6
-                    ? { scale: 1.05 }
-                    : montageIndex === 5
-                    ? { scale: 1.0 }
-                    : { scale: 1.15 }
-                }
-                transition={{
-                  duration: montageIndex === 6 ? 0.95 : 1.1,
-                  ease: montageIndex === 6 ? [0.16, 1, 0.3, 1] : "easeOut",
-                  delay: montageIndex === 6 ? 0 : 0.05
-                }}
-                className="w-full h-full bg-inherit bg-center bg-cover"
-                style={{
-                  backgroundImage: `url('${home.heroBackgroundUrl}')`,
-                  backgroundPosition: home.heroBackgroundPosition,
-                }}
-              />
-            </motion.div>
+            {/* 5~12단계: 8장 사진 레이어 (이미지 로드 지연 시 임시 컬러 칩 노출, 8번째는 heroBackgroundUrl로 Seamless 전환) */}
+            {Array.from({ length: 8 }).map((_, idx) => {
+              const photoStepIndex = 5 + idx; // montageIndex 5 ~ 12
+              const isFinalPhoto = idx === 7;
+              const photoUrl = isFinalPhoto ? home.heroBackgroundUrl : INTRO_PHOTOS[idx];
+              const placeholderColor = PLACEHOLDER_COLORS[idx];
+
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ y: "-100%" }}
+                  animate={montageIndex >= photoStepIndex ? { y: 0 } : { y: "-100%" }}
+                  transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
+                  className="absolute inset-0 bg-center bg-cover overflow-hidden"
+                  style={{
+                    backgroundColor: placeholderColor,
+                    backgroundImage: `url('${photoUrl}')`,
+                    backgroundPosition: home.heroBackgroundPosition,
+                  }}
+                >
+                  <motion.div
+                    initial={{ scale: 1.15 }}
+                    animate={
+                      montageIndex === 13 && isFinalPhoto
+                        ? { scale: 1.05 }
+                        : montageIndex >= photoStepIndex
+                        ? { scale: 1.0 }
+                        : { scale: 1.15 }
+                    }
+                    transition={{
+                      duration: montageIndex === 13 ? 0.95 : 1.1,
+                      ease: montageIndex === 13 ? [0.16, 1, 0.3, 1] : "easeOut",
+                      delay: montageIndex === 13 ? 0 : 0.05
+                    }}
+                    className="w-full h-full bg-inherit bg-center bg-cover"
+                    style={{
+                      backgroundImage: `url('${photoUrl}')`,
+                      backgroundPosition: home.heroBackgroundPosition,
+                    }}
+                  />
+                </motion.div>
+              );
+            })}
           </motion.div>
         </motion.div>
       )}
