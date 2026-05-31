@@ -237,12 +237,25 @@ export default function Header() {
         initial={{ y: -64, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-        className={`fixed z-[999] w-[90%] max-w-[190px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-between border border-line-soft/40 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-3.5 ${
+        className={`fixed z-[999] w-[90%] max-w-[190px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-between border border-line-soft/20 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-3.5 ${
           isScrolled
-            ? 'bg-cream/45 backdrop-blur-md shadow-[0_12px_32px_rgba(42,38,32,0.06)] border-line-soft/60'
+            ? 'bg-cream/45 backdrop-blur-md shadow-[0_12px_32px_rgba(42,38,32,0.06)]'
             : 'bg-cream/25 backdrop-blur-sm'
         }`}
       >
+        {/* A. 회전하는 복합 3D 골드/실버 빛무리 마스킹 테두리 (Border Beam) */}
+        <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-0">
+          {/* 레이어 1: 시계 방향 회전하는 웅장한 금빛 광선 (강렬한 태양 코어 광채) */}
+          <div className="absolute top-1/2 left-1/2 w-[220%] h-[220%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_20%,#ffd899_45%,#b89a5a_50%,#ffd899_55%,transparent_80%)] animate-[spin_5s_linear_infinite]" />
+          {/* 레이어 2: 반대 방향으로 회전하는 부드러운 화이트/실버 은광 (빛 계층 간 깊이감 차이 형성) */}
+          <div className="absolute top-1/2 left-1/2 w-[240%] h-[240%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_180deg,transparent_25%,rgba(255,255,255,0.6)_48%,#e2d2b0_50%,rgba(255,255,255,0.6)_52%,transparent_75%)] animate-[spin_8s_linear_infinite_reverse] opacity-70" />
+        </div>
+
+        {/* B. 내부 글래스 패널 마스크 (1px 인셋으로 테두리에만 오라가 반짝이도록 제어) */}
+        <div className={`absolute inset-[1px] rounded-full z-[1] pointer-events-none transition-colors duration-300 ${
+          isScrolled ? 'bg-[#fdf9f0]/92 backdrop-blur-md' : 'bg-[#fdf9f0]/80 backdrop-blur-sm'
+        }`} />
+
         {/* 좌측: 로고와 브랜드 타이틀 */}
         <Link
           href="/"
@@ -250,7 +263,7 @@ export default function Header() {
             e.preventDefault();
             handleLinkClick('/');
           }}
-          className="flex items-center gap-2.5 group select-none"
+          className="relative z-10 flex items-center gap-2.5 group select-none"
         >
           <div className="w-7 h-7 shrink-0 transition-transform duration-300 group-hover:scale-105">
             <Crest />
