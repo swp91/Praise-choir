@@ -519,26 +519,29 @@ body::-webkit-scrollbar,
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 250%;
-  height: 250%;
+  width: 280px; /* Perfect square/circle to completely eliminate aspect ratio stretching */
+  height: 280px;
+  border-radius: 50%; /* Force uniform circular rotation */
+  
   /* 
-    [사용자 수학적 스펙 정밀 구현 - 코너 착시 제어판] 
-    - 전체 둘레 중 35%(126도)의 빛 segment 2개가 정확히 180도 반대 대칭에서 시작.
-    - [코너 소멸/역방향 착시 원천 해결]: 납작한 메뉴바 특성상, 빛이 직선부(oblique)를 지나 모퉁이(perpendicular)로 진입할 때 급격히 압축/팽창되며 생기던 시각적 '꼬리 꼬임 및 소멸 착시'를 해결하기 위해,
-      빛의 꼬리 페더링(Feathering) 디졸브 거리를 기존 15도에서 35도로 2.3배 늘려 안개처럼 스며들듯 소멸하게 조율했습니다.
-    - 눈부신 순백색(#ffffff) 피크 코어로 극강의 밝기 구현.
+    [프리미엄 빛무리 최적화 - 코너 착시 및 중첩 완벽 해결]
+    - [중첩 현상 해결]: 빛의 총 대역폭을 34도(전체 둘레의 약 9%)로 매우 날렵하게 압축하여, 
+      납작한 메뉴바 특성상 발생하던 '상/하단 테두리에 동시에 빛이 머무는 이중 선 현상'을 원천 차단했습니다.
+    - [역방향 착시 해결]: 회전 방향에 맞추어 비대칭 구조(Asymmetric Comet)로 튜닝했습니다.
+      진입부(앞머리)는 12도 스팬으로 샤프하게 밝아지고, 이탈부(꼬리)는 22도 스팬으로 은은하게 흩어지도록 물리 설계를 적용하여,
+      동작 시 뒤쪽 꼬리가 역방향으로 흐려지는 시각적 인지 모순을 완벽히 교정했습니다.
+    - [광원 효과 극대화]: 순백색(#ffffff) 코어 하이라이트와 웜골드(#ffd899) 바디의 대비를 높여 더욱 고급스러운 레이저 라이팅을 구현합니다.
   */
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    transparent 15deg,
-    #ffd899 27deg,
-    #ffffff 105deg,
-    #ffd899 183deg,
-    transparent 195deg,
+    #ffd899 12deg,
+    #ffffff 22deg,
+    #ffd899 30deg,
+    transparent 34deg,
     transparent 360deg
   );
-  animation: border-beam-spin 4.8s linear infinite, border-beam-twinkle 3s ease-in-out infinite;
+  animation: border-beam-spin 4.2s linear infinite, border-beam-twinkle 3s ease-in-out infinite;
   will-change: transform, filter, opacity;
 }
 
