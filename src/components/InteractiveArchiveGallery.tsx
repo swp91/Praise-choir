@@ -55,8 +55,17 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
     if (!track || !viewport || photos.length === 0) return;
 
     const measure = () => {
-      setWidthRef.current = track.scrollWidth / 3;
-      positionRef.current = -setWidthRef.current;
+      const oldSetWidth = setWidthRef.current;
+      const newSetWidth = track.scrollWidth / 3;
+      setWidthRef.current = newSetWidth;
+
+      if (oldSetWidth === 0) {
+        positionRef.current = -newSetWidth;
+      } else {
+        // 기존의 스크롤 위치 비율을 유지하여 이미지 로드 시 튕기는 현상 방지
+        const ratio = positionRef.current / oldSetWidth;
+        positionRef.current = ratio * newSetWidth;
+      }
       gsap.set(track, { x: positionRef.current });
     };
 
