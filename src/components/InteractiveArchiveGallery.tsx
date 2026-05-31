@@ -184,9 +184,9 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       })
       .to(overlay, {
         backgroundColor: 'rgba(247,242,229,0)',
-        duration: 0.5,
+        duration: 0.45,
         ease: 'power2.out',
-      }, 0.18);
+      }, 0.6);
   }
 
   return (
