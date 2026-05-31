@@ -533,14 +533,9 @@ body::-webkit-scrollbar,
     transparent 0deg,
     transparent 15deg,
     #ffd899 27deg,
-    #ffffff 78deg,
-    #ffd899 129deg,
-    transparent 141deg,
+    #ffffff 105deg,
+    #ffd899 183deg,
     transparent 195deg,
-    #ffd899 207deg,
-    #ffffff 258deg,
-    #ffd899 309deg,
-    transparent 321deg,
     transparent 360deg
   );
   animation: border-beam-spin 4.8s linear infinite, border-beam-twinkle 3s ease-in-out infinite;
