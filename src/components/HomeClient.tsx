@@ -379,6 +379,9 @@ export default function HomeClient({ home }: Props) {
                       backgroundPosition: home.heroBackgroundPosition,
                     }}
                   />
+                  {isFinalPhoto && (
+                    <div className="absolute inset-0 bg-black/15 z-10 pointer-events-none" />
+                  )}
                 </motion.div>
               );
             })}
