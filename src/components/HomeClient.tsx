@@ -27,18 +27,18 @@ export default function HomeClient({ home }: Props) {
 
     // 각 단계를 시작하기 전에 기다릴 대기 시간(delay) 정의 (이전 단계가 한참 낙하 중일 때 파격적으로 겹쳐 내림)
     // 0 -> 1 : t=0에 즉시 1단계(다크잉크) 시작 (duration: 1.0s)
-    // 1 -> 2 : t=400ms에 2단계(크림색) 시작 (duration: 0.7s) - 1단계가 절반도 내려오기 전 중첩
-    // 2 -> 3 : t=700ms(400+300)에 3단계(딥골드) 시작 (duration: 0.5s) - 2단계 절반 낙하 시점 중첩
-    // 3 -> 4 : t=900ms(700+200)에 4단계(실버골드) 시작 (duration: 0.3s) - 3단계 절반 낙하 시점 중첩
-    // 4 -> 5 : t=1000ms(900+100)에 5단계(최종 사진) 시작 (duration: 0.2s) - 4단계 낙하 도중 중첩
-    // 5 -> 6 : t=1200ms에 5단계 안착 완료. 150ms 숨고르기 후 t=1350ms에 6단계(팽창) 시작!
+    // 1 -> 2 : t=450ms에 2단계(크림색) 시작 (duration: 0.8s) - 1단계가 절반도 내려오기 전 중첩
+    // 2 -> 3 : t=800ms(450+350)에 3단계(딥골드) 시작 (duration: 0.7s) - 2단계 절반 낙하 시점 중첩
+    // 3 -> 4 : t=1100ms(800+300)에 4단계(실버골드) 시작 (duration: 0.7s) - 3단계 절반 낙하 시점 중첩
+    // 4 -> 5 : t=1400ms(1100+300)에 5단계(최종 사진) 시작 (duration: 0.7s) - 4단계 낙하 도중 중첩
+    // 5 -> 6 : t=2100ms에 5단계 안착 완료. 200ms 숨고르기 후 t=2300ms에 6단계(팽창) 시작!
     const steps = [
       { index: 1, delay: 0 },
-      { index: 2, delay: 400 },
-      { index: 3, delay: 300 },
-      { index: 4, delay: 200 },
-      { index: 5, delay: 100 },
-      { index: 6, delay: 200 + 150 }
+      { index: 2, delay: 450 },
+      { index: 3, delay: 350 },
+      { index: 4, delay: 300 },
+      { index: 5, delay: 300 },
+      { index: 6, delay: 700 + 200 }
     ];
 
     let timers: NodeJS.Timeout[] = [];
@@ -286,43 +286,43 @@ export default function HomeClient({ home }: Props) {
             {/* 0단계: 웜골드 (항상 노출되는 기본 바닥 레이어) */}
             <div className="absolute inset-0 bg-[#b89a5a]" />
 
-            {/* 1단계: 다크잉크 (1초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
+            {/* 1단계: 다크잉크 (1.0초 동안 위에서 아래로 매우 빠르게 내려오다 끝에서 강하게 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 1 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 1.0, ease: [0.05, 0.95, 0.05, 1.0] }}
               className="absolute inset-0 bg-[#2a2620]"
             />
 
-            {/* 2단계: 크림색 (0.7초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
+            {/* 2단계: 크림색 (0.8초 동안 위에서 아래로 매우 빠르게 내려오다 끝에서 강하게 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 2 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.8, ease: [0.05, 0.95, 0.05, 1.0] }}
               className="absolute inset-0 bg-[#fdf9f0]"
             />
 
-            {/* 3단계: 딥골드 (0.5초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
+            {/* 3단계: 딥골드 (0.7초 동안 위에서 아래로 매우 빠르게 내려오다 끝에서 강하게 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 3 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.7, ease: [0.05, 0.95, 0.05, 1.0] }}
               className="absolute inset-0 bg-[#8a6f2f]"
             />
 
-            {/* 4단계: 실버골드 (0.3초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
+            {/* 4단계: 실버골드 (0.7초 동안 위에서 아래로 매우 빠르게 내려오다 끝에서 강하게 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 4 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.7, ease: [0.05, 0.95, 0.05, 1.0] }}
               className="absolute inset-0 bg-[#d4c4a0]"
             />
 
-            {/* 5단계: 최종 배경 이미지 (0.2초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
+            {/* 5단계: 최종 배경 이미지 (0.7초 동안 위에서 아래로 매우 빠르게 내려오다 끝에서 강하게 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 5 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.7, ease: [0.05, 0.95, 0.05, 1.0] }}
               className="absolute inset-0 bg-center bg-cover overflow-hidden"
               style={{
                 backgroundImage: `url('${home.heroBackgroundUrl}')`,
@@ -340,7 +340,7 @@ export default function HomeClient({ home }: Props) {
                     : { scale: 1.15 }
                 }
                 transition={{
-                  duration: montageIndex === 6 ? 0.95 : 0.2,
+                  duration: montageIndex === 6 ? 0.95 : 0.7,
                   ease: montageIndex === 6 ? [0.16, 1, 0.3, 1] : "easeOut",
                   delay: montageIndex === 6 ? 0 : 0.05
                 }}
