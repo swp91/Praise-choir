@@ -63,7 +63,7 @@ export default function HomeClient({ home }: Props) {
       { index: 10, delay: 140 },      // 10단계: 사진 6
       { index: 11, delay: 130 },      // 11단계: 사진 7
       { index: 12, delay: 130 },      // 12단계: 사진 8 (최종 히어로 사진 안착 시작)
-      { index: 13, delay: 1100 + 800 } // 13단계: 팽창 시작! (1.1초 동안 완전히 내려와 안착하고, 800ms 동안 감상 후 팽창)
+      { index: 13, delay: 1100 + 500 } // 13단계: 팽창 시작! (1.1초 동안 완전히 내려와 안착하고, 500ms 동안 감상 후 팽창)
     ];
 
     const timers: NodeJS.Timeout[] = [];
