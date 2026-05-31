@@ -71,6 +71,7 @@ export default function Header() {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
 
       // 1. 오버레이 컨테이너 등장 애니메이션 (포인터 이벤트 차단으로 호버 간섭 방지)
       gsap.fromTo(
@@ -109,10 +110,12 @@ export default function Header() {
       }
     } else {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     }
 
     return () => {
       document.body.style.overflow = '';
+      document.documentElement.style.overflow = '';
     };
   }, [isOpen]);
 
@@ -147,6 +150,7 @@ export default function Header() {
     // 페이지 전환 뷰를 덮는 vellum sheet 모션이 실행되기 전에 메뉴를 닫아 스냅감을 줍니다.
     setIsOpen(false);
     document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
     navigate(href);
   };
 
