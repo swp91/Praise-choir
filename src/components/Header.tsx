@@ -48,7 +48,7 @@ export default function Header() {
     }
 
     // 이미 인트로를 본 적이 있다면 대기 없이 즉시 노출
-    if (typeof window !== 'undefined' && sessionStorage.getItem('has-seen-intro') === 'true') {
+    if (typeof window !== 'undefined' && (window as any).__hasSeenIntro) {
       setIsIntroRunning(false);
       return;
     }
