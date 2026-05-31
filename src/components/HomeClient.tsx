@@ -41,7 +41,12 @@ export default function HomeClient({ home }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // A. 인트로 애니메이션 제어용 상태 (Shed.design 영감 시네마틱 개방)
-  const [isIntroActive, setIsIntroActive] = useState(true);
+  const [isIntroActive, setIsIntroActive] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('has-seen-intro') !== 'true';
+    }
+    return true;
+  });
   const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 13 (13단계가 최종 팽창)
 
   // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 8단계 + 최종 팽창)
@@ -302,6 +307,7 @@ export default function HomeClient({ home }: Props) {
             onAnimationComplete={(definition) => {
               if (montageIndex === 13 && typeof definition === 'object' && definition !== null && 'width' in definition && definition.width === "100vw") {
                 setIsIntroActive(false);
+                sessionStorage.setItem('has-seen-intro', 'true');
                 window.dispatchEvent(new CustomEvent('intro-complete'));
               }
             }}

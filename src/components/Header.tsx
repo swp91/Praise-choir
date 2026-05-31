@@ -47,6 +47,12 @@ export default function Header() {
       return;
     }
 
+    // 이미 인트로를 본 적이 있다면 대기 없이 즉시 노출
+    if (typeof window !== 'undefined' && sessionStorage.getItem('has-seen-intro') === 'true') {
+      setIsIntroRunning(false);
+      return;
+    }
+
     // 메인 홈 화면에서는 인트로 완료 이벤트를 수신하기 전까지 대기
     setIsIntroRunning(true);
 
