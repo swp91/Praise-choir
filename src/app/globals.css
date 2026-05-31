@@ -487,3 +487,49 @@ body::-webkit-scrollbar,
   z-index: 21;
   will-change: transform, opacity;
 }
+
+/* 프리미엄 3D 헤더 보더 빔 효과 (가운데 영역을 투명하게 제외하고 오직 테두리 라인만 발광 순환) */
+@keyframes border-beam-spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.border-glow-container {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  pointer-events: none;
+  z-index: 0;
+  padding: 1.2px; /* 테두리 굵기 */
+  background: transparent;
+  
+  /* 마스킹을 통한 가운데 전면 투명화 (W3C 표준 및 Webkit 동시 대응) */
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box exclude, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+.border-glow-beam-1 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 250%;
+  height: 250%;
+  background: conic-gradient(from 0deg, transparent 20%, #ffd899 45%, #b89a5a 50%, #ffd899 55%, transparent 80%);
+  animation: border-beam-spin 5.5s linear infinite;
+  will-change: transform;
+}
+
+.border-glow-beam-2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 270%;
+  height: 270%;
+  background: conic-gradient(from 180deg, transparent 25%, rgba(255,255,255,0.7) 48%, #e2d2b0 50%, rgba(255,255,255,0.7) 52%, transparent 75%);
+  animation: border-beam-spin 8.5s linear infinite reverse;
+  will-change: transform;
+  opacity: 0.65;
+}
+

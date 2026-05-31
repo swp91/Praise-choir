@@ -243,18 +243,13 @@ export default function Header() {
             : 'bg-cream/25 backdrop-blur-sm'
         }`}
       >
-        {/* A. 회전하는 복합 3D 골드/실버 빛무리 마스킹 테두리 (Border Beam) */}
-        <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none z-0">
-          {/* 레이어 1: 시계 방향 회전하는 웅장한 금빛 광선 (강렬한 태양 코어 광채) */}
-          <div className="absolute top-1/2 left-1/2 w-[220%] h-[220%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_0deg,transparent_20%,#ffd899_45%,#b89a5a_50%,#ffd899_55%,transparent_80%)] animate-[spin_5s_linear_infinite]" />
-          {/* 레이어 2: 반대 방향으로 회전하는 부드러운 화이트/실버 은광 (빛 계층 간 깊이감 차이 형성) */}
-          <div className="absolute top-1/2 left-1/2 w-[240%] h-[240%] -translate-x-1/2 -translate-y-1/2 bg-[conic-gradient(from_180deg,transparent_25%,rgba(255,255,255,0.6)_48%,#e2d2b0_50%,rgba(255,255,255,0.6)_52%,transparent_75%)] animate-[spin_8s_linear_infinite_reverse] opacity-70" />
+        {/* A. 테두리 라인부분만 빛이 순환하며 도는 복합 3D 골드/실버 빛무리 (Border Beam) */}
+        <div className="border-glow-container">
+          {/* 레이어 1: 시계 방향 회전하는 웅장한 금빛 광선 */}
+          <div className="border-glow-beam-1" />
+          {/* 레이어 2: 반대 방향으로 회전하는 부드러운 실버 은광 (빛 계층 간 깊이감 차이 형성) */}
+          <div className="border-glow-beam-2" />
         </div>
-
-        {/* B. 내부 글래스 패널 마스크 (1px 인셋으로 테두리에만 오라가 반짝이도록 제어) */}
-        <div className={`absolute inset-[1px] rounded-full z-[1] pointer-events-none transition-colors duration-300 ${
-          isScrolled ? 'bg-[#fdf9f0]/92 backdrop-blur-md' : 'bg-[#fdf9f0]/80 backdrop-blur-sm'
-        }`} />
 
         {/* 좌측: 로고와 브랜드 타이틀 */}
         <Link
