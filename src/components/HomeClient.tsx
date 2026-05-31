@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
 type Props = {
   home: {
@@ -16,7 +16,40 @@ type Props = {
 export default function HomeClient({ home }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  
+
+  // A. 인트로 애니메이션 제어용 상태 (Shed.design 영감 시네마틱 개방)
+  const [isIntroActive, setIsIntroActive] = useState(true);
+  const [montageIndex, setMontageIndex] = useState(0);
+
+  // B. 몽타주 플래시 타이머 (120ms 간격으로 인덱스 0~5 증가)
+  useEffect(() => {
+    if (!isIntroActive) return;
+
+    const interval = setInterval(() => {
+      setMontageIndex((prev) => {
+        if (prev >= 5) {
+          clearInterval(interval);
+          return 5;
+        }
+        return prev + 1;
+      });
+    }, 120);
+
+    return () => clearInterval(interval);
+  }, [isIntroActive]);
+
+  // C. 인트로 중 바디 스크롤 차단 및 해제 로직
+  useEffect(() => {
+    if (isIntroActive) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isIntroActive]);
+
   // 1. 브라우저 전체 스크롤 진척도 감지 (0 to 1)
   const { scrollYProgress } = useScroll();
 
@@ -185,6 +218,72 @@ export default function HomeClient({ home }: Props) {
   return (
     <div ref={containerRef} className="relative h-[220vh] bg-cream">
       
+      {/* ============================================================= */}
+      {/* D&G / Shed.design 영감 - 시네마틱 몽타주 플래시 -> 개방 인트로 */}
+      {/* ============================================================= */}
+      {isIntroActive && (
+        <motion.div
+          className="fixed inset-0 bg-cream z-[99999] flex items-center justify-center overflow-hidden"
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div
+            initial={{
+              width: "70vw",
+              height: "45vw",
+              borderRadius: "12px",
+              boxShadow: "0 24px 60px rgba(42, 38, 32, 0.16)",
+            }}
+            animate={
+              montageIndex === 5
+                ? {
+                    width: "100vw",
+                    height: "100vh",
+                    borderRadius: "0px",
+                    boxShadow: "0 0 0 rgba(0, 0, 0, 0)",
+                  }
+                : {}
+            }
+            transition={{
+              duration: 1.15,
+              ease: [0.16, 1, 0.3, 1], // Premium cinematic expo-out easing
+            }}
+            onAnimationComplete={(definition) => {
+              if (montageIndex === 5 && (definition as any).width === "100vw") {
+                setIsIntroActive(false);
+              }
+            }}
+            className="relative overflow-hidden flex items-center justify-center bg-card"
+            style={{
+              maxWidth: montageIndex === 5 ? "100vw" : "480px",
+              maxHeight: montageIndex === 5 ? "100vh" : "310px",
+              aspectRatio: montageIndex === 5 ? "auto" : "424/273",
+            }}
+          >
+            {/* 0~4단계: 브랜딩 컬러 임시 플래시 블록 */}
+            {montageIndex === 0 && <div className="absolute inset-0 bg-[#b89a5a]" />}
+            {montageIndex === 1 && <div className="absolute inset-0 bg-[#2a2620]" />}
+            {montageIndex === 2 && <div className="absolute inset-0 bg-[#fdf9f0]" />}
+            {montageIndex === 3 && <div className="absolute inset-0 bg-[#8a6f2f]" />}
+            {montageIndex === 4 && <div className="absolute inset-0 bg-[#d4c4a0]" />}
+            
+            {/* 5단계: 최종 메인 배경 사진 등장 및 스무스 페이드인 */}
+            {montageIndex === 5 && (
+              <motion.div
+                initial={{ scale: 1.15, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.65, ease: "easeOut" }}
+                className="absolute inset-0 bg-center bg-cover"
+                style={{
+                  backgroundImage: `url('${home.heroBackgroundUrl}')`,
+                  backgroundPosition: home.heroBackgroundPosition,
+                }}
+              />
+            )}
+          </motion.div>
+        </motion.div>
+      )}
+
       {/* 뷰포트 고정 Sticky 프레임 */}
       <div className="sticky top-0 w-full h-screen overflow-hidden">
         
@@ -213,7 +312,7 @@ export default function HomeClient({ home }: Props) {
           <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-20 -translate-y-24">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={isIntroActive ? { opacity: 0, y: 30 } : { opacity: 1, y: 0 }}
               transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
               className="mb-6 select-none"
             >
@@ -225,7 +324,7 @@ export default function HomeClient({ home }: Props) {
             <h1 className="font-ko text-[clamp(30px,4.5vw,66px)] font-light leading-[1.14] text-[#f5edd8] tracking-tight mb-5 select-none">
               <motion.span 
                 initial={{ opacity: 0, y: 36 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.28 }}
                 className="inline-block mr-2 md:mr-0"
               >
@@ -234,7 +333,7 @@ export default function HomeClient({ home }: Props) {
               <br />
               <motion.span 
                 initial={{ opacity: 0, y: 36 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
                 className="inline-block font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent mr-2 md:mr-3"
               >
@@ -242,7 +341,7 @@ export default function HomeClient({ home }: Props) {
               </motion.span>
               <motion.span 
                 initial={{ opacity: 0, y: 36 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
                 className="inline-block font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent"
               >
@@ -250,7 +349,7 @@ export default function HomeClient({ home }: Props) {
               </motion.span>
               <motion.span 
                 initial={{ opacity: 0, y: 36 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
                 transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.64 }}
                 className="inline-block font-en font-extralight italic text-[clamp(22px,3.5vw,48px)] text-[#ffd899]/80 ml-3.5 align-baseline shrink-0"
               >
@@ -260,13 +359,18 @@ export default function HomeClient({ home }: Props) {
           </div>
 
           {/* 2026 로고 워터마크 데코 */}
-          <div className="absolute right-12 top-1/2 -translate-y-1/2 select-none z-10 pointer-events-none opacity-25 hidden md:block drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={isIntroActive ? { opacity: 0 } : { opacity: 0.25 }}
+            transition={{ duration: 1.2, ease: "easeOut", delay: 0.8 }}
+            className="absolute right-12 top-1/2 -translate-y-1/2 select-none z-10 pointer-events-none hidden md:block drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+          >
             <img
               src="/church.svg"
               alt="광진교회"
               className="w-24 mix-blend-screen"
             />
-          </div>
+          </motion.div>
         </motion.section>
 
 
