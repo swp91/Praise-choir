@@ -22,6 +22,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { navigate } = usePageTransition();
+  const [isIntroRunning, setIsIntroRunning] = useState(false);
   
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -38,6 +39,33 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // 인트로 진행 상태에 따른 헤더 노출 타이밍 연동
+  useEffect(() => {
+    if (pathname !== '/') {
+      setIsIntroRunning(false);
+      return;
+    }
+
+    // 메인 홈 화면에서는 인트로 완료 이벤트를 수신하기 전까지 대기
+    setIsIntroRunning(true);
+
+    const handleIntroComplete = () => {
+      setIsIntroRunning(false);
+    };
+
+    window.addEventListener('intro-complete', handleIntroComplete);
+
+    // 이벤트 유실 대비 백업용 타임아웃 (8초 후 강제 노출)
+    const fallbackId = setTimeout(() => {
+      setIsIntroRunning(false);
+    }, 8000);
+
+    return () => {
+      window.removeEventListener('intro-complete', handleIntroComplete);
+      clearTimeout(fallbackId);
+    };
+  }, [pathname]);
 
   // GSAP 풀스크린 오버레이 애니메이션 오케스트레이션
   useEffect(() => {
@@ -235,8 +263,8 @@ export default function Header() {
       {/* 1. 중앙 상단 플로팅 글래스모피즘 헤더 바 (컴팩트 압축 & 크기 고정) */}
       <motion.header
         initial={{ y: -64, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+        animate={isIntroRunning ? { y: -64, opacity: 0 } : { y: 0, opacity: 1 }}
+        transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1], delay: pathname === '/' ? 0 : 0.15 }}
         className={`fixed z-[999] w-[90%] max-w-[190px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-between border border-line-soft/20 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-3.5 ${
           isScrolled
             ? 'bg-cream/45 backdrop-blur-md shadow-[0_12px_32px_rgba(42,38,32,0.06)]'

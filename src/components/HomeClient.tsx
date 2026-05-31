@@ -302,6 +302,7 @@ export default function HomeClient({ home }: Props) {
             onAnimationComplete={(definition) => {
               if (montageIndex === 13 && typeof definition === 'object' && definition !== null && 'width' in definition && definition.width === "100vw") {
                 setIsIntroActive(false);
+                window.dispatchEvent(new CustomEvent('intro-complete'));
               }
             }}
             className="relative overflow-hidden flex items-center justify-center bg-transparent"
