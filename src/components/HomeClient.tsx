@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
 
 type Props = {
@@ -269,12 +269,13 @@ export default function HomeClient({ home }: Props) {
       {/* ============================================================= */}
       {/* D&G / Shed.design 영감 - 시네마틱 몽타주 플래시 -> 개방 인트로 */}
       {/* ============================================================= */}
-      {isIntroActive && (
-        <motion.div
-          className="fixed inset-0 bg-cream z-[99999] flex items-center justify-center overflow-hidden"
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+      <AnimatePresence>
+        {isIntroActive && (
+          <motion.div
+            className="fixed inset-0 bg-cream z-[99999] flex items-center justify-center overflow-hidden"
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          >
           <motion.div
             initial={{
               width: "min(85vw, 424px)",
@@ -361,7 +362,7 @@ export default function HomeClient({ home }: Props) {
                     initial={{ scale: 1.15 }}
                     animate={
                       montageIndex === 13 && isFinalPhoto
-                        ? { scale: 1.05 }
+                        ? { scale: 1.0 }
                         : montageIndex >= photoStepIndex
                         ? { scale: 1.0 }
                         : { scale: 1.15 }
@@ -380,9 +381,10 @@ export default function HomeClient({ home }: Props) {
                 </motion.div>
               );
             })}
+            </motion.div>
           </motion.div>
-        </motion.div>
-      )}
+        )}
+      </AnimatePresence>
 
       {/* 뷰포트 고정 Sticky 프레임 */}
       <div className="sticky top-0 w-full h-screen overflow-hidden">
