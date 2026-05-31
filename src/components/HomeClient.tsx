@@ -26,19 +26,19 @@ export default function HomeClient({ home }: Props) {
     if (!isIntroActive) return;
 
     // 각 단계를 시작하기 전에 기다릴 대기 시간(delay) 정의 (이전 단계의 시작 이후 점진적으로 빨라지는 딜레이)
-    // 0 -> 1 : t=0에 즉시 1단계(다크잉크) 시작 (duration: 1.0s)
-    // 1 -> 2 : t=800ms에 2단계(크림색) 시작 (duration: 1.0s)
-    // 2 -> 3 : t=1300ms(800+500)에 3단계(딥골드) 시작 (duration: 1.0s)
-    // 3 -> 4 : t=1600ms(1300+300)에 4단계(실버골드) 시작 (duration: 1.0s)
-    // 4 -> 5 : t=1800ms(1600+200)에 5단계(최종 사진) 시작 (duration: 1.0s)
-    // 5 -> 6 : t=2800ms에 5단계 안착 완료. 150ms 숨고르기 후 t=2950ms에 6단계(팽창) 시작!
+    // 0 -> 1 : t=0에 즉시 1단계(다크잉크) 시작 (duration: 1.2s)
+    // 1 -> 2 : t=800ms에 2단계(크림색) 시작 (duration: 1.2s)
+    // 2 -> 3 : t=1400ms(800+600)에 3단계(딥골드) 시작 (duration: 1.2s)
+    // 3 -> 4 : t=1900ms(1400+500)에 4단계(실버골드) 시작 (duration: 1.2s)
+    // 4 -> 5 : t=2300ms(1900+400)에 5단계(최종 사진) 시작 (duration: 1.2s)
+    // 5 -> 6 : t=3500ms에 5단계 안착 완료. 150ms 숨고르기 후 t=3650ms에 6단계(팽창) 시작!
     const steps = [
       { index: 1, delay: 0 },
       { index: 2, delay: 800 },
-      { index: 3, delay: 500 },
-      { index: 4, delay: 300 },
-      { index: 5, delay: 200 },
-      { index: 6, delay: 1000 + 150 }
+      { index: 3, delay: 600 },
+      { index: 4, delay: 500 },
+      { index: 5, delay: 400 },
+      { index: 6, delay: 1200 + 150 }
     ];
 
     let timers: NodeJS.Timeout[] = [];
@@ -281,48 +281,45 @@ export default function HomeClient({ home }: Props) {
                 setIsIntroActive(false);
               }
             }}
-            className="relative overflow-hidden flex items-center justify-center bg-[#b89a5a]"
+            className="relative overflow-hidden flex items-center justify-center bg-transparent"
           >
-            {/* 0단계: 웜골드 (항상 노출되는 기본 바닥 레이어) */}
-            <div className="absolute inset-0 bg-[#b89a5a]" />
-
-            {/* 1단계: 다크잉크 (1.0초 동안 위에서 아래로 처음에 뜸들이다 빠르게 낙하) */}
+            {/* 1단계: 다크잉크 (1.2초 동안 위에서 아래로 처음에 약간 느리게 등장하다 20%부터 가속 낙하 후 끝자락 15%에서 다시 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 1 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 1.0, ease: [0.6, 0, 0.8, 0.05] }}
+              transition={{ duration: 1.2, ease: [0.3, 0, 0.2, 1] }}
               className="absolute inset-0 bg-[#2a2620]"
             />
 
-            {/* 2단계: 크림색 (1.0초 동안 위에서 아래로 처음에 뜸들이다 빠르게 낙하) */}
+            {/* 2단계: 크림색 (1.2초 동안 위에서 아래로 처음에 약간 느리게 등장하다 20%부터 가속 낙하 후 끝자락 15%에서 다시 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 2 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 1.0, ease: [0.6, 0, 0.8, 0.05] }}
+              transition={{ duration: 1.2, ease: [0.3, 0, 0.2, 1] }}
               className="absolute inset-0 bg-[#fdf9f0]"
             />
 
-            {/* 3단계: 딥골드 (1.0초 동안 위에서 아래로 처음에 뜸들이다 빠르게 낙하) */}
+            {/* 3단계: 딥골드 (1.2초 동안 위에서 아래로 처음에 약간 느리게 등장하다 20%부터 가속 낙하 후 끝자락 15%에서 다시 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 3 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 1.0, ease: [0.6, 0, 0.8, 0.05] }}
+              transition={{ duration: 1.2, ease: [0.3, 0, 0.2, 1] }}
               className="absolute inset-0 bg-[#8a6f2f]"
             />
 
-            {/* 4단계: 실버골드 (1.0초 동안 위에서 아래로 처음에 뜸들이다 빠르게 낙하) */}
+            {/* 4단계: 실버골드 (1.2초 동안 위에서 아래로 처음에 약간 느리게 등장하다 20%부터 가속 낙하 후 끝자락 15%에서 다시 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 4 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 1.0, ease: [0.6, 0, 0.8, 0.05] }}
+              transition={{ duration: 1.2, ease: [0.3, 0, 0.2, 1] }}
               className="absolute inset-0 bg-[#d4c4a0]"
             />
 
-            {/* 5단계: 최종 배경 이미지 (1.0초 동안 위에서 아래로 처음에 뜸들이다 빠르게 낙하) */}
+            {/* 5단계: 최종 배경 이미지 (1.2초 동안 위에서 아래로 처음에 약간 느리게 등장하다 20%부터 가속 낙하 후 끝자락 15%에서 다시 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 5 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 1.0, ease: [0.6, 0, 0.8, 0.05] }}
+              transition={{ duration: 1.2, ease: [0.3, 0, 0.2, 1] }}
               className="absolute inset-0 bg-center bg-cover overflow-hidden"
               style={{
                 backgroundImage: `url('${home.heroBackgroundUrl}')`,
@@ -340,7 +337,7 @@ export default function HomeClient({ home }: Props) {
                     : { scale: 1.15 }
                 }
                 transition={{
-                  duration: montageIndex === 6 ? 0.95 : 1.0,
+                  duration: montageIndex === 6 ? 0.95 : 1.2,
                   ease: montageIndex === 6 ? [0.16, 1, 0.3, 1] : "easeOut",
                   delay: montageIndex === 6 ? 0 : 0.05
                 }}
