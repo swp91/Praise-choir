@@ -19,23 +19,46 @@ export default function HomeClient({ home }: Props) {
 
   // A. 인트로 애니메이션 제어용 상태 (Shed.design 영감 시네마틱 개방)
   const [isIntroActive, setIsIntroActive] = useState(true);
-  const [montageIndex, setMontageIndex] = useState(0);
+  const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 6 (6단계가 최종 팽창)
 
-  // B. 몽타주 플래시 타이머 (120ms 간격으로 인덱스 0~5 증가)
+  // B. 점진적 가속 몽타주 플래시 타이머 (1.0s -> 0.9s -> 0.8s -> 0.7s -> 0.5s -> 0.2s 대기 후 팽창)
   useEffect(() => {
     if (!isIntroActive) return;
 
-    const interval = setInterval(() => {
-      setMontageIndex((prev) => {
-        if (prev >= 5) {
-          clearInterval(interval);
-          return 5;
-        }
-        return prev + 1;
-      });
-    }, 120);
+    // 각 단계를 시작하기 전에 기다릴 대기 시간(delay) 정의
+    // 0 -> 1 : t=0에 즉시 1단계(다크잉크) 슬라이드 다운 시작 (duration: 1.0s)
+    // 1 -> 2 : t=1000ms에 2단계(크림색) 시작 (duration: 0.9s)
+    // 2 -> 3 : t=1900ms에 3단계(딥골드) 시작 (duration: 0.8s)
+    // 3 -> 4 : t=2700ms에 4단계(실버골드) 시작 (duration: 0.7s)
+    // 4 -> 5 : t=3400ms에 5단계(최종 사진) 시작 (duration: 0.5s)
+    // 5 -> 6 : t=3900ms에 5단계 안착 완료. 200ms 극적인 홀딩/숨고르기 후 t=4100ms에 6단계(팽창) 시작!
+    const steps = [
+      { index: 1, delay: 0 },
+      { index: 2, delay: 1000 },
+      { index: 3, delay: 900 },
+      { index: 4, delay: 800 },
+      { index: 5, delay: 700 },
+      { index: 6, delay: 500 + 200 }
+    ];
 
-    return () => clearInterval(interval);
+    let timers: NodeJS.Timeout[] = [];
+
+    const runStep = (stepIdx: number) => {
+      if (stepIdx >= steps.length) return;
+
+      const step = steps[stepIdx];
+      const id = setTimeout(() => {
+        setMontageIndex(step.index);
+        runStep(stepIdx + 1);
+      }, step.delay);
+      timers.push(id);
+    };
+
+    runStep(0);
+
+    return () => {
+      timers.forEach((t) => clearTimeout(t));
+    };
   }, [isIntroActive]);
 
   // C. 인트로 중 바디 스크롤 차단 및 해제 로직
@@ -229,57 +252,105 @@ export default function HomeClient({ home }: Props) {
         >
           <motion.div
             initial={{
-              width: "70vw",
-              height: "45vw",
-              borderRadius: "12px",
-              boxShadow: "0 24px 60px rgba(42, 38, 32, 0.16)",
+              width: "min(85vw, 424px)",
+              height: "calc(min(85vw, 424px) * 273 / 424)",
+              borderRadius: "16px",
+              boxShadow: "0 35px 80px rgba(0, 0, 0, 0.28)",
             }}
             animate={
-              montageIndex === 5
+              montageIndex === 6
                 ? {
                     width: "100vw",
                     height: "100vh",
                     borderRadius: "0px",
                     boxShadow: "0 0 0 rgba(0, 0, 0, 0)",
                   }
-                : {}
+                : {
+                    width: "min(85vw, 424px)",
+                    height: "calc(min(85vw, 424px) * 273 / 424)",
+                    borderRadius: "16px",
+                    boxShadow: "0 35px 80px rgba(0, 0, 0, 0.28)",
+                  }
             }
             transition={{
-              duration: 1.15,
-              ease: [0.16, 1, 0.3, 1], // Premium cinematic expo-out easing
+              duration: 0.95, // 갤러리 팝업처럼 강력한 초기 팽창감을 위한 0.95초 스팬
+              ease: [0.16, 1, 0.3, 1], // 갤러리식 감속을 재현하는 초고격조 expo.out 베지에 곡선
             }}
             onAnimationComplete={(definition) => {
-              if (montageIndex === 5 && (definition as any).width === "100vw") {
+              if (montageIndex === 6 && (definition as any).width === "100vw") {
                 setIsIntroActive(false);
               }
             }}
-            className="relative overflow-hidden flex items-center justify-center bg-card"
-            style={{
-              maxWidth: montageIndex === 5 ? "100vw" : "480px",
-              maxHeight: montageIndex === 5 ? "100vh" : "310px",
-              aspectRatio: montageIndex === 5 ? "auto" : "424/273",
-            }}
+            className="relative overflow-hidden flex items-center justify-center bg-[#b89a5a]"
           >
-            {/* 0~4단계: 브랜딩 컬러 임시 플래시 블록 */}
-            {montageIndex === 0 && <div className="absolute inset-0 bg-[#b89a5a]" />}
-            {montageIndex === 1 && <div className="absolute inset-0 bg-[#2a2620]" />}
-            {montageIndex === 2 && <div className="absolute inset-0 bg-[#fdf9f0]" />}
-            {montageIndex === 3 && <div className="absolute inset-0 bg-[#8a6f2f]" />}
-            {montageIndex === 4 && <div className="absolute inset-0 bg-[#d4c4a0]" />}
-            
-            {/* 5단계: 최종 메인 배경 사진 등장 및 스무스 페이드인 */}
-            {montageIndex === 5 && (
+            {/* 0단계: 웜골드 (항상 노출되는 기본 바닥 레이어) */}
+            <div className="absolute inset-0 bg-[#b89a5a]" />
+
+            {/* 1단계: 다크잉크 (1초 동안 위에서 아래로 슬라이드 다운) */}
+            <motion.div
+              initial={{ y: "-100%" }}
+              animate={montageIndex >= 1 ? { y: 0 } : { y: "-100%" }}
+              transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 bg-[#2a2620]"
+            />
+
+            {/* 2단계: 크림색 (0.9초 동안 슬라이드 다운) */}
+            <motion.div
+              initial={{ y: "-100%" }}
+              animate={montageIndex >= 2 ? { y: 0 } : { y: "-100%" }}
+              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 bg-[#fdf9f0]"
+            />
+
+            {/* 3단계: 딥골드 (0.8초 동안 슬라이드 다운) */}
+            <motion.div
+              initial={{ y: "-100%" }}
+              animate={montageIndex >= 3 ? { y: 0 } : { y: "-100%" }}
+              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 bg-[#8a6f2f]"
+            />
+
+            {/* 4단계: 실버골드 (0.7초 동안 슬라이드 다운) */}
+            <motion.div
+              initial={{ y: "-100%" }}
+              animate={montageIndex >= 4 ? { y: 0 } : { y: "-100%" }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 bg-[#d4c4a0]"
+            />
+
+            {/* 5단계: 최종 배경 이미지 (0.5초 동안 슬라이드 다운하면서 등장) */}
+            <motion.div
+              initial={{ y: "-100%" }}
+              animate={montageIndex >= 5 ? { y: 0 } : { y: "-100%" }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 bg-center bg-cover overflow-hidden"
+              style={{
+                backgroundImage: `url('${home.heroBackgroundUrl}')`,
+                backgroundPosition: home.heroBackgroundPosition,
+              }}
+            >
+              {/* 이미지 자체의 부드러운 스케일 축소 효과 및 팽창 단계에서의 미세 줌인으로 입체감 극대화 */}
               <motion.div
-                initial={{ scale: 1.15, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.65, ease: "easeOut" }}
-                className="absolute inset-0 bg-center bg-cover"
+                initial={{ scale: 1.15 }}
+                animate={
+                  montageIndex === 6
+                    ? { scale: 1.05 }
+                    : montageIndex === 5
+                    ? { scale: 1.0 }
+                    : { scale: 1.15 }
+                }
+                transition={{
+                  duration: montageIndex === 6 ? 0.95 : 0.65,
+                  ease: montageIndex === 6 ? [0.16, 1, 0.3, 1] : "easeOut",
+                  delay: montageIndex === 6 ? 0 : 0.1
+                }}
+                className="w-full h-full bg-inherit bg-center bg-cover"
                 style={{
                   backgroundImage: `url('${home.heroBackgroundUrl}')`,
                   backgroundPosition: home.heroBackgroundPosition,
                 }}
               />
-            )}
+            </motion.div>
           </motion.div>
         </motion.div>
       )}
