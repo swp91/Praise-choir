@@ -522,22 +522,23 @@ body::-webkit-scrollbar,
   width: 250%;
   height: 250%;
   /* 
-    [사용자 수학적 스펙 정밀 구현] 
-    - 전체 둘레(360도 = 100) 중 35% 크기(126도)의 빛 segment 2개가 정확히 180도 반대 대칭(Symmetrical Opposite)에서 시작.
-    - 단일 회전축을 공유하여 절대로 서로 교차하거나 역방향 착시가 일어나지 않고, 둘 다 항상 우측(시계방향)으로 완벽하게 균형을 맞춘 채 질주합니다.
+    [사용자 수학적 스펙 정밀 구현 - 코너 착시 제어판] 
+    - 전체 둘레 중 35%(126도)의 빛 segment 2개가 정확히 180도 반대 대칭에서 시작.
+    - [코너 소멸/역방향 착시 원천 해결]: 납작한 메뉴바 특성상, 빛이 직선부(oblique)를 지나 모퉁이(perpendicular)로 진입할 때 급격히 압축/팽창되며 생기던 시각적 '꼬리 꼬임 및 소멸 착시'를 해결하기 위해,
+      빛의 꼬리 페더링(Feathering) 디졸브 거리를 기존 15도에서 35도로 2.3배 늘려 안개처럼 스며들듯 소멸하게 조율했습니다.
     - 눈부신 순백색(#ffffff) 피크 코어로 극강의 밝기 구현.
   */
   background: conic-gradient(
     from 0deg,
     transparent 0deg,
-    #ffd899 15deg,
+    #ffd899 35deg,
     #ffffff 63deg,
-    #ffd899 111deg,
+    #ffd899 91deg,
     transparent 126deg,
     transparent 180deg,
-    #ffd899 195deg,
+    #ffd899 215deg,
     #ffffff 243deg,
-    #ffd899 291deg,
+    #ffd899 271deg,
     transparent 306deg,
     transparent 360deg
   );
