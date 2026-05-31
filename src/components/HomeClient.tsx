@@ -25,20 +25,20 @@ export default function HomeClient({ home }: Props) {
   useEffect(() => {
     if (!isIntroActive) return;
 
-    // 각 단계를 시작하기 전에 기다릴 대기 시간(delay) 정의
-    // 0 -> 1 : t=0에 즉시 1단계(다크잉크) 슬라이드 다운 시작 (duration: 1.0s)
-    // 1 -> 2 : t=1000ms에 2단계(크림색) 시작 (duration: 0.9s)
-    // 2 -> 3 : t=1900ms에 3단계(딥골드) 시작 (duration: 0.8s)
-    // 3 -> 4 : t=2700ms에 4단계(실버골드) 시작 (duration: 0.7s)
-    // 4 -> 5 : t=3400ms에 5단계(최종 사진) 시작 (duration: 0.5s)
-    // 5 -> 6 : t=3900ms에 5단계 안착 완료. 200ms 극적인 홀딩/숨고르기 후 t=4100ms에 6단계(팽창) 시작!
+    // 각 단계를 시작하기 전에 기다릴 대기 시간(delay) 정의 (이전 단계가 다 내려오기 전 겹쳐서 캐스케이드 낙하)
+    // 0 -> 1 : t=0에 즉시 1단계(다크잉크) 시작 (duration: 1.0s)
+    // 1 -> 2 : t=800ms에 2단계(크림색) 시작 (duration: 0.7s) - 1단계 완료 200ms 전
+    // 2 -> 3 : t=1300ms(800+500)에 3단계(딥골드) 시작 (duration: 0.5s) - 2단계 완료 200ms 전
+    // 3 -> 4 : t=1650ms(1300+350)에 4단계(실버골드) 시작 (duration: 0.3s) - 3단계 완료 150ms 전
+    // 4 -> 5 : t=1850ms(1650+200)에 5단계(최종 사진) 시작 (duration: 0.2s) - 4단계 완료 100ms 전
+    // 5 -> 6 : t=2050ms에 5단계 안착 완료. 150ms 여운/숨고르기 후 t=2200ms에 6단계(팽창) 시작!
     const steps = [
       { index: 1, delay: 0 },
-      { index: 2, delay: 1000 },
-      { index: 3, delay: 900 },
-      { index: 4, delay: 800 },
-      { index: 5, delay: 700 },
-      { index: 6, delay: 500 + 200 }
+      { index: 2, delay: 800 },
+      { index: 3, delay: 500 },
+      { index: 4, delay: 350 },
+      { index: 5, delay: 200 },
+      { index: 6, delay: 200 + 150 }
     ];
 
     let timers: NodeJS.Timeout[] = [];
@@ -254,8 +254,8 @@ export default function HomeClient({ home }: Props) {
             initial={{
               width: "min(85vw, 424px)",
               height: "calc(min(85vw, 424px) * 273 / 424)",
-              borderRadius: "16px",
-              boxShadow: "0 35px 80px rgba(0, 0, 0, 0.28)",
+              borderRadius: "0px",
+              boxShadow: "0 40px 90px rgba(0, 0, 0, 0.35)",
             }}
             animate={
               montageIndex === 6
@@ -268,8 +268,8 @@ export default function HomeClient({ home }: Props) {
                 : {
                     width: "min(85vw, 424px)",
                     height: "calc(min(85vw, 424px) * 273 / 424)",
-                    borderRadius: "16px",
-                    boxShadow: "0 35px 80px rgba(0, 0, 0, 0.28)",
+                    borderRadius: "0px",
+                    boxShadow: "0 40px 90px rgba(0, 0, 0, 0.35)",
                   }
             }
             transition={{
@@ -286,7 +286,7 @@ export default function HomeClient({ home }: Props) {
             {/* 0단계: 웜골드 (항상 노출되는 기본 바닥 레이어) */}
             <div className="absolute inset-0 bg-[#b89a5a]" />
 
-            {/* 1단계: 다크잉크 (1초 동안 위에서 아래로 슬라이드 다운) */}
+            {/* 1단계: 다크잉크 (1초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 1 ? { y: 0 } : { y: "-100%" }}
@@ -294,35 +294,35 @@ export default function HomeClient({ home }: Props) {
               className="absolute inset-0 bg-[#2a2620]"
             />
 
-            {/* 2단계: 크림색 (0.9초 동안 슬라이드 다운) */}
+            {/* 2단계: 크림색 (0.7초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 2 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0 bg-[#fdf9f0]"
             />
 
-            {/* 3단계: 딥골드 (0.8초 동안 슬라이드 다운) */}
+            {/* 3단계: 딥골드 (0.5초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 3 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0 bg-[#8a6f2f]"
             />
 
-            {/* 4단계: 실버골드 (0.7초 동안 슬라이드 다운) */}
+            {/* 4단계: 실버골드 (0.3초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 4 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0 bg-[#d4c4a0]"
             />
 
-            {/* 5단계: 최종 배경 이미지 (0.5초 동안 슬라이드 다운하면서 등장) */}
+            {/* 5단계: 최종 배경 이미지 (0.2초 동안 위에서 아래로 빠르게 내려오다 끝에서 감속) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 5 ? { y: 0 } : { y: "-100%" }}
-              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0 bg-center bg-cover overflow-hidden"
               style={{
                 backgroundImage: `url('${home.heroBackgroundUrl}')`,
@@ -340,9 +340,9 @@ export default function HomeClient({ home }: Props) {
                     : { scale: 1.15 }
                 }
                 transition={{
-                  duration: montageIndex === 6 ? 0.95 : 0.65,
+                  duration: montageIndex === 6 ? 0.95 : 0.2,
                   ease: montageIndex === 6 ? [0.16, 1, 0.3, 1] : "easeOut",
-                  delay: montageIndex === 6 ? 0 : 0.1
+                  delay: montageIndex === 6 ? 0 : 0.05
                 }}
                 className="w-full h-full bg-inherit bg-center bg-cover"
                 style={{
