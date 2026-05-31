@@ -255,7 +255,6 @@ export default function HomeClient({ home }: Props) {
               width: "min(85vw, 424px)",
               height: "calc(min(85vw, 424px) * 273 / 424)",
               borderRadius: "0px",
-              boxShadow: "0 0 0 rgba(0, 0, 0, 0)", // 최초 진입 시 그림자 및 테두리를 보이지 않게 투명 처리하여 빈 공간 튐 버그 방지
             }}
             animate={
               montageIndex === 6
@@ -263,13 +262,11 @@ export default function HomeClient({ home }: Props) {
                     width: "100vw",
                     height: "100vh",
                     borderRadius: "0px",
-                    boxShadow: "0 0 0 rgba(0, 0, 0, 0)",
                   }
                 : {
                     width: "min(85vw, 424px)",
                     height: "calc(min(85vw, 424px) * 273 / 424)",
                     borderRadius: "0px",
-                    boxShadow: montageIndex >= 1 ? "0 40px 90px rgba(0, 0, 0, 0.35)" : "0 0 0 rgba(0, 0, 0, 0)", // 1단계 낙하가 시작될 때 그림자 켜짐
                   }
             }
             transition={{
