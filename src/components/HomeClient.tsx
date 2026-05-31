@@ -11,6 +11,7 @@ type Props = {
     heroBackgroundUrl: string;
     heroBackgroundPosition: string;
   };
+  preloadPhotos?: string[];
 };
 
 // 정적 인트로 사진 목록 (실제 파일 배치용 경로, 1~7번째 사진)
@@ -36,7 +37,7 @@ const PLACEHOLDER_COLORS = [
   '#4a3e2e', // idx 7 (최종)
 ];
 
-export default function HomeClient({ home }: Props) {
+export default function HomeClient({ home, preloadPhotos = [] }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -102,6 +103,55 @@ export default function HomeClient({ home }: Props) {
       document.body.style.overflow = '';
     };
   }, [isIntroActive]);
+
+  // D. 대원 및 임원진 사진 백그라운드 사전 로딩 (Next.js 이미지 최적화 최적 매칭)
+  useEffect(() => {
+    if (isIntroActive || !preloadPhotos.length) return;
+
+    let intervalId: NodeJS.Timeout;
+
+    const startPreloading = () => {
+      const nextWidths = [256, 384]; // 기기 화면 비율 2x, 3x에 각각 대응
+      const tasks: string[] = [];
+
+      preloadPhotos.forEach((src) => {
+        nextWidths.forEach((width) => {
+          tasks.push(`/_next/image?url=${encodeURIComponent(src)}&w=${width}&q=75`);
+        });
+      });
+
+      // 80ms 간격으로 순차적 요청하여 네트워크 스파이크 방지 및 서버 연산 로드 분산
+      let index = 0;
+      intervalId = setInterval(() => {
+        if (index >= tasks.length) {
+          clearInterval(intervalId);
+          return;
+        }
+        const img = new window.Image();
+        img.src = tasks[index];
+        index++;
+      }, 80);
+    };
+
+    if (typeof window !== 'undefined') {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(() => {
+          startPreloading();
+        });
+      } else {
+        // 브라우저 렌더링에 부담을 주지 않기 위해 2초 유휴 후 사전 페칭 시작
+        const timer = setTimeout(startPreloading, 2000);
+        return () => {
+          clearTimeout(timer);
+          if (intervalId) clearInterval(intervalId);
+        };
+      }
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [isIntroActive, preloadPhotos]);
 
   // 1. 브라우저 전체 스크롤 진척도 감지 (0 to 1)
   const { scrollYProgress } = useScroll();
