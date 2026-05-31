@@ -495,8 +495,8 @@ body::-webkit-scrollbar,
 }
 
 @keyframes border-beam-twinkle {
-  0%, 100% { opacity: 0.52; filter: drop-shadow(0 0 2px rgba(255, 216, 153, 0.45)); }
-  50% { opacity: 1.0; filter: drop-shadow(0 0 7px rgba(255, 255, 255, 0.95)) drop-shadow(0 0 2px rgba(184, 154, 90, 0.9)); }
+  0%, 100% { opacity: 0.72; filter: drop-shadow(0 0 2px rgba(255, 216, 153, 0.45)); }
+  50% { opacity: 1.0; filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.98)) drop-shadow(0 0 2px rgba(184, 154, 90, 0.95)); }
 }
 
 .border-glow-container {
@@ -505,7 +505,7 @@ body::-webkit-scrollbar,
   border-radius: 9999px;
   pointer-events: none;
   z-index: 0;
-  padding: 1.3px; /* 테두리 굵기 약간 선명화 */
+  padding: 1.4px; /* 테두리 굵기 1.4px로 조금 더 선명화 */
   background: transparent;
   
   /* 마스킹을 통한 가운데 전면 투명화 (W3C 표준 및 Webkit 동시 대응) */
@@ -515,28 +515,35 @@ body::-webkit-scrollbar,
   mask-composite: exclude;
 }
 
-.border-glow-beam-1 {
+.border-glow-beam-symmetrical {
   position: absolute;
   top: 50%;
   left: 50%;
   width: 250%;
   height: 250%;
-  /* 백색 하이라이트 코어를 추가하여 빛의 밝기를 실시간 극대화 */
-  background: conic-gradient(from 0deg, transparent 20%, #ffd899 40%, #ffffff 50%, #ffc566 60%, transparent 80%);
-  animation: border-beam-spin 4.5s linear infinite, border-beam-twinkle 3s ease-in-out infinite;
+  /* 
+    [사용자 수학적 스펙 정밀 구현] 
+    - 전체 둘레(360도 = 100) 중 35% 크기(126도)의 빛 segment 2개가 정확히 180도 반대 대칭(Symmetrical Opposite)에서 시작.
+    - 단일 회전축을 공유하여 절대로 서로 교차하거나 역방향 착시가 일어나지 않고, 둘 다 항상 우측(시계방향)으로 완벽하게 균형을 맞춘 채 질주합니다.
+    - 눈부신 순백색(#ffffff) 피크 코어로 극강의 밝기 구현.
+  */
+  background: conic-gradient(
+    from 0deg,
+    transparent 0deg,
+    #ffd899 15deg,
+    #ffffff 63deg,
+    #ffd899 111deg,
+    transparent 126deg,
+    transparent 180deg,
+    #ffd899 195deg,
+    #ffffff 243deg,
+    #ffd899 291deg,
+    transparent 306deg,
+    transparent 360deg
+  );
+  animation: border-beam-spin 4.8s linear infinite, border-beam-twinkle 3s ease-in-out infinite;
   will-change: transform, filter, opacity;
 }
 
-.border-glow-beam-2 {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 270%;
-  height: 270%;
-  /* 2번째 레이어도 동일하게 시계방향(오른쪽)으로 돌되, 각도 오프셋과 속도 차이를 주어 고급스러운 추월/중첩 효과 연출 */
-  background: conic-gradient(from 120deg, transparent 25%, rgba(255,255,255,0.9) 48%, #ffd899 50%, rgba(255,255,255,0.9) 52%, transparent 75%);
-  animation: border-beam-spin 7.2s linear infinite, border-beam-twinkle 4.2s ease-in-out infinite reverse;
-  will-change: transform, filter, opacity;
-}
 
 

@@ -243,12 +243,9 @@ export default function Header() {
             : 'bg-cream/25 backdrop-blur-sm'
         }`}
       >
-        {/* A. 테두리 라인부분만 빛이 순환하며 도는 복합 3D 골드/실버 빛무리 (Border Beam) */}
+        {/* A. 테두리 라인부분만 빛이 순환하며 도는 3D 골드 대칭 듀얼 빛무리 (Symmetrical Border Beam) */}
         <div className="border-glow-container">
-          {/* 레이어 1: 시계 방향 회전하는 웅장한 금빛 광선 */}
-          <div className="border-glow-beam-1" />
-          {/* 레이어 2: 반대 방향으로 회전하는 부드러운 실버 은광 (빛 계층 간 깊이감 차이 형성) */}
-          <div className="border-glow-beam-2" />
+          <div className="border-glow-beam-symmetrical" />
         </div>
 
         {/* 좌측: 로고와 브랜드 타이틀 */}
