@@ -43,18 +43,18 @@ export default function Header() {
   // 인트로 진행 상태에 따른 헤더 노출 타이밍 연동
   useEffect(() => {
     if (pathname !== '/') {
-      setIsIntroRunning(false);
+      setTimeout(() => setIsIntroRunning(false), 0);
       return;
     }
 
     // 이미 인트로를 본 적이 있다면 대기 없이 즉시 노출
-    if (typeof window !== 'undefined' && (window as any).__hasSeenIntro) {
-      setIsIntroRunning(false);
+    if (typeof window !== 'undefined' && (window as unknown as { __hasSeenIntro?: boolean }).__hasSeenIntro) {
+      setTimeout(() => setIsIntroRunning(false), 0);
       return;
     }
 
     // 메인 홈 화면에서는 인트로 완료 이벤트를 수신하기 전까지 대기
-    setIsIntroRunning(true);
+    setTimeout(() => setIsIntroRunning(true), 0);
 
     const handleIntroComplete = () => {
       setIsIntroRunning(false);

@@ -44,7 +44,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
   // A. 인트로 애니메이션 제어용 상태 (Shed.design 영감 시네마틱 개방)
   const [isIntroActive, setIsIntroActive] = useState(() => {
     if (typeof window !== 'undefined') {
-      return !(window as any).__hasSeenIntro;
+      return !(window as unknown as { __hasSeenIntro?: boolean }).__hasSeenIntro;
     }
     return true;
   });
@@ -358,7 +358,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
               if (montageIndex === 13 && typeof definition === 'object' && definition !== null && 'width' in definition && definition.width === "100vw") {
                 setIsIntroActive(false);
                 if (typeof window !== 'undefined') {
-                  (window as any).__hasSeenIntro = true;
+                  (window as unknown as { __hasSeenIntro?: boolean }).__hasSeenIntro = true;
                 }
                 window.dispatchEvent(new CustomEvent('intro-complete'));
               }
