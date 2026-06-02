@@ -103,16 +103,19 @@ export default function PracticeClient({ data }: Props) {
 
   // 모바일: 0~4 (총 5개 카드)
   const [mobileIndex, setMobileIndex] = useState(0);
+  const [direction, setDirection] = useState<'next' | 'prev'>('next');
   const totalCards = 5;
 
   const handleNext = () => {
     if (mobileIndex < totalCards - 1) {
+      setDirection('next');
       setMobileIndex(mobileIndex + 1);
     }
   };
 
   const handlePrev = () => {
     if (mobileIndex > 0) {
+      setDirection('prev');
       setMobileIndex(mobileIndex - 1);
     }
   };
@@ -566,12 +569,17 @@ export default function PracticeClient({ data }: Props) {
                       handlePrev();
                     }
                   }}
-                  initial={isTop ? { y: 0, rotateX: 0, rotateZ: 0, scale: 1, opacity: 1 } : { y: 16, rotateX: 0, rotateZ: 0, scale: 0.94, opacity: 0.7 }}
+                  initial={isTop 
+                    ? (direction === 'prev' 
+                        ? { y: -500, rotateX: -60, rotateZ: -8, scale: 0.9, opacity: 0 } 
+                        : { y: 0, rotateX: 0, rotateZ: 0, scale: 1, opacity: 1 })
+                    : { y: 16, rotateX: 0, rotateZ: 0, scale: 0.94, opacity: 0.7 }
+                  }
                   animate={isTop ? { y: 0, rotateX: 0, rotateZ: 0, scale: 1, opacity: 1 } : { y: 16, rotateX: 0, rotateZ: 0, scale: 0.94, opacity: 0.7 }}
                   exit={{
-                    y: mobileIndex > i ? -500 : 300,
-                    rotateX: mobileIndex > i ? -65 : 15,
-                    rotateZ: mobileIndex > i ? -8 : 3,
+                    y: direction === 'next' ? -500 : 400,
+                    rotateX: direction === 'next' ? -65 : 25,
+                    rotateZ: direction === 'next' ? -8 : 4,
                     scale: 0.9,
                     opacity: 0,
                     transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] }
