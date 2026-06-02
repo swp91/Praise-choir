@@ -168,8 +168,8 @@ export default function PracticeClient({ data }: Props) {
     return (
       <div className={`flex gap-5 items-start py-4 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
         <div className="font-en italic text-[24px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(index + 1)}</div>
-        <div className="font-ko text-[14px] leading-relaxed text-ink-soft">
-          {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep">{p}</b> : p)}
+        <div className="font-ko text-[15.5px] leading-relaxed text-ink font-medium">
+          {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep font-bold">{p}</b> : p)}
         </div>
       </div>
     );
@@ -210,9 +210,9 @@ export default function PracticeClient({ data }: Props) {
                     <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
+                    <div className="font-ko text-[14.5px] font-bold">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[13px] text-right shrink-0">
+                  <div className="font-en text-[14px] text-right shrink-0">
                     <span className="font-semibold block">{formatTime(slot.time)}</span>
                     <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
@@ -241,9 +241,9 @@ export default function PracticeClient({ data }: Props) {
                     <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
+                    <div className="font-ko text-[14.5px] font-bold">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[13px] text-right shrink-0">
+                  <div className="font-en text-[14px] text-right shrink-0">
                     <span className="font-semibold block">{formatTime(slot.time)}</span>
                     <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
