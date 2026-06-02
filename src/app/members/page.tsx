@@ -16,7 +16,10 @@ export default async function MembersPage() {
   const band = rawParts.find((p) => p.key === 'h');
   const staff = rawParts.find((p) => p.key === 'staff');
 
-  const sopranoMembers = [...(s1?.members || []), ...(s2?.members || [])];
+  const sopranoMembers = [
+    ...(s1?.members.map((m) => ({ ...m, subPart: '소프라노 1' })) || []),
+    ...(s2?.members.map((m) => ({ ...m, subPart: '소프라노 2' })) || []),
+  ];
 
   const parts = [
     {

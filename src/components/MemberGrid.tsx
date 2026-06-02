@@ -19,12 +19,14 @@ function BirthDisplay({ birth }: { birth: string }) {
   );
 }
 
+type MemberWithSubPart = Member & { subPart?: string };
+
 type PartData = {
   key: string;
   name: string;
   nameEn: string;
   leader: string;
-  members: Member[];
+  members: MemberWithSubPart[];
 };
 
 type Props = {
@@ -112,7 +114,7 @@ export default function MemberGrid({ parts }: Props) {
       opacity: 1,
       transition: {
         staggerChildren: 0.04,
-        delayChildren: 0.15,
+        delayChildren: 0.6, // Start animating children after panel fully opens (600ms)
       },
     },
   } as const;
@@ -123,12 +125,95 @@ export default function MemberGrid({ parts }: Props) {
       opacity: 1,
       y: 0,
       transition: {
-        type: 'spring',
+        type: 'spring' as const,
         stiffness: 120,
         damping: 18,
       },
     },
   } as const;
+
+  // Helper to render individual member card
+  const renderMemberCard = (member: Member, keyId: string) => {
+    const hasPhoto = !!member.photo;
+    return (
+      <motion.div
+        key={keyId}
+        variants={itemVariants}
+        className="flex flex-col group/card"
+      >
+        {/* Photo: Elegant Square with rounded corners */}
+        <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-current/10 shadow-sm mb-3 bg-current/5 transition-transform duration-300 group-hover/card:scale-[1.02]">
+          {hasPhoto ? (
+            <Image
+              src={imageUrl(member.photo!, { width: 200, height: 200, crop: 'fill', gravity: 'face' })}
+              alt={member.name}
+              fill
+              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 15vw"
+              className="object-cover transition-transform duration-500 group-hover/card:scale-105"
+            />
+          ) : (
+            // Premium abstract geometric placeholder
+            <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-[radial-gradient(circle_at_center,rgba(184,154,90,0.12)_0%,transparent_70%)]">
+              <span className="font-en text-[2rem] font-light tracking-widest opacity-25 uppercase">
+                {member.name.slice(0, 1)}
+              </span>
+              <div className="absolute inset-0 opacity-[0.05] bg-[repeating-linear-gradient(45deg,currentColor_0px,currentColor_1px,transparent_1px,transparent_6px)]" />
+            </div>
+          )}
+
+          {/* Hover Overlay with basic card details */}
+          <div className="absolute inset-0 bg-ink/40 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
+            {member.phone && (
+              <a
+                href={`tel:${member.phone.replace(/-/g, '')}`}
+                className="w-10 h-10 rounded-full bg-cream text-ink flex items-center justify-center shadow-md hover:scale-110 transition-transform duration-200"
+                title="전화 걸기"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                  <path fillRule="evenodd" d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z" clipRule="evenodd" />
+                </svg>
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* Member Info */}
+        <div className="flex flex-col items-start">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-ko text-[14px] font-bold tracking-tight">
+              {member.name}
+            </span>
+            {member.role && (
+              <span className="font-ko text-[9px] font-medium px-1.5 py-0.5 rounded border border-current/30 scale-90 origin-left">
+                {member.role}
+              </span>
+            )}
+          </div>
+
+          {/* Birth & Phone displays below name */}
+          <div className="mt-1 flex flex-col gap-0.5 font-ko text-[11px] opacity-75 [font-variant-numeric:tabular-nums]">
+            {member.birth && member.birth !== '—' && (
+              <div className="flex items-center gap-1">
+                <span className="opacity-60">🎂</span>
+                <BirthDisplay birth={member.birth} />
+              </div>
+            )}
+            {member.phone && (
+              <a
+                href={`tel:${member.phone.replace(/-/g, '')}`}
+                className="flex items-center gap-1 hover:underline decoration-current/40"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span className="opacity-60">📞</span>
+                <span>{member.phone}</span>
+              </a>
+            )}
+          </div>
+        </div>
+      </motion.div>
+    );
+  };
 
   return (
     <div className="relative w-screen h-screen overflow-hidden font-ko">
@@ -145,7 +230,6 @@ export default function MemberGrid({ parts }: Props) {
               onClick={() => setExpandedPart(part.key)}
               className="relative flex flex-col justify-between p-6 md:p-10 cursor-pointer select-none group overflow-hidden"
               style={{ backgroundColor: ptDesign.bg, color: ptDesign.text }}
-              whileHover={{ scale: 0.99 }}
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
             >
               {/* Top Row: Tagline & Number */}
@@ -160,13 +244,7 @@ export default function MemberGrid({ parts }: Props) {
 
               {/* Middle Row: Massive Typography or Poetic Statement */}
               <div className="my-auto z-10">
-                {part.key === 'soprano' ? (
-                  <div className="flex flex-col">
-                    <span className="font-en text-[clamp(2.5rem,7.5vw,5.5rem)] font-light leading-[0.85] tracking-tighter uppercase font-serif select-none">
-                      SO<br />PR<br />AN<br />O
-                    </span>
-                  </div>
-                ) : part.key === 'tenor' ? (
+                {part.key === 'tenor' ? (
                   <div className="flex flex-col">
                     <span className="font-en text-[clamp(2rem,6vw,4.5rem)] font-light leading-none tracking-[0.1em] uppercase font-serif select-none mb-2">
                       TENOR
@@ -266,91 +344,37 @@ export default function MemberGrid({ parts }: Props) {
               className="flex-1 overflow-y-auto pr-1 pb-8"
               style={{ scrollbarWidth: 'none' }} // Hide Firefox scrollbar
             >
-              {/* Responsive columns */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 md:gap-7">
-                {currentPart.members.map((member, idx) => {
-                  const hasPhoto = !!member.photo;
-                  
-                  return (
-                    <motion.div
-                      key={`${member.name}-${idx}`}
-                      variants={itemVariants}
-                      className="flex flex-col group/card"
-                    >
-                      {/* Photo: Elegant Square with rounded corners */}
-                      <div className={`relative aspect-square w-full overflow-hidden rounded-xl border border-current/10 shadow-sm mb-3 bg-current/5 transition-transform duration-300 group-hover/card:scale-[1.02]`}>
-                        {hasPhoto ? (
-                          <Image
-                            src={imageUrl(member.photo!, { width: 200, height: 200, crop: 'fill', gravity: 'face' })}
-                            alt={member.name}
-                            fill
-                            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 15vw"
-                            className="object-cover transition-transform duration-500 group-hover/card:scale-105"
-                          />
-                        ) : (
-                          // Premium abstract geometric placeholder
-                          <div className="w-full h-full flex flex-col items-center justify-center relative overflow-hidden bg-[radial-gradient(circle_at_center,rgba(184,154,90,0.12)_0%,transparent_70%)]">
-                            <span className="font-en text-[2rem] font-light tracking-widest opacity-25 uppercase">
-                              {member.name.slice(0, 1)}
-                            </span>
-                            <div className="absolute inset-0 opacity-[0.05] bg-[repeating-linear-gradient(45deg,currentColor_0px,currentColor_1px,transparent_1px,transparent_6px)]" />
-                          </div>
-                        )}
+              {expandedPart === 'soprano' ? (
+                <div className="flex flex-col gap-8 md:gap-12">
+                  {/* Soprano 1 */}
+                  <div>
+                    <h3 className="font-ko text-[16px] md:text-[18px] font-bold border-b border-current/15 pb-2 mb-4 tracking-wide opacity-80 uppercase">
+                      소프라노 1
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 md:gap-7">
+                      {currentPart.members
+                        .filter((m) => m.subPart === '소프라노 1')
+                        .map((member, idx) => renderMemberCard(member, `sop1-${idx}`))}
+                    </div>
+                  </div>
 
-                        {/* Hover Overlay with basic card details */}
-                        <div className="absolute inset-0 bg-ink/40 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-                          {member.phone && (
-                            <a
-                              href={`tel:${member.phone.replace(/-/g, '')}`}
-                              className="w-10 h-10 rounded-full bg-cream text-ink flex items-center justify-center shadow-md hover:scale-110 transition-transform duration-200"
-                              title="전화 걸기"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                                <path fillRule="evenodd" d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z" clipRule="evenodd" />
-                              </svg>
-                            </a>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Member Info */}
-                      <div className="flex flex-col items-start">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-ko text-[14px] font-bold tracking-tight">
-                            {member.name}
-                          </span>
-                          {member.role && (
-                            <span className="font-ko text-[9px] font-medium px-1.5 py-0.5 rounded border border-current/30 scale-90 origin-left">
-                              {member.role}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Birth & Phone displays below name */}
-                        <div className="mt-1 flex flex-col gap-0.5 font-ko text-[11px] opacity-75 [font-variant-numeric:tabular-nums]">
-                          {member.birth && member.birth !== '—' && (
-                            <div className="flex items-center gap-1">
-                              <span className="opacity-60">🎂</span>
-                              <BirthDisplay birth={member.birth} />
-                            </div>
-                          )}
-                          {member.phone && (
-                            <a 
-                              href={`tel:${member.phone.replace(/-/g, '')}`} 
-                              className="flex items-center gap-1 hover:underline decoration-current/40"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <span className="opacity-60">📞</span>
-                              <span>{member.phone}</span>
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
+                  {/* Soprano 2 */}
+                  <div>
+                    <h3 className="font-ko text-[16px] md:text-[18px] font-bold border-b border-current/15 pb-2 mb-4 tracking-wide opacity-80 uppercase">
+                      소프라노 2
+                    </h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 md:gap-7">
+                      {currentPart.members
+                        .filter((m) => m.subPart === '소프라노 2')
+                        .map((member, idx) => renderMemberCard(member, `sop2-${idx}`))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-5 md:gap-7">
+                  {currentPart.members.map((member, idx) => renderMemberCard(member, `mem-${idx}`))}
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
