@@ -64,7 +64,7 @@ export default function PracticeClient({ data }: Props) {
   const sortedSchedules = [...[morning[1], morning[0], morning[2]].filter(Boolean), ...[evening[1], evening[0]].filter(Boolean)];
 
   return (
-    <div className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-cream px-0 pt-20 pb-8 select-none">
+    <div className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-cream px-0 pt-10 md:pt-14 pb-8 select-none">
       
       {/* 1. 백그라운드 라틴어 마키 연출 (일관성 확보) */}
       <div className="absolute top-8 left-0 right-0 overflow-hidden pointer-events-none select-none leading-none z-0">
@@ -78,13 +78,10 @@ export default function PracticeClient({ data }: Props) {
       </div>
 
       {/* 2. 중앙 상단 타이틀 */}
-      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0">
-        <h1 className="font-en text-[clamp(40px,4.8vw,68px)] font-bold leading-[0.85] tracking-normal text-ink">
+      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0 mt-6 mb-2">
+        <h1 className="font-en text-[clamp(36px,4vw,52px)] font-bold leading-none tracking-normal text-ink">
           Hours &amp; Aims
         </h1>
-        <p className="mt-4 font-ko text-[clamp(12px,1.4vw,16px)] font-medium tracking-normal text-ink-soft">
-          연습 시간 · {data.year} 목표
-        </p>
       </div>
 
       {/* ==========================================
@@ -93,7 +90,7 @@ export default function PracticeClient({ data }: Props) {
       <div className="hidden min-[881px]:flex flex-col items-center justify-center flex-1 w-full max-w-6xl mx-auto px-4 relative z-10">
         
         {/* Book Wrapper & Shadows */}
-        <div className="relative w-full max-w-[960px] h-[550px] flex items-center justify-center">
+        <div className="relative w-full max-w-[1020px] h-[480px] flex items-center justify-center -mt-6">
           
           {/* Navigation Arrows */}
           <button
@@ -121,35 +118,35 @@ export default function PracticeClient({ data }: Props) {
           </button>
 
           {/* Perspective Container */}
-          <div className="relative w-full h-full perspective-[1600px] transform-style-preserve-3d">
+          <div className="relative w-full h-full" style={{ perspective: '1600px', transformStyle: 'preserve-3d' }}>
             
             {/* Book Body */}
-            <div className="absolute inset-0 flex transform-style-preserve-3d shadow-[0_28px_90px_rgba(42,38,32,0.22)] rounded-2xl bg-card border border-line/42">
+            <div className="absolute inset-0 flex shadow-[0_28px_90px_rgba(42,38,32,0.22)] rounded-2xl bg-card border border-line/42" style={{ transformStyle: 'preserve-3d' }}>
               
               {/* [Page 1] Static Left Page (Schedules) */}
-              <div className="w-1/2 h-full bg-[#fbf7ec] border-r border-[#d4c4a0]/40 rounded-l-2xl px-12 py-10 flex flex-col justify-between relative overflow-hidden select-none">
+              <div className="w-1/2 h-full bg-[#fbf7ec] border-r border-[#d4c4a0]/40 rounded-l-2xl px-12 py-9 flex flex-col justify-between relative overflow-hidden select-none">
                 {/* Book inner left shadow (spine crease shadow) */}
                 <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/[0.04] to-transparent pointer-events-none" />
                 
                 <div>
-                  <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+                  <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-5 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-gold rounded-full" />
                     Worship &amp; Practice Hours
                   </h3>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3.5">
                     {sortedSchedules.map((slot, i) => {
                       const isWorship = slot.tag === '예배';
                       return (
-                        <div key={i} className={`flex items-center justify-between gap-4 py-2.5 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                        <div key={i} className={`flex items-center justify-between gap-4 py-2 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
                           <div>
                             <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
                               {TAG_EN[slot.tag]}
                             </span>
-                            <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
+                            <div className="font-ko text-[13px] font-bold">{slot.label}</div>
                           </div>
-                          <div className="font-en text-[13px] text-right shrink-0">
+                          <div className="font-en text-[12.5px] text-right shrink-0">
                             <span className="font-semibold block">{formatTime(slot.time)}</span>
-                            <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
+                            <span className="font-ko text-[9px] text-ink-mute block mt-0.5">{slot.time}</span>
                           </div>
                         </div>
                       );
@@ -163,23 +160,23 @@ export default function PracticeClient({ data }: Props) {
               </div>
 
               {/* [Page 4] Static Right Page (Goals 5-7) */}
-              <div className="w-1/2 h-full bg-[#fbf7ec] rounded-r-2xl px-12 py-10 flex flex-col justify-between relative overflow-hidden select-none">
+              <div className="w-1/2 h-full bg-[#fbf7ec] rounded-r-2xl px-12 py-9 flex flex-col justify-between relative overflow-hidden select-none">
                 {/* Book inner right shadow (spine crease shadow) */}
                 <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/[0.04] to-transparent pointer-events-none" />
                 
                 <div>
-                  <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+                  <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-5 flex items-center gap-2">
                     <span className="w-1.5 h-1.5 bg-gold rounded-full" />
                     Annual Aims (V – VII)
                   </h3>
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-3.5">
                     {data.goals.slice(4).map((goal, i) => {
                       const idx = i + 4;
                       const parts = goal.split(/(찬양을 통해)/);
                       return (
-                        <div key={idx} className="flex gap-4 items-start py-3.5 border-b border-line-soft last:border-b-0">
-                          <div className="font-en italic text-[22px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(idx + 1)}</div>
-                          <div className="font-ko text-[13px] leading-relaxed text-ink-soft">
+                        <div key={idx} className="flex gap-4 items-start py-3 border-b border-line-soft last:border-b-0">
+                          <div className="font-en italic text-[20px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(idx + 1)}</div>
+                          <div className="font-ko text-[12.5px] leading-relaxed text-ink-soft">
                             {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep">{p}</b> : p)}
                           </div>
                         </div>
@@ -195,32 +192,42 @@ export default function PracticeClient({ data }: Props) {
 
               {/* 3D Flipping Page (Sheet 1) */}
               <div
-                className="absolute right-0 top-0 w-1/2 h-full transform-origin-left transform-style-preserve-3d transition-transform duration-800 ease-in-out cursor-pointer select-none z-20"
+                className="absolute right-0 top-0 w-1/2 h-full cursor-pointer select-none"
                 style={{
                   transform: isFlipped ? 'rotateY(-180deg)' : 'rotateY(0deg)',
+                  transformStyle: 'preserve-3d',
+                  transformOrigin: 'left center',
+                  transition: 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)',
+                  zIndex: 20
                 }}
                 onClick={() => setIsFlipped(!isFlipped)}
               >
                 
                 {/* [Page 2] Front Face (Theme / Motto) */}
-                <div className="absolute inset-0 bg-[#fbf7ec] rounded-r-2xl px-12 py-10 flex flex-col justify-between border-l border-line/20 backface-hidden">
+                <div 
+                  className="absolute inset-0 bg-[#fbf7ec] rounded-r-2xl px-12 py-10 flex flex-col justify-between border-l border-line/20"
+                  style={{
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden'
+                  }}
+                >
                   <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/[0.04] to-transparent pointer-events-none" />
                   
                   <div className="flex flex-col items-center text-center my-auto">
-                    <div className="w-16 h-16 flex items-center justify-center opacity-70 mb-4 scale-90">
+                    <div className="w-14 h-14 flex items-center justify-center opacity-70 mb-3 scale-90">
                       <Crest />
                     </div>
                     
-                    <span className="font-en text-[10px] tracking-[0.38em] text-gold-deep uppercase mb-3 font-semibold">
+                    <span className="font-en text-[9px] tracking-[0.38em] text-gold-deep uppercase mb-2 font-semibold">
                       {data.year} Theme
                     </span>
                     
-                    <p className="font-ko font-bold text-[24px] leading-relaxed text-ink tracking-wide mt-2 break-keep px-4">
+                    <p className="font-ko font-bold text-[22px] leading-relaxed text-ink tracking-wide mt-1 break-keep px-4">
                       “{data.themeKo}”
                     </p>
                     
                     {data.themeEn && (
-                      <p className="font-en italic text-[12px] text-gold-deep/80 tracking-wide mt-4 max-w-[280px] break-keep">
+                      <p className="font-en italic text-[11px] text-gold-deep/80 tracking-wide mt-3 max-w-[280px] break-keep">
                         {data.themeEn}
                       </p>
                     )}
@@ -233,13 +240,17 @@ export default function PracticeClient({ data }: Props) {
 
                 {/* [Page 3] Back Face (Goals 1-4) */}
                 <div
-                  className="absolute inset-0 bg-[#fbf7ec] rounded-l-2xl px-12 py-10 flex flex-col justify-between border-r border-line/20 backface-hidden"
-                  style={{ transform: 'rotateY(180deg)' }}
+                  className="absolute inset-0 bg-[#fbf7ec] rounded-l-2xl px-12 py-10 flex flex-col justify-between border-r border-line/20"
+                  style={{ 
+                    transform: 'rotateY(180deg)',
+                    backfaceVisibility: 'hidden',
+                    WebkitBackfaceVisibility: 'hidden'
+                  }}
                 >
                   <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/[0.04] to-transparent pointer-events-none" />
                   
                   <div>
-                    <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+                    <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-5 flex items-center gap-2">
                       <span className="w-1.5 h-1.5 bg-gold rounded-full" />
                       Annual Aims (I – IV)
                     </h3>
@@ -248,8 +259,8 @@ export default function PracticeClient({ data }: Props) {
                         const parts = goal.split(/(찬양을 통해)/);
                         return (
                           <div key={i} className="flex gap-4 items-start py-2.5 border-b border-line-soft last:border-b-0">
-                            <div className="font-en italic text-[20px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(i + 1)}</div>
-                            <div className="font-ko text-[13px] leading-relaxed text-ink-soft">
+                            <div className="font-en italic text-[18px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(i + 1)}</div>
+                            <div className="font-ko text-[12.5px] leading-relaxed text-ink-soft">
                               {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep">{p}</b> : p)}
                             </div>
                           </div>
