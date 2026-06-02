@@ -541,8 +541,8 @@ export default function PracticeClient({ data }: Props) {
          ========================================== */}
       <div className="min-[881px]:hidden flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 py-6">
         
-        {/* Stack Container */}
-        <div className="relative w-full h-[400px] flex items-center justify-center">
+        {/* Stack Container (3D Perspective 추가) */}
+        <div className="relative w-full h-[400px] flex items-center justify-center" style={{ perspective: '1000px' }}>
           <AnimatePresence mode="popLayout">
             {Array.from({ length: totalCards }).map((_, i) => {
               if (i < mobileIndex || i > mobileIndex + 1) return null;
@@ -552,24 +552,29 @@ export default function PracticeClient({ data }: Props) {
                 <motion.div
                   key={i}
                   className="absolute w-full h-full bg-[#fbf7ec] border border-line/40 rounded-2xl p-6 flex flex-col justify-between shadow-[0_12px_36px_rgba(42,38,32,0.12)] cursor-grab active:cursor-grabbing select-none"
-                  style={{ zIndex: isTop ? 10 : 5 }}
-                  drag={isTop ? "x" : false}
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.4}
+                  style={{ 
+                    zIndex: isTop ? 10 : 5,
+                    transformOrigin: 'top center' 
+                  }}
+                  drag={isTop ? "y" : false}
+                  dragConstraints={{ top: 0, bottom: 0 }}
+                  dragElastic={{ top: 0.8, bottom: 0.15 }}
                   onDragEnd={(_, info) => {
-                    if (info.offset.x < -80) {
+                    if (info.offset.y < -60) {
                       handleNext();
-                    } else if (info.offset.x > 80) {
+                    } else if (info.offset.y > 60) {
                       handlePrev();
                     }
                   }}
-                  initial={isTop ? { x: 0, scale: 1, opacity: 1 } : { y: 12, scale: 0.95, opacity: 0.72 }}
-                  animate={isTop ? { x: 0, y: 0, scale: 1, opacity: 1 } : { y: 12, scale: 0.95, opacity: 0.72 }}
+                  initial={isTop ? { y: 0, rotateX: 0, rotateZ: 0, scale: 1, opacity: 1 } : { y: 16, rotateX: 0, rotateZ: 0, scale: 0.94, opacity: 0.7 }}
+                  animate={isTop ? { y: 0, rotateX: 0, rotateZ: 0, scale: 1, opacity: 1 } : { y: 16, rotateX: 0, rotateZ: 0, scale: 0.94, opacity: 0.7 }}
                   exit={{
-                    x: mobileIndex > i ? -300 : 300,
-                    rotate: mobileIndex > i ? -10 : 10,
+                    y: mobileIndex > i ? -500 : 300,
+                    rotateX: mobileIndex > i ? -65 : 15,
+                    rotateZ: mobileIndex > i ? -8 : 3,
+                    scale: 0.9,
                     opacity: 0,
-                    transition: { duration: 0.35, ease: "easeOut" }
+                    transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] }
                   }}
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 >
@@ -768,7 +773,7 @@ export default function PracticeClient({ data }: Props) {
         </div>
 
         <div className="mt-4 text-ink-mute text-[9px] uppercase tracking-widest text-center select-none pointer-events-none">
-          Swipe left/right or tap arrows to navigate
+          Swipe up/down or tap arrows to navigate
         </div>
 
       </div>
