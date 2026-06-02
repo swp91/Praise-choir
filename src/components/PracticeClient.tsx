@@ -166,9 +166,9 @@ export default function PracticeClient({ data }: Props) {
     if (!goal) return null;
     const parts = goal.split(/(찬양을 통해)/);
     return (
-      <div className={`flex gap-5 items-start py-4 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
-        <div className="font-en italic text-[26px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(index + 1)}</div>
-        <div className="font-ko text-[17px] leading-relaxed text-ink font-medium">
+      <div className={`flex gap-5 xl:gap-7 items-start py-4 xl:py-5.5 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
+        <div className="font-en italic text-[26px] xl:text-[30px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(index + 1)}</div>
+        <div className="font-ko text-[17px] xl:text-[19.5px] leading-relaxed text-ink font-medium">
           {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep font-bold">{p}</b> : p)}
         </div>
       </div>
@@ -194,27 +194,27 @@ export default function PracticeClient({ data }: Props) {
   
   // Spread 0: 일정 (주일 오전 & 주일 저녁)
   const renderSpread0 = () => (
-    <div className="w-[1020px] h-full flex select-none">
-      <div className="w-1/2 h-full px-12 py-10 flex flex-col justify-between">
+    <div className="w-full h-full flex select-none">
+      <div className="w-1/2 h-full px-12 xl:px-16 py-10 xl:py-14 flex flex-col justify-between">
         <div>
-          <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+          <h3 className="font-en text-[10px] xl:text-[12px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-gold rounded-full" />
             Sunday Weekly Schedules
           </h3>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 xl:gap-6">
             {sortedMorning.map((slot, i) => {
               const isWorship = slot.tag === '예배';
               return (
-                <div key={i} className={`flex items-center justify-between gap-4 py-3 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                <div key={i} className={`flex items-center justify-between gap-4 py-3 xl:py-4.5 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
                   <div>
-                    <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                    <span className={`inline-block font-en text-[8px] xl:text-[9px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[16px] font-bold">{slot.label}</div>
+                    <div className="font-ko text-[16px] xl:text-[18.5px] font-bold">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[15.5px] text-right shrink-0">
+                  <div className="font-en text-[15.5px] xl:text-[17.5px] text-right shrink-0">
                     <span className="font-semibold block">{formatTime(slot.time)}</span>
-                    <span className="font-ko text-[11.5px] text-ink-mute block mt-0.5">{slot.time}</span>
+                    <span className="font-ko text-[11.5px] xl:text-[13px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
@@ -226,26 +226,26 @@ export default function PracticeClient({ data }: Props) {
         </div>
       </div>
       
-      <div className="w-1/2 h-full px-12 py-10 flex flex-col justify-between">
+      <div className="w-1/2 h-full px-12 xl:px-16 py-10 xl:py-14 flex flex-col justify-between">
         <div>
-          <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+          <h3 className="font-en text-[10px] xl:text-[12px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
             <span className="w-1.5 h-1.5 bg-gold rounded-full" />
             Evening Schedules
           </h3>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 xl:gap-6">
             {sortedEvening.map((slot, idx) => {
               const isWorship = slot.tag === '예배';
               return (
-                <div key={idx} className={`flex items-center justify-between gap-4 py-3 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                <div key={idx} className={`flex items-center justify-between gap-4 py-3 xl:py-4.5 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
                   <div>
-                    <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                    <span className={`inline-block font-en text-[8px] xl:text-[9px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[16px] font-bold">{slot.label}</div>
+                    <div className="font-ko text-[16px] xl:text-[18.5px] font-bold">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[15.5px] text-right shrink-0">
+                  <div className="font-en text-[15.5px] xl:text-[17.5px] text-right shrink-0">
                     <span className="font-semibold block">{formatTime(slot.time)}</span>
-                    <span className="font-ko text-[11.5px] text-ink-mute block mt-0.5">{slot.time}</span>
+                    <span className="font-ko text-[11.5px] xl:text-[13px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
@@ -261,22 +261,22 @@ export default function PracticeClient({ data }: Props) {
 
   // Spread 1: 표어
   const renderSpread1 = () => (
-    <div className="w-[1020px] h-full flex flex-col justify-between px-16 py-10 select-none">
+    <div className="w-full h-full flex flex-col justify-between px-16 xl:px-20 py-10 xl:py-14 select-none">
       <div className="flex justify-between items-center border-b border-line-soft pb-3">
-        <span className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold">
+        <span className="font-en text-[10px] xl:text-[12px] tracking-[0.28em] uppercase text-gold-deep font-semibold">
           {data.year} Congregation Motto
         </span>
-        <span className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold">
+        <span className="font-en text-[10px] xl:text-[12px] tracking-[0.28em] uppercase text-gold-deep font-semibold">
           Praise Choir
         </span>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center text-center my-auto py-6">
-        <p className="font-ko font-bold text-[clamp(28px,3.2vw,40px)] leading-snug text-ink tracking-[0.05em] whitespace-nowrap">
+        <p className="font-ko font-bold text-[clamp(28px,3.2vw,48px)] xl:text-[46px] leading-snug text-ink tracking-[0.05em] whitespace-nowrap">
           {data.themeKo}
         </p>
         {data.themeEn && (
-          <p className="font-en italic text-[15px] text-gold-deep/80 tracking-wider mt-5 max-w-[600px] border-t border-gold/20 pt-4 leading-relaxed">
+          <p className="font-en italic text-[15px] xl:text-[18px] text-gold-deep/80 tracking-wider mt-5 max-w-[600px] border-t border-gold/20 pt-4 leading-relaxed">
             {data.themeEn}
           </p>
         )}
@@ -291,15 +291,15 @@ export default function PracticeClient({ data }: Props) {
 
   // Spread 2: 목표 1-4 (한 장으로 양옆으로 시원하게 이어지는 2x2 레이아웃)
   const renderSpread2 = () => (
-    <div className="w-[1020px] h-full flex flex-col justify-between px-16 py-10 select-none">
+    <div className="w-full h-full flex flex-col justify-between px-16 xl:px-20 py-10 xl:py-14 select-none">
       <div className="flex justify-between items-center border-b border-line-soft pb-3">
-        <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold flex items-center gap-2">
+        <h3 className="font-en text-[10px] xl:text-[12px] tracking-[0.28em] uppercase text-gold-deep font-semibold flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-gold rounded-full" />
           Annual Aims (I – IV)
         </h3>
       </div>
 
-      <div className="flex-1 grid grid-cols-2 gap-x-16 gap-y-1 py-4 my-auto items-center">
+      <div className="flex-1 grid grid-cols-2 gap-x-16 xl:gap-x-20 gap-y-1 py-4 my-auto items-center">
         <div className="flex flex-col justify-center h-full">
           {renderGoalItem(data.goals[0], 0, false)}
         </div>
@@ -323,15 +323,15 @@ export default function PracticeClient({ data }: Props) {
 
   // Spread 3: 목표 5-7 (한 장으로 이어지는 레이아웃)
   const renderSpread3 = () => (
-    <div className="w-[1020px] h-full flex flex-col justify-between px-16 py-10 select-none">
+    <div className="w-full h-full flex flex-col justify-between px-16 xl:px-20 py-10 xl:py-14 select-none">
       <div className="flex justify-between items-center border-b border-line-soft pb-3">
-        <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold flex items-center gap-2">
+        <h3 className="font-en text-[10px] xl:text-[12px] tracking-[0.28em] uppercase text-gold-deep font-semibold flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-gold rounded-full" />
           Annual Aims (V – VII)
         </h3>
       </div>
 
-      <div className="flex-1 grid grid-cols-2 gap-x-16 gap-y-1 py-4 my-auto items-center">
+      <div className="flex-1 grid grid-cols-2 gap-x-16 xl:gap-x-20 gap-y-1 py-4 my-auto items-center">
         <div className="flex flex-col justify-center h-full">
           {renderGoalItem(data.goals[4], 4, false)}
         </div>
@@ -342,7 +342,7 @@ export default function PracticeClient({ data }: Props) {
           {renderGoalItem(data.goals[6], 6, false)}
         </div>
         <div className="flex items-center justify-center h-full opacity-30 select-none pointer-events-none">
-          <span className="font-en italic text-[11px] text-gold-deep tracking-[0.2em] uppercase">Praise Choir</span>
+          <span className="font-en italic text-[11px] xl:text-[13px] text-gold-deep tracking-[0.2em] uppercase">Praise Choir</span>
         </div>
       </div>
 
@@ -580,8 +580,8 @@ export default function PracticeClient({ data }: Props) {
          ========================================== */}
       <div className="hidden min-[881px]:flex flex-col items-center justify-center flex-1 w-full max-w-6xl mx-auto px-4 relative z-10">
         
-        {/* Book Wrapper (고정식 단일 묵직한 그림자 부여) */}
-        <div className="relative w-full max-w-[1020px] h-[480px] flex items-center justify-center rounded-2xl shadow-[0_28px_90px_rgba(42,38,32,0.16)] bg-[#fbf7ec]">
+        {/* Book Wrapper (화면 크기에 따라 유연하게 웅장해지는 스케일 업) */}
+        <div className="relative w-full max-w-[1020px] xl:max-w-[1240px] h-[480px] xl:h-[580px] flex items-center justify-center rounded-2xl shadow-[0_28px_90px_rgba(42,38,32,0.16)] bg-[#fbf7ec] transition-all duration-300">
           
 
 
