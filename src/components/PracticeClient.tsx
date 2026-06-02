@@ -38,9 +38,9 @@ function formatTime(time: string) {
 }
 
 export default function PracticeClient({ data }: Props) {
-  // 데스크톱: 0~3 (총 4개 스프레드 / 8개 페이지)
-  const [activeSpread, setActiveSpread] = useState(0);
-  const totalSpreads = 4;
+  // 데스크톱: 0~3 (총 4개 페이지)
+  const [activePage, setActivePage] = useState(0);
+  const totalPages = 4;
 
   // 모바일: 0~4 (총 5개 카드)
   const [mobileIndex, setMobileIndex] = useState(0);
@@ -104,14 +104,14 @@ export default function PracticeClient({ data }: Props) {
          ========================================== */}
       <div className="hidden min-[881px]:flex flex-col items-center justify-center flex-1 w-full max-w-6xl mx-auto px-4 relative z-10">
         
-        {/* Book Wrapper */}
+        {/* Card Wrapper & Shadows */}
         <div className="relative w-full max-w-[1020px] h-[480px] flex items-center justify-center">
           
           {/* Navigation Arrows */}
           <button
             type="button"
-            onClick={() => setActiveSpread((prev) => Math.max(0, prev - 1))}
-            disabled={activeSpread === 0}
+            onClick={() => setActivePage((prev) => Math.max(0, prev - 1))}
+            disabled={activePage === 0}
             className={`absolute -left-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed`}
             aria-label="이전 페이지"
           >
@@ -122,8 +122,8 @@ export default function PracticeClient({ data }: Props) {
 
           <button
             type="button"
-            onClick={() => setActiveSpread((prev) => Math.min(totalSpreads - 1, prev + 1))}
-            disabled={activeSpread === totalSpreads - 1}
+            onClick={() => setActivePage((prev) => Math.min(totalPages - 1, prev + 1))}
+            disabled={activePage === totalPages - 1}
             className={`absolute -right-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed`}
             aria-label="다음 페이지"
           >
@@ -135,248 +135,223 @@ export default function PracticeClient({ data }: Props) {
           {/* Perspective Container */}
           <div className="relative w-full h-full" style={{ perspective: '1600px', transformStyle: 'preserve-3d' }}>
             
-            {/* Book Body (Background) */}
-            <div className="absolute inset-0 flex shadow-[0_28px_90px_rgba(42,38,32,0.22)] rounded-2xl bg-card border border-line/42" style={{ transformStyle: 'preserve-3d' }}>
+            {/* 3D Rotating Card Container */}
+            <div 
+              className="w-full h-full relative transition-transform duration-800"
+              style={{
+                transform: `rotateY(${activePage * -180}deg)`,
+                transformStyle: 'preserve-3d',
+              }}
+            >
               
-              {/* [Page 1] Static Left Page (Schedules - Morning) */}
-              <div className="w-1/2 h-full bg-[#fbf7ec] border-r border-[#d4c4a0]/40 rounded-l-2xl px-12 py-10 flex flex-col justify-between relative overflow-hidden select-none">
-                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/[0.04] to-transparent pointer-events-none" />
-                
-                <div>
-                  <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                    Sunday Weekly Schedules
-                  </h3>
-                  <div className="flex flex-col gap-4">
-                    {sortedMorning.map((slot, i) => {
-                      const isWorship = slot.tag === '예배';
-                      return (
-                        <div key={i} className={`flex items-center justify-between gap-4 py-3 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
-                          <div>
-                            <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
-                              {TAG_EN[slot.tag]}
-                            </span>
-                            <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
-                          </div>
-                          <div className="font-en text-[13px] text-right shrink-0">
-                            <span className="font-semibold block">{formatTime(slot.time)}</span>
-                            <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
+              {/* ==========================================
+                  Page 0: Schedules (Morning & Evening)
+                 ========================================== */}
+              <div 
+                className="absolute inset-0 bg-[#fbf7ec] rounded-2xl border border-line/42 shadow-[0_28px_90px_rgba(42,38,32,0.22)] p-12 flex flex-col justify-between"
+                style={{
+                  transform: 'rotateY(0deg)',
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  zIndex: activePage === 0 ? 10 : 0
+                }}
+              >
+                <div className="grid grid-cols-2 gap-12 flex-1 items-stretch">
+                  {/* Left Column: Morning */}
+                  <div className="flex flex-col justify-between h-full pr-6 border-r border-[#d4c4a0]/28">
+                    <div>
+                      <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+                        Sunday Morning Schedules
+                      </h3>
+                      <div className="flex flex-col gap-3.5">
+                        {sortedMorning.map((slot, i) => {
+                          const isWorship = slot.tag === '예배';
+                          return (
+                            <div key={i} className={`flex items-center justify-between gap-4 py-2 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                              <div>
+                                <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                                  {TAG_EN[slot.tag]}
+                                </span>
+                                <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
+                              </div>
+                              <div className="font-en text-[13px] text-right shrink-0">
+                                <span className="font-semibold block">{formatTime(slot.time)}</span>
+                                <span className="font-ko text-[9px] text-ink-mute block mt-0.5">{slot.time}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
+                      I / IV · Morning Schedules
+                    </div>
                   </div>
-                </div>
-                
-                <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
-                  I / VIII · Morning Schedules
-                </div>
-              </div>
 
-              {/* [Page 8] Static Right Page (Goal 7) */}
-              <div className="w-1/2 h-full bg-[#fbf7ec] rounded-r-2xl px-12 py-10 flex flex-col justify-between relative overflow-hidden select-none">
-                <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/[0.04] to-transparent pointer-events-none" />
-                
-                <div>
-                  <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                    Annual Aims (VII)
-                  </h3>
-                  <div className="flex flex-col gap-4 mt-4">
-                    {renderGoalItem(data.goals[6], 6)}
+                  {/* Right Column: Evening */}
+                  <div className="flex flex-col justify-between h-full pl-6">
+                    <div>
+                      <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+                        Sunday Evening Schedules
+                      </h3>
+                      <div className="flex flex-col gap-4">
+                        {sortedEvening.map((slot, i) => {
+                          const isWorship = slot.tag === '예배';
+                          return (
+                            <div key={i} className={`flex items-center justify-between gap-4 py-3 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                              <div>
+                                <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                                  {TAG_EN[slot.tag]}
+                                </span>
+                                <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
+                              </div>
+                              <div className="font-en text-[13px] text-right shrink-0">
+                                <span className="font-semibold block">{formatTime(slot.time)}</span>
+                                <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
+                      I / IV · Evening Schedules
+                    </div>
                   </div>
-                </div>
-                
-                <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
-                  VIII / VIII · Aims
                 </div>
               </div>
 
               {/* ==========================================
-                  3D Flipping Page Sheets
+                  Page 1: Theme / Motto (Seamless)
                  ========================================== */}
-
-              {/* [Sheet 0] Pages 2 (Schedules - Evening) & 3 (Theme Left) */}
-              <div
-                className="absolute right-0 top-0 w-1/2 h-full cursor-pointer select-none"
+              <div 
+                className="absolute inset-0 bg-[#fbf7ec] rounded-2xl border border-line/42 shadow-[0_28px_90px_rgba(42,38,32,0.22)] p-12 flex flex-col justify-between"
                 style={{
-                  transform: activeSpread > 0 ? 'rotateY(-180deg)' : 'rotateY(0deg)',
-                  transformStyle: 'preserve-3d',
-                  transformOrigin: 'left center',
-                  transition: 'transform 0.85s cubic-bezier(0.25, 1, 0.5, 1)',
-                  zIndex: activeSpread > 0 ? 10 : 30
+                  transform: 'rotateY(180deg)',
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  zIndex: activePage === 1 ? 10 : 0
                 }}
-                onClick={() => setActiveSpread(activeSpread > 0 ? 0 : 1)}
               >
-                {/* Page 2 (Front) - Evening Schedules */}
-                <div 
-                  className="absolute inset-0 bg-[#fbf7ec] rounded-r-2xl px-12 py-10 flex flex-col justify-between border-l border-line/20"
-                  style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                >
-                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/[0.04] to-transparent pointer-events-none" />
-                  <div>
-                    <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                      Evening Schedules
-                    </h3>
-                    <div className="flex flex-col gap-4">
-                      {sortedEvening.map((slot, i) => {
-                        const isWorship = slot.tag === '예배';
-                        return (
-                          <div key={i} className={`flex items-center justify-between gap-4 py-3 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
-                            <div>
-                              <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
-                                {TAG_EN[slot.tag]}
-                              </span>
-                              <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
-                            </div>
-                            <div className="font-en text-[13px] text-right shrink-0">
-                              <span className="font-semibold block">{formatTime(slot.time)}</span>
-                              <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
-                    II / VIII · Evening Schedules
-                  </div>
-                </div>
-
-                {/* Page 3 (Back) - Theme Left */}
-                <div 
-                  className="absolute inset-0 bg-[#fbf7ec] rounded-l-2xl px-12 py-10 flex flex-col justify-between border-r border-line/20"
-                  style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                >
-                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/[0.04] to-transparent pointer-events-none" />
-                  <div className="flex flex-col items-end justify-center h-full text-right pr-6 my-auto">
-                    <span className="font-en text-[9px] tracking-[0.38em] text-gold-deep uppercase mb-4 font-semibold">
-                      {data.year} Theme
-                    </span>
-                    <p className="font-ko font-bold text-[clamp(24px,2.8vw,36px)] leading-relaxed text-ink tracking-wide">
-                      오직 하나님을
+                <div className="flex-1 flex flex-col items-center justify-center text-center my-auto px-12">
+                  <span className="font-en text-[10px] tracking-[0.4em] text-gold-deep uppercase mb-5 font-semibold">
+                    {data.year} Theme
+                  </span>
+                  
+                  <p className="font-ko font-bold text-[34px] md:text-[38px] leading-relaxed text-ink tracking-wide break-keep px-6">
+                    “{data.themeKo}”
+                  </p>
+                  
+                  {data.themeEn && (
+                    <p className="font-en italic text-[13px] text-gold-deep/80 tracking-wide mt-6 max-w-[420px] break-keep">
+                      {data.themeEn}
                     </p>
-                  </div>
-                  <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
-                    III / VIII · Motto
-                  </div>
+                  )}
+                </div>
+                
+                <div className="font-en text-[10px] text-ink-mute tracking-widest text-center border-t border-line-soft pt-3">
+                  II / IV · Motto
                 </div>
               </div>
 
-              {/* [Sheet 1] Pages 4 (Theme Right) & 5 (Goals 1 & 2) */}
-              <div
-                className="absolute right-0 top-0 w-1/2 h-full cursor-pointer select-none"
+              {/* ==========================================
+                  Page 2: Goals 1-4
+                 ========================================== */}
+              <div 
+                className="absolute inset-0 bg-[#fbf7ec] rounded-2xl border border-line/42 shadow-[0_28px_90px_rgba(42,38,32,0.22)] p-12 flex flex-col justify-between"
                 style={{
-                  transform: activeSpread > 1 ? 'rotateY(-180deg)' : 'rotateY(0deg)',
-                  transformStyle: 'preserve-3d',
-                  transformOrigin: 'left center',
-                  transition: 'transform 0.85s cubic-bezier(0.25, 1, 0.5, 1)',
-                  zIndex: activeSpread > 1 ? 11 : 29
+                  transform: 'rotateY(360deg)', // 360deg is same as 0deg physically but correct for continuous Y rotation
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  zIndex: activePage === 2 ? 10 : 0
                 }}
-                onClick={() => setActiveSpread(activeSpread > 1 ? 1 : 2)}
               >
-                {/* Page 4 (Front) - Theme Right */}
-                <div 
-                  className="absolute inset-0 bg-[#fbf7ec] rounded-r-2xl px-12 py-10 flex flex-col justify-between border-l border-line/20"
-                  style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                >
-                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/[0.04] to-transparent pointer-events-none" />
-                  <div className="flex flex-col items-start justify-center h-full text-left pl-6 my-auto">
-                    <p className="font-ko font-bold text-[clamp(24px,2.8vw,36px)] leading-relaxed text-ink tracking-wide">
-                      기뻐함으로 승리하는 프레이즈
-                    </p>
-                    {data.themeEn && (
-                      <p className="font-en italic text-[11px] text-gold-deep/80 tracking-wide mt-3 max-w-[280px]">
-                        {data.themeEn}
-                      </p>
-                    )}
-                  </div>
-                  <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
-                    IV / VIII · Motto
-                  </div>
-                </div>
-
-                {/* Page 5 (Back) - Goals 1 & 2 */}
-                <div 
-                  className="absolute inset-0 bg-[#fbf7ec] rounded-l-2xl px-12 py-10 flex flex-col justify-between border-r border-line/20"
-                  style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                >
-                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/[0.04] to-transparent pointer-events-none" />
-                  <div>
-                    <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                      Annual Aims (I – II)
-                    </h3>
-                    <div className="flex flex-col gap-4 mt-2">
-                      {renderGoalItem(data.goals[0], 0)}
-                      {renderGoalItem(data.goals[1], 1)}
+                <div className="grid grid-cols-2 gap-12 flex-1 items-stretch">
+                  {/* Left Column: Goals 1-2 */}
+                  <div className="flex flex-col justify-between h-full pr-6 border-r border-[#d4c4a0]/28">
+                    <div>
+                      <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+                        Annual Aims (I – II)
+                      </h3>
+                      <div className="flex flex-col gap-4 mt-2">
+                        {renderGoalItem(data.goals[0], 0)}
+                        {renderGoalItem(data.goals[1], 1)}
+                      </div>
+                    </div>
+                    <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
+                      III / IV · Goals I – II
                     </div>
                   </div>
-                  <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
-                    V / VIII · Aims
+
+                  {/* Right Column: Goals 3-4 */}
+                  <div className="flex flex-col justify-between h-full pl-6">
+                    <div>
+                      <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+                        Annual Aims (III – IV)
+                      </h3>
+                      <div className="flex flex-col gap-4 mt-2">
+                        {renderGoalItem(data.goals[2], 2)}
+                        {renderGoalItem(data.goals[3], 3)}
+                      </div>
+                    </div>
+                    <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
+                      III / IV · Goals III – IV
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* [Sheet 2] Pages 6 (Goals 3 & 4) & 7 (Goals 5 & 6) */}
-              <div
-                className="absolute right-0 top-0 w-1/2 h-full cursor-pointer select-none"
+              {/* ==========================================
+                  Page 3: Goals 5-7
+                 ========================================== */}
+              <div 
+                className="absolute inset-0 bg-[#fbf7ec] rounded-2xl border border-line/42 shadow-[0_28px_90px_rgba(42,38,32,0.22)] p-12 flex flex-col justify-between"
                 style={{
-                  transform: activeSpread > 2 ? 'rotateY(-180deg)' : 'rotateY(0deg)',
-                  transformStyle: 'preserve-3d',
-                  transformOrigin: 'left center',
-                  transition: 'transform 0.85s cubic-bezier(0.25, 1, 0.5, 1)',
-                  zIndex: activeSpread > 2 ? 12 : 28
+                  transform: 'rotateY(540deg)', // faces front when rotated by -540deg
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  zIndex: activePage === 3 ? 10 : 0
                 }}
-                onClick={() => setActiveSpread(activeSpread > 2 ? 2 : 3)}
               >
-                {/* Page 6 (Front) - Goals 3 & 4 */}
-                <div 
-                  className="absolute inset-0 bg-[#fbf7ec] rounded-r-2xl px-12 py-10 flex flex-col justify-between border-l border-line/20"
-                  style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                >
-                  <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-black/[0.04] to-transparent pointer-events-none" />
-                  <div>
-                    <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                      Annual Aims (III – IV)
-                    </h3>
-                    <div className="flex flex-col gap-4 mt-2">
-                      {renderGoalItem(data.goals[2], 2)}
-                      {renderGoalItem(data.goals[3], 3)}
+                <div className="grid grid-cols-2 gap-12 flex-1 items-stretch">
+                  {/* Left Column: Goals 5-6 */}
+                  <div className="flex flex-col justify-between h-full pr-6 border-r border-[#d4c4a0]/28">
+                    <div>
+                      <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+                        Annual Aims (V – VI)
+                      </h3>
+                      <div className="flex flex-col gap-4 mt-2">
+                        {renderGoalItem(data.goals[4], 4)}
+                        {renderGoalItem(data.goals[5], 5)}
+                      </div>
+                    </div>
+                    <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
+                      IV / IV · Goals V – VI
                     </div>
                   </div>
-                  <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
-                    VI / VIII · Aims
-                  </div>
-                </div>
 
-                {/* Page 7 (Back) - Goals 5 & 6 */}
-                <div 
-                  className="absolute inset-0 bg-[#fbf7ec] rounded-l-2xl px-12 py-10 flex flex-col justify-between border-r border-line/20"
-                  style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-                >
-                  <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-black/[0.04] to-transparent pointer-events-none" />
-                  <div>
-                    <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                      Annual Aims (V – VI)
-                    </h3>
-                    <div className="flex flex-col gap-4 mt-2">
-                      {renderGoalItem(data.goals[4], 4)}
-                      {renderGoalItem(data.goals[5], 5)}
+                  {/* Right Column: Goal 7 */}
+                  <div className="flex flex-col justify-between h-full pl-6">
+                    <div>
+                      <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+                        Annual Aims (VII)
+                      </h3>
+                      <div className="flex flex-col gap-4 mt-2">
+                        {renderGoalItem(data.goals[6], 6)}
+                      </div>
                     </div>
-                  </div>
-                  <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
-                    VII / VIII · Aims
+                    <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
+                      IV / IV · Goal VII
+                    </div>
                   </div>
                 </div>
               </div>
-
-              {/* Book Center Spine Line */}
-              <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[1px] bg-[#d4c4a0]/55 z-30 pointer-events-none" />
-              <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-8 bg-gradient-to-r from-black/[0.035] via-transparent to-black/[0.035] z-30 pointer-events-none" />
 
             </div>
           </div>
@@ -384,13 +359,13 @@ export default function PracticeClient({ data }: Props) {
 
         {/* Bottom Spread Dots */}
         <div className="flex items-center gap-2.5 mt-8 relative z-20">
-          {Array.from({ length: totalSpreads }).map((_, idx) => (
+          {Array.from({ length: totalPages }).map((_, idx) => (
             <button
               key={idx}
               type="button"
-              onClick={() => setActiveSpread(idx)}
-              className={`h-2.5 rounded-full transition-all duration-300 ${idx === activeSpread ? 'bg-gold-deep w-6' : 'bg-line w-2.5 hover:bg-gold/60'}`}
-              aria-label={`${idx + 1}번째 스프레드 보기`}
+              onClick={() => setActivePage(idx)}
+              className={`h-2.5 rounded-full transition-all duration-300 ${idx === activePage ? 'bg-gold-deep w-6' : 'bg-line w-2.5 hover:bg-gold/60'}`}
+              aria-label={`${idx + 1}번째 페이지 보기`}
             />
           ))}
         </div>
