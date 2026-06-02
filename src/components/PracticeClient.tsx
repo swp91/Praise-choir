@@ -179,10 +179,10 @@ export default function PracticeClient({ data }: Props) {
     if (!goal) return null;
     const parts = goal.split(/(찬양을 통해)/);
     return (
-      <div className={`flex gap-3 items-start py-2.5 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
-        <div className="font-en italic text-[18px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(index + 1)}</div>
-        <div className="font-ko text-[11.5px] leading-relaxed text-ink-soft">
-          {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep">{p}</b> : p)}
+      <div className={`flex gap-3.5 items-start py-2.5 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
+        <div className="font-en italic text-[24px] text-gold/90 leading-none font-semibold mt-0.5">{toRoman(index + 1)}</div>
+        <div className="font-ko text-[14.5px] leading-relaxed text-ink font-medium">
+          {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep font-bold">{p}</b> : p)}
         </div>
       </div>
     );
@@ -361,64 +361,66 @@ export default function PracticeClient({ data }: Props) {
   const renderMobileSpread0 = () => (
     <div className="w-full h-full flex flex-col select-none text-left">
       {/* Top Half: Morning Schedules */}
-      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
+      <div className="w-full h-1/2 px-6 py-4 flex flex-col justify-between border-b border-dashed border-gold/20">
         <div>
-          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-3 flex items-center gap-1.5">
-            <span className="w-1 h-1 bg-gold rounded-full" />
+          <h3 className="font-en text-[10px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-2.5 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-gold rounded-full" />
             Sunday Morning
           </h3>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1">
             {sortedMorning.map((slot, i) => {
               const isWorship = slot.tag === '예배';
               return (
-                <div key={i} className={`flex items-center justify-between gap-2 py-1 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                <div key={i} className={`flex items-center justify-between gap-3 py-1.5 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep' : 'text-ink'}`}>
                   <div>
-                    <span className={`inline-block font-en text-[7px] tracking-[0.1em] uppercase px-1 py-0.2 mb-0.5 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                    <span className={`inline-block font-en text-[9px] tracking-[0.08em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/50 bg-gold/5 font-semibold' : 'text-ink-mute border border-line/50 font-medium'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[12px] font-bold leading-tight">{slot.label}</div>
+                    <div className="font-ko text-[15px] font-extrabold leading-tight text-ink">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[11px] text-right shrink-0">
-                    <span className="font-semibold block">{formatTime(slot.time)}</span>
+                  <div className="font-en text-[13.5px] text-right shrink-0">
+                    <span className="font-bold block text-ink">{formatTime(slot.time)}</span>
+                    <span className="font-ko text-[9.5px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
             })}
           </div>
         </div>
-        <div className="font-en text-[8px] text-ink-mute tracking-widest text-left pt-1.5 border-t border-line-soft">
-          I / VIII · Morning Schedules
+        <div className="font-en text-[10px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
+          I / VIII · Morning
         </div>
       </div>
       
       {/* Bottom Half: Evening Schedules */}
-      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between">
+      <div className="w-full h-1/2 px-6 py-4 flex flex-col justify-between">
         <div>
-          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-3 flex items-center gap-1.5">
-            <span className="w-1 h-1 bg-gold rounded-full" />
+          <h3 className="font-en text-[10px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-2.5 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-gold rounded-full" />
             Sunday Evening
           </h3>
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1">
             {sortedEvening.map((slot, idx) => {
               const isWorship = slot.tag === '예배';
               return (
-                <div key={idx} className={`flex items-center justify-between gap-2 py-1 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                <div key={idx} className={`flex items-center justify-between gap-3 py-1.5 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep' : 'text-ink'}`}>
                   <div>
-                    <span className={`inline-block font-en text-[7px] tracking-[0.1em] uppercase px-1 py-0.2 mb-0.5 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                    <span className={`inline-block font-en text-[9px] tracking-[0.08em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/50 bg-gold/5 font-semibold' : 'text-ink-mute border border-line/50 font-medium'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[12px] font-bold leading-tight">{slot.label}</div>
+                    <div className="font-ko text-[15px] font-extrabold leading-tight text-ink">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[11px] text-right shrink-0">
-                    <span className="font-semibold block">{formatTime(slot.time)}</span>
+                  <div className="font-en text-[13.5px] text-right shrink-0">
+                    <span className="font-bold block text-ink">{formatTime(slot.time)}</span>
+                    <span className="font-ko text-[9.5px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
             })}
           </div>
         </div>
-        <div className="font-en text-[8px] text-ink-mute tracking-widest text-right pt-1.5 border-t border-line-soft">
-          II / VIII · Evening Schedules
+        <div className="font-en text-[10px] text-ink-mute tracking-widest text-right pt-1 border-t border-line-soft">
+          II / VIII · Evening
         </div>
       </div>
     </div>
@@ -430,16 +432,16 @@ export default function PracticeClient({ data }: Props) {
       {/* Top Half: Theme Korean */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
         <div className="flex justify-between items-center border-b border-line-soft pb-1.5">
-          <span className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold">
+          <span className="font-en text-[10px] tracking-[0.16em] uppercase text-gold-deep font-bold">
             {data.year} Motto
           </span>
         </div>
         <div className="flex-1 flex items-center justify-center text-center my-auto">
-          <p className="font-ko font-bold text-[18px] leading-snug text-ink tracking-[0.03em] break-keep px-2">
+          <p className="font-ko font-extrabold text-[22px] leading-snug text-ink tracking-[0.02em] break-keep px-2">
             {data.themeKo}
           </p>
         </div>
-        <div className="font-en text-[8px] text-ink-mute tracking-widest text-left pt-1.5 border-t border-line-soft">
+        <div className="font-en text-[10px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
           III / VIII · Motto
         </div>
       </div>
@@ -447,22 +449,22 @@ export default function PracticeClient({ data }: Props) {
       {/* Bottom Half: Theme English */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between">
         <div className="flex justify-between items-center border-b border-line-soft pb-1.5">
-          <span className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold">
+          <span className="font-en text-[11px] tracking-[0.16em] uppercase text-gold-deep font-bold">
             Praise Choir
           </span>
         </div>
         <div className="flex-1 flex items-center justify-center text-center my-auto">
           {data.themeEn ? (
-            <p className="font-en italic text-[11.5px] text-gold-deep/80 tracking-wide leading-relaxed px-2 break-keep">
+            <p className="font-en italic text-[15px] text-gold-deep/90 tracking-wide leading-relaxed px-2 break-keep font-medium">
               {data.themeEn}
             </p>
           ) : (
-            <p className="font-en italic text-[10px] text-gold-deep/40 tracking-[0.2em] uppercase">
+            <p className="font-en italic text-[13px] text-gold-deep/40 tracking-[0.2em] uppercase font-medium">
               Soli Deo Gloria
             </p>
           )}
         </div>
-        <div className="font-en text-[8px] text-ink-mute tracking-widest text-right pt-1.5 border-t border-line-soft">
+        <div className="font-en text-[11px] text-ink-mute tracking-widest text-right pt-1 border-t border-line-soft">
           IV / VIII · Motto
         </div>
       </div>
@@ -475,8 +477,8 @@ export default function PracticeClient({ data }: Props) {
       {/* Top Half: Goals 1-2 */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
         <div>
-          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-1 flex items-center gap-1.5">
-            <span className="w-1 h-1 bg-gold rounded-full" />
+          <h3 className="font-en text-[11px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-1 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-gold rounded-full" />
             Aims (I – II)
           </h3>
           <div className="flex flex-col">
@@ -484,7 +486,7 @@ export default function PracticeClient({ data }: Props) {
             {renderMobileGoalItem(data.goals[1], 1, false)}
           </div>
         </div>
-        <div className="font-en text-[8px] text-ink-mute tracking-widest text-left pt-1.5 border-t border-line-soft">
+        <div className="font-en text-[11px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
           V / VIII · Aims
         </div>
       </div>
@@ -492,8 +494,8 @@ export default function PracticeClient({ data }: Props) {
       {/* Bottom Half: Goals 3-4 */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between">
         <div>
-          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-1 flex items-center gap-1.5">
-            <span className="w-1 h-1 bg-gold rounded-full" />
+          <h3 className="font-en text-[11px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-1 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-gold rounded-full" />
             Aims (III – IV)
           </h3>
           <div className="flex flex-col">
@@ -514,8 +516,8 @@ export default function PracticeClient({ data }: Props) {
       {/* Top Half: Goals 5-6 */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
         <div>
-          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-1 flex items-center gap-1.5">
-            <span className="w-1 h-1 bg-gold rounded-full" />
+          <h3 className="font-en text-[10px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-1 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-gold rounded-full" />
             Aims (V – VI)
           </h3>
           <div className="flex flex-col">
@@ -523,7 +525,7 @@ export default function PracticeClient({ data }: Props) {
             {renderMobileGoalItem(data.goals[5], 5, false)}
           </div>
         </div>
-        <div className="font-en text-[8px] text-ink-mute tracking-widest text-left pt-1.5 border-t border-line-soft">
+        <div className="font-en text-[10px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
           VII / VIII · Aims
         </div>
       </div>
@@ -531,8 +533,8 @@ export default function PracticeClient({ data }: Props) {
       {/* Bottom Half: Goal 7 & Logo */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between">
         <div>
-          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-1 flex items-center gap-1.5">
-            <span className="w-1 h-1 bg-gold rounded-full" />
+          <h3 className="font-en text-[10px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-1 flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 bg-gold rounded-full" />
             Aims (VII)
           </h3>
           <div className="flex flex-col">
@@ -540,12 +542,12 @@ export default function PracticeClient({ data }: Props) {
             
             {!data.goals[6] && (
               <div className="flex items-center justify-center py-6 opacity-30 select-none pointer-events-none">
-                <span className="font-en italic text-[10px] text-gold-deep tracking-[0.2em] uppercase">Praise Choir</span>
+                <span className="font-en italic text-[12px] text-gold-deep tracking-[0.2em] uppercase">Praise Choir</span>
               </div>
             )}
           </div>
         </div>
-        <div className="font-en text-[8px] text-ink-mute tracking-widest text-right pt-1.5 border-t border-line-soft">
+        <div className="font-en text-[10px] text-ink-mute tracking-widest text-right pt-1 border-t border-line-soft">
           VIII / VIII · Aims
         </div>
       </div>
