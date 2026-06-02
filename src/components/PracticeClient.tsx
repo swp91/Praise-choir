@@ -208,13 +208,13 @@ export default function PracticeClient({ data }: Props) {
                 const isFlipped = activeSpread > i;
                 const isFlipping = isTransitioning && Math.min(prevSpread, activeSpread) === i;
                 
-                // 그림자 방향 및 강도 동적 설정
-                const shadowStyle = isFlipping
-                  ? '0 30px 70px rgba(42, 38, 32, 0.28)'
-                  : !isFlipped && activeSpread === i
-                  ? '8px 16px 32px rgba(42, 38, 32, 0.08)'
-                  : isFlipped && activeSpread - 1 === i
-                  ? '-8px 16px 32px rgba(42, 38, 32, 0.08)'
+                const isTopFlipped = isFlipped && activeSpread - 1 === i;
+                const isTopUnflipped = !isFlipped && activeSpread === i;
+                
+                const shadowStyle = isTopFlipped
+                  ? '-8px 16px 28px rgba(42, 38, 32, 0.05)'
+                  : isTopUnflipped
+                  ? '8px 16px 28px rgba(42, 38, 32, 0.05)'
                   : 'none';
 
                 let zIndex = isFlipped ? 10 + i : 30 - i;
@@ -227,7 +227,7 @@ export default function PracticeClient({ data }: Props) {
                       transform: isFlipped ? 'rotateY(-180deg)' : 'rotateY(0deg)',
                       transformStyle: 'preserve-3d',
                       transformOrigin: 'left center',
-                      transition: 'transform 0.85s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.85s ease',
+                      transition: 'transform 1.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 1.25s ease',
                       zIndex: zIndex,
                       boxShadow: shadowStyle
                     }}
@@ -300,12 +300,13 @@ export default function PracticeClient({ data }: Props) {
                 const isFlipped = activeSpread > i;
                 const isFlipping = isTransitioning && Math.min(prevSpread, activeSpread) === i;
                 
-                const shadowStyle = isFlipping
-                  ? '0 30px 70px rgba(42, 38, 32, 0.28)'
-                  : !isFlipped && activeSpread === i
-                  ? '8px 16px 32px rgba(42, 38, 32, 0.08)'
-                  : isFlipped && activeSpread - 1 === i
-                  ? '-8px 16px 32px rgba(42, 38, 32, 0.08)'
+                const isTopFlipped = isFlipped && activeSpread - 1 === i;
+                const isTopUnflipped = !isFlipped && activeSpread === i;
+                
+                const shadowStyle = isTopFlipped
+                  ? '-8px 16px 28px rgba(42, 38, 32, 0.05)'
+                  : isTopUnflipped
+                  ? '8px 16px 28px rgba(42, 38, 32, 0.05)'
                   : 'none';
 
                 let zIndex = isFlipped ? 10 + i : 30 - i;
@@ -318,7 +319,7 @@ export default function PracticeClient({ data }: Props) {
                       transform: isFlipped ? 'rotateY(-180deg)' : 'rotateY(0deg)',
                       transformStyle: 'preserve-3d',
                       transformOrigin: 'left center',
-                      transition: 'transform 0.85s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.85s ease',
+                      transition: 'transform 1.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 1.25s ease',
                       zIndex: zIndex,
                       boxShadow: shadowStyle
                     }}
@@ -378,12 +379,13 @@ export default function PracticeClient({ data }: Props) {
                 const isFlipped = activeSpread > i;
                 const isFlipping = isTransitioning && Math.min(prevSpread, activeSpread) === i;
                 
-                const shadowStyle = isFlipping
-                  ? '0 30px 70px rgba(42, 38, 32, 0.28)'
-                  : !isFlipped && activeSpread === i
-                  ? '8px 16px 32px rgba(42, 38, 32, 0.08)'
-                  : isFlipped && activeSpread - 1 === i
-                  ? '-8px 16px 32px rgba(42, 38, 32, 0.08)'
+                const isTopFlipped = isFlipped && activeSpread - 1 === i;
+                const isTopUnflipped = !isFlipped && activeSpread === i;
+                
+                const finalShadowStyle = isTopFlipped
+                  ? '-8px 16px 28px rgba(42, 38, 32, 0.05)'
+                  : isTopUnflipped
+                  ? '8px 16px 28px rgba(42, 38, 32, 0.05)'
                   : 'none';
 
                 let zIndex = isFlipped ? 10 + i : 30 - i;
@@ -396,9 +398,9 @@ export default function PracticeClient({ data }: Props) {
                       transform: isFlipped ? 'rotateY(-180deg)' : 'rotateY(0deg)',
                       transformStyle: 'preserve-3d',
                       transformOrigin: 'left center',
-                      transition: 'transform 0.85s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.85s ease',
+                      transition: 'transform 1.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 1.25s ease',
                       zIndex: zIndex,
-                      boxShadow: shadowStyle
+                      boxShadow: finalShadowStyle
                     }}
                     onClick={() => handleDesktopSpreadChange(isFlipped ? i : i + 1)}
                     onTransitionEnd={() => {
