@@ -29,6 +29,7 @@ function Placeholder({ photo }: { photo: Photo }) {
 
 export default function Gallery({ photos }: { photos: Photo[] }) {
   const [active, setActive] = useState<Photo | null>(null);
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!active) return;
@@ -36,6 +37,15 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [active]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 881);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <>
@@ -46,31 +56,33 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
         </div>
       )}
 
-      {photos.length > 0 ? <InteractiveArchiveGallery photos={photos} /> : null}
+      {photos.length > 0 && isDesktop === true ? <InteractiveArchiveGallery photos={photos} /> : null}
 
-      <div className="columns-2 gap-2.5 min-[720px]:columns-3 min-[881px]:hidden">
-        {photos.map((p, i) => (
-          <div key={p.id ?? `${p.title}-${i}`} className="mb-2.5 break-inside-avoid">
-            <button
-              type="button"
-              className="group w-full bg-card border border-line-soft p-1.5 cursor-pointer transition-all duration-250 hover:border-gold text-left block"
-              onClick={() => setActive(p)}
-            >
-              <div className="relative overflow-hidden">
-                <Placeholder photo={p} />
-                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/75 to-transparent px-3 pb-2.5 pt-12 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <span className="block font-ko text-[12px] font-bold leading-snug text-cream">{p.title}</span>
-                  {p.date ? (
-                    <span className="mt-0.5 block font-en italic text-[10px] text-cream/80 [font-variant-numeric:tabular-nums]">
-                      {p.date}
-                    </span>
-                  ) : null}
+      {photos.length > 0 && isDesktop === false ? (
+        <div className="columns-2 gap-2.5 min-[720px]:columns-3">
+          {photos.map((p, i) => (
+            <div key={p.id ?? `${p.title}-${i}`} className="mb-2.5 break-inside-avoid">
+              <button
+                type="button"
+                className="group w-full bg-card border border-line-soft p-1.5 cursor-pointer transition-all duration-250 hover:border-gold text-left block"
+                onClick={() => setActive(p)}
+              >
+                <div className="relative overflow-hidden">
+                  <Placeholder photo={p} />
+                  <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/75 to-transparent px-3 pb-2.5 pt-12 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+                    <span className="block font-ko text-[12px] font-bold leading-snug text-cream">{p.title}</span>
+                    {p.date ? (
+                      <span className="mt-0.5 block font-en italic text-[10px] text-cream/80 [font-variant-numeric:tabular-nums]">
+                        {p.date}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
-              </div>
-            </button>
-          </div>
-        ))}
-      </div>
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : null}
 
       {active && (
         <div
