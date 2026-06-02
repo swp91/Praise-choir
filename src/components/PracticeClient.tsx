@@ -569,7 +569,7 @@ export default function PracticeClient({ data }: Props) {
       </div>
 
       {/* 2. 중앙 상단 타이틀 */}
-      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0 mt-32 md:mt-6 mb-8">
+      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0 mt-14 md:mt-6 mb-4">
         <h1 className="font-en text-[clamp(32px,3.8vw,48px)] font-bold leading-none tracking-normal text-ink">
           Hours &amp; Aims
         </h1>
@@ -785,7 +785,7 @@ export default function PracticeClient({ data }: Props) {
       {/* ==========================================
           [모바일 세로형 북플립 뷰] max-width: 880px
          ========================================== */}
-      <div className="min-[881px]:hidden flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 py-6">
+      <div className="min-[881px]:hidden flex flex-col items-center justify-start flex-1 w-full max-w-md mx-auto px-6 relative z-10 pt-2 pb-14">
         
         {/* Book Wrapper */}
         <div className="relative w-full max-w-[380px] aspect-[340/480] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#fbf7ec]">
