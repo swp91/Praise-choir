@@ -968,9 +968,7 @@ export default function PracticeClient({ data }: Props) {
           ))}
         </div>
 
-        <div className="mt-4 text-ink-mute text-[10px] tracking-wider text-center select-none pointer-events-none font-ko">
-          책을 터치하여 페이지를 세로로 넘겨보세요
-        </div>
+
 
       </div>
 
