@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PracticeSlot } from '@/lib/types';
 
@@ -37,12 +37,69 @@ function formatTime(time: string) {
   return `${m[2]} – ${m[3]} ${ampm}`;
 }
 
+// W_half 내에서 전체 1020px 너비의 콘텐츠 중 왼쪽 50%만 마스킹하여 렌더링
+function MaskLeft({ children }: { children: React.ReactNode }) {
+  return (
+    <div 
+      className="absolute left-0 top-0 w-[calc(100%+1px)] h-full overflow-hidden rounded-l-2xl bg-[#fbf7ec]"
+      style={{
+        borderTop: '1px solid rgba(212, 196, 160, 0.42)',
+        borderBottom: '1px solid rgba(212, 196, 160, 0.42)',
+        borderLeft: '1px solid rgba(212, 196, 160, 0.42)',
+      }}
+    >
+      <div className="absolute left-0 top-0 w-[200%] h-full pointer-events-auto">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// W_half 내에서 전체 1020px 너비의 콘텐츠 중 오른쪽 50%만 마스킹하여 렌더링
+function MaskRight({ children }: { children: React.ReactNode }) {
+  return (
+    <div 
+      className="absolute right-0 top-0 w-[calc(100%+1px)] h-full overflow-hidden rounded-r-2xl bg-[#fbf7ec]"
+      style={{
+        borderTop: '1px solid rgba(212, 196, 160, 0.42)',
+        borderBottom: '1px solid rgba(212, 196, 160, 0.42)',
+        borderRight: '1px solid rgba(212, 196, 160, 0.42)',
+      }}
+    >
+      <div className="absolute left-[-100%] top-0 w-[200%] h-full pointer-events-auto">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function PracticeClient({ data }: Props) {
   // 데스크톱: 0~3 (총 4개 스프레드 / 8개 페이지)
   const [activeSpread, setActiveSpread] = useState(0);
   const [prevSpread, setPrevSpread] = useState(0);
+  const [targetSpread, setTargetSpread] = useState(0);
+  const [transitionDuration, setTransitionDuration] = useState(1.25);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const totalSpreads = 4;
+
+  useEffect(() => {
+    if (activeSpread !== targetSpread && !isTransitioning) {
+      const distance = Math.abs(targetSpread - activeSpread);
+      if (distance > 2) {
+        setTransitionDuration(0.20); // 3페이지 이상 남았을 땐 급가속 (0.20초)
+      } else if (distance > 1) {
+        setTransitionDuration(0.40); // 2페이지 남았을 땐 빠른 가속 (0.40초)
+      } else {
+        setTransitionDuration(1.25); // 마지막 1페이지는 부드럽고 여유롭게 감속 안착 (1.25초)
+      }
+
+      const step = targetSpread > activeSpread ? 1 : -1;
+      const nextSpread = activeSpread + step;
+      setPrevSpread(activeSpread);
+      setActiveSpread(nextSpread);
+      setIsTransitioning(true);
+    }
+  }, [activeSpread, targetSpread, isTransitioning]);
 
   // 모바일: 0~4 (총 5개 카드)
   const [mobileIndex, setMobileIndex] = useState(0);
@@ -61,10 +118,8 @@ export default function PracticeClient({ data }: Props) {
   };
 
   const handleDesktopSpreadChange = (nextSpread: number) => {
-    if (nextSpread !== activeSpread && !isTransitioning) {
-      setPrevSpread(activeSpread);
-      setActiveSpread(nextSpread);
-      setIsTransitioning(true);
+    if (nextSpread !== targetSpread) {
+      setTargetSpread(nextSpread);
     }
   };
 
@@ -75,11 +130,11 @@ export default function PracticeClient({ data }: Props) {
   const evening = data.practice.filter((_, idx) => idx > 2);
   const sortedEvening = [evening[1], evening[0]].filter(Boolean);
 
-  const renderGoalItem = (goal: string | undefined, index: number) => {
+  const renderGoalItem = (goal: string | undefined, index: number, showBorder = true) => {
     if (!goal) return null;
     const parts = goal.split(/(찬양을 통해)/);
     return (
-      <div className="flex gap-5 items-start py-4 border-b border-line-soft last:border-b-0">
+      <div className={`flex gap-5 items-start py-4 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
         <div className="font-en italic text-[24px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(index + 1)}</div>
         <div className="font-ko text-[14px] leading-relaxed text-ink-soft">
           {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep">{p}</b> : p)}
@@ -87,6 +142,171 @@ export default function PracticeClient({ data }: Props) {
       </div>
     );
   };
+
+  // ==========================================
+  // [데스크톱 와이드 스프레드 선언]
+  // ==========================================
+  
+  // Spread 0: 일정 (주일 오전 & 주일 저녁)
+  const renderSpread0 = () => (
+    <div className="w-[1020px] h-full flex select-none">
+      <div className="w-1/2 h-full px-12 py-10 flex flex-col justify-between">
+        <div>
+          <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+            Sunday Weekly Schedules
+          </h3>
+          <div className="flex flex-col gap-4">
+            {sortedMorning.map((slot, i) => {
+              const isWorship = slot.tag === '예배';
+              return (
+                <div key={i} className={`flex items-center justify-between gap-4 py-3 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                  <div>
+                    <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                      {TAG_EN[slot.tag]}
+                    </span>
+                    <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
+                  </div>
+                  <div className="font-en text-[13px] text-right shrink-0">
+                    <span className="font-semibold block">{formatTime(slot.time)}</span>
+                    <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
+          I / VIII · Morning Schedules
+        </div>
+      </div>
+      
+      <div className="w-1/2 h-full px-12 py-10 flex flex-col justify-between">
+        <div>
+          <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+            Evening Schedules
+          </h3>
+          <div className="flex flex-col gap-4">
+            {sortedEvening.map((slot, idx) => {
+              const isWorship = slot.tag === '예배';
+              return (
+                <div key={idx} className={`flex items-center justify-between gap-4 py-3 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                  <div>
+                    <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                      {TAG_EN[slot.tag]}
+                    </span>
+                    <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
+                  </div>
+                  <div className="font-en text-[13px] text-right shrink-0">
+                    <span className="font-semibold block">{formatTime(slot.time)}</span>
+                    <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
+          II / VIII · Evening Schedules
+        </div>
+      </div>
+    </div>
+  );
+
+  // Spread 1: 표어
+  const renderSpread1 = () => (
+    <div className="w-[1020px] h-full flex flex-col justify-between px-16 py-10 select-none">
+      <div className="flex justify-between items-center border-b border-line-soft pb-3">
+        <span className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold">
+          {data.year} Congregation Motto
+        </span>
+        <span className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold">
+          Praise Choir
+        </span>
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center text-center my-auto py-6">
+        <p className="font-ko font-bold text-[clamp(28px,3.2vw,40px)] leading-snug text-ink tracking-[0.05em] whitespace-nowrap">
+          {data.themeKo}
+        </p>
+        {data.themeEn && (
+          <p className="font-en italic text-[15px] text-gold-deep/80 tracking-wider mt-5 max-w-[600px] border-t border-gold/20 pt-4 leading-relaxed">
+            {data.themeEn}
+          </p>
+        )}
+      </div>
+
+      <div className="flex justify-between font-en text-[10px] text-ink-mute tracking-widest border-t border-line-soft pt-3">
+        <span>III / VIII · Motto</span>
+        <span>IV / VIII · Motto</span>
+      </div>
+    </div>
+  );
+
+  // Spread 2: 목표 1-4 (한 장으로 양옆으로 시원하게 이어지는 2x2 레이아웃)
+  const renderSpread2 = () => (
+    <div className="w-[1020px] h-full flex flex-col justify-between px-16 py-10 select-none">
+      <div className="flex justify-between items-center border-b border-line-soft pb-3">
+        <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+          Annual Aims (I – IV)
+        </h3>
+      </div>
+
+      <div className="flex-1 grid grid-cols-2 gap-x-16 gap-y-1 py-4 my-auto items-center">
+        <div className="flex flex-col justify-center h-full">
+          {renderGoalItem(data.goals[0], 0, false)}
+        </div>
+        <div className="flex flex-col justify-center h-full">
+          {renderGoalItem(data.goals[1], 1, false)}
+        </div>
+        <div className="flex flex-col justify-center h-full">
+          {renderGoalItem(data.goals[2], 2, false)}
+        </div>
+        <div className="flex flex-col justify-center h-full">
+          {renderGoalItem(data.goals[3], 3, false)}
+        </div>
+      </div>
+
+      <div className="flex justify-between font-en text-[10px] text-ink-mute tracking-widest border-t border-line-soft pt-3">
+        <span>V / VIII · Aims</span>
+        <span>VI / VIII · Aims</span>
+      </div>
+    </div>
+  );
+
+  // Spread 3: 목표 5-7 (한 장으로 이어지는 레이아웃)
+  const renderSpread3 = () => (
+    <div className="w-[1020px] h-full flex flex-col justify-between px-16 py-10 select-none">
+      <div className="flex justify-between items-center border-b border-line-soft pb-3">
+        <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
+          Annual Aims (V – VII)
+        </h3>
+      </div>
+
+      <div className="flex-1 grid grid-cols-2 gap-x-16 gap-y-1 py-4 my-auto items-center">
+        <div className="flex flex-col justify-center h-full">
+          {renderGoalItem(data.goals[4], 4, false)}
+        </div>
+        <div className="flex flex-col justify-center h-full">
+          {renderGoalItem(data.goals[5], 5, false)}
+        </div>
+        <div className="flex flex-col justify-center h-full">
+          {renderGoalItem(data.goals[6], 6, false)}
+        </div>
+        <div className="flex items-center justify-center h-full opacity-30 select-none pointer-events-none">
+          <span className="font-en italic text-[11px] text-gold-deep tracking-[0.2em] uppercase">Praise Choir</span>
+        </div>
+      </div>
+
+      <div className="flex justify-between font-en text-[10px] text-ink-mute tracking-widest border-t border-line-soft pt-3">
+        <span>VII / VIII · Aims</span>
+        <span>VIII / VIII · Aims</span>
+      </div>
+    </div>
+  );
 
   return (
     <div className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-cream px-0 pt-10 md:pt-14 pb-8 select-none">
@@ -114,15 +334,15 @@ export default function PracticeClient({ data }: Props) {
          ========================================== */}
       <div className="hidden min-[881px]:flex flex-col items-center justify-center flex-1 w-full max-w-6xl mx-auto px-4 relative z-10">
         
-        {/* Book Wrapper */}
-        <div className="relative w-full max-w-[1020px] h-[480px] flex items-center justify-center">
+        {/* Book Wrapper (고정식 단일 묵직한 그림자 부여) */}
+        <div className="relative w-full max-w-[1020px] h-[480px] flex items-center justify-center rounded-2xl shadow-[0_28px_90px_rgba(42,38,32,0.16)] bg-[#fbf7ec]">
           
           {/* Navigation Arrows */}
           <button
             type="button"
             onClick={() => handleDesktopSpreadChange(Math.max(0, activeSpread - 1))}
             disabled={activeSpread === 0 || isTransitioning}
-            className={`absolute -left-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed`}
+            className="absolute -left-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
             aria-label="이전 페이지"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -134,7 +354,7 @@ export default function PracticeClient({ data }: Props) {
             type="button"
             onClick={() => handleDesktopSpreadChange(Math.min(totalSpreads - 1, activeSpread + 1))}
             disabled={activeSpread === totalSpreads - 1 || isTransitioning}
-            className={`absolute -right-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed`}
+            className="absolute -right-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
             aria-label="다음 페이지"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
@@ -143,80 +363,31 @@ export default function PracticeClient({ data }: Props) {
           </button>
 
           {/* Perspective Container */}
-          <div className="relative w-full h-full" style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}>
+          <div className="relative w-full h-full" style={{ perspective: '1500px', transformStyle: 'preserve-3d' }}>
             
-            {/* Book Body (Background) */}
-            <div className="absolute inset-0 flex rounded-2xl" style={{ transformStyle: 'preserve-3d' }}>
+            {/* Book Body (Background) - absolute 포지셔닝으로 Y축 정렬 맞춤 */}
+            <div className="absolute inset-0 w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
               
-              {/* [Page 1] Static Left Page (Schedules - Morning) */}
-              <div className="w-1/2 h-full bg-[#fbf7ec] border-t border-b border-l border-line/42 rounded-l-2xl px-12 py-10 flex flex-col justify-between relative overflow-hidden select-none">
-                <div>
-                  <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                    Sunday Weekly Schedules
-                  </h3>
-                  <div className="flex flex-col gap-4">
-                    {sortedMorning.map((slot, i) => {
-                      const isWorship = slot.tag === '예배';
-                      return (
-                        <div key={i} className={`flex items-center justify-between gap-4 py-3 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
-                          <div>
-                            <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
-                              {TAG_EN[slot.tag]}
-                            </span>
-                            <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
-                          </div>
-                          <div className="font-en text-[13px] text-right shrink-0">
-                            <span className="font-semibold block">{formatTime(slot.time)}</span>
-                            <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-                
-                <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
-                  I / VIII · Morning Schedules
-                </div>
+              {/* [Page 1] Static Left Page (Schedules - Morning, Spread 0 Left) */}
+              <div className="absolute left-0 top-0 w-1/2 h-full">
+                <MaskLeft>{renderSpread0()}</MaskLeft>
               </div>
 
-              {/* [Page 8] Static Right Page (Goal 7) */}
-              <div className="w-1/2 h-full bg-[#fbf7ec] border-t border-b border-r border-line/42 rounded-r-2xl px-12 py-10 flex flex-col justify-between relative overflow-hidden select-none">
-                <div>
-                  <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                    Annual Aims (VII)
-                  </h3>
-                  <div className="flex flex-col gap-4 mt-4">
-                    {renderGoalItem(data.goals[6], 6)}
-                  </div>
-                </div>
-                
-                <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
-                  VIII / VIII · Aims
-                </div>
+              {/* [Page 8] Static Right Page (Aims - Goals 5-7, Spread 3 Right) */}
+              <div className="absolute right-0 top-0 w-1/2 h-full">
+                <MaskRight>{renderSpread3()}</MaskRight>
               </div>
 
               {/* ==========================================
                   3D Flipping Page Sheets
                  ========================================== */}
 
-              {/* [Sheet 0] Pages 2 (Schedules - Evening) & 3 (Theme Left) */}
+              {/* [Sheet 0] Pages 2 (Spread 0 Right) & 3 (Spread 1 Left) */}
               {(() => {
                 const i = 0;
                 const isFlipped = activeSpread > i;
                 const isFlipping = isTransitioning && Math.min(prevSpread, activeSpread) === i;
                 
-                const isTopFlipped = isFlipped && activeSpread - 1 === i;
-                const isTopUnflipped = !isFlipped && activeSpread === i;
-                
-                const shadowStyle = isTopFlipped
-                  ? '-8px 16px 28px rgba(42, 38, 32, 0.05)'
-                  : isTopUnflipped
-                  ? '8px 16px 28px rgba(42, 38, 32, 0.05)'
-                  : 'none';
-
                 let zIndex = isFlipped ? 10 + i : 30 - i;
                 if (isFlipping) zIndex = 40;
 
@@ -227,9 +398,8 @@ export default function PracticeClient({ data }: Props) {
                       transform: isFlipped ? 'rotateY(-180deg)' : 'rotateY(0deg)',
                       transformStyle: 'preserve-3d',
                       transformOrigin: 'left center',
-                      transition: 'transform 1.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 1.25s ease',
+                      transition: `transform ${transitionDuration}s cubic-bezier(0.25, 1, 0.5, 1)`,
                       zIndex: zIndex,
-                      boxShadow: shadowStyle
                     }}
                     onClick={() => handleDesktopSpreadChange(isFlipped ? i : i + 1)}
                     onTransitionEnd={() => {
@@ -238,77 +408,31 @@ export default function PracticeClient({ data }: Props) {
                       }
                     }}
                   >
-                    {/* Page 2 (Front) - Evening Schedules */}
+                    {/* Front: Spread 0 Right (Evening Schedules) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec] border-t border-b border-r border-line/42 rounded-r-2xl px-12 py-10 flex flex-col justify-between"
+                      className="absolute inset-0 bg-[#fbf7ec]"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
-                      <div>
-                        <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                          Evening Schedules
-                        </h3>
-                        <div className="flex flex-col gap-4">
-                          {sortedEvening.map((slot, idx) => {
-                            const isWorship = slot.tag === '예배';
-                            return (
-                              <div key={idx} className={`flex items-center justify-between gap-4 py-3 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
-                                <div>
-                                  <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
-                                    {TAG_EN[slot.tag]}
-                                  </span>
-                                  <div className="font-ko text-[13.5px] font-bold">{slot.label}</div>
-                                </div>
-                                <div className="font-en text-[13px] text-right shrink-0">
-                                  <span className="font-semibold block">{formatTime(slot.time)}</span>
-                                  <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
-                        II / VIII · Evening Schedules
-                      </div>
+                      <MaskRight>{renderSpread0()}</MaskRight>
                     </div>
 
-                    {/* Page 3 (Back) - Theme Left */}
+                    {/* Back: Spread 1 Left (Motto Left) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec] border-t border-b border-l border-line/42 rounded-l-2xl px-12 py-10 flex flex-col justify-between"
+                      className="absolute inset-0 bg-[#fbf7ec]"
                       style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
-                      <div className="flex flex-col items-end justify-center h-full text-right pr-6 my-auto">
-                        <span className="font-en text-[9px] tracking-[0.38em] text-gold-deep uppercase mb-4 font-semibold">
-                          {data.year} Theme
-                        </span>
-                        <p className="font-ko font-bold text-[clamp(24px,2.8vw,36px)] leading-relaxed text-ink tracking-wide">
-                          오직 하나님을
-                        </p>
-                      </div>
-                      <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
-                        III / VIII · Motto
-                      </div>
+                      <MaskLeft>{renderSpread1()}</MaskLeft>
                     </div>
                   </div>
                 );
               })()}
 
-              {/* [Sheet 1] Pages 4 (Theme Right) & 5 (Goals 1 & 2) */}
+              {/* [Sheet 1] Pages 4 (Spread 1 Right) & 5 (Spread 2 Left) */}
               {(() => {
                 const i = 1;
                 const isFlipped = activeSpread > i;
                 const isFlipping = isTransitioning && Math.min(prevSpread, activeSpread) === i;
                 
-                const isTopFlipped = isFlipped && activeSpread - 1 === i;
-                const isTopUnflipped = !isFlipped && activeSpread === i;
-                
-                const shadowStyle = isTopFlipped
-                  ? '-8px 16px 28px rgba(42, 38, 32, 0.05)'
-                  : isTopUnflipped
-                  ? '8px 16px 28px rgba(42, 38, 32, 0.05)'
-                  : 'none';
-
                 let zIndex = isFlipped ? 10 + i : 30 - i;
                 if (isFlipping) zIndex = 40;
 
@@ -319,9 +443,8 @@ export default function PracticeClient({ data }: Props) {
                       transform: isFlipped ? 'rotateY(-180deg)' : 'rotateY(0deg)',
                       transformStyle: 'preserve-3d',
                       transformOrigin: 'left center',
-                      transition: 'transform 1.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 1.25s ease',
+                      transition: `transform ${transitionDuration}s cubic-bezier(0.25, 1, 0.5, 1)`,
                       zIndex: zIndex,
-                      boxShadow: shadowStyle
                     }}
                     onClick={() => handleDesktopSpreadChange(isFlipped ? i : i + 1)}
                     onTransitionEnd={() => {
@@ -330,64 +453,31 @@ export default function PracticeClient({ data }: Props) {
                       }
                     }}
                   >
-                    {/* Page 4 (Front) - Theme Right */}
+                    {/* Front: Spread 1 Right (Motto Right) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec] border-t border-b border-r border-line/42 rounded-r-2xl px-12 py-10 flex flex-col justify-between"
+                      className="absolute inset-0 bg-[#fbf7ec]"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
-                      <div className="flex flex-col items-start justify-center h-full text-left pl-6 my-auto">
-                        <p className="font-ko font-bold text-[clamp(24px,2.8vw,36px)] leading-relaxed text-ink tracking-wide">
-                          기뻐함으로 승리하는 프레이즈
-                        </p>
-                        {data.themeEn && (
-                          <p className="font-en italic text-[11px] text-gold-deep/80 tracking-wide mt-3 max-w-[280px]">
-                            {data.themeEn}
-                          </p>
-                        )}
-                      </div>
-                      <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
-                        IV / VIII · Motto
-                      </div>
+                      <MaskRight>{renderSpread1()}</MaskRight>
                     </div>
 
-                    {/* Page 5 (Back) - Goals 1 & 2 */}
+                    {/* Back: Spread 2 Left (Goals 1-4 Left) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec] border-t border-b border-l border-line/42 rounded-l-2xl px-12 py-10 flex flex-col justify-between"
+                      className="absolute inset-0 bg-[#fbf7ec]"
                       style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
-                      <div>
-                        <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                          Annual Aims (I – II)
-                        </h3>
-                        <div className="flex flex-col gap-4 mt-2">
-                          {renderGoalItem(data.goals[0], 0)}
-                          {renderGoalItem(data.goals[1], 1)}
-                        </div>
-                      </div>
-                      <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
-                        V / VIII · Aims
-                      </div>
+                      <MaskLeft>{renderSpread2()}</MaskLeft>
                     </div>
                   </div>
                 );
               })()}
 
-              {/* [Sheet 2] Pages 6 (Goals 3 & 4) & 7 (Goals 5 & 6) */}
+              {/* [Sheet 2] Pages 6 (Spread 2 Right) & 7 (Spread 3 Left) */}
               {(() => {
                 const i = 2;
                 const isFlipped = activeSpread > i;
                 const isFlipping = isTransitioning && Math.min(prevSpread, activeSpread) === i;
                 
-                const isTopFlipped = isFlipped && activeSpread - 1 === i;
-                const isTopUnflipped = !isFlipped && activeSpread === i;
-                
-                const finalShadowStyle = isTopFlipped
-                  ? '-8px 16px 28px rgba(42, 38, 32, 0.05)'
-                  : isTopUnflipped
-                  ? '8px 16px 28px rgba(42, 38, 32, 0.05)'
-                  : 'none';
-
                 let zIndex = isFlipped ? 10 + i : 30 - i;
                 if (isFlipping) zIndex = 40;
 
@@ -398,9 +488,8 @@ export default function PracticeClient({ data }: Props) {
                       transform: isFlipped ? 'rotateY(-180deg)' : 'rotateY(0deg)',
                       transformStyle: 'preserve-3d',
                       transformOrigin: 'left center',
-                      transition: 'transform 1.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 1.25s ease',
+                      transition: `transform ${transitionDuration}s cubic-bezier(0.25, 1, 0.5, 1)`,
                       zIndex: zIndex,
-                      boxShadow: finalShadowStyle
                     }}
                     onClick={() => handleDesktopSpreadChange(isFlipped ? i : i + 1)}
                     onTransitionEnd={() => {
@@ -409,44 +498,20 @@ export default function PracticeClient({ data }: Props) {
                       }
                     }}
                   >
-                    {/* Page 6 (Front) - Goals 3 & 4 */}
+                    {/* Front: Spread 2 Right (Goals 1-4 Right) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec] border-t border-b border-r border-line/42 rounded-r-2xl px-12 py-10 flex flex-col justify-between"
+                      className="absolute inset-0 bg-[#fbf7ec]"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
-                      <div>
-                        <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                          Annual Aims (III – IV)
-                        </h3>
-                        <div className="flex flex-col gap-4 mt-2">
-                          {renderGoalItem(data.goals[2], 2)}
-                          {renderGoalItem(data.goals[3], 3)}
-                        </div>
-                      </div>
-                      <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
-                        VI / VIII · Aims
-                      </div>
+                      <MaskRight>{renderSpread2()}</MaskRight>
                     </div>
 
-                    {/* Page 7 (Back) - Goals 5 & 6 */}
+                    {/* Back: Spread 3 Left (Goals 5-7 Left) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec] border-t border-b border-l border-line/42 rounded-l-2xl px-12 py-10 flex flex-col justify-between"
+                      className="absolute inset-0 bg-[#fbf7ec]"
                       style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
-                      <div>
-                        <h3 className="font-en text-[10px] tracking-[0.28em] uppercase text-gold-deep font-semibold mb-6 flex items-center gap-2">
-                          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                          Annual Aims (V – VI)
-                        </h3>
-                        <div className="flex flex-col gap-4 mt-2">
-                          {renderGoalItem(data.goals[4], 4)}
-                          {renderGoalItem(data.goals[5], 5)}
-                        </div>
-                      </div>
-                      <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
-                        VII / VIII · Aims
-                      </div>
+                      <MaskLeft>{renderSpread3()}</MaskLeft>
                     </div>
                   </div>
                 );
