@@ -359,7 +359,7 @@ export default function PracticeClient({ data }: Props) {
   
   // Mobile Spread 0: 일정 (주일 오전 & 주일 저녁)
   const renderMobileSpread0 = () => (
-    <div className="w-[340px] h-[480px] flex flex-col select-none text-left">
+    <div className="w-full h-full flex flex-col select-none text-left">
       {/* Top Half: Morning Schedules */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
         <div>
@@ -426,7 +426,7 @@ export default function PracticeClient({ data }: Props) {
 
   // Mobile Spread 1: 표어
   const renderMobileSpread1 = () => (
-    <div className="w-[340px] h-[480px] flex flex-col select-none">
+    <div className="w-full h-full flex flex-col select-none">
       {/* Top Half: Theme Korean */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
         <div className="flex justify-between items-center border-b border-line-soft pb-1.5">
@@ -471,7 +471,7 @@ export default function PracticeClient({ data }: Props) {
 
   // Mobile Spread 2: 목표 I-II (Top) & Goals III-IV (Bottom)
   const renderMobileSpread2 = () => (
-    <div className="w-[340px] h-[480px] flex flex-col select-none text-left">
+    <div className="w-full h-full flex flex-col select-none text-left">
       {/* Top Half: Goals 1-2 */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
         <div>
@@ -510,7 +510,7 @@ export default function PracticeClient({ data }: Props) {
 
   // Mobile Spread 3: 목표 V-VI (Top) & Goals VII (Bottom)
   const renderMobileSpread3 = () => (
-    <div className="w-[340px] h-[480px] flex flex-col select-none text-left">
+    <div className="w-full h-full flex flex-col select-none text-left">
       {/* Top Half: Goals 5-6 */}
       <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
         <div>
@@ -567,7 +567,7 @@ export default function PracticeClient({ data }: Props) {
       </div>
 
       {/* 2. 중앙 상단 타이틀 */}
-      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0 mt-6 mb-8">
+      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0 mt-12 md:mt-6 mb-8">
         <h1 className="font-en text-[clamp(32px,3.8vw,48px)] font-bold leading-none tracking-normal text-ink">
           Hours &amp; Aims
         </h1>
@@ -786,7 +786,7 @@ export default function PracticeClient({ data }: Props) {
       <div className="min-[881px]:hidden flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 py-6">
         
         {/* Book Wrapper */}
-        <div className="relative w-[340px] h-[480px] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#fbf7ec]">
+        <div className="relative w-full max-w-[380px] aspect-[340/480] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#fbf7ec]">
           
 
 
