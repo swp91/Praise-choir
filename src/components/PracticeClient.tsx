@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import type { PracticeSlot } from '@/lib/types';
 
 type Props = {
@@ -55,7 +54,7 @@ function MaskLeft({ children }: { children: React.ReactNode }) {
   );
 }
 
-// W_half 내에서 전체 1020px 너비의 콘텐츠 중 오른쪽 50%만 마스킹하여 렌더링
+// W_half 내에서 전체 1020px 너비 of 콘텐츠 중 오른쪽 50%만 마스킹하여 렌더링
 function MaskRight({ children }: { children: React.ReactNode }) {
   return (
     <div 
@@ -73,16 +72,41 @@ function MaskRight({ children }: { children: React.ReactNode }) {
   );
 }
 
-const cardVariants = {
-  exit: (direction: 'next' | 'prev') => ({
-    y: direction === 'next' ? -500 : 400,
-    rotateX: direction === 'next' ? -65 : 25,
-    rotateZ: direction === 'next' ? -8 : 4,
-    scale: 0.9,
-    opacity: 0,
-    transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] as const }
-  })
-};
+// 모바일: 세로 480px 중 상단 240px만 마스킹하여 렌더링
+function MaskTop({ children }: { children: React.ReactNode }) {
+  return (
+    <div 
+      className="absolute left-0 top-0 w-full h-[calc(50%+1px)] overflow-hidden rounded-t-2xl bg-[#fbf7ec]"
+      style={{
+        borderTop: '1px solid rgba(212, 196, 160, 0.42)',
+        borderLeft: '1px solid rgba(212, 196, 160, 0.42)',
+        borderRight: '1px solid rgba(212, 196, 160, 0.42)',
+      }}
+    >
+      <div className="absolute left-0 top-0 w-full h-[200%] pointer-events-auto">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// 모바일: 세로 480px 중 하단 240px만 마스킹하여 렌더링
+function MaskBottom({ children }: { children: React.ReactNode }) {
+  return (
+    <div 
+      className="absolute left-0 bottom-0 w-full h-[calc(50%+1px)] overflow-hidden rounded-b-2xl bg-[#fbf7ec]"
+      style={{
+        borderBottom: '1px solid rgba(212, 196, 160, 0.42)',
+        borderLeft: '1px solid rgba(212, 196, 160, 0.42)',
+        borderRight: '1px solid rgba(212, 196, 160, 0.42)',
+      }}
+    >
+      <div className="absolute left-0 top-[-100%] w-full h-[200%] pointer-events-auto">
+        {children}
+      </div>
+    </div>
+  );
+}
 
 export default function PracticeClient({ data }: Props) {
   // 데스크톱: 0~3 (총 4개 스프레드 / 8개 페이지)
@@ -114,26 +138,7 @@ export default function PracticeClient({ data }: Props) {
   }, [activeSpread, targetSpread, isTransitioning]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  // 모바일: 0~4 (총 5개 카드)
-  const [mobileIndex, setMobileIndex] = useState(0);
-  const [direction, setDirection] = useState<'next' | 'prev'>('next');
-  const totalCards = 5;
-
-  const handleNext = () => {
-    if (mobileIndex < totalCards - 1) {
-      setDirection('next');
-      setMobileIndex(mobileIndex + 1);
-    }
-  };
-
-  const handlePrev = () => {
-    if (mobileIndex > 0) {
-      setDirection('prev');
-      setMobileIndex(mobileIndex - 1);
-    }
-  };
-
-  const handleDesktopSpreadChange = (nextSpread: number) => {
+  const handleSpreadChange = (nextSpread: number) => {
     if (nextSpread !== targetSpread) {
       setTargetSpread(nextSpread);
     }
@@ -153,6 +158,19 @@ export default function PracticeClient({ data }: Props) {
       <div className={`flex gap-5 items-start py-4 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
         <div className="font-en italic text-[24px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(index + 1)}</div>
         <div className="font-ko text-[14px] leading-relaxed text-ink-soft">
+          {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep">{p}</b> : p)}
+        </div>
+      </div>
+    );
+  };
+
+  const renderMobileGoalItem = (goal: string | undefined, index: number, showBorder = true) => {
+    if (!goal) return null;
+    const parts = goal.split(/(찬양을 통해)/);
+    return (
+      <div className={`flex gap-3 items-start py-2.5 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
+        <div className="font-en italic text-[18px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(index + 1)}</div>
+        <div className="font-ko text-[11.5px] leading-relaxed text-ink-soft">
           {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep">{p}</b> : p)}
         </div>
       </div>
@@ -324,6 +342,205 @@ export default function PracticeClient({ data }: Props) {
     </div>
   );
 
+  // ==========================================
+  // [모바일 세로형 스프레드 선언]
+  // ==========================================
+  
+  // Mobile Spread 0: 일정 (주일 오전 & 주일 저녁)
+  const renderMobileSpread0 = () => (
+    <div className="w-[340px] h-[480px] flex flex-col select-none text-left">
+      {/* Top Half: Morning Schedules */}
+      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
+        <div>
+          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-3 flex items-center gap-1.5">
+            <span className="w-1 h-1 bg-gold rounded-full" />
+            Sunday Morning
+          </h3>
+          <div className="flex flex-col gap-1.5">
+            {sortedMorning.map((slot, i) => {
+              const isWorship = slot.tag === '예배';
+              return (
+                <div key={i} className={`flex items-center justify-between gap-2 py-1 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                  <div>
+                    <span className={`inline-block font-en text-[7px] tracking-[0.1em] uppercase px-1 py-0.2 mb-0.5 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                      {TAG_EN[slot.tag]}
+                    </span>
+                    <div className="font-ko text-[12px] font-bold leading-tight">{slot.label}</div>
+                  </div>
+                  <div className="font-en text-[11px] text-right shrink-0">
+                    <span className="font-semibold block">{formatTime(slot.time)}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="font-en text-[8px] text-ink-mute tracking-widest text-left pt-1.5 border-t border-line-soft">
+          I / VIII · Morning Schedules
+        </div>
+      </div>
+      
+      {/* Bottom Half: Evening Schedules */}
+      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between">
+        <div>
+          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-3 flex items-center gap-1.5">
+            <span className="w-1 h-1 bg-gold rounded-full" />
+            Sunday Evening
+          </h3>
+          <div className="flex flex-col gap-1.5">
+            {sortedEvening.map((slot, idx) => {
+              const isWorship = slot.tag === '예배';
+              return (
+                <div key={idx} className={`flex items-center justify-between gap-2 py-1 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep font-medium' : 'text-ink'}`}>
+                  <div>
+                    <span className={`inline-block font-en text-[7px] tracking-[0.1em] uppercase px-1 py-0.2 mb-0.5 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
+                      {TAG_EN[slot.tag]}
+                    </span>
+                    <div className="font-ko text-[12px] font-bold leading-tight">{slot.label}</div>
+                  </div>
+                  <div className="font-en text-[11px] text-right shrink-0">
+                    <span className="font-semibold block">{formatTime(slot.time)}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="font-en text-[8px] text-ink-mute tracking-widest text-right pt-1.5 border-t border-line-soft">
+          II / VIII · Evening Schedules
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile Spread 1: 표어
+  const renderMobileSpread1 = () => (
+    <div className="w-[340px] h-[480px] flex flex-col select-none">
+      {/* Top Half: Theme Korean */}
+      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
+        <div className="flex justify-between items-center border-b border-line-soft pb-1.5">
+          <span className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold">
+            {data.year} Motto
+          </span>
+        </div>
+        <div className="flex-1 flex items-center justify-center text-center my-auto">
+          <p className="font-ko font-bold text-[18px] leading-snug text-ink tracking-[0.03em] break-keep px-2">
+            {data.themeKo}
+          </p>
+        </div>
+        <div className="font-en text-[8px] text-ink-mute tracking-widest text-left pt-1.5 border-t border-line-soft">
+          III / VIII · Motto
+        </div>
+      </div>
+
+      {/* Bottom Half: Theme English */}
+      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between">
+        <div className="flex justify-between items-center border-b border-line-soft pb-1.5">
+          <span className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold">
+            Praise Choir
+          </span>
+        </div>
+        <div className="flex-1 flex items-center justify-center text-center my-auto">
+          {data.themeEn ? (
+            <p className="font-en italic text-[11.5px] text-gold-deep/80 tracking-wide leading-relaxed px-2 break-keep">
+              {data.themeEn}
+            </p>
+          ) : (
+            <p className="font-en italic text-[10px] text-gold-deep/40 tracking-[0.2em] uppercase">
+              Soli Deo Gloria
+            </p>
+          )}
+        </div>
+        <div className="font-en text-[8px] text-ink-mute tracking-widest text-right pt-1.5 border-t border-line-soft">
+          IV / VIII · Motto
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile Spread 2: 목표 I-II (Top) & Goals III-IV (Bottom)
+  const renderMobileSpread2 = () => (
+    <div className="w-[340px] h-[480px] flex flex-col select-none text-left">
+      {/* Top Half: Goals 1-2 */}
+      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
+        <div>
+          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-1 flex items-center gap-1.5">
+            <span className="w-1 h-1 bg-gold rounded-full" />
+            Aims (I – II)
+          </h3>
+          <div className="flex flex-col">
+            {renderMobileGoalItem(data.goals[0], 0, true)}
+            {renderMobileGoalItem(data.goals[1], 1, false)}
+          </div>
+        </div>
+        <div className="font-en text-[8px] text-ink-mute tracking-widest text-left pt-1.5 border-t border-line-soft">
+          V / VIII · Aims
+        </div>
+      </div>
+
+      {/* Bottom Half: Goals 3-4 */}
+      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between">
+        <div>
+          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-1 flex items-center gap-1.5">
+            <span className="w-1 h-1 bg-gold rounded-full" />
+            Aims (III – IV)
+          </h3>
+          <div className="flex flex-col">
+            {renderMobileGoalItem(data.goals[2], 2, true)}
+            {renderMobileGoalItem(data.goals[3], 3, false)}
+          </div>
+        </div>
+        <div className="font-en text-[8px] text-ink-mute tracking-widest text-right pt-1.5 border-t border-line-soft">
+          VI / VIII · Aims
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile Spread 3: 목표 V-VI (Top) & Goals VII (Bottom)
+  const renderMobileSpread3 = () => (
+    <div className="w-[340px] h-[480px] flex flex-col select-none text-left">
+      {/* Top Half: Goals 5-6 */}
+      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between border-b border-dashed border-gold/20">
+        <div>
+          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-1 flex items-center gap-1.5">
+            <span className="w-1 h-1 bg-gold rounded-full" />
+            Aims (V – VI)
+          </h3>
+          <div className="flex flex-col">
+            {renderMobileGoalItem(data.goals[4], 4, true)}
+            {renderMobileGoalItem(data.goals[5], 5, false)}
+          </div>
+        </div>
+        <div className="font-en text-[8px] text-ink-mute tracking-widest text-left pt-1.5 border-t border-line-soft">
+          VII / VIII · Aims
+        </div>
+      </div>
+
+      {/* Bottom Half: Goal 7 & Logo */}
+      <div className="w-full h-1/2 px-6 py-5 flex flex-col justify-between">
+        <div>
+          <h3 className="font-en text-[8px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-1 flex items-center gap-1.5">
+            <span className="w-1 h-1 bg-gold rounded-full" />
+            Aims (VII)
+          </h3>
+          <div className="flex flex-col">
+            {renderMobileGoalItem(data.goals[6], 6, false)}
+            
+            {!data.goals[6] && (
+              <div className="flex items-center justify-center py-6 opacity-30 select-none pointer-events-none">
+                <span className="font-en italic text-[10px] text-gold-deep tracking-[0.2em] uppercase">Praise Choir</span>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="font-en text-[8px] text-ink-mute tracking-widest text-right pt-1.5 border-t border-line-soft">
+          VIII / VIII · Aims
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-cream px-0 pt-10 md:pt-14 pb-8 select-none">
       
@@ -356,7 +573,7 @@ export default function PracticeClient({ data }: Props) {
           {/* Navigation Arrows */}
           <button
             type="button"
-            onClick={() => handleDesktopSpreadChange(Math.max(0, activeSpread - 1))}
+            onClick={() => handleSpreadChange(Math.max(0, activeSpread - 1))}
             disabled={activeSpread === 0 || isTransitioning}
             className="absolute -left-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
             aria-label="이전 페이지"
@@ -368,7 +585,7 @@ export default function PracticeClient({ data }: Props) {
 
           <button
             type="button"
-            onClick={() => handleDesktopSpreadChange(Math.min(totalSpreads - 1, activeSpread + 1))}
+            onClick={() => handleSpreadChange(Math.min(totalSpreads - 1, activeSpread + 1))}
             disabled={activeSpread === totalSpreads - 1 || isTransitioning}
             className="absolute -right-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
             aria-label="다음 페이지"
@@ -417,7 +634,7 @@ export default function PracticeClient({ data }: Props) {
                       transition: `transform ${transitionDuration}s cubic-bezier(0.25, 1, 0.5, 1)`,
                       zIndex: zIndex,
                     }}
-                    onClick={() => handleDesktopSpreadChange(isFlipped ? i : i + 1)}
+                    onClick={() => handleSpreadChange(isFlipped ? i : i + 1)}
                     onTransitionEnd={() => {
                       if (Math.min(prevSpread, activeSpread) === i) {
                         setIsTransitioning(false);
@@ -462,7 +679,7 @@ export default function PracticeClient({ data }: Props) {
                       transition: `transform ${transitionDuration}s cubic-bezier(0.25, 1, 0.5, 1)`,
                       zIndex: zIndex,
                     }}
-                    onClick={() => handleDesktopSpreadChange(isFlipped ? i : i + 1)}
+                    onClick={() => handleSpreadChange(isFlipped ? i : i + 1)}
                     onTransitionEnd={() => {
                       if (Math.min(prevSpread, activeSpread) === i) {
                         setIsTransitioning(false);
@@ -507,7 +724,7 @@ export default function PracticeClient({ data }: Props) {
                       transition: `transform ${transitionDuration}s cubic-bezier(0.25, 1, 0.5, 1)`,
                       zIndex: zIndex,
                     }}
-                    onClick={() => handleDesktopSpreadChange(isFlipped ? i : i + 1)}
+                    onClick={() => handleSpreadChange(isFlipped ? i : i + 1)}
                     onTransitionEnd={() => {
                       if (Math.min(prevSpread, activeSpread) === i) {
                         setIsTransitioning(false);
@@ -543,7 +760,7 @@ export default function PracticeClient({ data }: Props) {
             <button
               key={idx}
               type="button"
-              onClick={() => handleDesktopSpreadChange(idx)}
+              onClick={() => handleSpreadChange(idx)}
               className={`h-2.5 rounded-full transition-all duration-300 ${idx === activeSpread ? 'bg-gold-deep w-6' : 'bg-line w-2.5 hover:bg-gold/60'}`}
               aria-label={`${idx + 1}번째 스프레드 보기`}
             />
@@ -553,243 +770,216 @@ export default function PracticeClient({ data }: Props) {
       </div>
 
       {/* ==========================================
-          [모바일 스택 슬라이더 뷰] max-width: 880px
+          [모바일 세로형 북플립 뷰] max-width: 880px
          ========================================== */}
       <div className="min-[881px]:hidden flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 py-6">
         
-        {/* Stack Container (3D Perspective 추가) */}
-        <div className="relative w-full h-[400px] flex items-center justify-center" style={{ perspective: '1000px' }}>
-          <AnimatePresence mode="popLayout" custom={direction}>
-            {Array.from({ length: totalCards }).map((_, i) => {
-              if (i < mobileIndex || i > mobileIndex + 1) return null;
-              const isTop = i === mobileIndex;
-              
-              return (
-                <motion.div
-                  key={i}
-                  custom={direction}
-                  variants={cardVariants}
-                  className="absolute w-full h-full bg-[#fbf7ec] border border-line/40 rounded-2xl p-6 flex flex-col justify-between shadow-[0_12px_36px_rgba(42,38,32,0.12)] cursor-grab active:cursor-grabbing select-none"
-                  style={{ 
-                    zIndex: isTop ? 10 : 5,
-                    transformOrigin: 'top center' 
-                  }}
-                  drag={isTop ? "y" : false}
-                  dragConstraints={{ top: 0, bottom: 0 }}
-                  dragElastic={{ top: 0.8, bottom: 0.15 }}
-                  onDragEnd={(_, info) => {
-                    if (info.offset.y < -60) {
-                      handleNext();
-                    } else if (info.offset.y > 60) {
-                      handlePrev();
-                    }
-                  }}
-                  initial={isTop 
-                    ? (direction === 'prev' 
-                        ? { y: -500, rotateX: -60, rotateZ: -8, scale: 0.9, opacity: 0 } 
-                        : { y: 0, rotateX: 0, rotateZ: 0, scale: 1, opacity: 1 })
-                    : { y: 16, rotateX: 0, rotateZ: 0, scale: 0.94, opacity: 0.7 }
-                  }
-                  animate={isTop ? { y: 0, rotateX: 0, rotateZ: 0, scale: 1, opacity: 1 } : { y: 16, rotateX: 0, rotateZ: 0, scale: 0.94, opacity: 0.7 }}
-                  exit="exit"
-                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                >
-                  
-                  {/* Card 0: Morning Schedules */}
-                  {i === 0 && (
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-en text-[9px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-4 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                          Sunday Morning Schedules
-                        </h3>
-                        <div className="flex flex-col gap-2 max-h-[260px] overflow-y-auto pr-1">
-                          {sortedMorning.map((slot, idx) => {
-                            const isWorship = slot.tag === '예배';
-                            return (
-                              <div key={idx} className={`flex items-center justify-between gap-3 py-2 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep' : 'text-ink'}`}>
-                                <div>
-                                  <span className={`inline-block font-en text-[7px] tracking-[0.12em] uppercase px-1 py-0.2 mb-0.5 ${isWorship ? 'text-gold-deep border border-gold/40' : 'text-ink-mute border border-line/40'}`}>
-                                    {TAG_EN[slot.tag]}
-                                  </span>
-                                  <div className="font-ko text-[12px] font-bold">{slot.label}</div>
-                                </div>
-                                <div className="font-en text-[11.5px] text-right shrink-0">
-                                  <span className="font-semibold block">{formatTime(slot.time)}</span>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <div className="font-en text-[9px] text-ink-mute tracking-widest text-left mt-3 border-t border-line-soft pt-2">
-                        01 / 05 · Morning Schedules
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Card 1: Evening Schedules */}
-                  {i === 1 && (
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-en text-[9px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-4 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                          Evening Schedules
-                        </h3>
-                        <div className="flex flex-col gap-2 max-h-[260px] overflow-y-auto pr-1">
-                          {sortedEvening.map((slot, idx) => {
-                            const isWorship = slot.tag === '예배';
-                            return (
-                              <div key={idx} className={`flex items-center justify-between gap-3 py-2 border-b border-line-soft last:border-b-0 ${isWorship ? 'text-gold-deep' : 'text-ink'}`}>
-                                <div>
-                                  <span className={`inline-block font-en text-[7px] tracking-[0.12em] uppercase px-1 py-0.2 mb-0.5 ${isWorship ? 'text-gold-deep border border-gold/40' : 'text-ink-mute border border-line/40'}`}>
-                                    {TAG_EN[slot.tag]}
-                                  </span>
-                                  <div className="font-ko text-[12px] font-bold">{slot.label}</div>
-                                </div>
-                                <div className="font-en text-[11.5px] text-right shrink-0">
-                                  <span className="font-semibold block">{formatTime(slot.time)}</span>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <div className="font-en text-[9px] text-ink-mute tracking-widest text-left mt-3 border-t border-line-soft pt-2">
-                        02 / 05 · Evening Schedules
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Card 2: Theme / Motto */}
-                  {i === 2 && (
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div className="flex flex-col items-center text-center my-auto">
-                        <span className="font-en text-[9px] tracking-[0.32em] text-gold-deep uppercase mb-4 font-semibold">
-                          {data.year} Theme
-                        </span>
-                        <p className="font-ko font-bold text-[20px] leading-relaxed text-ink tracking-wide break-keep px-2">
-                          “{data.themeKo}”
-                        </p>
-                        {data.themeEn && (
-                          <p className="font-en italic text-[11px] text-gold-deep/80 tracking-wide mt-3 max-w-[220px] break-keep">
-                            {data.themeEn}
-                          </p>
-                        )}
-                      </div>
-                      <div className="font-en text-[9px] text-ink-mute tracking-widest text-right mt-3 border-t border-line-soft pt-2">
-                        03 / 05 · Motto
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Card 3: Goals 1-4 */}
-                  {i === 3 && (
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-en text-[9px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-4 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                          Annual Aims (I – IV)
-                        </h3>
-                        <div className="flex flex-col gap-2">
-                          {data.goals.slice(0, 4).map((goal, idx) => {
-                            const parts = goal.split(/(찬양을 통해)/);
-                            return (
-                              <div key={idx} className="flex gap-3 items-start py-1.5 border-b border-line-soft last:border-b-0">
-                                <div className="font-en italic text-[16px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(idx + 1)}</div>
-                                <div className="font-ko text-[11px] leading-relaxed text-ink-soft">
-                                  {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep">{p}</b> : p)}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <div className="font-en text-[9px] text-ink-mute tracking-widest text-left mt-3 border-t border-line-soft pt-2">
-                        04 / 05 · Aims
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Card 4: Goals 5-7 */}
-                  {i === 4 && (
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-en text-[9px] tracking-[0.24em] uppercase text-gold-deep font-semibold mb-4 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-                          Annual Aims (V – VII)
-                        </h3>
-                        <div className="flex flex-col gap-2">
-                          {data.goals.slice(4).map((goal, idx) => {
-                            const actualIdx = idx + 4;
-                            const parts = goal.split(/(찬양을 통해)/);
-                            return (
-                              <div key={actualIdx} className="flex gap-3 items-start py-1.5 border-b border-line-soft last:border-b-0">
-                                <div className="font-en italic text-[16px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(actualIdx + 1)}</div>
-                                <div className="font-ko text-[11px] leading-relaxed text-ink-soft">
-                                  {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep">{p}</b> : p)}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                      <div className="font-en text-[9px] text-ink-mute tracking-widest text-right mt-3 border-t border-line-soft pt-2">
-                        05 / 05 · Aims
-                      </div>
-                    </div>
-                  )}
-
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-
-        {/* Mobile Navigation controls */}
-        <div className="flex items-center justify-between w-full mt-8 relative z-20">
+        {/* Book Wrapper */}
+        <div className="relative w-[340px] h-[480px] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#fbf7ec]">
           
+          {/* Navigation Arrows for Mobile */}
           <button
             type="button"
-            onClick={handlePrev}
-            disabled={mobileIndex === 0}
-            className="w-10 h-10 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-sm hover:border-gold hover:text-gold-deep disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="이전 카드"
+            onClick={() => handleSpreadChange(Math.max(0, activeSpread - 1))}
+            disabled={activeSpread === 0 || isTransitioning}
+            className="absolute -left-4 z-50 w-10 h-10 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-sm transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
+            aria-label="이전 페이지"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
           </button>
 
-          {/* Dots Indicator */}
-          <div className="flex items-center gap-2">
-            {Array.from({ length: totalCards }).map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => setMobileIndex(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${i === mobileIndex ? 'bg-gold-deep w-4' : 'bg-line w-2'}`}
-                aria-label={`${i + 1}번째 페이지 보기`}
-              />
-            ))}
-          </div>
-
           <button
             type="button"
-            onClick={handleNext}
-            disabled={mobileIndex === totalCards - 1}
-            className="w-10 h-10 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-sm hover:border-gold hover:text-gold-deep disabled:opacity-30 disabled:cursor-not-allowed"
-            aria-label="다음 카드"
+            onClick={() => handleSpreadChange(Math.min(totalSpreads - 1, activeSpread + 1))}
+            disabled={activeSpread === totalSpreads - 1 || isTransitioning}
+            className="absolute -right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-sm transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
+            aria-label="다음 페이지"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           </button>
 
+          {/* Perspective Container */}
+          <div className="relative w-full h-full" style={{ perspective: '1500px', transformStyle: 'preserve-3d' }}>
+            
+            {/* Book Body (Background) */}
+            <div className="absolute inset-0 w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
+              
+              {/* [Page 1] Static Top Page (Spread 0 Top) */}
+              <div className="absolute left-0 top-0 w-full h-1/2">
+                <MaskTop>{renderMobileSpread0()}</MaskTop>
+              </div>
+
+              {/* [Page 8] Static Bottom Page (Spread 3 Bottom) */}
+              <div className="absolute left-0 bottom-0 w-full h-1/2">
+                <MaskBottom>{renderMobileSpread3()}</MaskBottom>
+              </div>
+
+              {/* ==========================================
+                  3D Flipping Page Sheets (Vertical X-axis)
+                 ========================================== */}
+
+              {/* [Sheet 0] Pages 2 (Spread 0 Bottom) & 3 (Spread 1 Top) */}
+              {(() => {
+                const i = 0;
+                const isFlipped = activeSpread > i;
+                const isFlipping = isTransitioning && Math.min(prevSpread, activeSpread) === i;
+                
+                let zIndex = isFlipped ? 10 + i : 30 - i;
+                if (isFlipping) zIndex = 40;
+
+                return (
+                  <div
+                    className="absolute left-0 bottom-0 w-full h-1/2 cursor-pointer select-none"
+                    style={{
+                      transform: isFlipped ? 'rotateX(180deg)' : 'rotateX(0deg)',
+                      transformStyle: 'preserve-3d',
+                      transformOrigin: 'center top',
+                      transition: `transform ${transitionDuration}s cubic-bezier(0.25, 1, 0.5, 1)`,
+                      zIndex: zIndex,
+                    }}
+                    onClick={() => handleSpreadChange(isFlipped ? i : i + 1)}
+                    onTransitionEnd={() => {
+                      if (Math.min(prevSpread, activeSpread) === i) {
+                        setIsTransitioning(false);
+                      }
+                    }}
+                  >
+                    {/* Front: Spread 0 Bottom */}
+                    <div 
+                      className="absolute inset-0 bg-[#fbf7ec]"
+                      style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                    >
+                      <MaskBottom>{renderMobileSpread0()}</MaskBottom>
+                    </div>
+
+                    {/* Back: Spread 1 Top */}
+                    <div 
+                      className="absolute inset-0 bg-[#fbf7ec]"
+                      style={{ transform: 'rotateX(-180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                    >
+                      <MaskTop>{renderMobileSpread1()}</MaskTop>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* [Sheet 1] Pages 4 (Spread 1 Bottom) & 5 (Spread 2 Top) */}
+              {(() => {
+                const i = 1;
+                const isFlipped = activeSpread > i;
+                const isFlipping = isTransitioning && Math.min(prevSpread, activeSpread) === i;
+                
+                let zIndex = isFlipped ? 10 + i : 30 - i;
+                if (isFlipping) zIndex = 40;
+
+                return (
+                  <div
+                    className="absolute left-0 bottom-0 w-full h-1/2 cursor-pointer select-none"
+                    style={{
+                      transform: isFlipped ? 'rotateX(180deg)' : 'rotateX(0deg)',
+                      transformStyle: 'preserve-3d',
+                      transformOrigin: 'center top',
+                      transition: `transform ${transitionDuration}s cubic-bezier(0.25, 1, 0.5, 1)`,
+                      zIndex: zIndex,
+                    }}
+                    onClick={() => handleSpreadChange(isFlipped ? i : i + 1)}
+                    onTransitionEnd={() => {
+                      if (Math.min(prevSpread, activeSpread) === i) {
+                        setIsTransitioning(false);
+                      }
+                    }}
+                  >
+                    {/* Front: Spread 1 Bottom */}
+                    <div 
+                      className="absolute inset-0 bg-[#fbf7ec]"
+                      style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                    >
+                      <MaskBottom>{renderMobileSpread1()}</MaskBottom>
+                    </div>
+
+                    {/* Back: Spread 2 Top */}
+                    <div 
+                      className="absolute inset-0 bg-[#fbf7ec]"
+                      style={{ transform: 'rotateX(-180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                    >
+                      <MaskTop>{renderMobileSpread2()}</MaskTop>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* [Sheet 2] Pages 6 (Spread 2 Bottom) & 7 (Spread 3 Top) */}
+              {(() => {
+                const i = 2;
+                const isFlipped = activeSpread > i;
+                const isFlipping = isTransitioning && Math.min(prevSpread, activeSpread) === i;
+                
+                let zIndex = isFlipped ? 10 + i : 30 - i;
+                if (isFlipping) zIndex = 40;
+
+                return (
+                  <div
+                    className="absolute left-0 bottom-0 w-full h-1/2 cursor-pointer select-none"
+                    style={{
+                      transform: isFlipped ? 'rotateX(180deg)' : 'rotateX(0deg)',
+                      transformStyle: 'preserve-3d',
+                      transformOrigin: 'center top',
+                      transition: `transform ${transitionDuration}s cubic-bezier(0.25, 1, 0.5, 1)`,
+                      zIndex: zIndex,
+                    }}
+                    onClick={() => handleSpreadChange(isFlipped ? i : i + 1)}
+                    onTransitionEnd={() => {
+                      if (Math.min(prevSpread, activeSpread) === i) {
+                        setIsTransitioning(false);
+                      }
+                    }}
+                  >
+                    {/* Front: Spread 2 Bottom */}
+                    <div 
+                      className="absolute inset-0 bg-[#fbf7ec]"
+                      style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                    >
+                      <MaskBottom>{renderMobileSpread2()}</MaskBottom>
+                    </div>
+
+                    {/* Back: Spread 3 Top */}
+                    <div 
+                      className="absolute inset-0 bg-[#fbf7ec]"
+                      style={{ transform: 'rotateX(-180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
+                    >
+                      <MaskTop>{renderMobileSpread3()}</MaskTop>
+                    </div>
+                  </div>
+                );
+              })()}
+
+            </div>
+
+            {/* Middle Seam (horizontal line/shadow representing the notebook binding) */}
+            <div className="absolute top-[calc(50%-1px)] left-0 w-full h-[2px] bg-gold/15 shadow-[0_1px_3px_rgba(0,0,0,0.05)] pointer-events-none z-50" />
+            
+          </div>
+        </div>
+
+        {/* Bottom Spread Dots */}
+        <div className="flex items-center gap-2 mt-6 relative z-20">
+          {Array.from({ length: totalSpreads }).map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSpreadChange(idx)}
+              className={`h-2 rounded-full transition-all duration-300 ${idx === activeSpread ? 'bg-gold-deep w-5' : 'bg-line w-2 hover:bg-gold/60'}`}
+              aria-label={`${idx + 1}번째 페이지 보기`}
+            />
+          ))}
         </div>
 
         <div className="mt-4 text-ink-mute text-[9px] uppercase tracking-widest text-center select-none pointer-events-none">
-          Swipe up/down or tap arrows to navigate
+          Tap pages or arrows to flip vertically
         </div>
 
       </div>
