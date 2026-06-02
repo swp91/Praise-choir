@@ -167,8 +167,8 @@ export default function PracticeClient({ data }: Props) {
     const parts = goal.split(/(찬양을 통해)/);
     return (
       <div className={`flex gap-5 items-start py-4 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
-        <div className="font-en italic text-[24px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(index + 1)}</div>
-        <div className="font-ko text-[15.5px] leading-relaxed text-ink font-medium">
+        <div className="font-en italic text-[26px] text-gold/80 leading-none font-medium mt-0.5">{toRoman(index + 1)}</div>
+        <div className="font-ko text-[17px] leading-relaxed text-ink font-medium">
           {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep font-bold">{p}</b> : p)}
         </div>
       </div>
@@ -180,8 +180,8 @@ export default function PracticeClient({ data }: Props) {
     const parts = goal.split(/(찬양을 통해)/);
     return (
       <div className={`flex gap-3.5 items-start py-2.5 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
-        <div className="font-en italic text-[24px] text-gold/90 leading-none font-semibold mt-0.5">{toRoman(index + 1)}</div>
-        <div className="font-ko text-[14.5px] leading-relaxed text-ink font-medium">
+        <div className="font-en italic text-[26px] text-gold/90 leading-none font-semibold mt-0.5">{toRoman(index + 1)}</div>
+        <div className="font-ko text-[16px] leading-relaxed text-ink font-medium">
           {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep font-bold">{p}</b> : p)}
         </div>
       </div>
@@ -210,11 +210,11 @@ export default function PracticeClient({ data }: Props) {
                     <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[14.5px] font-bold">{slot.label}</div>
+                    <div className="font-ko text-[16px] font-bold">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[14px] text-right shrink-0">
+                  <div className="font-en text-[15.5px] text-right shrink-0">
                     <span className="font-semibold block">{formatTime(slot.time)}</span>
-                    <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
+                    <span className="font-ko text-[11.5px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
@@ -241,11 +241,11 @@ export default function PracticeClient({ data }: Props) {
                     <span className={`inline-block font-en text-[8px] tracking-[0.14em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/40 bg-gold/5' : 'text-ink-mute border border-line/40'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[14.5px] font-bold">{slot.label}</div>
+                    <div className="font-ko text-[16px] font-bold">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[14px] text-right shrink-0">
+                  <div className="font-en text-[15.5px] text-right shrink-0">
                     <span className="font-semibold block">{formatTime(slot.time)}</span>
-                    <span className="font-ko text-[10px] text-ink-mute block mt-0.5">{slot.time}</span>
+                    <span className="font-ko text-[11.5px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
@@ -376,11 +376,11 @@ export default function PracticeClient({ data }: Props) {
                     <span className={`inline-block font-en text-[9px] tracking-[0.08em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/50 bg-gold/5 font-semibold' : 'text-ink-mute border border-line/50 font-medium'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[15px] font-extrabold leading-tight text-ink">{slot.label}</div>
+                    <div className="font-ko text-[16.5px] font-extrabold leading-tight text-ink">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[13.5px] text-right shrink-0">
+                  <div className="font-en text-[15px] text-right shrink-0">
                     <span className="font-bold block text-ink">{formatTime(slot.time)}</span>
-                    <span className="font-ko text-[9.5px] text-ink-mute block mt-0.5">{slot.time}</span>
+                    <span className="font-ko text-[11px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
@@ -408,11 +408,11 @@ export default function PracticeClient({ data }: Props) {
                     <span className={`inline-block font-en text-[9px] tracking-[0.08em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/50 bg-gold/5 font-semibold' : 'text-ink-mute border border-line/50 font-medium'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[15px] font-extrabold leading-tight text-ink">{slot.label}</div>
+                    <div className="font-ko text-[16.5px] font-extrabold leading-tight text-ink">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[13.5px] text-right shrink-0">
+                  <div className="font-en text-[15px] text-right shrink-0">
                     <span className="font-bold block text-ink">{formatTime(slot.time)}</span>
-                    <span className="font-ko text-[9.5px] text-ink-mute block mt-0.5">{slot.time}</span>
+                    <span className="font-ko text-[11px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
@@ -583,30 +583,7 @@ export default function PracticeClient({ data }: Props) {
         {/* Book Wrapper (고정식 단일 묵직한 그림자 부여) */}
         <div className="relative w-full max-w-[1020px] h-[480px] flex items-center justify-center rounded-2xl shadow-[0_28px_90px_rgba(42,38,32,0.16)] bg-[#fbf7ec]">
           
-          {/* Navigation Arrows */}
-          <button
-            type="button"
-            onClick={() => handleSpreadChange(Math.max(0, activeSpread - 1))}
-            disabled={activeSpread === 0 || isTransitioning}
-            className="absolute -left-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
-            aria-label="이전 페이지"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-          </button>
 
-          <button
-            type="button"
-            onClick={() => handleSpreadChange(Math.min(totalSpreads - 1, activeSpread + 1))}
-            disabled={activeSpread === totalSpreads - 1 || isTransitioning}
-            className="absolute -right-16 z-50 w-12 h-12 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-md transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
-            aria-label="다음 페이지"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-          </button>
 
           {/* Perspective Container */}
           <div className="relative w-full h-full" style={{ perspective: '1500px', transformStyle: 'preserve-3d' }}>
