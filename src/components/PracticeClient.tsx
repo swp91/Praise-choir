@@ -76,7 +76,7 @@ function MaskRight({ children }: { children: React.ReactNode }) {
 function MaskTop({ children }: { children: React.ReactNode }) {
   return (
     <div 
-      className="absolute left-0 top-0 w-full h-[calc(50%+1px)] overflow-hidden rounded-t-2xl bg-[#fbf7ec]"
+      className="absolute left-0 top-0 w-full h-[calc(100%+1px)] overflow-hidden rounded-t-2xl bg-[#fbf7ec]"
       style={{
         borderTop: '1px solid rgba(212, 196, 160, 0.42)',
         borderLeft: '1px solid rgba(212, 196, 160, 0.42)',
@@ -94,7 +94,7 @@ function MaskTop({ children }: { children: React.ReactNode }) {
 function MaskBottom({ children }: { children: React.ReactNode }) {
   return (
     <div 
-      className="absolute left-0 bottom-0 w-full h-[calc(50%+1px)] overflow-hidden rounded-b-2xl bg-[#fbf7ec]"
+      className="absolute left-0 bottom-0 w-full h-[calc(100%+1px)] overflow-hidden rounded-b-2xl bg-[#fbf7ec]"
       style={{
         borderBottom: '1px solid rgba(212, 196, 160, 0.42)',
         borderLeft: '1px solid rgba(212, 196, 160, 0.42)',
