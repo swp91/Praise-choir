@@ -788,30 +788,7 @@ export default function PracticeClient({ data }: Props) {
         {/* Book Wrapper */}
         <div className="relative w-[340px] h-[480px] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#fbf7ec]">
           
-          {/* Navigation Arrows for Mobile */}
-          <button
-            type="button"
-            onClick={() => handleSpreadChange(Math.max(0, activeSpread - 1))}
-            disabled={activeSpread === 0 || isTransitioning}
-            className="absolute -left-4 z-50 w-10 h-10 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-sm transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
-            aria-label="이전 페이지"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
-          </button>
 
-          <button
-            type="button"
-            onClick={() => handleSpreadChange(Math.min(totalSpreads - 1, activeSpread + 1))}
-            disabled={activeSpread === totalSpreads - 1 || isTransitioning}
-            className="absolute -right-4 z-50 w-10 h-10 flex items-center justify-center rounded-full border border-line bg-card/85 text-ink shadow-sm transition-all duration-300 hover:border-gold hover:text-gold-deep disabled:opacity-0 disabled:cursor-not-allowed"
-            aria-label="다음 페이지"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-            </svg>
-          </button>
 
           {/* Perspective Container */}
           <div className="relative w-full h-full" style={{ perspective: '1500px', transformStyle: 'preserve-3d' }}>
