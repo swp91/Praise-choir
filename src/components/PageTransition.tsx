@@ -68,8 +68,7 @@ export default function PageTransition() {
           animate={{ opacity: [0, 1, 1, 0], scale: [0.74, 1, 1.03, 0.92], y: [18, 0, 0, -12] }}
           transition={{ duration: 0.86, delay: 0.28, times: [0, 0.28, 0.68, 1], ease: 'easeOut' }}
         >
-          <span>PRAISE</span>
-          <strong>CHOIR</strong>
+          <strong>PRAISE</strong>
         </motion.div>
       </motion.section>
 
