@@ -569,7 +569,7 @@ export default function PracticeClient({ data }: Props) {
       </div>
 
       {/* 2. 중앙 상단 타이틀 */}
-      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0 mt-12 md:mt-6 mb-8">
+      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0 mt-32 md:mt-6 mb-8">
         <h1 className="font-en text-[clamp(32px,3.8vw,48px)] font-bold leading-none tracking-normal text-ink">
           Hours &amp; Aims
         </h1>
