@@ -138,6 +138,17 @@ export default function PracticeClient({ data }: Props) {
   }, [activeSpread, targetSpread, isTransitioning]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
+  // transition이 시작되면 브라우저 환경(화면 크기 변경, display: none 전환 등)에 의해
+  // onTransitionEnd가 호출되지 않을 때를 대비해 일정 시간 후 강제로 전환 상태를 해제하는 안전 장치
+  useEffect(() => {
+    if (isTransitioning) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(false);
+      }, transitionDuration * 1000 + 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isTransitioning, transitionDuration]);
+
   const handleSpreadChange = (nextSpread: number) => {
     if (nextSpread !== targetSpread) {
       setTargetSpread(nextSpread);
