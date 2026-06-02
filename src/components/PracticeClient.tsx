@@ -73,6 +73,17 @@ function MaskRight({ children }: { children: React.ReactNode }) {
   );
 }
 
+const cardVariants = {
+  exit: (direction: 'next' | 'prev') => ({
+    y: direction === 'next' ? -500 : 400,
+    rotateX: direction === 'next' ? -65 : 25,
+    rotateZ: direction === 'next' ? -8 : 4,
+    scale: 0.9,
+    opacity: 0,
+    transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] as const }
+  })
+};
+
 export default function PracticeClient({ data }: Props) {
   // 데스크톱: 0~3 (총 4개 스프레드 / 8개 페이지)
   const [activeSpread, setActiveSpread] = useState(0);
@@ -82,6 +93,7 @@ export default function PracticeClient({ data }: Props) {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const totalSpreads = 4;
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (activeSpread !== targetSpread && !isTransitioning) {
       const distance = Math.abs(targetSpread - activeSpread);
@@ -100,6 +112,7 @@ export default function PracticeClient({ data }: Props) {
       setIsTransitioning(true);
     }
   }, [activeSpread, targetSpread, isTransitioning]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // 모바일: 0~4 (총 5개 카드)
   const [mobileIndex, setMobileIndex] = useState(0);
@@ -546,7 +559,7 @@ export default function PracticeClient({ data }: Props) {
         
         {/* Stack Container (3D Perspective 추가) */}
         <div className="relative w-full h-[400px] flex items-center justify-center" style={{ perspective: '1000px' }}>
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence mode="popLayout" custom={direction}>
             {Array.from({ length: totalCards }).map((_, i) => {
               if (i < mobileIndex || i > mobileIndex + 1) return null;
               const isTop = i === mobileIndex;
@@ -554,6 +567,8 @@ export default function PracticeClient({ data }: Props) {
               return (
                 <motion.div
                   key={i}
+                  custom={direction}
+                  variants={cardVariants}
                   className="absolute w-full h-full bg-[#fbf7ec] border border-line/40 rounded-2xl p-6 flex flex-col justify-between shadow-[0_12px_36px_rgba(42,38,32,0.12)] cursor-grab active:cursor-grabbing select-none"
                   style={{ 
                     zIndex: isTop ? 10 : 5,
@@ -576,14 +591,7 @@ export default function PracticeClient({ data }: Props) {
                     : { y: 16, rotateX: 0, rotateZ: 0, scale: 0.94, opacity: 0.7 }
                   }
                   animate={isTop ? { y: 0, rotateX: 0, rotateZ: 0, scale: 1, opacity: 1 } : { y: 16, rotateX: 0, rotateZ: 0, scale: 0.94, opacity: 0.7 }}
-                  exit={{
-                    y: direction === 'next' ? -500 : 400,
-                    rotateX: direction === 'next' ? -65 : 25,
-                    rotateZ: direction === 'next' ? -8 : 4,
-                    scale: 0.9,
-                    opacity: 0,
-                    transition: { duration: 0.45, ease: [0.4, 0, 0.2, 1] }
-                  }}
+                  exit="exit"
                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 >
                   
