@@ -83,8 +83,8 @@ const PART_DESIGNS = {
     bg: '#352E27', // Warm Charcoal
     text: '#F5EED9', // Cream
     titleClass: 'text-gold',
-    poem: '보이지 않는 곳에서 성가대를 지탱하는 손길',
-    desc: '지휘, 반주, 편곡 및 운영진이 한마음으로 보이지 않는 곳에서 섬깁니다.',
+    poem: '찬양의 모든 순간을 아름답게 빚어가는 섬김',
+    desc: '지휘, 반주, 편곡 및 운영진이 한마음으로 예배와 성가대를 위해 헌신합니다.',
     tagline: 'STAFF',
     number: '06',
   },
