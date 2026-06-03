@@ -62,9 +62,9 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       if (oldSetWidth === 0) {
         positionRef.current = -newSetWidth;
       } else {
-        // 기존의 스크롤 위치 비율을 유지하여 이미지 로드 시 튕기는 현상 방지
-        const ratio = positionRef.current / oldSetWidth;
-        positionRef.current = ratio * newSetWidth;
+        // 기존 센터 대비 상대적 스크롤 변위(offset)를 절대값으로 유지하여 이미지 로드 시 튕기는 현상 방지
+        const offset = positionRef.current + oldSetWidth;
+        positionRef.current = -newSetWidth + offset;
       }
       gsap.set(track, { x: positionRef.current });
     };
