@@ -177,27 +177,11 @@ export default function MemberGrid({ parts }: Props) {
               <div className="absolute inset-0 opacity-[0.05] bg-[repeating-linear-gradient(45deg,currentColor_0px,currentColor_1px,transparent_1px,transparent_6px)]" />
             </div>
           )}
-
-          {/* Hover Overlay with basic card details */}
-          <div className="absolute inset-0 bg-ink/40 opacity-0 group-hover/card:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-3">
-            {member.phone && (
-              <a
-                href={`tel:${member.phone.replace(/-/g, '')}`}
-                className="w-10 h-10 rounded-full bg-cream text-ink flex items-center justify-center shadow-md hover:scale-110 transition-transform duration-200"
-                title="전화 걸기"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                  <path fillRule="evenodd" d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z" clipRule="evenodd" />
-                </svg>
-              </a>
-            )}
-          </div>
         </div>
 
         {/* Member Info */}
-        <div className="flex flex-col items-start">
-          <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex flex-col items-start w-full">
+          <div className="flex items-center gap-1.5 flex-wrap w-full">
             <span className="font-ko text-[14px] font-bold tracking-tight">
               {member.name}
             </span>
@@ -208,23 +192,41 @@ export default function MemberGrid({ parts }: Props) {
             )}
           </div>
 
-          {/* Birth & Phone displays below name */}
-          <div className="mt-1 flex flex-col gap-0.5 font-ko text-[11px] opacity-75 [font-variant-numeric:tabular-nums]">
-            {member.birth && member.birth !== '—' && (
-              <div className="flex items-center gap-1">
+          {/* Birth & Phone displays: horizontal layout, responsive phone link/icon */}
+          <div className="mt-2 flex items-center justify-between w-full font-ko text-[11px] opacity-75 [font-variant-numeric:tabular-nums]">
+            {member.birth && member.birth !== '—' ? (
+              <div className="flex items-center gap-1 shrink-0">
                 <span className="opacity-60">🎂</span>
                 <BirthDisplay birth={member.birth} />
               </div>
+            ) : (
+              <div /> // Placeholder to keep spacing
             )}
+            
             {member.phone && (
-              <a
-                href={`tel:${member.phone.replace(/-/g, '')}`}
-                className="flex items-center gap-1 hover:underline decoration-current/40"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <span className="opacity-60">📞</span>
-                <span>{member.phone}</span>
-              </a>
+              <div className="flex items-center shrink-0">
+                {/* Desktop/Tablet: text phone link */}
+                <a
+                  href={`tel:${member.phone.replace(/-/g, '')}`}
+                  className="hidden sm:flex items-center gap-1 hover:underline decoration-current/40"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <span className="opacity-60">📞</span>
+                  <span>{member.phone}</span>
+                </a>
+
+                {/* Mobile: green circular phone icon */}
+                <a
+                  href={`tel:${member.phone.replace(/-/g, '')}`}
+                  className="flex sm:hidden items-center justify-center w-6 h-6 rounded-full bg-emerald-500 text-white shadow-sm hover:scale-105 active:scale-95 transition-transform duration-200"
+                  title="전화 걸기"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
+                    <path fillRule="evenodd" d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z" clipRule="evenodd" />
+                  </svg>
+                </a>
+              </div>
             )}
           </div>
         </div>
