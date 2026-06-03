@@ -105,7 +105,7 @@ export default function MemberGrid({ parts }: Props) {
       window.history.pushState({ part: key }, '', `#part-${key}`);
     }
 
-    setTimeout(() => setIsTransitioning(false), 700);
+    setTimeout(() => setIsTransitioning(false), 1100);
   }, [isTransitioning]);
 
   const handleCollapse = useCallback(() => {
@@ -120,7 +120,7 @@ export default function MemberGrid({ parts }: Props) {
       setShowFloatingBack(false);
     }
 
-    setTimeout(() => setIsTransitioning(false), 700);
+    setTimeout(() => setIsTransitioning(false), 1100);
   }, [isTransitioning]);
 
   // Handle device hardware/gesture back events
@@ -136,7 +136,7 @@ export default function MemberGrid({ parts }: Props) {
         setShowFloatingBack(false);
       }
 
-      setTimeout(() => setIsTransitioning(false), 700);
+      setTimeout(() => setIsTransitioning(false), 1100);
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -281,7 +281,7 @@ export default function MemberGrid({ parts }: Props) {
               onClick={() => handleExpand(part.key)}
               className="relative flex flex-col justify-between p-6 md:p-10 cursor-pointer select-none group overflow-hidden"
               style={{ backgroundColor: ptDesign.bg, color: ptDesign.text }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
             >
               {/* Top Row: Korean Tagline & Number */}
               <div className="flex justify-between items-start z-10">
@@ -336,7 +336,7 @@ export default function MemberGrid({ parts }: Props) {
             layoutId={`panel-${expandedPart}`}
             className="fixed inset-0 z-50 overflow-y-auto p-6 md:p-12"
             style={{ backgroundColor: design.bg, color: design.text }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
             onScroll={(e) => {
               const scrollTop = e.currentTarget.scrollTop;
               setShowFloatingBack(scrollTop > 80);
