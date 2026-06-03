@@ -17,7 +17,7 @@ export default async function LeadersPage() {
       <HeroBlock
         eyebrow="Organizational Hierarchy"
         title="Serving Ministers"
-        titleKo="지휘 · 반주 · 임원진"
+        titleKo="섬기는 손길들"
         watermark="MINISTRI"
       />
 
