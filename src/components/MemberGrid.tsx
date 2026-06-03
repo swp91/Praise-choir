@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Member } from '@/lib/types';
@@ -93,18 +93,33 @@ const PART_DESIGNS = {
 export default function MemberGrid({ parts }: Props) {
   const [expandedPart, setExpandedPart] = useState<string | null>(null);
   const [showFloatingBack, setShowFloatingBack] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const handleExpand = useCallback((key: string) => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setExpandedPart(key);
+    setTimeout(() => setIsTransitioning(false), 600);
+  }, [isTransitioning]);
+
+  const handleCollapse = useCallback(() => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setExpandedPart(null);
+    setShowFloatingBack(false);
+    setTimeout(() => setIsTransitioning(false), 600);
+  }, [isTransitioning]);
 
   // Close on Escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setExpandedPart(null);
-        setShowFloatingBack(false);
+        handleCollapse();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [handleCollapse]);
 
   const currentPart = parts.find((p) => p.key === expandedPart);
   const design = expandedPart ? PART_DESIGNS[expandedPart as keyof typeof PART_DESIGNS] : null;
@@ -220,7 +235,7 @@ export default function MemberGrid({ parts }: Props) {
   return (
     <div className="relative w-screen h-screen overflow-hidden font-ko">
       {/* 1. Main Grid View */}
-      <div className="grid grid-cols-2 grid-rows-3 md:grid-cols-3 md:grid-rows-2 w-full h-full">
+      <div className={`grid grid-cols-2 grid-rows-3 md:grid-cols-3 md:grid-rows-2 w-full h-full ${isTransitioning ? 'pointer-events-none' : ''}`}>
         {parts.map((part) => {
           const ptDesign = PART_DESIGNS[part.key as keyof typeof PART_DESIGNS];
           const isDarkBg = ptDesign.text === '#FFFDF9' || ptDesign.text === '#F5EED9';
@@ -229,7 +244,7 @@ export default function MemberGrid({ parts }: Props) {
             <motion.div
               key={part.key}
               layoutId={`panel-${part.key}`}
-              onClick={() => setExpandedPart(part.key)}
+              onClick={() => handleExpand(part.key)}
               className="relative flex flex-col justify-between p-6 md:p-10 cursor-pointer select-none group overflow-hidden"
               style={{ backgroundColor: ptDesign.bg, color: ptDesign.text }}
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
@@ -297,10 +312,7 @@ export default function MemberGrid({ parts }: Props) {
             <div className="flex justify-between items-center border-b border-current/10 pb-4 mb-6 md:mb-8 shrink-0">
               <button
                 type="button"
-                onClick={() => {
-                  setExpandedPart(null);
-                  setShowFloatingBack(false);
-                }}
+                onClick={handleCollapse}
                 className="flex items-center gap-2 text-[12px] md:text-[13px] font-medium tracking-[0.15em] uppercase px-3 py-1.5 rounded-full border border-current/25 hover:bg-current/5 transition-colors duration-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
@@ -387,10 +399,7 @@ export default function MemberGrid({ parts }: Props) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 15 }}
             type="button"
-            onClick={() => {
-              setExpandedPart(null);
-              setShowFloatingBack(false);
-            }}
+            onClick={handleCollapse}
             className="fixed bottom-6 right-6 z-[60] flex items-center justify-center w-12 h-12 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.16)] bg-cream text-ink border border-line-soft transition-transform duration-200 hover:scale-105 active:scale-95 md:hidden"
             title="뒤로 가기"
           >
