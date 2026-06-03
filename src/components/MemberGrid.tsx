@@ -232,37 +232,24 @@ export default function MemberGrid({ parts }: Props) {
               style={{ backgroundColor: ptDesign.bg, color: ptDesign.text }}
               transition={{ type: 'spring', stiffness: 350, damping: 30 }}
             >
-              {/* Top Row: Tagline & Number */}
+              {/* Top Row: Korean Tagline & Number */}
               <div className="flex justify-between items-start z-10">
-                <span className="font-en text-[11px] md:text-[12px] tracking-[0.2em] font-medium opacity-70">
-                  {ptDesign.tagline}
+                <span className="font-ko text-[12px] tracking-[0.1em] font-bold opacity-75">
+                  {part.name}
                 </span>
                 <span className="font-en text-[12px] md:text-[14px] font-semibold opacity-30 italic">
                   {ptDesign.number}
                 </span>
               </div>
 
-              {/* Middle Row: Massive Typography or Poetic Statement */}
-              <div className="my-auto z-10">
-                {part.key === 'tenor' ? (
-                  <div className="flex flex-col">
-                    <span className="font-en text-[clamp(2rem,6vw,4.5rem)] font-light leading-none tracking-[0.1em] uppercase font-serif select-none mb-2">
-                      TENOR
-                    </span>
-                    <p className="text-[12px] md:text-[13px] font-light leading-relaxed tracking-wide opacity-80 max-w-[80%] break-keep">
-                      {ptDesign.poem}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    <h2 className="font-ko text-[clamp(1.5rem,4vw,2.5rem)] font-bold tracking-tight leading-none mb-1">
-                      {part.name}
-                    </h2>
-                    <p className="text-[12px] md:text-[13px] font-light leading-relaxed tracking-wide opacity-80 max-w-[85%] break-keep">
-                      {ptDesign.poem}
-                    </p>
-                  </div>
-                )}
+              {/* Middle Row: Massive English Typography & Poetic Statement */}
+              <div className="my-auto z-10 flex flex-col gap-1.5">
+                <span className="font-en text-[clamp(1.8rem,5.2vw,3.6rem)] font-light leading-none tracking-[0.08em] uppercase font-serif select-none mb-1">
+                  {ptDesign.tagline}
+                </span>
+                <p className="text-[12px] md:text-[13px] font-light leading-relaxed tracking-wide opacity-80 max-w-[85%] break-keep">
+                  {ptDesign.poem}
+                </p>
               </div>
 
               {/* Bottom Row: Info & Action indicator */}
@@ -292,7 +279,7 @@ export default function MemberGrid({ parts }: Props) {
         {expandedPart && currentPart && design && (
           <motion.div
             layoutId={`panel-${expandedPart}`}
-            className="fixed inset-0 z-50 flex flex-col h-screen w-screen p-6 md:p-12 overflow-hidden"
+            className="fixed inset-0 z-50 overflow-y-auto p-6 md:p-12"
             style={{ backgroundColor: design.bg, color: design.text }}
             transition={{ type: 'spring', stiffness: 220, damping: 26 }}
           >
@@ -336,13 +323,12 @@ export default function MemberGrid({ parts }: Props) {
               </div>
             </div>
 
-            {/* Members Grid (Scrollable) */}
+            {/* Members Grid */}
             <motion.div
               variants={containerVariants}
               initial="hidden"
               animate="show"
-              className="flex-1 overflow-y-auto pr-1 pb-8"
-              style={{ scrollbarWidth: 'none' }} // Hide Firefox scrollbar
+              className="mt-6 md:mt-8 pb-12"
             >
               {expandedPart === 'soprano' ? (
                 <div className="flex flex-col gap-8 md:gap-12">
