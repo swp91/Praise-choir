@@ -144,14 +144,24 @@ export default function MemberGrid({ parts }: Props) {
     startTransitionLock(1100);
   }, [isTransitioning, startTransitionLock]);
 
-  // Clean up virtual history state and url hash on initial mount (e.g., after browser refresh)
+  // Restore expanded part state from URL hash on mount (e.g., after page reload or deep linking)
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      if (window.location.hash.startsWith('#part-')) {
-        window.history.replaceState(null, '', window.location.pathname);
+      const hash = window.location.hash;
+      if (hash.startsWith('#part-')) {
+        const partKey = hash.replace('#part-', '');
+        const hasPart = parts.some((p) => p.key === partKey);
+        if (hasPart) {
+          // Delay slightly to allow components to mount and trigger smooth zoom expansion
+          const timer = setTimeout(() => {
+            setExpandedPart(partKey);
+            window.history.replaceState({ part: partKey }, '', hash);
+          }, 100);
+          return () => clearTimeout(timer);
+        }
       }
     }
-  }, []);
+  }, [parts]);
 
   // Handle device hardware/gesture back events
   useEffect(() => {
