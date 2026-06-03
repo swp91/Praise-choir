@@ -355,6 +355,7 @@ export default function MemberGrid({ parts }: Props) {
           <motion.div
             key={`expanded-${expandedPart}`}
             layoutId={`panel-${expandedPart}`}
+            exit={{ opacity: 1 }}
             className="fixed inset-0 z-50 overflow-y-auto p-6 md:p-12"
             style={{ backgroundColor: design.bg, color: design.text }}
             transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
