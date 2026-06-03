@@ -144,6 +144,15 @@ export default function MemberGrid({ parts }: Props) {
     startTransitionLock(1100);
   }, [isTransitioning, startTransitionLock]);
 
+  // Clean up virtual history state and url hash on initial mount (e.g., after browser refresh)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.location.hash.startsWith('#part-')) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
+  }, []);
+
   // Handle device hardware/gesture back events
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
