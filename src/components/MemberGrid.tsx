@@ -99,16 +99,49 @@ export default function MemberGrid({ parts }: Props) {
     if (isTransitioning) return;
     setIsTransitioning(true);
     setExpandedPart(key);
+
+    // Add dummy history stack for mobile back-key interception
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ part: key }, '', `#part-${key}`);
+    }
+
     setTimeout(() => setIsTransitioning(false), 600);
   }, [isTransitioning]);
 
   const handleCollapse = useCallback(() => {
     if (isTransitioning) return;
     setIsTransitioning(true);
-    setExpandedPart(null);
-    setShowFloatingBack(false);
+
+    // If there is active part hash, trigger browser back to let popstate handle the state reset
+    if (typeof window !== 'undefined' && window.location.hash.startsWith('#part-')) {
+      window.history.back();
+    } else {
+      setExpandedPart(null);
+      setShowFloatingBack(false);
+    }
+
     setTimeout(() => setIsTransitioning(false), 600);
   }, [isTransitioning]);
+
+  // Handle device hardware/gesture back events
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      const state = e.state as { part?: string } | null;
+      setIsTransitioning(true);
+
+      if (state && state.part) {
+        setExpandedPart(state.part);
+      } else {
+        setExpandedPart(null);
+        setShowFloatingBack(false);
+      }
+
+      setTimeout(() => setIsTransitioning(false), 600);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Close on Escape key press
   useEffect(() => {
@@ -142,9 +175,8 @@ export default function MemberGrid({ parts }: Props) {
       opacity: 1,
       y: 0,
       transition: {
-        type: 'spring' as const,
-        stiffness: 120,
-        damping: 18,
+        duration: 0.7,
+        ease: [0.16, 1, 0.3, 1], // Premium GSAP expo.out curve
       },
     },
   } as const;
@@ -249,7 +281,7 @@ export default function MemberGrid({ parts }: Props) {
               onClick={() => handleExpand(part.key)}
               className="relative flex flex-col justify-between p-6 md:p-10 cursor-pointer select-none group overflow-hidden"
               style={{ backgroundColor: ptDesign.bg, color: ptDesign.text }}
-              transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+              transition={{ type: 'spring', stiffness: 120, damping: 20, mass: 0.8 }}
             >
               {/* Top Row: Korean Tagline & Number */}
               <div className="flex justify-between items-start z-10">
@@ -304,7 +336,7 @@ export default function MemberGrid({ parts }: Props) {
             layoutId={`panel-${expandedPart}`}
             className="fixed inset-0 z-50 overflow-y-auto p-6 md:p-12"
             style={{ backgroundColor: design.bg, color: design.text }}
-            transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+            transition={{ type: 'spring', stiffness: 120, damping: 20, mass: 0.8 }}
             onScroll={(e) => {
               const scrollTop = e.currentTarget.scrollTop;
               setShowFloatingBack(scrollTop > 80);
