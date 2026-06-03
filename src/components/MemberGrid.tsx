@@ -348,9 +348,7 @@ export default function MemberGrid({ parts }: Props) {
 
               {/* Bottom Row: Info & Action indicator */}
               <div className="flex justify-between items-end z-10 pt-4">
-                <span className="font-en text-[11px] tracking-[0.08em] opacity-60">
-                  {part.members.length} VOICES
-                </span>
+                <span />
                 <span className="flex items-center gap-1.5 text-[11px] tracking-[0.08em] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <span>VIEW MEMBERS</span>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 animate-pulse">
