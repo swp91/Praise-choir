@@ -92,12 +92,14 @@ const PART_DESIGNS = {
 
 export default function MemberGrid({ parts }: Props) {
   const [expandedPart, setExpandedPart] = useState<string | null>(null);
+  const [showFloatingBack, setShowFloatingBack] = useState(false);
 
   // Close on Escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setExpandedPart(null);
+        setShowFloatingBack(false);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -244,7 +246,11 @@ export default function MemberGrid({ parts }: Props) {
 
               {/* Middle Row: Massive English Typography & Poetic Statement */}
               <div className="my-auto z-10 flex flex-col gap-1.5">
-                <span className="font-en text-[clamp(1.8rem,5.2vw,3.6rem)] font-light leading-none tracking-[0.08em] uppercase font-serif select-none mb-1">
+                <span className={`font-en font-light leading-none tracking-[0.08em] uppercase font-serif select-none mb-1 ${
+                  ptDesign.tagline.length > 8
+                    ? 'text-[clamp(1.3rem,4.2vw,2.4rem)]'
+                    : 'text-[clamp(1.8rem,5.2vw,3.6rem)]'
+                }`}>
                   {ptDesign.tagline}
                 </span>
                 <p className="text-[12px] md:text-[13px] font-light leading-relaxed tracking-wide opacity-80 max-w-[85%] break-keep">
@@ -282,12 +288,19 @@ export default function MemberGrid({ parts }: Props) {
             className="fixed inset-0 z-50 overflow-y-auto p-6 md:p-12"
             style={{ backgroundColor: design.bg, color: design.text }}
             transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+            onScroll={(e) => {
+              const scrollTop = e.currentTarget.scrollTop;
+              setShowFloatingBack(scrollTop > 80);
+            }}
           >
             {/* Header: Back & Details */}
             <div className="flex justify-between items-center border-b border-current/10 pb-4 mb-6 md:mb-8 shrink-0">
               <button
                 type="button"
-                onClick={() => setExpandedPart(null)}
+                onClick={() => {
+                  setExpandedPart(null);
+                  setShowFloatingBack(false);
+                }}
                 className="flex items-center gap-2 text-[12px] md:text-[13px] font-medium tracking-[0.15em] uppercase px-3 py-1.5 rounded-full border border-current/25 hover:bg-current/5 transition-colors duration-200"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
@@ -363,6 +376,28 @@ export default function MemberGrid({ parts }: Props) {
               )}
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Back Button for Mobile (Fixed bottom-right) */}
+      <AnimatePresence>
+        {expandedPart && showFloatingBack && (
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 15 }}
+            type="button"
+            onClick={() => {
+              setExpandedPart(null);
+              setShowFloatingBack(false);
+            }}
+            className="fixed bottom-6 right-6 z-[60] flex items-center justify-center w-12 h-12 rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.16)] bg-cream text-ink border border-line-soft transition-transform duration-200 hover:scale-105 active:scale-95 md:hidden"
+            title="뒤로 가기"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+            </svg>
+          </motion.button>
         )}
       </AnimatePresence>
     </div>
