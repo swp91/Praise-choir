@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Member } from '@/lib/types';
@@ -94,9 +94,30 @@ export default function MemberGrid({ parts }: Props) {
   const [expandedPart, setExpandedPart] = useState<string | null>(null);
   const [showFloatingBack, setShowFloatingBack] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const startTransitionLock = useCallback((durationMs: number) => {
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+    }
+    setIsTransitioning(true);
+    transitionTimeoutRef.current = setTimeout(() => {
+      setIsTransitioning(false);
+      transitionTimeoutRef.current = null;
+    }, durationMs);
+  }, []);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, []);
 
   const handleExpand = useCallback((key: string) => {
-    if (isTransitioning) return;
+    if (isTransitioning || expandedPart !== null) return;
     setIsTransitioning(true);
     setExpandedPart(key);
 
@@ -105,8 +126,8 @@ export default function MemberGrid({ parts }: Props) {
       window.history.pushState({ part: key }, '', `#part-${key}`);
     }
 
-    setTimeout(() => setIsTransitioning(false), 1100);
-  }, [isTransitioning]);
+    startTransitionLock(1100);
+  }, [isTransitioning, expandedPart, startTransitionLock]);
 
   const handleCollapse = useCallback(() => {
     if (isTransitioning) return;
@@ -120,14 +141,13 @@ export default function MemberGrid({ parts }: Props) {
       setShowFloatingBack(false);
     }
 
-    setTimeout(() => setIsTransitioning(false), 1100);
-  }, [isTransitioning]);
+    startTransitionLock(1100);
+  }, [isTransitioning, startTransitionLock]);
 
   // Handle device hardware/gesture back events
   useEffect(() => {
     const handlePopState = (e: PopStateEvent) => {
       const state = e.state as { part?: string } | null;
-      setIsTransitioning(true);
 
       if (state && state.part) {
         setExpandedPart(state.part);
@@ -136,12 +156,12 @@ export default function MemberGrid({ parts }: Props) {
         setShowFloatingBack(false);
       }
 
-      setTimeout(() => setIsTransitioning(false), 1100);
+      startTransitionLock(1100);
     };
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [startTransitionLock]);
 
   // Close on Escape key press
   useEffect(() => {
@@ -333,6 +353,7 @@ export default function MemberGrid({ parts }: Props) {
       <AnimatePresence>
         {expandedPart && currentPart && design && (
           <motion.div
+            key={`expanded-${expandedPart}`}
             layoutId={`panel-${expandedPart}`}
             className="fixed inset-0 z-50 overflow-y-auto p-6 md:p-12"
             style={{ backgroundColor: design.bg, color: design.text }}
@@ -387,7 +408,8 @@ export default function MemberGrid({ parts }: Props) {
               variants={containerVariants}
               initial="hidden"
               animate="show"
-              className="mt-6 md:mt-8 pb-12"
+              exit={{ opacity: 0, transition: { duration: 0 } }}
+              className={`mt-6 md:mt-8 pb-12 transition-all duration-0 ${!expandedPart ? 'invisible opacity-0' : ''}`}
             >
               {expandedPart === 'soprano' ? (
                 <div className="flex flex-col gap-8 md:gap-12">
