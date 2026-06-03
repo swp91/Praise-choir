@@ -202,7 +202,7 @@ export default function MemberGrid({ parts }: Props) {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.04,
+        staggerChildren: 0.1,
         delayChildren: 0.6, // Start animating children after panel fully opens (600ms)
       },
     },
