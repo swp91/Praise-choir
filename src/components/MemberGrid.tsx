@@ -209,12 +209,11 @@ export default function MemberGrid({ parts }: Props) {
   } as const;
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 24 },
+    hidden: { y: '110%' },
     show: {
-      opacity: 1,
       y: 0,
       transition: {
-        duration: 0.7,
+        duration: 0.8,
         ease: [0.16, 1, 0.3, 1], // Premium GSAP expo.out curve
       },
     },
@@ -224,11 +223,11 @@ export default function MemberGrid({ parts }: Props) {
   const renderMemberCard = (member: Member, keyId: string) => {
     const hasPhoto = !!member.photo;
     return (
-      <motion.div
-        key={keyId}
-        variants={itemVariants}
-        className="flex flex-col group/card"
-      >
+      <div key={keyId} className="overflow-hidden p-1 -m-1">
+        <motion.div
+          variants={itemVariants}
+          className="flex flex-col group/card"
+        >
         {/* Photo: Elegant Square with rounded corners */}
         <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-current/10 shadow-sm mb-3 bg-current/5 transition-transform duration-300 group-hover/card:scale-[1.02]">
           {hasPhoto ? (
@@ -302,8 +301,9 @@ export default function MemberGrid({ parts }: Props) {
           </div>
         </div>
       </motion.div>
-    );
-  };
+    </div>
+  );
+};
 
   return (
     <div className="relative w-screen h-screen overflow-hidden font-ko">
