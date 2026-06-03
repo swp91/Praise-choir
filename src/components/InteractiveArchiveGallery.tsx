@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { Observer } from 'gsap/Observer';
 import type { Photo } from '@/lib/types';
@@ -154,12 +154,22 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
     const image = element.querySelector('img');
     if (!image) return;
     setActive({ photo, rect: image.getBoundingClientRect() });
+
+    if (typeof window !== 'undefined') {
+      const idStr = String(photo.id || photo.title).replace(/[^a-zA-Z0-9-_]/g, '');
+      window.history.pushState({ photoId: photo.id || photo.title }, '', `#photo-${idStr}`);
+    }
   }
 
-  function closePhoto() {
+  const closePhoto = useCallback((isFromPopstate = false) => {
     if (closingRef.current) return;
     if (!active || !overlayRef.current || !overlayImageRef.current) {
       setActive(null);
+      return;
+    }
+
+    if (!isFromPopstate && typeof window !== 'undefined' && window.location.hash.startsWith('#photo-')) {
+      window.history.back();
       return;
     }
 
@@ -187,7 +197,28 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         duration: 0.45,
         ease: 'power2.out',
       }, 0.6);
-  }
+  }, [active]);
+
+  // Handle hardware back/gesture popstate events
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      const state = e.state as { photoId?: string } | null;
+      if (!state || !state.photoId) {
+        closePhoto(true);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [closePhoto]);
+
+  // Clean up url hash on initial reload
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.location.hash.startsWith('#photo-')) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
+  }, []);
 
   return (
     <section className="relative hidden h-screen flex-col justify-between bg-cream px-0 pt-20 pb-8 overflow-hidden min-[881px]:flex">
@@ -261,7 +292,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
           aria-modal="true"
           aria-labelledby="archive-active-title"
           className="fixed inset-0 z-[1000] opacity-0"
-          onClick={closePhoto}
+          onClick={() => closePhoto()}
         >
           <div className="absolute right-8 top-8 z-20 flex gap-2">
             {active.photo.downloadUrl ? (

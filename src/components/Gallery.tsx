@@ -31,12 +31,53 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
   const [active, setActive] = useState<Photo | null>(null);
   const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
 
+  const openPhoto = (photo: Photo) => {
+    setActive(photo);
+    if (typeof window !== 'undefined') {
+      const idStr = String(photo.id || photo.title).replace(/[^a-zA-Z0-9-_]/g, '');
+      window.history.pushState({ photoId: photo.id || photo.title }, '', `#photo-${idStr}`);
+    }
+  };
+
+  const closePhoto = () => {
+    if (typeof window !== 'undefined' && window.location.hash.startsWith('#photo-')) {
+      window.history.back();
+    } else {
+      setActive(null);
+    }
+  };
+
+  // Close on Escape key press
   useEffect(() => {
     if (!active) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setActive(null); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') closePhoto(); };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, [active]);
+
+  // Clean up URL hash on initial reload
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (window.location.hash.startsWith('#photo-')) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    }
+  }, []);
+
+  // Handle hardware/gesture popstate events
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      const state = e.state as { photoId?: string } | null;
+      if (state && state.photoId) {
+        const found = photos.find(p => (p.id || p.title) === state.photoId);
+        if (found) setActive(found);
+      } else {
+        setActive(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [photos]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -65,7 +106,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
               <button
                 type="button"
                 className="group w-full bg-card border border-line-soft p-1.5 cursor-pointer transition-all duration-250 hover:border-gold text-left block"
-                onClick={() => setActive(p)}
+                onClick={() => openPhoto(p)}
               >
                 <div className="relative overflow-hidden">
                   <Placeholder photo={p} />
@@ -90,7 +131,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
           aria-modal="true"
           aria-labelledby="gallery-modal-title"
           className="fixed inset-0 bg-cream/95 backdrop-blur-sm z-200 flex items-center justify-center p-6"
-          onClick={e => { if (e.target === e.currentTarget) setActive(null); }}
+          onClick={e => { if (e.target === e.currentTarget) closePhoto(); }}
         >
           <div className="max-w-200 w-full bg-card border border-gold p-3.5 relative">
             <div className="relative max-h-[72vh] overflow-hidden">
