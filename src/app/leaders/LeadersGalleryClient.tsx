@@ -293,21 +293,23 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
               <div
                 key={i}
                 onClick={() => handleCardClick(i)}
-                className={`officer-card-3d absolute w-[160px] h-[213px] max-[768px]:w-[90px] max-[768px]:h-[120px] bg-card border transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-sm overflow-hidden shadow-lg cursor-pointer ${
-                  isActive 
-                    ? 'border-gold shadow-[0_15px_45px_rgba(184,154,90,0.5)]' 
-                    : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)]'
-                }`}
+                className="officer-card-3d absolute w-[160px] h-[213px] max-[768px]:w-[90px] max-[768px]:h-[120px] cursor-pointer"
                 style={{
                   transform: transformStr,
-                  opacity: opacityVal,
                   zIndex: zIndex,
                   pointerEvents: pointerEvents,
                   left: `calc(50% - ${cardWidth / 2}px)`,
                   top: `calc(50% - ${cardHeight / 2}px)`,
                 }}
               >
-                <div className="w-full h-full relative">
+                <div 
+                  className={`w-full h-full relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-sm overflow-hidden border shadow-lg ${
+                    isActive 
+                      ? 'border-gold shadow-[0_15px_45px_rgba(184,154,90,0.5)] bg-card' 
+                      : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
+                  }`}
+                  style={{ opacity: opacityVal }}
+                >
                   {officer.photo ? (
                     <Image 
                       src={imageUrl(officer.photo, { width: 320, height: 426, crop: 'fill', gravity: 'face' })} 
