@@ -93,33 +93,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     };
   }, [activeIdx]);
 
-  // Global mouse and touch drag/swipe events for infinite scrolling
+  // Global touch drag/swipe events for infinite scrolling on mobile
   useEffect(() => {
-    const handleGlobalMouseMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current || activeIdx !== null) return;
-      
-      // Calculate total drag distance since mousedown
-      const dx = e.clientX - dragStartRef.current.x;
-      const dy = e.clientY - dragStartRef.current.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
-      // Only mark as moved (drag) if movement exceeds 6px (filtering click jitter)
-      if (!dragStartRef.current.hasMoved && dist > 6) {
-        dragStartRef.current.hasMoved = true;
-      }
-
-      if (dragStartRef.current.hasMoved) {
-        const deltaX = e.clientX - startXRef.current;
-        targetRotationRef.current += deltaX * 0.16;
-        startXRef.current = e.clientX;
-      }
-    };
-
-    const handleGlobalMouseUp = () => {
-      isDraggingRef.current = false;
-      document.body.style.cursor = 'default';
-    };
-
     const handleGlobalTouchMove = (e: TouchEvent) => {
       if (!isDraggingRef.current || activeIdx !== null) return;
       const currentX = e.touches[0].clientX;
@@ -144,30 +119,14 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       isDraggingRef.current = false;
     };
 
-    window.addEventListener('mousemove', handleGlobalMouseMove);
-    window.addEventListener('mouseup', handleGlobalMouseUp);
     window.addEventListener('touchmove', handleGlobalTouchMove, { passive: true });
     window.addEventListener('touchend', handleGlobalTouchEnd);
 
     return () => {
-      window.removeEventListener('mousemove', handleGlobalMouseMove);
-      window.removeEventListener('mouseup', handleGlobalMouseUp);
       window.removeEventListener('touchmove', handleGlobalTouchMove);
       window.removeEventListener('touchend', handleGlobalTouchEnd);
     };
   }, [activeIdx]);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (activeIdx !== null) return;
-    isDraggingRef.current = true;
-    startXRef.current = e.clientX;
-    dragStartRef.current = {
-      x: e.clientX,
-      y: e.clientY,
-      hasMoved: false,
-    };
-    document.body.style.cursor = 'grabbing';
-  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (activeIdx !== null) return;
@@ -183,7 +142,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
   // Click card focuses on that officer via shortest-path algorithm
   const handleCardClick = (index: number) => {
-    // If we were dragging, ignore the click
+    // If we were dragging (e.g. on mobile touch), ignore the click
     if (dragStartRef.current.hasMoved) {
       return;
     }
@@ -263,7 +222,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
       {/* Visual instructions */}
       <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 transition-opacity duration-500 pointer-events-none ${activeIdx !== null ? 'opacity-0' : 'opacity-70'}`}>
-        <span className="font-en text-[10px] uppercase tracking-[0.25em] text-gold-deep">Drag or Scroll to Rotate</span>
+        <span className="font-en text-[10px] uppercase tracking-[0.25em] text-gold-deep">Scroll to Rotate</span>
         <div className="w-[1px] h-6 bg-gold-deep/30 relative overflow-hidden">
           <div className="absolute top-0 left-0 right-0 h-1/2 bg-gold-deep animate-[bounce_2s_infinite]" />
         </div>
@@ -272,9 +231,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       {/* 3D Visual Gallery Page Container */}
       <div 
         ref={viewportRef}
-        onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
-        className="viewport-3d w-full h-full flex items-center justify-center relative cursor-grab active:cursor-grabbing"
+        className="viewport-3d w-full h-full flex items-center justify-center relative"
       >
         {/* 3D Cylinder Container */}
         <div 
@@ -318,8 +276,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             // Sort cards in 3D layering space
             const zIndex = isActive ? 50 : Math.round((cosAngle + 1) * 100);
 
-            // Back-facing cards or inactive cards during detail view should not block clicks
-            const pointerEvents = (cosAngle > 0.1 && !isAnyActive) || isActive ? 'auto' : 'none';
+            // Check if card is behind the camera plane to prevent CSS 3D click blocking bug
+            const isBehindCamera = cosAngle < (1 - viewDistance / radius);
+            const pointerEvents = !isBehindCamera && (!isAnyActive || isActive) ? 'auto' : 'none';
 
             // Selectively preload only front-facing cards initially visible to user
             const isInitiallyVisible = i < 3 || i > totalCards - 4;
@@ -334,7 +293,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                     : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)]'
                 }`}
                 style={{
-                  transform: `rotateY(${angle + rotateYOffset}deg) rotateX(${rotateX}deg) translateZ(${translateZVal}px) translateY(${offsetY}px) rotateZ(${rotateZ}deg) scale(${scale})`,
+                  transform: `rotateY(${angle}deg) translateZ(${translateZVal}px) rotateY(${rotateYOffset}deg) rotateX(${rotateX}deg) rotateZ(${rotateZ}deg) translateY(${offsetY}px) scale(${scale})`,
                   opacity: opacity,
                   zIndex: zIndex,
                   pointerEvents: pointerEvents,
