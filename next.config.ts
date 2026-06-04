@@ -4,7 +4,6 @@ const nextConfig: NextConfig = {
   images: {
     dangerouslyAllowLocalIP: true,
     remotePatterns: [
-      { protocol: 'https', hostname: 'res.cloudinary.com' },
       { protocol: 'https', hostname: 'nwgicchwkxbrbeoqzcyw.supabase.co' },
     ],
   },

@@ -41,6 +41,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   // Drag and Swipe Tracking Refs
   const isDraggingRef = useRef(false);
   const startXRef = useRef(0);
+  const dragStartRef = useRef({ x: 0, y: 0, hasMoved: false });
 
   // Monitor screen size for mobile responsive parameters
   useEffect(() => {
@@ -96,10 +97,22 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   useEffect(() => {
     const handleGlobalMouseMove = (e: MouseEvent) => {
       if (!isDraggingRef.current || activeIdx !== null) return;
-      const deltaX = e.clientX - startXRef.current;
-      // Drag left/right turns the cylinder clockwise/counter-clockwise infinitely
-      targetRotationRef.current += deltaX * 0.16;
-      startXRef.current = e.clientX;
+      
+      // Calculate total drag distance since mousedown
+      const dx = e.clientX - dragStartRef.current.x;
+      const dy = e.clientY - dragStartRef.current.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Only mark as moved (drag) if movement exceeds 6px (filtering click jitter)
+      if (!dragStartRef.current.hasMoved && dist > 6) {
+        dragStartRef.current.hasMoved = true;
+      }
+
+      if (dragStartRef.current.hasMoved) {
+        const deltaX = e.clientX - startXRef.current;
+        targetRotationRef.current += deltaX * 0.16;
+        startXRef.current = e.clientX;
+      }
     };
 
     const handleGlobalMouseUp = () => {
@@ -110,9 +123,21 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     const handleGlobalTouchMove = (e: TouchEvent) => {
       if (!isDraggingRef.current || activeIdx !== null) return;
       const currentX = e.touches[0].clientX;
-      const deltaX = currentX - startXRef.current;
-      targetRotationRef.current += deltaX * 0.22;
-      startXRef.current = currentX;
+      const currentY = e.touches[0].clientY;
+      
+      const dx = currentX - dragStartRef.current.x;
+      const dy = currentY - dragStartRef.current.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      if (!dragStartRef.current.hasMoved && dist > 6) {
+        dragStartRef.current.hasMoved = true;
+      }
+
+      if (dragStartRef.current.hasMoved) {
+        const deltaX = currentX - startXRef.current;
+        targetRotationRef.current += deltaX * 0.22;
+        startXRef.current = currentX;
+      }
     };
 
     const handleGlobalTouchEnd = () => {
@@ -136,17 +161,33 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     if (activeIdx !== null) return;
     isDraggingRef.current = true;
     startXRef.current = e.clientX;
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      hasMoved: false,
+    };
     document.body.style.cursor = 'grabbing';
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (activeIdx !== null) return;
     isDraggingRef.current = true;
-    startXRef.current = e.touches[0].clientX;
+    const clientX = e.touches[0].clientX;
+    startXRef.current = clientX;
+    dragStartRef.current = {
+      x: clientX,
+      y: e.touches[0].clientY,
+      hasMoved: false,
+    };
   };
 
   // Click card focuses on that officer via shortest-path algorithm
   const handleCardClick = (index: number) => {
+    // If we were dragging, ignore the click
+    if (dragStartRef.current.hasMoved) {
+      return;
+    }
+
     if (activeIdx === index) {
       handleClose();
       return;
@@ -178,12 +219,12 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const totalCards = officers.length;
   // Calculate dynamic radius to prevent card overlap and match wide perspective
   const radius = isMobile 
-    ? Math.max(260, (totalCards * 120) / (2 * Math.PI)) 
-    : Math.max(530, (totalCards * 220) / (2 * Math.PI));
+    ? Math.max(260, (totalCards * 110) / (2 * Math.PI)) 
+    : Math.max(530, (totalCards * 200) / (2 * Math.PI));
 
   // camera is inside the cylinder, Z = 1000px
   const cameraZ = 1000;
-  const viewDistance = isMobile ? 240 : 450;
+  const viewDistance = isMobile ? 320 : 550;
   // cylinder center is translated forward in Z to place the camera inside
   const cylinderZ = cameraZ + radius - viewDistance;
 
@@ -254,10 +295,15 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const cosAngle = Math.cos(rad); // 1 = closest, -1 = furthest
 
             // Compute deterministic scattered offsets for scrolling mode
-            const seedY = Math.sin(i * 1.7);
-            const seedRotate = Math.sin(i * 3.1);
-            const offsetY = isAnyActive ? 0 : seedY * 45;
-            const rotateZ = isAnyActive ? 0 : seedRotate * 7.5;
+            const seedX = Math.sin(i * 2.3);
+            const seedY = Math.cos(i * 1.7);
+            const seedZ = Math.sin(i * 3.1);
+            const seedRotY = Math.cos(i * 4.7);
+
+            const offsetY = isAnyActive ? 0 : seedY * 40;
+            const rotateX = isAnyActive ? 0 : seedX * 12; // tilt forward/backward
+            const rotateYOffset = isAnyActive ? 0 : seedRotY * 10; // yaw tilt
+            const rotateZ = isAnyActive ? 0 : seedZ * 8; // roll tilt
             
             // Focus card details
             const focusAdvance = isMobile ? 80 : 180;
@@ -272,29 +318,36 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             // Sort cards in 3D layering space
             const zIndex = isActive ? 50 : Math.round((cosAngle + 1) * 100);
 
+            // Back-facing cards or inactive cards during detail view should not block clicks
+            const pointerEvents = (cosAngle > 0.1 && !isAnyActive) || isActive ? 'auto' : 'none';
+
+            // Selectively preload only front-facing cards initially visible to user
+            const isInitiallyVisible = i < 3 || i > totalCards - 4;
+
             return (
               <div
                 key={i}
                 onClick={() => handleCardClick(i)}
-                className={`officer-card-3d absolute w-[210px] h-[280px] max-[768px]:w-[112px] max-[768px]:h-[150px] bg-card border transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-sm overflow-hidden shadow-lg cursor-pointer ${
+                className={`officer-card-3d absolute w-[160px] h-[213px] max-[768px]:w-[90px] max-[768px]:h-[120px] bg-card border transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-sm overflow-hidden shadow-lg cursor-pointer ${
                   isActive 
                     ? 'border-gold shadow-[0_15px_45px_rgba(184,154,90,0.5)]' 
                     : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)]'
                 }`}
                 style={{
-                  transform: `rotateY(${angle}deg) translateZ(${translateZVal}px) translateY(${offsetY}px) rotateZ(${rotateZ}deg) scale(${scale})`,
+                  transform: `rotateY(${angle + rotateYOffset}deg) rotateX(${rotateX}deg) translateZ(${translateZVal}px) translateY(${offsetY}px) rotateZ(${rotateZ}deg) scale(${scale})`,
                   opacity: opacity,
                   zIndex: zIndex,
+                  pointerEvents: pointerEvents,
                 }}
               >
                 <div className="w-full h-full relative">
                   {officer.photo ? (
                     <Image 
-                      src={imageUrl(officer.photo, { width: 420, height: 560, crop: 'fill', gravity: 'face' })} 
+                      src={imageUrl(officer.photo, { width: 320, height: 426, crop: 'fill', gravity: 'face' })} 
                       alt={officer.name} 
                       fill 
-                      priority={true}
-                      sizes="(max-width: 768px) 115px, 210px" 
+                      priority={isInitiallyVisible}
+                      sizes="(max-width: 768px) 180px, 320px" 
                       className="object-cover transition-transform duration-500 hover:scale-105"
                     />
                   ) : (
