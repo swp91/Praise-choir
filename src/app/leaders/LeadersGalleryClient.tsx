@@ -187,6 +187,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   // cylinder center is translated forward in Z to place the camera inside
   const cylinderZ = cameraZ + radius - viewDistance;
 
+  const cardWidth = isMobile ? 90 : 160;
+  const cardHeight = isMobile ? 120 : 213;
+
   const activeOfficer = activeIdx !== null ? officers[activeIdx] : null;
 
   return (
@@ -276,9 +279,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             // Sort cards in 3D layering space
             const zIndex = isActive ? 50 : Math.round((cosAngle + 1) * 100);
 
-            // Check if card is behind the camera plane to prevent CSS 3D click blocking bug
-            const isBehindCamera = cosAngle < (1 - viewDistance / radius);
-            const pointerEvents = !isBehindCamera && (!isAnyActive || isActive) ? 'auto' : 'none';
+            // Check if card is in the front half of the cylinder
+            const pointerEvents = cosAngle > 0.1 && (!isAnyActive || isActive) ? 'auto' : 'none';
 
             // Formatted values to prevent SSR/Hydration mismatch from floating point precision
             const transformStr = `rotateY(${angle.toFixed(2)}deg) translateZ(${translateZVal.toFixed(2)}px) rotateY(${rotateYOffset.toFixed(4)}deg) rotateX(${rotateX.toFixed(4)}deg) rotateZ(${rotateZ.toFixed(4)}deg) translateY(${offsetY.toFixed(2)}px) scale(${scale.toFixed(4)})`;
@@ -301,6 +303,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                   opacity: opacityVal,
                   zIndex: zIndex,
                   pointerEvents: pointerEvents,
+                  left: `calc(50% - ${cardWidth / 2}px)`,
+                  top: `calc(50% - ${cardHeight / 2}px)`,
                 }}
               >
                 <div className="w-full h-full relative">
