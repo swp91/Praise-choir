@@ -232,7 +232,7 @@ export async function getLeadersData() {
         .order('sort_order'),
       'leadership assignments',
     ),
-    must(supabase.from('sections').select('id,key').eq('is_active', true), 'sections'),
+    must(supabase.from('sections').select('id,key,name_ko').eq('is_active', true), 'sections'),
     must(supabase.from('section_memberships').select('*').eq('is_active', true).order('sort_order'), 'memberships'),
     must(supabase.from('people').select('*').eq('is_active', true), 'people'),
     must(supabase.from('media_assets').select('*'), 'media assets'),
@@ -240,6 +240,12 @@ export async function getLeadersData() {
 
   const peopleById = new Map((people as PersonRow[]).map((person) => [person.id, person]));
   const mediaById = new Map((media as MediaAsset[]).map((asset) => [asset.id, asset]));
+  const sectionById = new Map((sections as { id: string; key: string; name_ko: string }[]).map((s) => [s.id, s]));
+  const membershipByPersonId = new Map(
+    (memberships as { person_id: string; section_id: string; is_active: boolean }[])
+      .filter((m) => m.is_active !== false)
+      .map((m) => [m.person_id, m])
+  );
   const staffSection = sections.find((section) => section.key === 'staff');
 
   const conductors: Conductor[] = staffSection
@@ -269,10 +275,13 @@ export async function getLeadersData() {
 
     if (assignment.group_key === 'officers') {
       if (!person) continue;
+      const membership = membershipByPersonId.get(person.id);
+      const section = membership ? sectionById.get(membership.section_id) : undefined;
+      const part = section ? section.name_ko : '';
       officers.push({
         role: assignment.role_text,
         name: displayName,
-        part: '',
+        part,
         photo,
       });
     }
