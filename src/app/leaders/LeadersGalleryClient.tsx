@@ -238,7 +238,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         <div 
           className="cylinder-container relative w-full h-[50vh] flex items-center justify-center transition-all"
           style={{ 
-            transform: `translateZ(${cylinderZ}px) rotateY(${rotationY}deg)`,
+            transform: `translateZ(${cylinderZ.toFixed(2)}px) rotateY(${rotationY.toFixed(4)}deg)`,
             transition: transitionStyle
           }}
         >
@@ -280,6 +280,10 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const isBehindCamera = cosAngle < (1 - viewDistance / radius);
             const pointerEvents = !isBehindCamera && (!isAnyActive || isActive) ? 'auto' : 'none';
 
+            // Formatted values to prevent SSR/Hydration mismatch from floating point precision
+            const transformStr = `rotateY(${angle.toFixed(2)}deg) translateZ(${translateZVal.toFixed(2)}px) rotateY(${rotateYOffset.toFixed(4)}deg) rotateX(${rotateX.toFixed(4)}deg) rotateZ(${rotateZ.toFixed(4)}deg) translateY(${offsetY.toFixed(2)}px) scale(${scale.toFixed(4)})`;
+            const opacityVal = parseFloat(opacity.toFixed(4));
+
             // Selectively preload only front-facing cards initially visible to user
             const isInitiallyVisible = i < 3 || i > totalCards - 4;
 
@@ -293,8 +297,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                     : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)]'
                 }`}
                 style={{
-                  transform: `rotateY(${angle}deg) translateZ(${translateZVal}px) rotateY(${rotateYOffset}deg) rotateX(${rotateX}deg) rotateZ(${rotateZ}deg) translateY(${offsetY}px) scale(${scale})`,
-                  opacity: opacity,
+                  transform: transformStr,
+                  opacity: opacityVal,
                   zIndex: zIndex,
                   pointerEvents: pointerEvents,
                 }}
