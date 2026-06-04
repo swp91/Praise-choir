@@ -265,12 +265,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const scale = isActive ? 1.2 : (isAnyActive ? 0.8 : 1);
 
             // WebGL-like depth fade effects using cosAngle
-            // Front-facing cards are clear and opaque, back-facing cards blur and fade
+            // Front-facing cards are clear and opaque, back-facing cards fade
             const normalOpacity = Math.max(0.12, (cosAngle + 1) / 2);
             const opacity = isAnyActive ? (isActive ? 1 : 0.15) : normalOpacity;
-
-            const normalBlur = Math.max(0, (1 - cosAngle) * 3);
-            const blurVal = isAnyActive ? (isActive ? 0 : 3.5) : normalBlur;
 
             // Sort cards in 3D layering space
             const zIndex = isActive ? 50 : Math.round((cosAngle + 1) * 100);
@@ -287,7 +284,6 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 style={{
                   transform: `rotateY(${angle}deg) translateZ(${translateZVal}px) translateY(${offsetY}px) rotateZ(${rotateZ}deg) scale(${scale})`,
                   opacity: opacity,
-                  filter: `blur(${blurVal}px)`,
                   zIndex: zIndex,
                 }}
               >
@@ -297,6 +293,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                       src={imageUrl(officer.photo, { width: 420, height: 560, crop: 'fill', gravity: 'face' })} 
                       alt={officer.name} 
                       fill 
+                      priority={true}
                       sizes="(max-width: 768px) 115px, 210px" 
                       className="object-cover transition-transform duration-500 hover:scale-105"
                     />
