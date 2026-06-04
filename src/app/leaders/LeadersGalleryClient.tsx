@@ -176,14 +176,14 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   };
 
   const totalCards = officers.length;
-  // Calculate dynamic radius to prevent card overlap
+  // Calculate dynamic radius to prevent card overlap and match wide perspective
   const radius = isMobile 
-    ? Math.max(220, (totalCards * 115) / (2 * Math.PI)) 
-    : Math.max(485, (totalCards * 195) / (2 * Math.PI));
+    ? Math.max(260, (totalCards * 120) / (2 * Math.PI)) 
+    : Math.max(530, (totalCards * 220) / (2 * Math.PI));
 
   // camera is inside the cylinder, Z = 1000px
   const cameraZ = 1000;
-  const viewDistance = isMobile ? 120 : 200;
+  const viewDistance = isMobile ? 240 : 450;
   // cylinder center is translated forward in Z to place the camera inside
   const cylinderZ = cameraZ + radius - viewDistance;
 
@@ -260,7 +260,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const rotateZ = isAnyActive ? 0 : seedRotate * 7.5;
             
             // Focus card details
-            const focusAdvance = isMobile ? 50 : 100;
+            const focusAdvance = isMobile ? 80 : 180;
             const translateZVal = isActive ? -(radius - focusAdvance) : -radius;
             const scale = isActive ? 1.2 : (isAnyActive ? 0.8 : 1);
 
@@ -279,10 +279,10 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
               <div
                 key={i}
                 onClick={() => handleCardClick(i)}
-                className={`officer-card-3d absolute w-[176px] h-[236px] max-[768px]:w-[104px] max-[768px]:h-[140px] bg-card border-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-md overflow-hidden shadow-md cursor-pointer flex flex-col p-2.5 max-[768px]:p-1.5 ${
+                className={`officer-card-3d absolute w-[210px] h-[280px] max-[768px]:w-[112px] max-[768px]:h-[150px] bg-card border transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-sm overflow-hidden shadow-lg cursor-pointer ${
                   isActive 
-                    ? 'border-gold shadow-[0_10px_35px_rgba(184,154,90,0.45)]' 
-                    : 'border-line hover:border-gold-deep shadow-black/5 hover:shadow-[0_8px_20px_rgba(138,111,47,0.15)]'
+                    ? 'border-gold shadow-[0_15px_45px_rgba(184,154,90,0.5)]' 
+                    : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)]'
                 }`}
                 style={{
                   transform: `rotateY(${angle}deg) translateZ(${translateZVal}px) translateY(${offsetY}px) rotateZ(${rotateZ}deg) scale(${scale})`,
@@ -291,27 +291,20 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                   zIndex: zIndex,
                 }}
               >
-                {/* Photo Frame Container */}
-                <div className="w-full flex-1 relative rounded overflow-hidden bg-card-head border border-line-soft">
+                <div className="w-full h-full relative">
                   {officer.photo ? (
                     <Image 
-                      src={imageUrl(officer.photo, { width: 384, height: 512, crop: 'fill', gravity: 'face' })} 
+                      src={imageUrl(officer.photo, { width: 420, height: 560, crop: 'fill', gravity: 'face' })} 
                       alt={officer.name} 
                       fill 
-                      sizes="(max-width: 768px) 105px, 180px" 
-                      className="object-cover transition-transform duration-500"
+                      sizes="(max-width: 768px) 115px, 210px" 
+                      className="object-cover transition-transform duration-500 hover:scale-105"
                     />
                   ) : (
                     <div className="w-full h-full bg-[repeating-linear-gradient(45deg,#ebe0c4_0_5px,#ddd0ad_5px_10px)] flex items-center justify-center">
-                      <span className="font-en text-[24px] max-[768px]:text-[16px] text-ink-soft opacity-30">P</span>
+                      <span className="font-en text-[28px] max-[768px]:text-[18px] text-ink-soft opacity-30">P</span>
                     </div>
                   )}
-                </div>
-
-                {/* Card Meta details */}
-                <div className="pt-2 pb-0.5 text-center flex flex-col justify-center">
-                  <span className="font-ko text-[12.5px] max-[768px]:text-[10px] font-bold text-ink leading-tight">{officer.name}</span>
-                  <span className="font-ko text-[10px] max-[768px]:text-[8px] text-gold-deep mt-0.5 tracking-wide">{officer.role}</span>
                 </div>
               </div>
             );
