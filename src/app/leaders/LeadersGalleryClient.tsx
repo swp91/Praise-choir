@@ -5,7 +5,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { imageUrl } from '@/lib/media';
 import type { Officer } from '@/lib/types';
-import HeroBlock from '@/components/HeroBlock';
 
 // Mapped duties for officers based on roles
 const dutiesMap: Record<string, string> = {
@@ -28,11 +27,20 @@ interface LeadersGalleryClientProps {
 }
 
 export default function LeadersGalleryClient({ officers }: LeadersGalleryClientProps) {
-  const [scrollY, setScrollY] = useState(0);
+  const [rotationY, setRotationY] = useState(0);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [transitionStyle, setTransitionStyle] = useState('transform 0.4s cubic-bezier(0.1, 0.8, 0.2, 1)');
+
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const targetRotationRef = useRef(0);
+  const currentRotationRef = useRef(0);
+  const requestRef = useRef<number | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Drag and Swipe Tracking Refs
+  const isDraggingRef = useRef(false);
+  const startXRef = useRef(0);
 
   // Monitor screen size for mobile responsive parameters
   useEffect(() => {
@@ -44,27 +52,120 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Update scroll position when not focusing an item
+  // RequestAnimationFrame smooth damping loop (Inertia Engine)
   useEffect(() => {
-    if (activeIdx !== null) return;
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
+    const animate = () => {
+      const diff = targetRotationRef.current - currentRotationRef.current;
+      // Smoothly damp current rotation towards target rotation
+      currentRotationRef.current += diff * 0.07;
+      setRotationY(currentRotationRef.current);
+      requestRef.current = requestAnimationFrame(animate);
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    requestRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+    };
+  }, []);
+
+  // Prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
+
+  // Custom infinite scroll/wheel listener
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      if (activeIdx !== null) return;
+      e.preventDefault();
+      // Mouse wheel directly adjusts target rotation infinitely
+      targetRotationRef.current += e.deltaY * 0.09;
+    };
+
+    viewport.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      viewport.removeEventListener('wheel', handleWheel);
+    };
   }, [activeIdx]);
 
-  // Handle click on card
+  // Global mouse and touch drag/swipe events for infinite scrolling
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current || activeIdx !== null) return;
+      const deltaX = e.clientX - startXRef.current;
+      // Drag left/right turns the cylinder clockwise/counter-clockwise infinitely
+      targetRotationRef.current += deltaX * 0.16;
+      startXRef.current = e.clientX;
+    };
+
+    const handleGlobalMouseUp = () => {
+      isDraggingRef.current = false;
+      document.body.style.cursor = 'default';
+    };
+
+    const handleGlobalTouchMove = (e: TouchEvent) => {
+      if (!isDraggingRef.current || activeIdx !== null) return;
+      const currentX = e.touches[0].clientX;
+      const deltaX = currentX - startXRef.current;
+      targetRotationRef.current += deltaX * 0.22;
+      startXRef.current = currentX;
+    };
+
+    const handleGlobalTouchEnd = () => {
+      isDraggingRef.current = false;
+    };
+
+    window.addEventListener('mousemove', handleGlobalMouseMove);
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    window.addEventListener('touchmove', handleGlobalTouchMove, { passive: true });
+    window.addEventListener('touchend', handleGlobalTouchEnd);
+
+    return () => {
+      window.removeEventListener('mousemove', handleGlobalMouseMove);
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('touchmove', handleGlobalTouchMove);
+      window.removeEventListener('touchend', handleGlobalTouchEnd);
+    };
+  }, [activeIdx]);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (activeIdx !== null) return;
+    isDraggingRef.current = true;
+    startXRef.current = e.clientX;
+    document.body.style.cursor = 'grabbing';
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (activeIdx !== null) return;
+    isDraggingRef.current = true;
+    startXRef.current = e.touches[0].clientX;
+  };
+
+  // Click card focuses on that officer via shortest-path algorithm
   const handleCardClick = (index: number) => {
     if (activeIdx === index) {
       handleClose();
       return;
     }
+    
+    // Shortest-path rotation mapping
+    const totalCards = officers.length;
+    const targetAngle = -(index * (360 / totalCards));
+    const currentRot = currentRotationRef.current;
+    
+    let diff = (targetAngle - currentRot) % 360;
+    if (diff < -180) diff += 360;
+    if (diff > 180) diff -= 360;
+    
     setTransitionStyle('transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)');
+    targetRotationRef.current = currentRot + diff;
     setActiveIdx(index);
   };
 
-  // Close details panel
   const handleClose = () => {
     setTransitionStyle('transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)');
     setActiveIdx(null);
@@ -74,40 +175,42 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     }, 800);
   };
 
-  // Prevent memory leaks
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
-
   const totalCards = officers.length;
   // Calculate dynamic radius to prevent card overlap
   const radius = isMobile 
-    ? Math.max(170, (totalCards * 110) / (2 * Math.PI)) 
-    : Math.max(340, (totalCards * 190) / (2 * Math.PI));
+    ? Math.max(220, (totalCards * 115) / (2 * Math.PI)) 
+    : Math.max(485, (totalCards * 195) / (2 * Math.PI));
 
-  // Determine standard cylinder rotation
-  const currentRotation = scrollY * 0.07;
-  const targetRotation = activeIdx !== null 
-    ? -(activeIdx * (360 / totalCards)) 
-    : currentRotation;
-
-  // Parallax cylinder position based on initial scroll
-  const cylinderTranslateY = activeIdx !== null 
-    ? 0 
-    : Math.max(0, 160 - (scrollY * 0.5));
+  // camera is inside the cylinder, Z = 1000px
+  const cameraZ = 1000;
+  const viewDistance = isMobile ? 120 : 200;
+  // cylinder center is translated forward in Z to place the camera inside
+  const cylinderZ = cameraZ + radius - viewDistance;
 
   const activeOfficer = activeIdx !== null ? officers[activeIdx] : null;
 
   return (
-    <main className="main-content p-0 min-h-[350vh] bg-[#fdf9f0] relative select-none">
-      {/* Scroll indicator instructions */}
-      <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 transition-opacity duration-500 pointer-events-none ${scrollY > 200 || activeIdx !== null ? 'opacity-0' : 'opacity-80'}`}>
-        <span className="font-en text-[10px] uppercase tracking-[0.25em] text-gold-deep">Scroll to Rotate</span>
-        <div className="w-[1px] h-8 bg-gold-deep/40 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1/2 bg-gold-deep animate-[bounce_2s_infinite]" />
-        </div>
+    <main className="main-content p-0 w-screen h-screen overflow-hidden bg-[#fdf9f0] relative select-none">
+      {/* 3D viewport style injection */}
+      <style jsx global>{`
+        .viewport-3d {
+          perspective: ${cameraZ}px;
+          perspective-origin: 50% 50%;
+        }
+        .cylinder-container {
+          transform-style: preserve-3d;
+        }
+        .officer-card-3d {
+          transform-style: preserve-3d;
+          backface-visibility: hidden;
+        }
+      `}</style>
+
+      {/* Floating Header */}
+      <div className="absolute top-10 left-0 right-0 z-20 flex flex-col items-center pointer-events-none text-center px-6">
+        <span className="font-en text-[11px] uppercase tracking-[0.3em] text-gold-deep mb-1.5">Serving Servants</span>
+        <h1 className="font-ko text-[22px] font-bold text-ink tracking-wide">찬양대 임원진</h1>
+        <div className="w-12 h-[1.5px] bg-gold/40 mt-2.5" />
       </div>
 
       {/* Floating Home Back Button */}
@@ -117,96 +220,102 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         </Link>
       </div>
 
-      {/* 3D Visual Gallery Page Container */}
-      <div className="fixed inset-0 overflow-hidden w-full h-full flex flex-col items-center justify-center">
-        {/* Parallax Hero Header */}
-        <div 
-          className="absolute left-0 right-0 top-0 z-10 transition-transform pointer-events-none"
-          style={{ transform: activeIdx !== null ? 'translateY(-120%)' : `translateY(${-scrollY * 0.9}px)` }}
-        >
-          <HeroBlock
-            eyebrow="Serving Servants"
-            title="Choir Officers"
-            titleKo="찬양대 임원진"
-            watermark="OFFICER"
-          />
+      {/* Visual instructions */}
+      <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 transition-opacity duration-500 pointer-events-none ${activeIdx !== null ? 'opacity-0' : 'opacity-70'}`}>
+        <span className="font-en text-[10px] uppercase tracking-[0.25em] text-gold-deep">Drag or Scroll to Rotate</span>
+        <div className="w-[1px] h-6 bg-gold-deep/30 relative overflow-hidden">
+          <div className="absolute top-0 left-0 right-0 h-1/2 bg-gold-deep animate-[bounce_2s_infinite]" />
         </div>
+      </div>
 
-        {/* 3D Viewport Area */}
+      {/* 3D Visual Gallery Page Container */}
+      <div 
+        ref={viewportRef}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        className="viewport-3d w-full h-full flex items-center justify-center relative cursor-grab active:cursor-grabbing"
+      >
+        {/* 3D Cylinder Container */}
         <div 
-          className="w-full h-full flex items-center justify-center transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+          className="cylinder-container relative w-full h-[50vh] flex items-center justify-center transition-all"
           style={{ 
-            perspective: '1200px',
-            transform: `translateY(${cylinderTranslateY}px)`
+            transform: `translateZ(${cylinderZ}px) rotateY(${rotationY}deg)`,
+            transition: transitionStyle
           }}
         >
-          {/* Cylinder Container */}
-          <div 
-            className="relative w-full h-[50vh] flex items-center justify-center"
-            style={{ 
-              transformStyle: 'preserve-3d',
-              transform: `rotateY(${targetRotation}deg) rotateX(-2deg)`,
-              transition: transitionStyle
-            }}
-          >
-            {officers.map((officer, i) => {
-              const angle = i * (360 / totalCards);
-              const isActive = activeIdx === i;
-              const isAnyActive = activeIdx !== null;
-              
-              // Compute deterministic scattered values
-              const seedY = Math.sin(i * 1.7);
-              const seedRotate = Math.sin(i * 3.1);
-              const offsetY = isAnyActive ? 0 : seedY * 42;
-              const rotateZ = isAnyActive ? 0 : seedRotate * 7;
-              
-              // Scale and translate on focus
-              const translateZ = isActive ? radius + 110 : radius;
-              const scale = isActive ? 1.15 : (isAnyActive ? 0.85 : 1);
-              const opacity = isAnyActive && !isActive ? 0.22 : 1;
+          {officers.map((officer, i) => {
+            const angle = i * (360 / totalCards);
+            const isActive = activeIdx === i;
+            const isAnyActive = activeIdx !== null;
+            
+            // Calculate relative angle in viewport space to apply depth effects
+            const relativeAngle = ((angle + rotationY) % 360 + 360) % 360;
+            const rad = (relativeAngle * Math.PI) / 180;
+            const cosAngle = Math.cos(rad); // 1 = closest, -1 = furthest
 
-              return (
-                <div
-                  key={i}
-                  onClick={() => handleCardClick(i)}
-                  className={`absolute w-[180px] h-[242px] max-[768px]:w-[102px] max-[768px]:h-[138px] bg-card border-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-md overflow-hidden shadow-md cursor-pointer flex flex-col p-2.5 max-[768px]:p-1.5 ${
-                    isActive 
-                      ? 'border-gold shadow-[0_10px_35px_rgba(184,154,90,0.4)] z-30' 
-                      : 'border-line hover:border-gold-deep shadow-black/5 hover:shadow-[0_8px_20px_rgba(138,111,47,0.15)] z-20'
-                  }`}
-                  style={{
-                    transformStyle: 'preserve-3d',
-                    transform: `rotateY(${angle}deg) translateZ(${translateZ}px) translateY(${offsetY}px) rotateZ(${rotateZ}deg) scale(${scale})`,
-                    opacity: opacity,
-                    backfaceVisibility: 'hidden',
-                  }}
-                >
-                  {/* Photo Frame Container */}
-                  <div className="w-full flex-1 relative rounded overflow-hidden bg-card-head border border-line-soft">
-                    {officer.photo ? (
-                      <Image 
-                        src={imageUrl(officer.photo, { width: 384, height: 512, crop: 'fill', gravity: 'face' })} 
-                        alt={officer.name} 
-                        fill 
-                        sizes="(max-width: 768px) 100px, 200px" 
-                        className="object-cover transition-transform duration-500 hover:scale-105"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-[repeating-linear-gradient(45deg,#ebe0c4_0_5px,#ddd0ad_5px_10px)] flex items-center justify-center">
-                        <span className="font-en text-[24px] max-[768px]:text-[16px] text-ink-soft opacity-30">P</span>
-                      </div>
-                    )}
-                  </div>
+            // Compute deterministic scattered offsets for scrolling mode
+            const seedY = Math.sin(i * 1.7);
+            const seedRotate = Math.sin(i * 3.1);
+            const offsetY = isAnyActive ? 0 : seedY * 45;
+            const rotateZ = isAnyActive ? 0 : seedRotate * 7.5;
+            
+            // Focus card details
+            const focusAdvance = isMobile ? 50 : 100;
+            const translateZVal = isActive ? -(radius - focusAdvance) : -radius;
+            const scale = isActive ? 1.2 : (isAnyActive ? 0.8 : 1);
 
-                  {/* Card Meta details */}
-                  <div className="pt-2 pb-0.5 text-center flex flex-col justify-center">
-                    <span className="font-ko text-[13px] max-[768px]:text-[11px] font-bold text-ink leading-tight">{officer.name}</span>
-                    <span className="font-ko text-[10.5px] max-[768px]:text-[8.5px] text-gold-deep mt-0.5 tracking-wide">{officer.role}</span>
-                  </div>
+            // WebGL-like depth fade effects using cosAngle
+            // Front-facing cards are clear and opaque, back-facing cards blur and fade
+            const normalOpacity = Math.max(0.12, (cosAngle + 1) / 2);
+            const opacity = isAnyActive ? (isActive ? 1 : 0.15) : normalOpacity;
+
+            const normalBlur = Math.max(0, (1 - cosAngle) * 3);
+            const blurVal = isAnyActive ? (isActive ? 0 : 3.5) : normalBlur;
+
+            // Sort cards in 3D layering space
+            const zIndex = isActive ? 50 : Math.round((cosAngle + 1) * 100);
+
+            return (
+              <div
+                key={i}
+                onClick={() => handleCardClick(i)}
+                className={`officer-card-3d absolute w-[176px] h-[236px] max-[768px]:w-[104px] max-[768px]:h-[140px] bg-card border-2 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-md overflow-hidden shadow-md cursor-pointer flex flex-col p-2.5 max-[768px]:p-1.5 ${
+                  isActive 
+                    ? 'border-gold shadow-[0_10px_35px_rgba(184,154,90,0.45)]' 
+                    : 'border-line hover:border-gold-deep shadow-black/5 hover:shadow-[0_8px_20px_rgba(138,111,47,0.15)]'
+                }`}
+                style={{
+                  transform: `rotateY(${angle}deg) translateZ(${translateZVal}px) translateY(${offsetY}px) rotateZ(${rotateZ}deg) scale(${scale})`,
+                  opacity: opacity,
+                  filter: `blur(${blurVal}px)`,
+                  zIndex: zIndex,
+                }}
+              >
+                {/* Photo Frame Container */}
+                <div className="w-full flex-1 relative rounded overflow-hidden bg-card-head border border-line-soft">
+                  {officer.photo ? (
+                    <Image 
+                      src={imageUrl(officer.photo, { width: 384, height: 512, crop: 'fill', gravity: 'face' })} 
+                      alt={officer.name} 
+                      fill 
+                      sizes="(max-width: 768px) 105px, 180px" 
+                      className="object-cover transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-[repeating-linear-gradient(45deg,#ebe0c4_0_5px,#ddd0ad_5px_10px)] flex items-center justify-center">
+                      <span className="font-en text-[24px] max-[768px]:text-[16px] text-ink-soft opacity-30">P</span>
+                    </div>
+                  )}
                 </div>
-              );
-            })}
-          </div>
+
+                {/* Card Meta details */}
+                <div className="pt-2 pb-0.5 text-center flex flex-col justify-center">
+                  <span className="font-ko text-[12.5px] max-[768px]:text-[10px] font-bold text-ink leading-tight">{officer.name}</span>
+                  <span className="font-ko text-[10px] max-[768px]:text-[8px] text-gold-deep mt-0.5 tracking-wide">{officer.role}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Faded Background Mask Overlay */}
