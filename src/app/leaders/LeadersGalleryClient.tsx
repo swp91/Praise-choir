@@ -239,8 +239,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const totalCards = officers.length;
   // Calculate dynamic radius to prevent card overlap and match wide perspective
   const radius = isMobile 
-    ? Math.max(220, (totalCards * 105) / (2 * Math.PI)) 
-    : Math.max(430, (totalCards * 155) / (2 * Math.PI));
+    ? Math.max(205, (totalCards * 100) / (2 * Math.PI)) 
+    : Math.max(405, (totalCards * 145) / (2 * Math.PI));
 
   // Camera sits inside the cylinder; lower perspective values make depth more visible.
   const cameraZ = isMobile ? 760 : 900;
@@ -345,9 +345,6 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             // Front-facing cards are clear and opaque, back-facing cards fade
             const normalOpacity = Math.max(0.1, 0.2 + frontness * 0.8);
             const opacity = isAnyActive ? (isActive ? 1 : 0.15) : normalOpacity;
-            const blur = isAnyActive || frontness > 0.5 ? 0 : (0.5 - frontness) * 2.4;
-            const brightness = isAnyActive ? 1 : 0.64 + frontness * 0.36;
-            const saturation = isAnyActive ? 1 : 0.72 + frontness * 0.28;
 
             // Sort cards in 3D layering space
             const zIndex = isActive ? 50 : Math.round((cosAngle + 1) * 100);
@@ -390,10 +387,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                         ? 'border-gold shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
                         : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
                   }`}
-                  style={{
-                    opacity: opacityVal,
-                    filter: `brightness(${brightness.toFixed(3)}) saturate(${saturation.toFixed(3)}) blur(${blur.toFixed(2)}px)`,
-                  }}
+                  style={{ opacity: opacityVal }}
                 >
                   {officer.photo ? (
                     <Image 
