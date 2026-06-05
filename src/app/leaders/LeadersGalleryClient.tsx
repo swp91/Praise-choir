@@ -96,7 +96,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
       if (dragStartRef.current.hasMoved) {
         const deltaX = currentX - startXRef.current;
-        targetRotationRef.current += deltaX * 0.16;
+        targetRotationRef.current += deltaX * 0.38;
         startXRef.current = currentX;
       }
     };
