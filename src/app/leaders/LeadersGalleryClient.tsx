@@ -420,19 +420,13 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         )}
 
         {activeOfficer && (
-          <div className="pointer-events-none fixed left-[calc(50%+150px)] top-1/2 z-40 flex -translate-y-1/2 flex-col items-start max-[768px]:left-1/2 max-[768px]:top-[72%] max-[768px]:-translate-x-1/2 max-[768px]:items-center">
-            <span className="font-en text-[10px] font-semibold uppercase tracking-[0.32em] text-gold-deep/80">
-              Choir Officer
+          <div className="pointer-events-none fixed left-[calc(50%+190px)] top-1/2 z-40 flex -translate-y-1/2 flex-col items-start whitespace-nowrap max-[768px]:left-1/2 max-[768px]:top-[72%] max-[768px]:-translate-x-1/2 max-[768px]:items-center">
+            <span className="font-ko text-[27px] font-semibold leading-none text-gold-deep max-[768px]:text-[18px]">
+              {activeOfficer.role}
             </span>
-            <div className="mt-3 h-px w-16 bg-gold/50 max-[768px]:w-12" />
-            <div className="mt-5 flex flex-col items-start whitespace-nowrap max-[768px]:items-center">
-              <span className="font-ko text-[23px] font-semibold text-gold-deep max-[768px]:text-[17px]">
-                {activeOfficer.role}
-              </span>
-              <span className="mt-2 font-ko text-[46px] font-bold leading-none tracking-wide text-ink max-[768px]:text-[30px]">
-                {activeOfficer.name}
-              </span>
-            </div>
+            <span className="mt-4 font-ko text-[44px] font-bold leading-none tracking-wide text-ink max-[768px]:mt-3 max-[768px]:text-[30px]">
+              {activeOfficer.name}
+            </span>
           </div>
         )}
       </div>
