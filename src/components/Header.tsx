@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 const PAGES = [
   { key: 'home',     href: '/',         en: 'Overview',     ko: '메인',   num: '01' },
   { key: 'members',  href: '/members',  en: 'Choristers',   ko: '대원',   num: '02' },
-  { key: 'leaders',  href: '/leaders',  en: 'Serving Ministers', ko: '임원',   num: '03' },
+  { key: 'leaders',  href: '/leaders',  en: 'Officers', ko: '임원',   num: '03' },
   { key: 'practice', href: '/practice', en: 'Hours & Aims', ko: '연습 및 목표', num: '04' },
   { key: 'events',   href: '/events',   en: 'Calendar',     ko: '일정',   num: '05' },
   { key: 'gallery',  href: '/gallery',  en: 'Archive',      ko: '갤러리', num: '06' },
