@@ -243,8 +243,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     : Math.max(430, (totalCards * 155) / (2 * Math.PI));
 
   // Camera sits inside the cylinder; lower perspective values make depth more visible.
-  const cameraZ = isMobile ? 680 : 760;
-  const viewDistance = isMobile ? 270 : 430;
+  const cameraZ = isMobile ? 760 : 900;
+  const viewDistance = isMobile ? 295 : 500;
   // cylinder center is translated forward in Z to place the camera inside
   const cylinderZ = cameraZ + radius - viewDistance;
 
@@ -336,10 +336,10 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             
             // Focus card details
             const focusAdvance = isMobile ? 80 : 180;
-            const depthAdvance = isMobile ? frontness * 70 : frontness * 130;
-            const depthRetreat = isMobile ? sideDepth * 18 : sideDepth * 34;
+            const depthAdvance = isMobile ? frontness * 45 : frontness * 70;
+            const depthRetreat = isMobile ? sideDepth * 14 : sideDepth * 24;
             const translateZVal = isActive ? -(radius - focusAdvance) : -(radius - depthAdvance + depthRetreat);
-            const scale = isActive ? 1.2 : (isAnyActive ? 0.8 : 0.72 + frontness * 0.38);
+            const scale = isActive ? 1.12 : (isAnyActive ? 0.8 : 0.7 + frontness * 0.22);
 
             // WebGL-like depth fade effects using cosAngle
             // Front-facing cards are clear and opaque, back-facing cards fade
