@@ -60,7 +60,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     const animate = () => {
       const diff = targetRotationRef.current - currentRotationRef.current;
       // Smoothly damp current rotation towards target rotation
-      currentRotationRef.current += diff * 0.07;
+      currentRotationRef.current += diff * 0.055;
       setRotationY(currentRotationRef.current);
       requestRef.current = requestAnimationFrame(animate);
     };
@@ -86,7 +86,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       if (activeIdx !== null) return;
       e.preventDefault();
       // Mouse wheel directly adjusts target rotation infinitely
-      targetRotationRef.current += e.deltaY * 0.09;
+      targetRotationRef.current += e.deltaY * 0.065;
     };
 
     viewport.addEventListener('wheel', handleWheel, { passive: false });
@@ -112,7 +112,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
       if (dragStartRef.current.hasMoved) {
         const deltaX = currentX - startXRef.current;
-        targetRotationRef.current += deltaX * 0.22;
+        targetRotationRef.current += deltaX * 0.16;
         startXRef.current = currentX;
       }
     };
@@ -239,12 +239,12 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const totalCards = officers.length;
   // Calculate dynamic radius to prevent card overlap and match wide perspective
   const radius = isMobile 
-    ? Math.max(260, (totalCards * 110) / (2 * Math.PI)) 
-    : Math.max(530, (totalCards * 200) / (2 * Math.PI));
+    ? Math.max(220, (totalCards * 105) / (2 * Math.PI)) 
+    : Math.max(430, (totalCards * 155) / (2 * Math.PI));
 
-  // camera is inside the cylinder, Z = 1000px
-  const cameraZ = 1000;
-  const viewDistance = isMobile ? 320 : 550;
+  // Camera sits inside the cylinder; lower perspective values make depth more visible.
+  const cameraZ = isMobile ? 680 : 760;
+  const viewDistance = isMobile ? 270 : 430;
   // cylinder center is translated forward in Z to place the camera inside
   const cylinderZ = cameraZ + radius - viewDistance;
 
@@ -327,20 +327,27 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const seedZ = Math.sin(i * 3.1);
             const seedRotY = Math.cos(i * 4.7);
 
-            const offsetY = isAnyActive ? 0 : seedY * 40;
-            const rotateX = isAnyActive ? 0 : seedX * 12; // tilt forward/backward
-            const rotateYOffset = isAnyActive ? 0 : seedRotY * 10; // yaw tilt
-            const rotateZ = isAnyActive ? 0 : seedZ * 8; // roll tilt
+            const frontness = Math.max(0, cosAngle);
+            const sideDepth = 1 - Math.abs(cosAngle);
+            const offsetY = isAnyActive ? 0 : seedY * 22;
+            const rotateX = isAnyActive ? 0 : seedX * 5; // tilt forward/backward
+            const rotateYOffset = isAnyActive ? 0 : (seedRotY * 4) - (Math.sin(rad) * 16); // subtly face the camera
+            const rotateZ = isAnyActive ? 0 : seedZ * 3; // roll tilt
             
             // Focus card details
             const focusAdvance = isMobile ? 80 : 180;
-            const translateZVal = isActive ? -(radius - focusAdvance) : -radius;
-            const scale = isActive ? 1.2 : (isAnyActive ? 0.8 : 1);
+            const depthAdvance = isMobile ? frontness * 70 : frontness * 130;
+            const depthRetreat = isMobile ? sideDepth * 18 : sideDepth * 34;
+            const translateZVal = isActive ? -(radius - focusAdvance) : -(radius - depthAdvance + depthRetreat);
+            const scale = isActive ? 1.2 : (isAnyActive ? 0.8 : 0.72 + frontness * 0.38);
 
             // WebGL-like depth fade effects using cosAngle
             // Front-facing cards are clear and opaque, back-facing cards fade
-            const normalOpacity = Math.max(0.12, (cosAngle + 1) / 2);
+            const normalOpacity = Math.max(0.1, 0.2 + frontness * 0.8);
             const opacity = isAnyActive ? (isActive ? 1 : 0.15) : normalOpacity;
+            const blur = isAnyActive || frontness > 0.5 ? 0 : (0.5 - frontness) * 2.4;
+            const brightness = isAnyActive ? 1 : 0.64 + frontness * 0.36;
+            const saturation = isAnyActive ? 1 : 0.72 + frontness * 0.28;
 
             // Sort cards in 3D layering space
             const zIndex = isActive ? 50 : Math.round((cosAngle + 1) * 100);
@@ -383,7 +390,10 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                         ? 'border-gold shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
                         : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
                   }`}
-                  style={{ opacity: opacityVal }}
+                  style={{
+                    opacity: opacityVal,
+                    filter: `brightness(${brightness.toFixed(3)}) saturate(${saturation.toFixed(3)}) blur(${blur.toFixed(2)}px)`,
+                  }}
                 >
                   {officer.photo ? (
                     <Image 
