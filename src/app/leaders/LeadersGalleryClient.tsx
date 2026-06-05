@@ -185,7 +185,11 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   };
 
   const handleViewportClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (activeIdx !== null || dragStartRef.current.hasMoved) return;
+    if (dragStartRef.current.hasMoved) return;
+    if (activeIdx !== null) {
+      handleClose();
+      return;
+    }
 
     const clickedCard = getCardAtPoint(e.clientX, e.clientY);
 
