@@ -341,7 +341,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const depthAdvance = isMobile ? frontness * 45 : frontness * 70;
             const depthRetreat = isMobile ? sideDepth * 14 : sideDepth * 24;
             const translateZVal = isActive ? -(radius - focusAdvance) : -(radius - depthAdvance + depthRetreat);
-            const scale = isActive ? 1.12 : (isAnyActive ? 0.62 : 0.7 + frontness * 0.22);
+            const scale = isActive ? 1 : (isAnyActive ? 0.62 : 0.7 + frontness * 0.22);
 
             // WebGL-like depth fade effects using cosAngle
             // Front-facing cards are clear and opaque, back-facing cards fade
