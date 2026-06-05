@@ -268,12 +268,34 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           transform-style: preserve-3d;
           backface-visibility: hidden;
         }
+        .latin-watermark-track {
+          animation: latin-watermark-slide 42s linear infinite;
+        }
+        @keyframes latin-watermark-slide {
+          from {
+            transform: translate3d(0, 0, 0);
+          }
+          to {
+            transform: translate3d(-50%, 0, 0);
+          }
+        }
       `}</style>
+
+      {/* Moving Latin watermark */}
+      <div className="pointer-events-none absolute inset-0 z-0 flex items-center overflow-hidden opacity-[0.055]">
+        <div className="latin-watermark-track flex min-w-[200%] whitespace-nowrap font-en text-[84px] font-semibold uppercase tracking-[0.18em] text-gold-deep italic max-[768px]:text-[46px]">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <span key={index} className="mx-10">
+              MANUS MINISTRANTES
+            </span>
+          ))}
+        </div>
+      </div>
 
       {/* Floating Header */}
       <div className="absolute top-10 left-0 right-0 z-20 flex flex-col items-center pointer-events-none text-center px-6">
         <span className="font-en text-[11px] uppercase tracking-[0.3em] text-gold-deep mb-1.5">Serving Servants</span>
-        <h1 className="font-ko text-[22px] font-bold text-ink tracking-wide">찬양대 임원진</h1>
+        <h1 className="font-ko text-[30px] font-bold text-ink tracking-wide max-[768px]:text-[25px]">섬기는 손길들</h1>
         <div className="w-12 h-[1.5px] bg-gold/40 mt-2.5" />
       </div>
 
@@ -299,7 +321,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         onClick={handleViewportClick}
         onMouseMove={handleViewportMouseMove}
         onMouseLeave={handleViewportMouseLeave}
-        className="viewport-3d w-full h-full flex items-center justify-center relative"
+        className="viewport-3d relative z-10 w-full h-full flex items-center justify-center"
         style={{ cursor: hoveredIdx !== null ? 'pointer' : undefined }}
       >
         {/* 3D Cylinder Container */}
