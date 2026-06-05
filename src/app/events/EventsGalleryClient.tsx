@@ -18,6 +18,7 @@ export default function EventsGalleryClient({
   reportEvents,
 }: EventsGalleryClientProps) {
   const [activeYear, setActiveYear] = useState<number>(scheduleYear);
+  const [needleYear, setNeedleYear] = useState<number>(scheduleYear);
   const [isFading, setIsFading] = useState(false);
   const [rotationY, setRotationY] = useState(0);
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
@@ -166,7 +167,7 @@ export default function EventsGalleryClient({
         if (!element) return null;
         const rect = element.getBoundingClientRect();
         const style = window.getComputedStyle(element);
-        const photoStyle = element.firstElementChild
+        const textElement = element.firstElementChild
           ? window.getComputedStyle(element.firstElementChild)
           : null;
         const isUnderPointer =
@@ -178,7 +179,7 @@ export default function EventsGalleryClient({
         if (
           !isUnderPointer ||
           style.pointerEvents === 'none' ||
-          Number(photoStyle?.opacity ?? '1') < 0.2
+          Number(textElement?.opacity ?? '1') < 0.2
         ) {
           return null;
         }
@@ -217,11 +218,19 @@ export default function EventsGalleryClient({
     setHoveredIdx(null);
   };
 
-  // Switch active year with fading transition
+  // Switch active year with fading transition synchronized with needle rotation
   const handleYearToggle = (year: number) => {
-    if (year === activeYear || isFading) return;
+    if (year === needleYear || isFading) return;
     
-    setIsFading(true);
+    // 1. Rotate needle immediately
+    setNeedleYear(year);
+    
+    // 2. Start fading out cards after 350ms (when needle is rotating)
+    setTimeout(() => {
+      setIsFading(true);
+    }, 350);
+
+    // 3. Swap dataset and fade back in at 650ms (when needle arrives)
     setTimeout(() => {
       setActiveYear(year);
       // Reset rotation to front when swapping datasets
@@ -229,7 +238,7 @@ export default function EventsGalleryClient({
       currentRotationRef.current = 0;
       setRotationY(0);
       setIsFading(false);
-    }, 300);
+    }, 650);
   };
 
   const totalCards = currentEvents.length;
@@ -324,13 +333,13 @@ export default function EventsGalleryClient({
           {totalCards === 0 ? (
             /* Fallback card if empty */
             <div
-              className="absolute w-[270px] h-[180px] border border-line/40 rounded-sm bg-card shadow-lg flex flex-col items-center justify-center p-6 text-center"
+              className="absolute w-[270px] h-[180px] flex flex-col items-center justify-center p-6 text-center"
               style={{
                 left: `calc(50% - 135px)`,
                 top: `calc(50% - 90px)`,
               }}
             >
-              <span className="font-ko text-[14px] text-ink-soft">등록된 일정이 없습니다.</span>
+              <span className="font-ko text-[15px] text-ink-soft">등록된 일정이 없습니다.</span>
             </div>
           ) : (
             currentEvents.map((event, i) => {
@@ -392,30 +401,25 @@ export default function EventsGalleryClient({
                     top: `calc(50% - ${cardHeight / 2}px)`,
                   }}
                 >
+                  {/* Floating Text Design (No card borders/backgrounds) */}
                   <div 
-                    className={`w-full h-full p-5 max-[768px]:p-3 relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-sm overflow-hidden border shadow-lg flex flex-col justify-between ${
-                      event.highlight 
-                        ? 'border-gold shadow-[0_10px_30px_rgba(184,154,90,0.22)] bg-[#fdfaf2]' 
-                        : isHovered
-                        ? 'border-gold shadow-[0_12px_28px_rgba(138,111,47,0.14)] bg-card'
-                        : 'border-line/45 hover:border-gold shadow-black/4 bg-card'
-                    }`}
+                    className="w-full h-full p-4 flex flex-col justify-center items-center text-center select-none"
                     style={{ opacity: opacityVal }}
                   >
-                    <div className="flex flex-col gap-2.5 max-[768px]:gap-1">
+                    <div className="flex flex-col gap-2 max-[768px]:gap-0.5 items-center">
                       {/* Date/When Tag */}
-                      <span className="font-en text-[13px] max-[768px]:text-[11px] font-bold tracking-wider text-gold-deep">
+                      <span className="font-en text-[14px] max-[768px]:text-[11px] font-bold tracking-[0.15em] text-gold-deep">
                         {event.when}
                       </span>
                       {/* Title */}
-                      <h3 className={`font-ko text-[17px] max-[768px]:text-[14px] font-bold tracking-wide leading-snug ${event.highlight ? 'text-gold-deep' : 'text-ink'}`}>
+                      <h3 className={`font-ko text-[21px] max-[768px]:text-[15px] font-bold tracking-wide leading-snug ${event.highlight ? 'text-gold-deep' : 'text-ink'}`}>
                         {event.title}
                       </h3>
                     </div>
 
                     {/* Details Description */}
                     {event.detail && (
-                      <div className="font-ko text-[12px] max-[768px]:text-[10px] text-ink-soft leading-relaxed border-t border-line-soft/40 pt-2.5 max-[768px]:pt-1.5 mt-1 overflow-hidden text-ellipsis line-clamp-3 max-[768px]:line-clamp-2">
+                      <div className="font-ko text-[12px] max-[768px]:text-[10px] text-ink-soft leading-relaxed border-t border-gold/15 pt-2 max-[768px]:pt-1 mt-2.5 max-[768px]:mt-1.5 max-w-[85%] overflow-hidden text-ellipsis line-clamp-3 max-[768px]:line-clamp-2">
                         {event.detail}
                       </div>
                     )}
@@ -427,31 +431,25 @@ export default function EventsGalleryClient({
         </div>
 
         {/* Dynamic Dial Toggle (Clock/Needle style) at the bottom */}
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[340px] max-[768px]:w-[300px] h-[90px] z-30 flex justify-between items-end px-3">
-          {/* Left Year Button */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 w-[240px] h-[90px] z-30 select-none">
+          {/* Left Year Button (10 o'clock position) */}
           <button 
             type="button"
             onClick={() => handleYearToggle(scheduleYear)} 
-            className={`flex flex-col items-end cursor-pointer bg-transparent border-0 p-0 text-right outline-none select-none transition-all duration-500 ${activeYear === scheduleYear ? 'text-gold-deep scale-105 font-bold' : 'text-ink-soft opacity-40 hover:opacity-100'}`}
+            className={`absolute left-[15px] top-[12px] cursor-pointer bg-transparent border-0 p-0 outline-none select-none transition-all duration-500 ${needleYear === scheduleYear ? 'text-gold-deep scale-110 font-bold' : 'text-ink-soft opacity-40 hover:opacity-100'}`}
           >
-            <span className="font-en text-[10px] tracking-[0.24em] font-semibold leading-none">SCHEDULE</span>
-            <span className="font-ko text-[20px] max-[768px]:text-[17px] tracking-wide mt-1.5 leading-none">{scheduleYear} 일정</span>
+            <span className="font-en text-[22px] max-[768px]:text-[18px] font-bold tracking-wide leading-none">{scheduleYear}</span>
           </button>
 
           {/* Semicircle SVG Dial with Rotating Needle */}
           <div className="absolute left-1/2 bottom-0 -translate-x-1/2 w-[160px] h-[80px] overflow-visible pointer-events-none select-none">
             <svg width="160" height="80" viewBox="0 0 160 80" className="overflow-visible">
               {/* Semicircle path representing the dial range */}
-              <path d="M 16 80 A 64 64 0 0 1 144 80" fill="none" stroke="#ebe0c4" strokeWidth="1.5" strokeDasharray="3,3" />
+              <path d="M 20 80 A 60 60 0 0 1 140 80" fill="none" stroke="#ebe0c4" strokeWidth="1.5" strokeDasharray="3,3" />
               
-              {/* Outer dial ticks for decoration */}
-              <line x1="16" y1="80" x2="10" y2="80" stroke="#ebe0c4" strokeWidth="1.5" />
-              <line x1="144" y1="80" x2="150" y2="80" stroke="#ebe0c4" strokeWidth="1.5" />
-              <line x1="80" y1="16" x2="80" y2="10" stroke="#ebe0c4" strokeWidth="1.5" />
-
               {/* Pivot circles */}
-              <circle cx="80" cy="80" r="5" fill="#8a6f2f" />
-              <circle cx="80" cy="80" r="2.5" fill="#fdf9f0" />
+              <circle cx="80" cy="80" r="4.5" fill="#8a6f2f" />
+              <circle cx="80" cy="80" r="2" fill="#fdf9f0" />
               
               {/* Rotating pointer needle */}
               <line 
@@ -461,7 +459,7 @@ export default function EventsGalleryClient({
                 strokeWidth="2.2" 
                 strokeLinecap="round"
                 style={{
-                  transform: `rotate(${activeYear === scheduleYear ? -40 : 40}deg)`,
+                  transform: `rotate(${needleYear === scheduleYear ? -45 : 45}deg)`,
                   transformOrigin: '80px 80px',
                   transition: 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}
@@ -469,14 +467,13 @@ export default function EventsGalleryClient({
             </svg>
           </div>
 
-          {/* Right Year Button */}
+          {/* Right Year Button (2 o'clock position) */}
           <button 
             type="button"
             onClick={() => handleYearToggle(reportYear)} 
-            className={`flex flex-col items-start cursor-pointer bg-transparent border-0 p-0 text-left outline-none select-none transition-all duration-500 ${activeYear === reportYear ? 'text-gold-deep scale-105 font-bold' : 'text-ink-soft opacity-40 hover:opacity-100'}`}
+            className={`absolute right-[15px] top-[12px] cursor-pointer bg-transparent border-0 p-0 outline-none select-none transition-all duration-500 ${needleYear === reportYear ? 'text-gold-deep scale-110 font-bold' : 'text-ink-soft opacity-40 hover:opacity-100'}`}
           >
-            <span className="font-en text-[10px] tracking-[0.24em] font-semibold leading-none">REPORT</span>
-            <span className="font-ko text-[20px] max-[768px]:text-[17px] tracking-wide mt-1.5 leading-none">{reportYear} 보고</span>
+            <span className="font-en text-[22px] max-[768px]:text-[18px] font-bold tracking-wide leading-none">{reportYear}</span>
           </button>
         </div>
       </div>
