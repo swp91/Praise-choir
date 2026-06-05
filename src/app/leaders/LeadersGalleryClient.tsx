@@ -294,7 +294,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
       {/* Floating Header */}
       <div className="absolute top-10 left-0 right-0 z-20 flex flex-col items-center pointer-events-none text-center px-6">
-        <span className="font-en text-[11px] uppercase tracking-[0.3em] text-gold-deep mb-1.5">Serving Servants</span>
+        <span className="font-en text-[11px] uppercase tracking-[0.3em] text-gold-deep mb-1.5">Choir Officers</span>
         <h1 className="font-ko text-[30px] font-bold text-ink tracking-wide max-[768px]:text-[25px]">섬기는 손길들</h1>
         <div className="w-12 h-[1.5px] bg-gold/40 mt-2.5" />
       </div>
