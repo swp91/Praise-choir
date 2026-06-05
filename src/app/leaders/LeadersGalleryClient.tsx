@@ -29,10 +29,12 @@ interface LeadersGalleryClientProps {
 export default function LeadersGalleryClient({ officers }: LeadersGalleryClientProps) {
   const [rotationY, setRotationY] = useState(0);
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [transitionStyle, setTransitionStyle] = useState('transform 0.4s cubic-bezier(0.1, 0.8, 0.2, 1)');
 
   const viewportRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const targetRotationRef = useRef(0);
   const currentRotationRef = useRef(0);
   const requestRef = useRef<number | null>(null);
@@ -166,6 +168,65 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     setActiveIdx(index);
   };
 
+  const getCardAtPoint = (clientX: number, clientY: number) => {
+    return cardRefs.current
+      .map((element, index) => {
+        if (!element) return null;
+        const rect = element.getBoundingClientRect();
+        const style = window.getComputedStyle(element);
+        const photoStyle = element.firstElementChild
+          ? window.getComputedStyle(element.firstElementChild)
+          : null;
+        const isUnderPointer =
+          clientX >= rect.left &&
+          clientX <= rect.right &&
+          clientY >= rect.top &&
+          clientY <= rect.bottom;
+
+        if (
+          !isUnderPointer ||
+          style.pointerEvents === 'none' ||
+          Number(photoStyle?.opacity ?? '1') < 0.2
+        ) {
+          return null;
+        }
+
+        return {
+          index,
+          zIndex: Number(style.zIndex) || 0,
+        };
+      })
+      .filter((item): item is { index: number; zIndex: number } => item !== null)
+      .sort((a, b) => b.zIndex - a.zIndex)[0];
+  };
+
+  const handleViewportClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (activeIdx !== null || dragStartRef.current.hasMoved) return;
+
+    const clickedCard = getCardAtPoint(e.clientX, e.clientY);
+
+    if (clickedCard) {
+      handleCardClick(clickedCard.index);
+    }
+  };
+
+  const handleViewportMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (activeIdx !== null || dragStartRef.current.hasMoved) {
+      if (hoveredIdx !== null) setHoveredIdx(null);
+      return;
+    }
+
+    const hoveredCard = getCardAtPoint(e.clientX, e.clientY);
+    const nextHoveredIdx = hoveredCard?.index ?? null;
+    if (hoveredIdx !== nextHoveredIdx) {
+      setHoveredIdx(nextHoveredIdx);
+    }
+  };
+
+  const handleViewportMouseLeave = () => {
+    setHoveredIdx(null);
+  };
+
   const handleClose = () => {
     setTransitionStyle('transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)');
     setActiveIdx(null);
@@ -235,7 +296,11 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       <div 
         ref={viewportRef}
         onTouchStart={handleTouchStart}
+        onClick={handleViewportClick}
+        onMouseMove={handleViewportMouseMove}
+        onMouseLeave={handleViewportMouseLeave}
         className="viewport-3d w-full h-full flex items-center justify-center relative"
+        style={{ cursor: hoveredIdx !== null ? 'pointer' : undefined }}
       >
         {/* 3D Cylinder Container */}
         <div 
@@ -248,6 +313,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           {officers.map((officer, i) => {
             const angle = i * (360 / totalCards);
             const isActive = activeIdx === i;
+            const isHovered = hoveredIdx === i && activeIdx === null;
             const isAnyActive = activeIdx !== null;
             
             // Calculate relative angle in viewport space to apply depth effects
@@ -292,7 +358,14 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             return (
               <div
                 key={i}
-                onClick={() => handleCardClick(i)}
+                ref={(element) => {
+                  cardRefs.current[i] = element;
+                }}
+                data-hovered={isHovered ? 'true' : undefined}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleCardClick(i);
+                }}
                 className="officer-card-3d absolute w-[160px] h-[213px] max-[768px]:w-[90px] max-[768px]:h-[120px] cursor-pointer"
                 style={{
                   transform: transformStr,
@@ -306,7 +379,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                   className={`w-full h-full relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-sm overflow-hidden border shadow-lg ${
                     isActive 
                       ? 'border-gold shadow-[0_15px_45px_rgba(184,154,90,0.5)] bg-card' 
-                      : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
+                      : isHovered
+                        ? 'border-gold shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
+                        : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
                   }`}
                   style={{ opacity: opacityVal }}
                 >
@@ -317,7 +392,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                       fill 
                       priority={isInitiallyVisible}
                       sizes="(max-width: 768px) 180px, 320px" 
-                      className="object-cover transition-transform duration-500 hover:scale-105"
+                      className={`object-cover transition-transform duration-500 ${isHovered ? 'scale-105' : 'hover:scale-105'}`}
                     />
                   ) : (
                     <div className="w-full h-full bg-[repeating-linear-gradient(45deg,#ebe0c4_0_5px,#ddd0ad_5px_10px)] flex items-center justify-center">
