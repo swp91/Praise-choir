@@ -364,7 +364,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const depthAdvance = isMobile ? frontness * 45 : frontness * 70;
             const depthRetreat = isMobile ? sideDepth * 14 : sideDepth * 24;
             const translateZVal = isActive ? -(radius - focusAdvance) : -(radius - depthAdvance + depthRetreat);
-            const scale = isActive ? 1 : (isAnyActive ? 0.62 : 0.7 + frontness * 0.22);
+            const scale = isActive ? (isMobile ? 0.85 : 1) : (isAnyActive ? 0.62 : 0.7 + frontness * 0.22);
 
             // WebGL-like depth fade effects using cosAngle
             // Front-facing cards are clear and opaque, back-facing cards fade
@@ -445,7 +445,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         {activeOfficer && (
           <div
             key={`${activeIdx}-${activeOfficer.role}-${activeOfficer.name}`}
-            className="pointer-events-none fixed left-[calc(50%+265px)] top-[calc(50%-270px)] z-40 flex flex-col items-start whitespace-nowrap max-[1024px]:left-[calc(50%+240px)] max-[1024px]:top-[calc(50%-250px)] max-[768px]:left-1/2 max-[768px]:top-[70%] max-[768px]:-translate-x-1/2 max-[768px]:items-center"
+            className="pointer-events-none fixed left-[calc(50%+265px)] top-[calc(50%-270px)] z-40 flex flex-col items-start whitespace-nowrap max-[1024px]:left-[calc(50%+240px)] max-[1024px]:top-[calc(50%-250px)] max-[768px]:left-1/2 max-[768px]:top-[calc(50%+200px)] max-[768px]:-translate-x-1/2 max-[768px]:items-center"
           >
             <span className="font-ko text-[24px] font-semibold leading-none text-gold-deep max-[1024px]:text-[20px] max-[768px]:text-[18px]">
               {animatedText(activeOfficer.role, 0.04)}
