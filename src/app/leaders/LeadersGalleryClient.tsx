@@ -445,12 +445,12 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         {activeOfficer && (
           <div
             key={`${activeIdx}-${activeOfficer.role}-${activeOfficer.name}`}
-            className="pointer-events-none fixed left-[calc(50%+210px)] top-[43%] z-40 flex flex-col items-start whitespace-nowrap max-[768px]:left-1/2 max-[768px]:top-[70%] max-[768px]:-translate-x-1/2 max-[768px]:items-center"
+            className="pointer-events-none fixed left-[calc(50%+265px)] top-[calc(50%-270px)] z-40 flex flex-col items-start whitespace-nowrap max-[1024px]:left-[calc(50%+240px)] max-[1024px]:top-[calc(50%-250px)] max-[768px]:left-1/2 max-[768px]:top-[70%] max-[768px]:-translate-x-1/2 max-[768px]:items-center"
           >
-            <span className="font-ko text-[24px] font-semibold leading-none text-gold-deep max-[768px]:text-[18px]">
+            <span className="font-ko text-[24px] font-semibold leading-none text-gold-deep max-[1024px]:text-[20px] max-[768px]:text-[18px]">
               {animatedText(activeOfficer.role, 0.04)}
             </span>
-            <span className="mt-8 font-ko text-[48px] font-bold leading-none tracking-wide text-ink max-[768px]:mt-4 max-[768px]:text-[30px]">
+            <span className="mt-8 font-ko text-[48px] font-bold leading-none tracking-wide text-ink max-[1024px]:mt-6 max-[1024px]:text-[36px] max-[768px]:mt-4 max-[768px]:text-[30px]">
               {animatedText(activeOfficer.name, 0.16)}
             </span>
           </div>
