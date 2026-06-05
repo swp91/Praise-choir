@@ -240,6 +240,19 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const cardHeight = isMobile ? 120 : 213;
 
   const activeOfficer = activeIdx !== null ? officers[activeIdx] : null;
+  const animatedText = (text: string, baseDelay = 0) =>
+    Array.from(text).map((char, index) => (
+      <span
+        key={`${char}-${index}`}
+        className="inline-block opacity-0"
+        style={{
+          animation: 'officer-text-rise 0.58s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+          animationDelay: `${baseDelay + index * 0.045}s`,
+        }}
+      >
+        {char === ' ' ? '\u00A0' : char}
+      </span>
+    ));
 
   return (
     <main className="main-content p-0 w-screen h-screen overflow-hidden bg-[#fdf9f0] relative select-none">
@@ -265,6 +278,16 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           }
           to {
             transform: translate3d(-50%, 0, 0);
+          }
+        }
+        @keyframes officer-text-rise {
+          from {
+            opacity: 0;
+            transform: translate3d(0, 18px, 0);
+          }
+          to {
+            opacity: 1;
+            transform: translate3d(0, 0, 0);
           }
         }
       `}</style>
@@ -420,12 +443,15 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         )}
 
         {activeOfficer && (
-          <div className="pointer-events-none fixed left-[calc(50%+190px)] top-1/2 z-40 flex -translate-y-1/2 flex-col items-start whitespace-nowrap max-[768px]:left-1/2 max-[768px]:top-[72%] max-[768px]:-translate-x-1/2 max-[768px]:items-center">
-            <span className="font-ko text-[27px] font-semibold leading-none text-gold-deep max-[768px]:text-[18px]">
-              {activeOfficer.role}
+          <div
+            key={`${activeIdx}-${activeOfficer.role}-${activeOfficer.name}`}
+            className="pointer-events-none fixed left-[calc(50%+210px)] top-[43%] z-40 flex flex-col items-start whitespace-nowrap max-[768px]:left-1/2 max-[768px]:top-[70%] max-[768px]:-translate-x-1/2 max-[768px]:items-center"
+          >
+            <span className="font-ko text-[24px] font-semibold leading-none text-gold-deep max-[768px]:text-[18px]">
+              {animatedText(activeOfficer.role, 0.04)}
             </span>
-            <span className="mt-4 font-ko text-[44px] font-bold leading-none tracking-wide text-ink max-[768px]:mt-3 max-[768px]:text-[30px]">
-              {activeOfficer.name}
+            <span className="mt-8 font-ko text-[48px] font-bold leading-none tracking-wide text-ink max-[768px]:mt-4 max-[768px]:text-[30px]">
+              {animatedText(activeOfficer.name, 0.16)}
             </span>
           </div>
         )}
