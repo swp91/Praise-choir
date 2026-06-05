@@ -337,7 +337,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const depthAdvance = isMobile ? frontness * 45 : frontness * 70;
             const depthRetreat = isMobile ? sideDepth * 14 : sideDepth * 24;
             const translateZVal = isActive ? -(radius - focusAdvance) : -(radius - depthAdvance + depthRetreat);
-            const scale = isActive ? 1.22 : (isAnyActive ? 0.62 : 0.7 + frontness * 0.22);
+            const scale = isActive ? 1.12 : (isAnyActive ? 0.62 : 0.7 + frontness * 0.22);
 
             // WebGL-like depth fade effects using cosAngle
             // Front-facing cards are clear and opaque, back-facing cards fade
@@ -421,11 +421,11 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
               Choir Officer
             </span>
             <div className="mt-3 h-px w-16 bg-gold/50 max-[768px]:w-12" />
-            <div className="mt-5 flex items-baseline gap-4 whitespace-nowrap max-[768px]:gap-3">
-              <span className="font-ko text-[22px] font-semibold text-gold-deep max-[768px]:text-[17px]">
+            <div className="mt-5 flex flex-col items-start whitespace-nowrap max-[768px]:items-center">
+              <span className="font-ko text-[23px] font-semibold text-gold-deep max-[768px]:text-[17px]">
                 {activeOfficer.role}
               </span>
-              <span className="font-ko text-[46px] font-bold leading-none tracking-wide text-ink max-[768px]:text-[30px]">
+              <span className="mt-2 font-ko text-[46px] font-bold leading-none tracking-wide text-ink max-[768px]:text-[30px]">
                 {activeOfficer.name}
               </span>
             </div>
