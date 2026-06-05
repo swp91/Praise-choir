@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useRef, useState, useCallback } from 'react';
+import { createContext, useContext, useRef, useState, useCallback, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 
 const PAGE_ORDER: Record<string, number> = {
@@ -28,6 +28,11 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
   const [direction, setDirection] = useState<Direction>('forward');
   const [turning, setTurning] = useState(false);
   const [tick, setTick] = useState(0);
+
+  // Sync pathRef.current with browser pathname changes (e.g. popstate / back-button)
+  useEffect(() => {
+    pathRef.current = pathname;
+  }, [pathname]);
 
   const navigate = useCallback((href: string) => {
     if (href === pathRef.current || turningRef.current) return;
