@@ -306,14 +306,6 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         </Link>
       </div>
 
-      {/* Visual instructions */}
-      <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-1 transition-opacity duration-500 pointer-events-none ${activeIdx !== null ? 'opacity-0' : 'opacity-70'}`}>
-        <span className="font-en text-[10px] uppercase tracking-[0.25em] text-gold-deep">Scroll to Rotate</span>
-        <div className="w-[1px] h-6 bg-gold-deep/30 relative overflow-hidden">
-          <div className="absolute top-0 left-0 right-0 h-1/2 bg-gold-deep animate-[bounce_2s_infinite]" />
-        </div>
-      </div>
-
       {/* 3D Visual Gallery Page Container */}
       <div 
         ref={viewportRef}
