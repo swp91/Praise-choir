@@ -109,22 +109,22 @@ export default function EventsSplitClient({
         </Link>
       </div>
 
-      {/* Main Grid Layout: Split screen 50:50 */}
-      <div className="grid grid-cols-1 grid-rows-[50vh_50vh] md:grid-cols-2 md:grid-rows-1 h-full w-full relative z-10">
+      {/* Main Grid Layout: Split screen left/right on all screen sizes */}
+      <div className="grid grid-cols-[32%_68%] md:grid-cols-[40%_60%] lg:grid-cols-2 h-full w-full relative z-10">
         
-        {/* Left/Top Half: Fixed Year Display & Toggle */}
+        {/* Left Half: Fixed Year Display & Toggle */}
         <div 
           onWheel={handleLeftWheel}
           onTouchStart={handleLeftTouchStart}
           onTouchMove={handleLeftTouchMove}
-          className="flex flex-col items-center justify-center border-b border-[rgba(184,154,90,0.12)] md:border-b-0 md:border-r md:border-[rgba(184,154,90,0.12)] bg-[#fdf9f0]/40 backdrop-blur-[2px] relative p-6 md:p-12 cursor-ns-resize md:cursor-col-resize"
+          className="flex flex-col items-center justify-center border-r border-[rgba(184,154,90,0.12)] bg-[#fdf9f0]/40 backdrop-blur-[2px] relative p-3 md:p-12 cursor-ns-resize md:cursor-col-resize"
         >
           
-          <span className="font-en text-[10px] md:text-[11px] uppercase tracking-[0.35em] text-[#8a6f2f] mb-3 md:mb-5">
+          <span className="font-en text-[9px] md:text-[11px] uppercase tracking-[0.35em] text-[#8a6f2f] mb-3 md:mb-5">
             Choir Calendar
           </span>
 
-          <div className="relative h-24 md:h-36 flex items-center justify-center">
+          <div className="relative h-20 md:h-36 flex items-center justify-center">
             <AnimatePresence mode="wait">
               <motion.h1
                 key={activeYear}
@@ -132,7 +132,7 @@ export default function EventsSplitClient({
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 exit={{ y: -30, opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="font-en italic font-bold text-[18vw] md:text-[10vw] leading-none text-[#8a6f2f] tracking-wide select-none"
+                className="font-en italic font-bold text-[10vw] sm:text-[8vw] md:text-[10vw] leading-none text-[#8a6f2f] tracking-wide select-none"
               >
                 {activeYear}
               </motion.h1>
@@ -142,12 +142,12 @@ export default function EventsSplitClient({
           <div className="w-12 h-[1px] bg-[#b89a5a]/30 my-4 md:my-6" />
 
           {/* Interactive Navigation/Toggle Buttons */}
-          <div className="flex gap-8 md:gap-10 pointer-events-auto z-20">
+          <div className="flex flex-col md:flex-row gap-5 md:gap-10 pointer-events-auto z-20 items-center">
             <button
               onClick={() => setActiveYear(scheduleYear)}
               className="group flex flex-col items-center focus:outline-none transition-transform duration-200 active:scale-95"
             >
-              <span className={`font-en text-[18px] md:text-[20px] font-semibold transition-colors duration-300 ${
+              <span className={`font-en text-[16px] md:text-[20px] font-semibold transition-colors duration-300 ${
                 activeYear === scheduleYear ? 'text-[#8a6f2f]' : 'text-[#9a8a70] hover:text-[#2a2620]'
               }`}>
                 {scheduleYear}
@@ -166,7 +166,7 @@ export default function EventsSplitClient({
               onClick={() => setActiveYear(reportYear)}
               className="group flex flex-col items-center focus:outline-none transition-transform duration-200 active:scale-95"
             >
-              <span className={`font-en text-[18px] md:text-[20px] font-semibold transition-colors duration-300 ${
+              <span className={`font-en text-[16px] md:text-[20px] font-semibold transition-colors duration-300 ${
                 activeYear === reportYear ? 'text-[#8a6f2f]' : 'text-[#9a8a70] hover:text-[#2a2620]'
               }`}>
                 {reportYear}
