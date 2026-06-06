@@ -1,4 +1,5 @@
 import { supabase } from './server';
+import { formatPublicEventDate, sortPublicEvents } from '@/lib/events-display';
 import type { ChoirEvent, Conductor, Member, Officer, Part, Photo, PracticeSlot } from '@/lib/types';
 
 type MediaAsset = {
@@ -349,9 +350,15 @@ export async function getEventsData() {
     is_highlight: boolean;
     event_date: string | null;
     month: number | null;
+    sort_order: number | null;
+    created_at: string | null;
   }) =>
     ({
-      when: event.date_label ?? '미정',
+      when: formatPublicEventDate({
+        eventDate: event.event_date,
+        month: event.month,
+        dateLabel: event.date_label,
+      }),
       title: event.title,
       detail: event.detail ?? undefined,
       highlight: event.is_highlight,
@@ -362,8 +369,28 @@ export async function getEventsData() {
   return {
     scheduleYear,
     reportYear,
-    scheduleEvents: events.filter((event) => event.year === scheduleYear).map(toEvent),
-    reportEvents: events.filter((event) => event.year === reportYear).map(toEvent),
+    scheduleEvents: sortPublicEvents(
+      events
+        .filter((event) => event.year === scheduleYear)
+        .map((event) => ({
+          ...event,
+          eventDate: event.event_date,
+          dateLabel: event.date_label,
+          sortOrder: event.sort_order ?? 0,
+          createdAt: event.created_at,
+        })),
+    ).map(toEvent),
+    reportEvents: sortPublicEvents(
+      events
+        .filter((event) => event.year === reportYear)
+        .map((event) => ({
+          ...event,
+          eventDate: event.event_date,
+          dateLabel: event.date_label,
+          sortOrder: event.sort_order ?? 0,
+          createdAt: event.created_at,
+        })),
+    ).map(toEvent),
   };
 }
 
