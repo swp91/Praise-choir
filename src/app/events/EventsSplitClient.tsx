@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ChoirEvent } from '@/lib/types';
@@ -12,6 +12,48 @@ interface EventsSplitClientProps {
   reportEvents: ChoirEvent[];
 }
 
+type Status = { kind: 'done' } | { kind: 'tbd' } | { kind: 'upcoming'; days: number };
+
+function parseSpecificDate(event: ChoirEvent): Date | null {
+  if (event.eventDate) {
+    const [year, month, day] = event.eventDate.split('-').map(Number);
+    if (year && month && day) return new Date(year, month - 1, day);
+  }
+
+  if (!event.detail) return null;
+  const m1 = event.detail.match(/20(\d{2})\.(\d{2})\.(\d{2})/);
+  if (m1) return new Date(2000 + parseInt(m1[1]), parseInt(m1[2]) - 1, parseInt(m1[3]));
+  const m2 = event.detail.match(/^(\d{2})\/(\d{2})/);
+  if (m2) {
+    const ym = event.when.match(/^(\d{2})\./);
+    return new Date(ym ? 2000 + parseInt(ym[1]) : 2026, parseInt(m2[1]) - 1, parseInt(m2[2]));
+  }
+  return null;
+}
+
+function computeStatus(event: ChoirEvent, today: Date): Status {
+  if (event.when === '미정') return { kind: 'tbd' };
+
+  const todayMs = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  const specific = parseSpecificDate(event);
+
+  if (specific) {
+    const d = new Date(specific.getFullYear(), specific.getMonth(), specific.getDate()).getTime();
+    if (d < todayMs) return { kind: 'done' };
+    return { kind: 'upcoming', days: Math.ceil((d - todayMs) / 86400000) };
+  }
+
+  const m = event.when.match(/^(\d{2})\.(\d{2})$/);
+  if (!m) return { kind: 'tbd' };
+  const yr = 2000 + parseInt(m[1]);
+  const mo = parseInt(m[2]) - 1;
+  const endMs = new Date(yr, mo + 1, 0).getTime();
+  if (endMs < todayMs) return { kind: 'done' };
+  const firstMs = new Date(yr, mo, 1).getTime();
+  if (firstMs <= todayMs) return { kind: 'upcoming', days: 0 };
+  return { kind: 'upcoming', days: Math.ceil((firstMs - todayMs) / 86400000) };
+}
+
 export default function EventsSplitClient({
   scheduleYear,
   reportYear,
@@ -19,9 +61,34 @@ export default function EventsSplitClient({
   reportEvents,
 }: EventsSplitClientProps) {
   const [activeYear, setActiveYear] = useState<number>(scheduleYear);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const touchStartRef = useRef<number>(0);
+
+  const today = useMemo(() => new Date(), []);
 
   // Get active list of events based on year
   const activeEvents = activeYear === scheduleYear ? scheduleEvents : reportEvents;
+
+  // Left/Top container wheel scroll sync
+  const handleLeftWheel = (e: React.WheelEvent) => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop += e.deltaY;
+    }
+  };
+
+  // Left/Top container touch swipe sync for mobile
+  const handleLeftTouchStart = (e: React.TouchEvent) => {
+    touchStartRef.current = e.touches[0].clientY;
+  };
+
+  const handleLeftTouchMove = (e: React.TouchEvent) => {
+    if (scrollContainerRef.current) {
+      const touchY = e.touches[0].clientY;
+      const deltaY = touchStartRef.current - touchY;
+      scrollContainerRef.current.scrollTop += deltaY * 1.5; // Multiply for better responsiveness
+      touchStartRef.current = touchY;
+    }
+  };
 
   return (
     <main className="w-screen h-screen overflow-hidden bg-[#fdf9f0] text-[#2a2620] relative select-none font-ko">
@@ -46,7 +113,12 @@ export default function EventsSplitClient({
       <div className="grid grid-cols-1 grid-rows-[50vh_50vh] md:grid-cols-2 md:grid-rows-1 h-full w-full relative z-10">
         
         {/* Left/Top Half: Fixed Year Display & Toggle */}
-        <div className="flex flex-col items-center justify-center border-b border-[rgba(184,154,90,0.12)] md:border-b-0 md:border-r md:border-[rgba(184,154,90,0.12)] bg-[#fdf9f0]/40 backdrop-blur-[2px] relative p-6 md:p-12">
+        <div 
+          onWheel={handleLeftWheel}
+          onTouchStart={handleLeftTouchStart}
+          onTouchMove={handleLeftTouchMove}
+          className="flex flex-col items-center justify-center border-b border-[rgba(184,154,90,0.12)] md:border-b-0 md:border-r md:border-[rgba(184,154,90,0.12)] bg-[#fdf9f0]/40 backdrop-blur-[2px] relative p-6 md:p-12 cursor-ns-resize md:cursor-col-resize"
+        >
           
           <span className="font-en text-[10px] md:text-[11px] uppercase tracking-[0.35em] text-[#8a6f2f] mb-3 md:mb-5">
             Choir Calendar
@@ -118,7 +190,10 @@ export default function EventsSplitClient({
           <div className="absolute top-0 left-0 right-0 h-16 md:h-24 bg-gradient-to-b from-[#fdf9f0] to-transparent pointer-events-none z-10" />
 
           {/* Scrollable Container */}
-          <div className="h-full w-full overflow-y-auto scrollbar-none pointer-events-auto px-8 md:px-20 py-16 md:py-28">
+          <div 
+            ref={scrollContainerRef}
+            className="h-full w-full overflow-y-auto scrollbar-none pointer-events-auto px-8 md:px-20 lg:px-24 py-16 md:py-28"
+          >
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeYear}
@@ -126,7 +201,7 @@ export default function EventsSplitClient({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col pb-24"
+                className="flex flex-col pb-36"
               >
                 {activeEvents.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-[#6a5a40]/60">
@@ -135,28 +210,46 @@ export default function EventsSplitClient({
                 ) : (
                   activeEvents.map((event, index) => {
                     const isHighlight = event.highlight;
+                    const status = computeStatus(event, today);
 
                     return (
                       <div
                         key={index}
-                        className={`group flex flex-col items-start justify-center py-10 md:py-16 border-b border-[rgba(184,154,90,0.12)] last:border-b-0 transition-all duration-300 hover:translate-x-2 ${
+                        className={`group flex flex-col items-start justify-center py-14 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0 transition-all duration-300 hover:translate-x-2 ${
                           isHighlight ? 'pl-4 md:pl-6 border-l-2 border-[#8a6f2f]' : ''
                         }`}
                       >
-                        {/* Date Label */}
-                        <div className="flex items-center gap-2 mb-3 md:mb-4">
-                          <span className={`font-en italic font-semibold text-[13px] md:text-[15px] tracking-[0.2em] uppercase transition-colors duration-300 ${
-                            isHighlight ? 'text-[#8a6f2f]' : 'text-[#8a6f2f] group-hover:text-[#2a2620]'
-                          }`}>
+                        {/* Date Label & Status Badge */}
+                        <div className="flex flex-wrap items-center gap-3 mb-4 md:mb-5">
+                          <span className="font-ko font-bold text-[16px] md:text-[20px] text-[#2a2620] tracking-wide">
                             {event.when}
                           </span>
-                          {isHighlight && (
-                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#8a6f2f] animate-pulse" />
+                          
+                          {/* Progress Status Badges */}
+                          {status.kind === 'done' && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#9a8a70]/10 text-[#9a8a70] border border-[#9a8a70]/20 select-none">
+                              완료
+                            </span>
+                          )}
+                          {status.kind === 'tbd' && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#9a8a70]/5 text-[#6a5a40] border border-[#9a8a70]/15 select-none">
+                              일정 미정
+                            </span>
+                          )}
+                          {status.kind === 'upcoming' && status.days === 0 && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#8a6f2f]/15 text-[#8a6f2f] border border-[#8a6f2f]/25 animate-pulse select-none">
+                              오늘
+                            </span>
+                          )}
+                          {status.kind === 'upcoming' && status.days > 0 && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#8a6f2f]/8 text-[#8a6f2f] border border-[#8a6f2f]/20 select-none">
+                              D-{status.days}
+                            </span>
                           )}
                         </div>
 
                         {/* Event Title */}
-                        <h3 className={`font-ko text-[22px] md:text-[32px] font-bold tracking-wide leading-snug transition-colors duration-300 ${
+                        <h3 className={`font-ko text-[24px] md:text-[38px] lg:text-[44px] font-bold tracking-wide leading-snug transition-colors duration-300 ${
                           isHighlight ? 'text-[#8a6f2f]' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
                         }`}>
                           {event.title}
@@ -164,7 +257,7 @@ export default function EventsSplitClient({
 
                         {/* Event Detail */}
                         {event.detail && (
-                          <p className="font-ko text-[13px] md:text-[15px] text-[#6a5a40]/90 mt-4 leading-relaxed max-w-xl">
+                          <p className="font-ko text-[14px] md:text-[16px] lg:text-[18px] text-[#6a5a40]/90 mt-5 leading-relaxed max-w-2xl">
                             {event.detail}
                           </p>
                         )}
