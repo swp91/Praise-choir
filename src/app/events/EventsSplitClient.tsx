@@ -118,7 +118,7 @@ export default function EventsSplitClient({
           <div className="absolute top-0 left-0 right-0 h-16 md:h-24 bg-gradient-to-b from-[#fdf9f0] to-transparent pointer-events-none z-10" />
 
           {/* Scrollable Container */}
-          <div className="h-full w-full overflow-y-auto scrollbar-none pointer-events-auto px-6 py-16 md:px-16 md:py-24">
+          <div className="h-full w-full overflow-y-auto scrollbar-none pointer-events-auto px-8 md:px-20 py-16 md:py-28">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeYear}
@@ -126,7 +126,7 @@ export default function EventsSplitClient({
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col gap-8 md:gap-12 pb-16 md:pb-24"
+                className="flex flex-col pb-24"
               >
                 {activeEvents.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 text-[#6a5a40]/60">
@@ -139,39 +139,35 @@ export default function EventsSplitClient({
                     return (
                       <div
                         key={index}
-                        className="group flex items-start gap-4 md:gap-6 transition-all duration-300 hover:translate-x-1.5"
+                        className={`group flex flex-col items-start justify-center py-10 md:py-16 border-b border-[rgba(184,154,90,0.12)] last:border-b-0 transition-all duration-300 hover:translate-x-2 ${
+                          isHighlight ? 'pl-4 md:pl-6 border-l-2 border-[#8a6f2f]' : ''
+                        }`}
                       >
-                        {/* Date column */}
-                        <div className="w-16 md:w-24 shrink-0 pt-0.5">
-                          <span className={`font-en italic font-medium text-[13px] md:text-[15px] tracking-wide transition-colors duration-300 ${
-                            isHighlight ? 'text-[#8a6f2f] font-bold' : 'text-[#6a5a40] group-hover:text-[#2a2620]'
+                        {/* Date Label */}
+                        <div className="flex items-center gap-2 mb-3 md:mb-4">
+                          <span className={`font-en italic font-semibold text-[13px] md:text-[15px] tracking-[0.2em] uppercase transition-colors duration-300 ${
+                            isHighlight ? 'text-[#8a6f2f]' : 'text-[#8a6f2f] group-hover:text-[#2a2620]'
                           }`}>
                             {event.when}
                           </span>
-                        </div>
-
-                        {/* Connection indicator */}
-                        <div className="flex flex-col items-center pt-2">
-                          <div className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
-                            isHighlight
-                              ? 'bg-[#8a6f2f] scale-125 ring-4 ring-[#b89a5a]/20'
-                              : 'bg-[#d4c4a0] group-hover:bg-[#8a6f2f] group-hover:scale-110'
-                          }`} />
-                        </div>
-
-                        {/* Title and Detail */}
-                        <div className="flex-1">
-                          <h3 className={`text-[16px] md:text-[18px] font-bold tracking-wide transition-colors duration-300 ${
-                            isHighlight ? 'text-[#8a6f2f]' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
-                          }`}>
-                            {event.title}
-                          </h3>
-                          {event.detail && (
-                            <p className="text-[12px] md:text-[13px] text-[#6a5a40]/85 mt-1 leading-relaxed max-w-xl">
-                              {event.detail}
-                            </p>
+                          {isHighlight && (
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-[#8a6f2f] animate-pulse" />
                           )}
                         </div>
+
+                        {/* Event Title */}
+                        <h3 className={`font-ko text-[22px] md:text-[32px] font-bold tracking-wide leading-snug transition-colors duration-300 ${
+                          isHighlight ? 'text-[#8a6f2f]' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
+                        }`}>
+                          {event.title}
+                        </h3>
+
+                        {/* Event Detail */}
+                        {event.detail && (
+                          <p className="font-ko text-[13px] md:text-[15px] text-[#6a5a40]/90 mt-4 leading-relaxed max-w-xl">
+                            {event.detail}
+                          </p>
+                        )}
                       </div>
                     );
                   })
