@@ -99,6 +99,28 @@ export default function EventsSplitClient({
       </div>
 
 
+      {/* Twinkle Style Injection */}
+      <style jsx global>{`
+        @keyframes gold-twinkle {
+          0%, 100% {
+            color: #8a6f2f;
+            text-shadow: 
+              0 0 2px rgba(184, 154, 90, 0.1),
+              0 0 4px rgba(184, 154, 90, 0.05);
+          }
+          50% {
+            color: #c9a767;
+            text-shadow: 
+              0 0 8px rgba(255, 235, 175, 0.85),
+              0 0 16px rgba(184, 154, 90, 0.65),
+              0 0 24px rgba(184, 154, 90, 0.35);
+          }
+        }
+        .animate-gold-twinkle {
+          animation: gold-twinkle 2.5s ease-in-out infinite;
+        }
+      `}</style>
+
       {/* Main Grid Layout: Split screen left/right on all screen sizes */}
       <div className="grid grid-cols-[32%_68%] md:grid-cols-[40%_60%] lg:grid-cols-2 h-full w-full relative z-10">
         
@@ -205,9 +227,7 @@ export default function EventsSplitClient({
                     return (
                       <div
                         key={index}
-                        className={`group flex flex-col items-start justify-center py-14 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0 transition-all duration-300 hover:translate-x-2 ${
-                          isHighlight ? 'pl-4 md:pl-6 border-l-2 border-[#8a6f2f]' : ''
-                        }`}
+                        className="group flex flex-col items-start justify-center py-14 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0"
                       >
                         {/* Date Label & Status Badge */}
                         <div className="flex flex-wrap items-center gap-3 mb-4 md:mb-5">
@@ -240,7 +260,7 @@ export default function EventsSplitClient({
 
                         {/* Event Title */}
                         <h3 className={`font-ko text-[24px] md:text-[38px] lg:text-[44px] font-bold tracking-wide leading-snug transition-colors duration-300 ${
-                          isHighlight ? 'text-[#8a6f2f]' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
+                          isHighlight ? 'animate-gold-twinkle' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
                         }`}>
                           {event.title}
                         </h3>
