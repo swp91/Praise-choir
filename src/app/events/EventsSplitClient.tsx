@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useRef, useMemo } from 'react';
-import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ChoirEvent } from '@/lib/types';
 
@@ -99,15 +98,6 @@ export default function EventsSplitClient({
         </div>
       </div>
 
-      {/* Floating Home Back Button */}
-      <div className="fixed top-6 left-6 md:top-8 md:left-8 z-30 pointer-events-auto">
-        <Link
-          href="/"
-          className="font-ko text-[12px] font-medium tracking-wide text-[#2a2620] hover:text-[#b89a5a] transition-colors duration-300 flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-[rgba(184,154,90,0.18)] bg-[#fdf9f0]/60 backdrop-blur-sm shadow-sm"
-        >
-          <span>←</span> 홈으로
-        </Link>
-      </div>
 
       {/* Main Grid Layout: Split screen left/right on all screen sizes */}
       <div className="grid grid-cols-[32%_68%] md:grid-cols-[40%_60%] lg:grid-cols-2 h-full w-full relative z-10">
