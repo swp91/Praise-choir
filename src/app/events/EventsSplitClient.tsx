@@ -227,22 +227,22 @@ export default function EventsSplitClient({
                           
                           {/* Progress Status Badges */}
                           {status.kind === 'done' && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#9a8a70]/10 text-[#9a8a70] border border-[#9a8a70]/20 select-none">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#9a8a70]/12 text-[#7c6c54] border border-[#9a8a70]/30 select-none">
                               완료
                             </span>
                           )}
                           {status.kind === 'tbd' && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#9a8a70]/5 text-[#6a5a40] border border-[#9a8a70]/15 select-none">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#d97706]/10 text-[#b25e00] border border-[#d97706]/20 select-none">
                               일정 미정
                             </span>
                           )}
                           {status.kind === 'upcoming' && status.days === 0 && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#8a6f2f]/15 text-[#8a6f2f] border border-[#8a6f2f]/25 animate-pulse select-none">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#9d174d]/10 text-[#9d174d] border border-[#9d174d]/25 animate-pulse select-none">
                               오늘
                             </span>
                           )}
                           {status.kind === 'upcoming' && status.days > 0 && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#8a6f2f]/8 text-[#8a6f2f] border border-[#8a6f2f]/20 select-none">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#166534]/10 text-[#166534] border border-[#166534]/25 select-none">
                               D-{status.days}
                             </span>
                           )}
