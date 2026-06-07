@@ -246,7 +246,12 @@ export default function EventsSplitClient({
                     }}
                     className="absolute left-0 right-0 flex flex-col items-center justify-center transition-all duration-500 ease-[0.16,1,0.3,1] backface-hidden [--ty:calc(var(--offset)*13.5vw)] sm:[--ty:calc(var(--offset)*9.5vw)] md:[--ty:calc(var(--offset)*var(--ty-md))] lg:[--ty:calc(var(--offset)*var(--ty-lg))]"
                   >
-                    <span className="font-en italic font-bold text-[12vw] sm:text-[9vw] md:text-[var(--fs-md)] lg:text-[var(--fs-lg)] leading-none text-[#8a6f2f] tracking-wide select-none">
+                    <span 
+                      style={{
+                        fontSize: 'var(--fs)',
+                      }}
+                      className="font-en italic font-bold leading-none text-[#8a6f2f] tracking-wide select-none [--fs:12vw] sm:[--fs:9vw] md:[--fs:var(--fs-md)] lg:[--fs:var(--fs-lg)]"
+                    >
                       {item.year}
                     </span>
                     <span className={`font-ko text-[10px] md:text-[0.9vw] mt-1.5 tracking-wider transition-colors duration-500 ${
