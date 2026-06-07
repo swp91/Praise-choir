@@ -122,7 +122,7 @@ export default function EventsSplitClient({
       `}</style>
 
       {/* Main Grid Layout: Split screen left/right on all screen sizes */}
-      <div className="grid grid-cols-[32%_68%] md:grid-cols-[40%_60%] lg:grid-cols-2 h-full w-full relative z-10">
+      <div className="grid grid-cols-[40%_60%] lg:grid-cols-2 h-full w-full relative z-10">
         
         {/* Left Half: Fixed Year Display & Toggle */}
         <div 
