@@ -16,6 +16,36 @@ type ActivePhoto = {
   rect: DOMRect;
 };
 
+function FadeInImage({ photo, height }: { photo: Photo; height: number }) {
+  const [loaded, setLoaded] = useState(false);
+
+  const hasPalette = photo.palette && photo.palette.length >= 3;
+  const bg = hasPalette
+    ? `linear-gradient(135deg, ${photo.palette[0]} 0%, ${photo.palette[1]} 60%, ${photo.palette[2]} 100%)`
+    : 'rgba(184, 154, 90, 0.05)';
+
+  return (
+    <div className="relative overflow-hidden" style={{ height }}>
+      {!loaded && (
+        <div 
+          className="absolute inset-0 animate-pulse opacity-30" 
+          style={{ background: bg }}
+        />
+      )}
+      <img
+        src={photo.url}
+        alt={photo.title}
+        onLoad={() => setLoaded(true)}
+        className={`block w-auto object-contain transition-opacity duration-700 ease-out ${
+          loaded ? 'opacity-100' : 'opacity-0'
+        }`}
+        style={{ height }}
+        draggable={false}
+      />
+    </div>
+  );
+}
+
 const heightPattern = [300, 380, 330, 420, 310, 360, 440, 320, 390, 340];
 
 function tripled<T>(items: T[]) {
@@ -264,14 +294,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
                     }}
                     className="relative block overflow-hidden bg-card shadow-[0_18px_45px_rgba(42,38,32,0.12)] will-change-transform"
                   >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={photo.url}
-                      alt={photo.title}
-                      className="block w-auto object-contain"
-                      style={{ height }}
-                      draggable={false}
-                    />
+                    <FadeInImage photo={photo} height={height} />
                   </span>
                 ) : null}
               </button>
