@@ -68,6 +68,13 @@ export default function EventsSplitClient({
   // Get active list of events based on year
   const activeEvents = activeYear === scheduleYear ? scheduleEvents : reportEvents;
 
+  // Scroll to top of list when active year changes
+  React.useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, [activeYear]);
+
   // Left/Top container wheel scroll sync
   const handleLeftWheel = (e: React.WheelEvent) => {
     if (scrollContainerRef.current) {
@@ -204,7 +211,7 @@ export default function EventsSplitClient({
           {/* Scrollable Container */}
           <div 
             ref={scrollContainerRef}
-            className="h-full w-full overflow-y-auto scrollbar-none pointer-events-auto px-8 md:px-20 lg:px-24 py-16 md:py-28"
+            className="h-full w-full overflow-y-auto scrollbar-none pointer-events-auto px-5 md:px-20 lg:px-24 py-12 md:py-28"
           >
             <AnimatePresence mode="wait">
               <motion.div
@@ -227,11 +234,11 @@ export default function EventsSplitClient({
                     return (
                       <div
                         key={index}
-                        className="group flex flex-col items-start justify-center py-14 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0"
+                        className="group flex flex-col items-start justify-center py-8 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0"
                       >
                         {/* Date Label & Status Badge */}
-                        <div className="flex flex-wrap items-center gap-3 mb-4 md:mb-5">
-                          <span className="font-ko font-bold text-[16px] md:text-[20px] text-[#2a2620] tracking-wide">
+                        <div className="flex flex-wrap items-center gap-3 mb-3 md:mb-5">
+                          <span className="font-ko font-bold text-[14px] md:text-[20px] text-[#2a2620] tracking-wide">
                             {event.when}
                           </span>
                           
@@ -259,7 +266,7 @@ export default function EventsSplitClient({
                         </div>
 
                         {/* Event Title */}
-                        <h3 className={`font-ko text-[24px] md:text-[38px] lg:text-[44px] font-bold tracking-wide leading-snug transition-colors duration-300 ${
+                        <h3 className={`font-ko text-[17px] sm:text-[19px] md:text-[38px] lg:text-[44px] font-bold tracking-wide leading-snug transition-colors duration-300 ${
                           isHighlight ? 'animate-gold-twinkle' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
                         }`}>
                           {event.title}
@@ -267,7 +274,7 @@ export default function EventsSplitClient({
 
                         {/* Event Detail */}
                         {event.detail && (
-                          <p className="font-ko text-[14px] md:text-[16px] lg:text-[18px] text-[#6a5a40]/90 mt-5 leading-relaxed max-w-2xl">
+                          <p className="font-ko text-[12px] md:text-[16px] lg:text-[18px] text-[#6a5a40]/90 mt-3 md:mt-5 leading-relaxed max-w-2xl">
                             {event.detail}
                           </p>
                         )}
