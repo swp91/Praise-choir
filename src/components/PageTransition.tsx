@@ -85,20 +85,6 @@ export default function PageTransition() {
 
         {/* Rotating Seal */}
         <RotatingSeal phase={phase} />
-
-        {/* Loading text indicator */}
-        {phase === 'covered' && (
-          <motion.p
-            className="absolute bottom-[24vh] z-[5] font-en text-[10px] uppercase tracking-[0.32em] text-ink-soft/70"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0.34, 0.78, 0.34] }}
-            transition={{
-              opacity: { duration: 1.25, repeat: Infinity, ease: 'easeInOut' }
-            }}
-          >
-            Preparing next page
-          </motion.p>
-        )}
       </motion.section>
 
       {/* Spine */}
