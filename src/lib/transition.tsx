@@ -29,9 +29,31 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
   const [turning, setTurning] = useState(false);
   const [tick, setTick] = useState(0);
 
-  // Sync pathRef.current with browser pathname changes (e.g. popstate / back-button)
+  const transitionStartRef = useRef<number>(0);
+  const targetPathRef = useRef<string | null>(null);
+
+  // Sync pathname and handle transition completion
   useEffect(() => {
-    pathRef.current = pathname;
+    const isPopState = !turningRef.current;
+
+    if (isPopState) {
+      pathRef.current = pathname;
+      return;
+    }
+
+    // If the navigation is active and the actual destination is reached
+    if (targetPathRef.current && pathname === targetPathRef.current) {
+      const elapsed = Date.now() - transitionStartRef.current;
+      // Vellum sheet fully covers the viewport at ~560ms. Keep it covered for at least 600ms.
+      const remainingTime = Math.max(0, 600 - elapsed);
+
+      setTimeout(() => {
+        setTurning(false);
+        turningRef.current = false;
+        targetPathRef.current = null;
+        pathRef.current = pathname;
+      }, remainingTime);
+    }
   }, [pathname]);
 
   const navigate = useCallback((href: string) => {
@@ -43,11 +65,12 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     setTurning(true);
     turningRef.current = true;
     setTick(v => v + 1);
-    pathRef.current = href;
+    
+    targetPathRef.current = href;
+    transitionStartRef.current = Date.now();
 
     // Route changes while the vellum sheet fully covers the viewport.
     setTimeout(() => { router.push(href); }, 560);
-    setTimeout(() => { setTurning(false); turningRef.current = false; }, 1420);
   }, [router]);
 
   return (
