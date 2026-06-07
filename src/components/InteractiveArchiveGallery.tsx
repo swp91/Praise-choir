@@ -59,12 +59,11 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       const newSetWidth = track.scrollWidth / 3;
       setWidthRef.current = newSetWidth;
 
-      if (oldSetWidth === 0) {
+      if (!oldSetWidth || isNaN(oldSetWidth)) {
         positionRef.current = -newSetWidth;
       } else {
-        // 기존 센터 대비 상대적 스크롤 변위(offset)를 절대값으로 유지하여 이미지 로드 시 튕기는 현상 방지
-        const offset = positionRef.current + oldSetWidth;
-        positionRef.current = -newSetWidth + offset;
+        // 이미지 비동기 로딩 등으로 트랙 너비가 늘어날 때, 기존 스크롤 위치 비율을 유지하여 튕김 및 첫 화면 되돌아감 현상 방지
+        positionRef.current = (positionRef.current / oldSetWidth) * newSetWidth;
       }
       gsap.set(track, { x: positionRef.current });
     };
