@@ -106,25 +106,33 @@ export default function EventsSplitClient({
       </div>
 
 
-      {/* Twinkle Style Injection */}
+      {/* Rainbow Flow Style Injection */}
       <style jsx global>{`
-        @keyframes gold-twinkle {
-          0%, 100% {
-            color: #8a6f2f;
-            text-shadow: 
-              0 0 2px rgba(184, 154, 90, 0.1),
-              0 0 4px rgba(184, 154, 90, 0.05);
+        @keyframes rainbow-flow {
+          0% {
+            background-position: 0% center;
           }
-          50% {
-            color: #c9a767;
-            text-shadow: 
-              0 0 8px rgba(255, 235, 175, 0.85),
-              0 0 16px rgba(184, 154, 90, 0.65),
-              0 0 24px rgba(184, 154, 90, 0.35);
+          100% {
+            background-position: 200% center;
           }
         }
-        .animate-gold-twinkle {
-          animation: gold-twinkle 2.5s ease-in-out infinite;
+        .animate-rainbow-flow {
+          background: linear-gradient(
+            90deg,
+            #ff8a00,
+            #e52e71,
+            #9b51e0,
+            #2d9cdb,
+            #27ae60,
+            #f2c94c,
+            #ff8a00
+          );
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-fill-color: transparent;
+          animation: rainbow-flow 6s linear infinite;
         }
       `}</style>
 
@@ -267,7 +275,7 @@ export default function EventsSplitClient({
 
                         {/* Event Title */}
                         <h3 className={`font-ko text-[17px] sm:text-[19px] md:text-[38px] lg:text-[44px] font-bold tracking-wide leading-snug transition-colors duration-300 ${
-                          isHighlight ? 'animate-gold-twinkle' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
+                          isHighlight ? 'animate-rainbow-flow' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
                         }`}>
                           {event.title}
                         </h3>
