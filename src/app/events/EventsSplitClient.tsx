@@ -49,9 +49,17 @@ function computeStatus(event: ChoirEvent, year: number, today: Date): Status {
     return { kind: 'upcoming', days: Math.ceil((d - todayMs) / 86400000) };
   }
 
-  // 4. 월 정보만 있는 경우 (event.month 활용)
-  if (event.month) {
-    const mo = event.month - 1;
+  // 4. 월 정보만 있는 경우 (event.month 혹은 event.when이 "N월" 형태인 경우)
+  let extractedMonth = event.month;
+  if (!extractedMonth) {
+    const monthMatch = event.when.match(/^(\d{1,2})월$/);
+    if (monthMatch) {
+      extractedMonth = parseInt(monthMatch[1]);
+    }
+  }
+
+  if (extractedMonth) {
+    const mo = extractedMonth - 1;
     const endMs = new Date(year, mo + 1, 0).getTime();
     if (endMs < todayMs) return { kind: 'done' };
     const firstMs = new Date(year, mo, 1).getTime();
