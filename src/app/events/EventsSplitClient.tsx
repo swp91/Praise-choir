@@ -199,9 +199,19 @@ export default function EventsSplitClient({
           className="flex flex-col items-center justify-center border-r border-[rgba(184,154,90,0.12)] bg-[#fdf9f0]/40 backdrop-blur-[2px] relative p-3 md:p-12 cursor-ns-resize md:cursor-col-resize"
         >
           {/* Years Roller List Container */}
-          <div className="relative h-48 md:h-80 lg:h-96 w-full flex items-center justify-center overflow-hidden pointer-events-auto z-20">
+          <div 
+            style={{
+              ['--bar-h-md' as any]: 'clamp(70px, 9.5vw, 95px)',
+              ['--bar-h-lg' as any]: 'clamp(100px, 11vw, 150px)',
+              ['--fs-md' as any]: 'clamp(55px, 7.5vw, 75px)',
+              ['--fs-lg' as any]: 'clamp(80px, 8.5vw, 115px)',
+              ['--ty-md' as any]: 'clamp(75px, 10vw, 100px)',
+              ['--ty-lg' as any]: 'clamp(105px, 11.5vw, 160px)',
+            }}
+            className="relative h-48 md:h-[40vw] lg:h-[35vw] w-full flex items-center justify-center overflow-hidden pointer-events-auto z-20"
+          >
             {/* Center Focus Highlight Bar */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-28 md:w-48 lg:w-56 h-14 md:h-24 lg:h-28 border-y border-[#b89a5a]/20 pointer-events-none" />
+            <div className="absolute left-1/2 -translate-x-1/2 w-28 md:w-[25vw] lg:w-[22vw] h-12 md:h-[var(--bar-h-md)] lg:h-[var(--bar-h-lg)] border-y border-[#b89a5a]/20 pointer-events-none" />
 
             {/* Roller Container */}
             <div className="relative w-full h-full">
@@ -234,12 +244,12 @@ export default function EventsSplitClient({
                       top: '50%',
                       ['--offset' as any]: offset,
                     }}
-                    className="absolute left-0 right-0 flex flex-col items-center justify-center transition-all duration-500 ease-[0.16,1,0.3,1] backface-hidden [--ty:calc(var(--offset)*50px)] md:[--ty:calc(var(--offset)*85px)] lg:[--ty:calc(var(--offset)*105px)]"
+                    className="absolute left-0 right-0 flex flex-col items-center justify-center transition-all duration-500 ease-[0.16,1,0.3,1] backface-hidden [--ty:calc(var(--offset)*13.5vw)] sm:[--ty:calc(var(--offset)*9.5vw)] md:[--ty:calc(var(--offset)*var(--ty-md))] lg:[--ty:calc(var(--offset)*var(--ty-lg))]"
                   >
-                    <span className="font-en italic font-bold text-[36px] sm:text-[44px] md:text-[76px] lg:text-[96px] leading-none text-[#8a6f2f] tracking-wide select-none">
+                    <span className="font-en italic font-bold text-[12vw] sm:text-[9vw] md:text-[var(--fs-md)] lg:text-[var(--fs-lg)] leading-none text-[#8a6f2f] tracking-wide select-none">
                       {item.year}
                     </span>
-                    <span className={`font-ko text-[10px] md:text-[12px] mt-1.5 tracking-wider transition-colors duration-500 ${
+                    <span className={`font-ko text-[10px] md:text-[0.9vw] mt-1.5 tracking-wider transition-colors duration-500 ${
                       isCenter ? 'text-[#2a2620] font-bold' : 'text-[#9a8a70]'
                     }`}>
                       {label}
