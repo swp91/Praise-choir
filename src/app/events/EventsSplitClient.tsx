@@ -62,9 +62,7 @@ function computeStatus(event: ChoirEvent, year: number, today: Date): Status {
     const mo = extractedMonth - 1;
     const endMs = new Date(year, mo + 1, 0).getTime();
     if (endMs < todayMs) return { kind: 'done' };
-    const firstMs = new Date(year, mo, 1).getTime();
-    if (firstMs <= todayMs) return { kind: 'upcoming', days: 0 };
-    return { kind: 'upcoming', days: Math.ceil((firstMs - todayMs) / 86400000) };
+    return { kind: 'tbd' };
   }
 
   // 5. 기존 포맷 백업 정규식 매칭
