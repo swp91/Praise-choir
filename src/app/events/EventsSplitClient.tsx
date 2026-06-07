@@ -283,8 +283,8 @@ export default function EventsSplitClient({
                               <>
                                 {/* 1. 위쪽 선 (Incoming Line) */}
                                 {index > 0 && (
-                                  <div className="absolute left-1/2 -translate-x-1/2 top-0 h-[11px] md:h-[19px] w-[2px] z-0">
-                                    <div className="absolute inset-0 bg-[rgba(184,154,90,0.15)]" />
+                                  <div className="absolute left-1/2 -translate-x-1/2 top-0 h-[11px] md:h-[19px] w-[3px] z-0">
+                                    <div className="absolute inset-0 bg-[#9a8a70]/40" />
                                     {eventStatuses[index - 1].kind === 'done' && isDone && (
                                       <div className="absolute inset-0 bg-[#8a6f2f]" />
                                     )}
@@ -293,8 +293,8 @@ export default function EventsSplitClient({
                                 
                                 {/* 2. 아래쪽 선 (Outgoing Line) */}
                                 {index < activeEvents.length - 1 && (
-                                  <div className="absolute left-1/2 -translate-x-1/2 top-[11px] md:top-[19px] bottom-0 w-[2px] z-0">
-                                    <div className="absolute inset-0 bg-[rgba(184,154,90,0.15)]" />
+                                  <div className="absolute left-1/2 -translate-x-1/2 top-[11px] md:top-[19px] bottom-0 w-[3px] z-0">
+                                    <div className="absolute inset-0 bg-[#9a8a70]/40" />
                                     {isDone && (
                                       <div className="absolute inset-0 bg-[#8a6f2f]" />
                                     )}
