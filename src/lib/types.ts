@@ -32,6 +32,7 @@ export type Officer = {
 };
 
 export type ChoirEvent = {
+  year: number;
   when: string;
   title: string;
   detail?: string;

@@ -330,13 +330,16 @@ export async function getEventsData() {
     if (typeDiff !== 0) return typeDiff;
     return b.year - a.year;
   });
-  const scheduleYear = sorted.find((row) => row.display_type === 'schedule')?.year ?? currentYear;
-  const reportYear = sorted.find((row) => row.display_type === 'report')?.year ?? scheduleYear - 1;
+
+  const activeYears = sorted.map((row) => row.year);
+  const finalYearsList = sorted.length > 0 ? sorted : [{ year: currentYear, display_type: 'schedule' }];
+  const queryYears = activeYears.length > 0 ? activeYears : [currentYear];
+
   const events = await must(
     supabase
       .from('events')
       .select('*')
-      .in('year', [scheduleYear, reportYear])
+      .in('year', queryYears)
       .eq('is_published', true)
       .order('year', { ascending: false })
       .order('sort_order'),
@@ -344,6 +347,7 @@ export async function getEventsData() {
   );
 
   const toEvent = (event: {
+    year: number;
     date_label: string | null;
     title: string;
     detail: string | null;
@@ -354,6 +358,7 @@ export async function getEventsData() {
     created_at: string | null;
   }) =>
     ({
+      year: event.year,
       when: formatPublicEventDate({
         eventDate: event.event_date,
         month: event.month,
@@ -366,31 +371,19 @@ export async function getEventsData() {
       month: event.month ?? undefined,
     }) satisfies ChoirEvent;
 
+  const processedEvents = sortPublicEvents(
+    events.map((event) => ({
+      ...event,
+      eventDate: event.event_date,
+      dateLabel: event.date_label,
+      sortOrder: event.sort_order ?? 0,
+      createdAt: event.created_at,
+    }))
+  ).map((e) => toEvent(e as any));
+
   return {
-    scheduleYear,
-    reportYear,
-    scheduleEvents: sortPublicEvents(
-      events
-        .filter((event) => event.year === scheduleYear)
-        .map((event) => ({
-          ...event,
-          eventDate: event.event_date,
-          dateLabel: event.date_label,
-          sortOrder: event.sort_order ?? 0,
-          createdAt: event.created_at,
-        })),
-    ).map(toEvent),
-    reportEvents: sortPublicEvents(
-      events
-        .filter((event) => event.year === reportYear)
-        .map((event) => ({
-          ...event,
-          eventDate: event.event_date,
-          dateLabel: event.date_label,
-          sortOrder: event.sort_order ?? 0,
-          createdAt: event.created_at,
-        })),
-    ).map(toEvent),
+    yearsList: finalYearsList,
+    allEvents: processedEvents,
   };
 }
 

@@ -5,10 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { ChoirEvent } from '@/lib/types';
 
 interface EventsSplitClientProps {
-  scheduleYear: number;
-  reportYear: number;
-  scheduleEvents: ChoirEvent[];
-  reportEvents: ChoirEvent[];
+  yearsList: Array<{ year: number; display_type: string }>;
+  allEvents: ChoirEvent[];
 }
 
 type Status = { kind: 'done' } | { kind: 'tbd' } | { kind: 'upcoming'; days: number };
@@ -78,19 +76,29 @@ function computeStatus(event: ChoirEvent, year: number, today: Date): Status {
 }
 
 export default function EventsSplitClient({
-  scheduleYear,
-  reportYear,
-  scheduleEvents,
-  reportEvents,
+  yearsList,
+  allEvents,
 }: EventsSplitClientProps) {
-  const [activeYear, setActiveYear] = useState<number>(scheduleYear);
+  const initialYear = useMemo(() => {
+    const schedule = yearsList.find((y) => y.display_type === 'schedule');
+    return schedule ? schedule.year : (yearsList[0]?.year ?? new Date().getFullYear());
+  }, [yearsList]);
+
+  const [activeYear, setActiveYear] = useState<number>(initialYear);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<number>(0);
 
   const today = useMemo(() => new Date(), []);
 
-  // Get active list of events based on year
-  const activeEvents = activeYear === scheduleYear ? scheduleEvents : reportEvents;
+  const activeIndex = useMemo(() => {
+    const idx = yearsList.findIndex((y) => y.year === activeYear);
+    return idx !== -1 ? idx : 0;
+  }, [yearsList, activeYear]);
+
+  const activeEvents = useMemo(() => {
+    return allEvents.filter((event) => event.year === activeYear);
+  }, [allEvents, activeYear]);
 
   // Scroll to top of list when active year changes
   React.useEffect(() => {
@@ -99,10 +107,19 @@ export default function EventsSplitClient({
     }
   }, [activeYear]);
 
-  // Left/Top container wheel scroll sync
+  // Left/Top container wheel scroll sync (연도 롤러 제어)
   const handleLeftWheel = (e: React.WheelEvent) => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTop += e.deltaY;
+    if (isTransitioning) return;
+
+    const direction = e.deltaY > 0 ? 1 : -1;
+    const nextIndex = activeIndex + direction;
+
+    if (nextIndex >= 0 && nextIndex < yearsList.length) {
+      setIsTransitioning(true);
+      setActiveYear(yearsList[nextIndex].year);
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 500); // 500ms 스로틀링
     }
   };
 
@@ -112,11 +129,22 @@ export default function EventsSplitClient({
   };
 
   const handleLeftTouchMove = (e: React.TouchEvent) => {
-    if (scrollContainerRef.current) {
-      const touchY = e.touches[0].clientY;
-      const deltaY = touchStartRef.current - touchY;
-      scrollContainerRef.current.scrollTop += deltaY * 1.5; // Multiply for better responsiveness
-      touchStartRef.current = touchY;
+    if (isTransitioning) return;
+    const touchY = e.touches[0].clientY;
+    const deltaY = touchStartRef.current - touchY;
+
+    if (Math.abs(deltaY) > 40) {
+      const direction = deltaY > 0 ? 1 : -1;
+      const nextIndex = activeIndex + direction;
+
+      if (nextIndex >= 0 && nextIndex < yearsList.length) {
+        setIsTransitioning(true);
+        setActiveYear(yearsList[nextIndex].year);
+        touchStartRef.current = touchY;
+        setTimeout(() => {
+          setIsTransitioning(false);
+        }, 500);
+      }
     }
   };
 
@@ -170,67 +198,56 @@ export default function EventsSplitClient({
           onTouchMove={handleLeftTouchMove}
           className="flex flex-col items-center justify-center border-r border-[rgba(184,154,90,0.12)] bg-[#fdf9f0]/40 backdrop-blur-[2px] relative p-3 md:p-12 cursor-ns-resize md:cursor-col-resize"
         >
-          
-          <span className="font-en text-[9px] md:text-[11px] uppercase tracking-[0.35em] text-[#8a6f2f] mb-3 md:mb-5">
-            Choir Calendar
-          </span>
+          {/* Years Roller List Container */}
+          <div className="relative h-48 md:h-72 w-full flex items-center justify-center overflow-hidden pointer-events-auto z-20">
+            {/* Center Focus Highlight Bar */}
+            <div className="absolute left-1/2 -translate-x-1/2 w-28 md:w-36 h-14 md:h-20 border-y border-[#b89a5a]/20 pointer-events-none" />
 
-          <div className="relative h-20 md:h-36 flex items-center justify-center">
-            <AnimatePresence mode="wait">
-              <motion.h1
-                key={activeYear}
-                initial={{ y: 30, opacity: 0, scale: 0.95 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                exit={{ y: -30, opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                className="font-en italic font-bold text-[10vw] sm:text-[8vw] md:text-[10vw] leading-none text-[#8a6f2f] tracking-wide select-none"
-              >
-                {activeYear}
-              </motion.h1>
-            </AnimatePresence>
-          </div>
+            {/* Roller Container */}
+            <div className="relative w-full h-full">
+              {yearsList.map((item, idx) => {
+                const offset = idx - activeIndex;
+                if (Math.abs(offset) > 2) return null;
 
-          <div className="w-12 h-[1px] bg-[#b89a5a]/30 my-4 md:my-6" />
+                const isCenter = offset === 0;
+                const label = item.display_type === 'schedule' ? '일정' : '활동 보고';
 
-          {/* Interactive Navigation/Toggle Buttons */}
-          <div className="flex flex-col md:flex-row gap-5 md:gap-10 pointer-events-auto z-20 items-center">
-            <button
-              onClick={() => setActiveYear(scheduleYear)}
-              className="group flex flex-col items-center focus:outline-none transition-transform duration-200 active:scale-95"
-            >
-              <span className={`font-en text-[16px] md:text-[20px] font-semibold transition-colors duration-300 ${
-                activeYear === scheduleYear ? 'text-[#8a6f2f]' : 'text-[#9a8a70] hover:text-[#2a2620]'
-              }`}>
-                {scheduleYear}
-              </span >
-              <span className={`font-ko text-[11px] md:text-[12px] mt-1.5 tracking-wider transition-colors duration-300 ${
-                activeYear === scheduleYear ? 'text-[#2a2620] font-bold' : 'text-[#9a8a70]'
-              }`}>
-                일정
-              </span>
-              <div className={`h-1.5 w-1.5 rounded-full bg-[#8a6f2f] mt-2 transition-all duration-300 ${
-                activeYear === scheduleYear ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-              }`} />
-            </button>
+                const translateY = offset * 55; // md 기준 70, 모바일 기준 55
+                const scale = isCenter ? 1.15 : 0.75;
+                const opacity = isCenter ? 1.0 : Math.abs(offset) === 1 ? 0.35 : 0.08;
+                const rotateX = offset * -25; // 3D 회전 각도
 
-            <button
-              onClick={() => setActiveYear(reportYear)}
-              className="group flex flex-col items-center focus:outline-none transition-transform duration-200 active:scale-95"
-            >
-              <span className={`font-en text-[16px] md:text-[20px] font-semibold transition-colors duration-300 ${
-                activeYear === reportYear ? 'text-[#8a6f2f]' : 'text-[#9a8a70] hover:text-[#2a2620]'
-              }`}>
-                {reportYear}
-              </span>
-              <span className={`font-ko text-[11px] md:text-[12px] mt-1.5 tracking-wider transition-colors duration-300 ${
-                activeYear === reportYear ? 'text-[#2a2620] font-bold' : 'text-[#9a8a70]'
-              }`}>
-                활동 보고
-              </span>
-              <div className={`h-1.5 w-1.5 rounded-full bg-[#8a6f2f] mt-2 transition-all duration-300 ${
-                activeYear === reportYear ? 'scale-100 opacity-100' : 'scale-0 opacity-0'
-              }`} />
-            </button>
+                return (
+                  <button
+                    key={item.year}
+                    onClick={() => {
+                      if (!isCenter && !isTransitioning) {
+                        setIsTransitioning(true);
+                        setActiveYear(item.year);
+                        setTimeout(() => {
+                          setIsTransitioning(false);
+                        }, 500);
+                      }
+                    }}
+                    style={{
+                      transform: `translateY(calc(-50% + ${translateY}px)) scale(${scale}) rotateX(${rotateX}deg)`,
+                      opacity: opacity,
+                      top: '50%',
+                    }}
+                    className="absolute left-0 right-0 flex flex-col items-center justify-center transition-all duration-500 ease-[0.16,1,0.3,1] backface-hidden"
+                  >
+                    <span className="font-en italic font-bold text-[36px] sm:text-[40px] md:text-[56px] leading-none text-[#8a6f2f] tracking-wide select-none">
+                      {item.year}
+                    </span>
+                    <span className={`font-ko text-[10px] md:text-[11px] mt-1.5 tracking-wider transition-colors duration-500 ${
+                      isCenter ? 'text-[#2a2620] font-bold' : 'text-[#9a8a70]'
+                    }`}>
+                      {label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
