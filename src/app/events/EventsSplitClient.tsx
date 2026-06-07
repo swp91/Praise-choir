@@ -242,50 +242,76 @@ export default function EventsSplitClient({
                     return (
                       <div
                         key={index}
-                        className="group flex flex-col items-start justify-center py-8 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0"
+                        className="group flex flex-row items-start gap-4 md:gap-8 py-8 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0 relative"
                       >
-                        {/* Date Label & Status Badge */}
-                        <div className="flex flex-wrap items-center gap-3 mb-3 md:mb-5">
-                          <span className="font-ko font-bold text-[14px] md:text-[20px] text-[#2a2620] tracking-wide">
-                            {event.when}
-                          </span>
+                        {/* Stepper Guide Column */}
+                        <div className="flex flex-col items-center shrink-0 relative w-6 md:w-8" style={{ alignSelf: 'stretch' }}>
+                          {/* Vertical Line */}
+                          {activeEvents.length > 1 && (
+                            <div className={`w-[1px] bg-[rgba(184,154,90,0.22)] absolute left-1/2 -translate-x-1/2 z-0 ${
+                              index === 0 
+                                ? 'top-3 md:top-4 bottom-0' 
+                                : index === activeEvents.length - 1 
+                                ? 'top-0 h-3 md:h-4' 
+                                : 'top-0 bottom-0'
+                            }`} />
+                          )}
                           
-                          {/* Progress Status Badges */}
-                          {status.kind === 'done' && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#9a8a70]/12 text-[#7c6c54] border border-[#9a8a70]/30 select-none">
-                              완료
-                            </span>
-                          )}
-                          {status.kind === 'tbd' && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#d97706]/10 text-[#b25e00] border border-[#d97706]/20 select-none">
-                              일정 미정
-                            </span>
-                          )}
-                          {status.kind === 'upcoming' && status.days === 0 && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#9d174d]/10 text-[#9d174d] border border-[#9d174d]/25 animate-pulse select-none">
-                              오늘
-                            </span>
-                          )}
-                          {status.kind === 'upcoming' && status.days > 0 && (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#166534]/10 text-[#166534] border border-[#166534]/25 select-none">
-                              D-{status.days}
-                            </span>
-                          )}
+                          {/* Stepper Dot node */}
+                          <div className={`w-5 h-5 md:w-8 md:h-8 rounded-full border flex items-center justify-center text-[9px] md:text-[11px] font-en font-bold z-10 bg-[#fdf9f0] select-none transition-all duration-300 mt-[1px] md:mt-[3px] ${
+                            isHighlight
+                              ? 'border-[#8a6f2f] text-[#8a6f2f] ring-4 ring-[#b89a5a]/10 scale-105'
+                              : 'border-[#9a8a70]/40 text-[#9a8a70] group-hover:border-[#8a6f2f] group-hover:text-[#8a6f2f]'
+                          }`}>
+                            {String(index + 1).padStart(2, '0')}
+                          </div>
                         </div>
 
-                        {/* Event Title */}
-                        <h3 className={`font-ko text-[17px] sm:text-[19px] md:text-[38px] lg:text-[44px] font-bold tracking-wide leading-snug transition-colors duration-300 ${
-                          isHighlight ? 'animate-rainbow-flow' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
-                        }`}>
-                          {event.title}
-                        </h3>
+                        {/* Event Content Column */}
+                        <div className="flex-1 min-w-0">
+                          {/* Date Label & Status Badge */}
+                          <div className="flex flex-wrap items-center gap-3 mb-3 md:mb-5">
+                            <span className="font-ko font-bold text-[14px] md:text-[20px] text-[#2a2620] tracking-wide">
+                              {event.when}
+                            </span>
+                            
+                            {/* Progress Status Badges */}
+                            {status.kind === 'done' && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#9a8a70]/12 text-[#7c6c54] border border-[#9a8a70]/30 select-none">
+                                완료
+                              </span>
+                            )}
+                            {status.kind === 'tbd' && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-semibold bg-[#d97706]/10 text-[#b25e00] border border-[#d97706]/20 select-none">
+                                일정 미정
+                              </span>
+                            )}
+                            {status.kind === 'upcoming' && status.days === 0 && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#9d174d]/10 text-[#9d174d] border border-[#9d174d]/25 animate-pulse select-none">
+                                오늘
+                              </span>
+                            )}
+                            {status.kind === 'upcoming' && status.days > 0 && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[11px] font-bold bg-[#166534]/10 text-[#166534] border border-[#166534]/25 select-none">
+                                D-{status.days}
+                              </span>
+                            )}
+                          </div>
 
-                        {/* Event Detail */}
-                        {event.detail && (
-                          <p className="font-ko text-[12px] md:text-[16px] lg:text-[18px] text-[#6a5a40]/90 mt-3 md:mt-5 leading-relaxed max-w-2xl">
-                            {event.detail}
-                          </p>
-                        )}
+                          {/* Event Title */}
+                          <h3 className={`font-ko text-[17px] sm:text-[19px] md:text-[38px] lg:text-[44px] font-bold tracking-wide leading-snug transition-colors duration-300 ${
+                            isHighlight ? 'animate-rainbow-flow' : 'text-[#2a2620] group-hover:text-[#b89a5a]'
+                          }`}>
+                            {event.title}
+                          </h3>
+
+                          {/* Event Detail */}
+                          {event.detail && (
+                            <p className="font-ko text-[12px] md:text-[16px] lg:text-[18px] text-[#6a5a40]/90 mt-3 md:mt-5 leading-relaxed max-w-2xl">
+                              {event.detail}
+                            </p>
+                          )}
+                        </div>
                       </div>
                     );
                   })
