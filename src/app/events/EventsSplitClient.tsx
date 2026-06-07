@@ -259,40 +259,72 @@ export default function EventsSplitClient({
                     <span className="text-[14px]">등록된 일정이 없습니다.</span>
                   </div>
                 ) : (
-                  activeEvents.map((event, index) => {
-                    const isHighlight = event.highlight;
-                    const status = computeStatus(event, activeYear, today);
+                  (() => {
+                    const eventStatuses = activeEvents.map((event) => computeStatus(event, activeYear, today));
+                    const todayIndex = eventStatuses.findIndex((s) => s.kind === 'upcoming' && s.days === 0);
+                    const firstUpcomingIndex = eventStatuses.findIndex((s) => s.kind !== 'done');
+                    const currentIndex = todayIndex !== -1 ? todayIndex : firstUpcomingIndex;
 
-                    return (
-                      <div
-                        key={index}
-                        className="group flex flex-row items-start gap-4 md:gap-8 py-8 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0 relative"
-                      >
-                        {/* Stepper Guide Column */}
-                        <div className="flex flex-col items-center shrink-0 relative w-6 md:w-8" style={{ alignSelf: 'stretch' }}>
-                          {/* Vertical Line */}
-                          {activeEvents.length > 1 && (
-                            <div className={`w-[1px] bg-[rgba(184,154,90,0.22)] absolute left-1/2 -translate-x-1/2 z-0 ${
-                              index === 0 
-                                ? 'top-3 md:top-4 bottom-0' 
-                                : index === activeEvents.length - 1 
-                                ? 'top-0 h-3 md:h-4' 
-                                : 'top-0 bottom-0'
-                            }`} />
-                          )}
-                          
-                          {/* Stepper Dot node */}
-                          <div className={`w-5 h-5 md:w-8 md:h-8 rounded-full border flex items-center justify-center text-[9px] md:text-[11px] font-en font-bold z-10 bg-[#fdf9f0] select-none transition-all duration-300 mt-[1px] md:mt-[3px] ${
-                            isHighlight
-                              ? 'border-[#8a6f2f] text-[#8a6f2f] ring-4 ring-[#b89a5a]/10 scale-105'
-                              : 'border-[#9a8a70]/40 text-[#9a8a70] group-hover:border-[#8a6f2f] group-hover:text-[#8a6f2f]'
-                          }`}>
-                            {String(index + 1).padStart(2, '0')}
+                    return activeEvents.map((event, index) => {
+                      const isHighlight = event.highlight;
+                      const status = eventStatuses[index];
+                      const isDone = status.kind === 'done';
+                      const isCurrent = index === currentIndex;
+
+                      return (
+                        <div
+                          key={index}
+                          className="group flex flex-row items-start gap-4 md:gap-8 py-8 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0 relative"
+                        >
+                          {/* Stepper Guide Column */}
+                          <div className="flex flex-col items-center shrink-0 relative w-6 md:w-8" style={{ alignSelf: 'stretch' }}>
+                            {/* Vertical Line (Connector) */}
+                            {activeEvents.length > 1 && (
+                              <>
+                                {/* 1. 위쪽 선 (Incoming Line) */}
+                                {index > 0 && (
+                                  <div className="absolute left-1/2 -translate-x-1/2 top-0 h-[11px] md:h-[19px] w-[2px] z-0">
+                                    <div className="absolute inset-0 bg-[rgba(184,154,90,0.15)]" />
+                                    {eventStatuses[index - 1].kind === 'done' && isDone && (
+                                      <div className="absolute inset-0 bg-[#8a6f2f]" />
+                                    )}
+                                  </div>
+                                )}
+                                
+                                {/* 2. 아래쪽 선 (Outgoing Line) */}
+                                {index < activeEvents.length - 1 && (
+                                  <div className="absolute left-1/2 -translate-x-1/2 top-[11px] md:top-[19px] bottom-0 w-[2px] z-0">
+                                    <div className="absolute inset-0 bg-[rgba(184,154,90,0.15)]" />
+                                    {isDone && (
+                                      <div className="absolute inset-0 bg-[#8a6f2f]" />
+                                    )}
+                                  </div>
+                                )}
+                              </>
+                            )}
+                            
+                            {/* Stepper Dot node */}
+                            <div className={`w-5 h-5 md:w-8 md:h-8 rounded-full border flex items-center justify-center z-10 bg-[#fdf9f0] select-none transition-all duration-300 mt-[1px] md:mt-[3px] ${
+                              isDone
+                                ? 'bg-[#8a6f2f] border-[#8a6f2f] text-white'
+                                : isCurrent
+                                ? 'border-[#8a6f2f] text-[#8a6f2f] ring-4 ring-[#b89a5a]/10 scale-105 font-bold'
+                                : 'border-[#9a8a70]/40 text-[#9a8a70]/60 group-hover:border-[#8a6f2f] group-hover:text-[#8a6f2f]'
+                            }`}>
+                              {isDone ? (
+                                <svg className="w-3 h-3 md:w-4 md:h-4 stroke-current fill-none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                  <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                              ) : (
+                                <span className="text-[9px] md:text-[11px] font-en font-bold">
+                                  {String(index + 1).padStart(2, '0')}
+                                </span>
+                              )}
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Event Content Column */}
-                        <div className="flex-1 min-w-0">
+                          {/* Event Content Column */}
+                          <div className="flex-1 min-w-0">
                           {/* Date Label & Status Badge */}
                           <div className="flex flex-wrap items-center gap-3 mb-3 md:mb-5">
                             <span className="font-ko font-bold text-[14px] md:text-[20px] text-[#2a2620] tracking-wide">
@@ -339,7 +371,7 @@ export default function EventsSplitClient({
                       </div>
                     );
                   })
-                )}
+                })())}
               </motion.div>
             </AnimatePresence>
           </div>
