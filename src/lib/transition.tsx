@@ -14,10 +14,11 @@ interface TransitionCtx {
   turning: boolean;
   tick: number;
   navigate: (href: string) => void;
+  onPageMounted: () => void;
 }
 
 const Ctx = createContext<TransitionCtx>({
-  direction: 'forward', turning: false, tick: 0, navigate: () => {},
+  direction: 'forward', turning: false, tick: 0, navigate: () => {}, onPageMounted: () => {},
 });
 
 export function TransitionProvider({ children }: { children: React.ReactNode }) {
@@ -32,27 +33,10 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
   const transitionStartRef = useRef<number>(0);
   const targetPathRef = useRef<string | null>(null);
 
-  // Sync pathname and handle transition completion
+  // Sync pathRef.current when browser native navigation occurs (e.g. back button)
   useEffect(() => {
-    const isPopState = !turningRef.current;
-
-    if (isPopState) {
+    if (!turningRef.current) {
       pathRef.current = pathname;
-      return;
-    }
-
-    // If the navigation is active and the actual destination is reached
-    if (targetPathRef.current && pathname === targetPathRef.current) {
-      const elapsed = Date.now() - transitionStartRef.current;
-      // Vellum sheet fully covers the viewport at ~560ms. Keep it covered for at least 600ms.
-      const remainingTime = Math.max(0, 600 - elapsed);
-
-      setTimeout(() => {
-        setTurning(false);
-        turningRef.current = false;
-        targetPathRef.current = null;
-        pathRef.current = pathname;
-      }, remainingTime);
     }
   }, [pathname]);
 
@@ -73,8 +57,23 @@ export function TransitionProvider({ children }: { children: React.ReactNode }) 
     setTimeout(() => { router.push(href); }, 560);
   }, [router]);
 
+  const onPageMounted = useCallback(() => {
+    if (!turningRef.current) return;
+
+    const elapsed = Date.now() - transitionStartRef.current;
+    // Keep vellum sheet covered for at least 600ms total
+    const remainingTime = Math.max(0, 600 - elapsed);
+
+    setTimeout(() => {
+      setTurning(false);
+      turningRef.current = false;
+      targetPathRef.current = null;
+      pathRef.current = pathname;
+    }, remainingTime);
+  }, [pathname]);
+
   return (
-    <Ctx.Provider value={{ direction, turning, tick, navigate }}>
+    <Ctx.Provider value={{ direction, turning, tick, navigate, onPageMounted }}>
       {children}
     </Ctx.Provider>
   );
