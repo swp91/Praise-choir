@@ -30,18 +30,36 @@ function parseSpecificDate(event: ChoirEvent): Date | null {
   return null;
 }
 
-function computeStatus(event: ChoirEvent, today: Date): Status {
+function computeStatus(event: ChoirEvent, year: number, today: Date): Status {
+  // 1. 해당 연도가 오늘 연도보다 과거인 경우 무조건 완료 처리
+  if (year < today.getFullYear()) {
+    return { kind: 'done' };
+  }
+
+  // 2. 미정인 경우
   if (event.when === '미정') return { kind: 'tbd' };
 
   const todayMs = new Date(today.getFullYear(), today.getMonth(), today.getDate()).getTime();
+  
+  // 3. 구체적인 날짜가 존재하는 경우
   const specific = parseSpecificDate(event);
-
   if (specific) {
     const d = new Date(specific.getFullYear(), specific.getMonth(), specific.getDate()).getTime();
     if (d < todayMs) return { kind: 'done' };
     return { kind: 'upcoming', days: Math.ceil((d - todayMs) / 86400000) };
   }
 
+  // 4. 월 정보만 있는 경우 (event.month 활용)
+  if (event.month) {
+    const mo = event.month - 1;
+    const endMs = new Date(year, mo + 1, 0).getTime();
+    if (endMs < todayMs) return { kind: 'done' };
+    const firstMs = new Date(year, mo, 1).getTime();
+    if (firstMs <= todayMs) return { kind: 'upcoming', days: 0 };
+    return { kind: 'upcoming', days: Math.ceil((firstMs - todayMs) / 86400000) };
+  }
+
+  // 5. 기존 포맷 백업 정규식 매칭
   const m = event.when.match(/^(\d{2})\.(\d{2})$/);
   if (!m) return { kind: 'tbd' };
   const yr = 2000 + parseInt(m[1]);
@@ -237,7 +255,7 @@ export default function EventsSplitClient({
                 ) : (
                   activeEvents.map((event, index) => {
                     const isHighlight = event.highlight;
-                    const status = computeStatus(event, today);
+                    const status = computeStatus(event, activeYear, today);
 
                     return (
                       <div
