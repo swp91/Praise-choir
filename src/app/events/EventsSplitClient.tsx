@@ -276,32 +276,33 @@ export default function EventsSplitClient({
                           key={index}
                           className="group flex flex-row items-start gap-4 md:gap-8 py-8 md:py-20 border-b border-[rgba(184,154,90,0.12)] last:border-b-0 relative"
                         >
+                          {/* Vertical Line (Connector) - 부모 직속 absolute 배치로 끊김 현상 원천 해결 */}
+                          {activeEvents.length > 1 && (
+                            <>
+                              {/* 1. 위쪽 선 (Incoming Line) */}
+                              {index > 0 && (
+                                <div className="absolute left-3 md:left-4 -translate-x-1/2 top-0 h-[11px] md:h-[19px] w-[3px] z-0">
+                                  <div className="absolute inset-0 bg-[#9a8a70]/40" />
+                                  {eventStatuses[index - 1].kind === 'done' && isDone && (
+                                    <div className="absolute inset-0 bg-[#8a6f2f]" />
+                                  )}
+                                </div>
+                              )}
+                              
+                              {/* 2. 아래쪽 선 (Outgoing Line) */}
+                              {index < activeEvents.length - 1 && (
+                                <div className="absolute left-3 md:left-4 -translate-x-1/2 top-[11px] md:top-[19px] bottom-0 w-[3px] z-0">
+                                  <div className="absolute inset-0 bg-[#9a8a70]/40" />
+                                  {isDone && (
+                                    <div className="absolute inset-0 bg-[#8a6f2f]" />
+                                  )}
+                                </div>
+                              )}
+                            </>
+                          )}
+
                           {/* Stepper Guide Column */}
-                          <div className="flex flex-col items-center shrink-0 relative w-6 md:w-8" style={{ alignSelf: 'stretch' }}>
-                            {/* Vertical Line (Connector) */}
-                            {activeEvents.length > 1 && (
-                              <>
-                                {/* 1. 위쪽 선 (Incoming Line) */}
-                                {index > 0 && (
-                                  <div className="absolute left-1/2 -translate-x-1/2 top-0 h-[11px] md:h-[19px] w-[3px] z-0">
-                                    <div className="absolute inset-0 bg-[#9a8a70]/40" />
-                                    {eventStatuses[index - 1].kind === 'done' && isDone && (
-                                      <div className="absolute inset-0 bg-[#8a6f2f]" />
-                                    )}
-                                  </div>
-                                )}
-                                
-                                {/* 2. 아래쪽 선 (Outgoing Line) */}
-                                {index < activeEvents.length - 1 && (
-                                  <div className="absolute left-1/2 -translate-x-1/2 top-[11px] md:top-[19px] bottom-0 w-[3px] z-0">
-                                    <div className="absolute inset-0 bg-[#9a8a70]/40" />
-                                    {isDone && (
-                                      <div className="absolute inset-0 bg-[#8a6f2f]" />
-                                    )}
-                                  </div>
-                                )}
-                              </>
-                            )}
+                          <div className="flex flex-col items-center shrink-0 relative w-6 md:w-8">
                             
                             {/* Stepper Dot node */}
                             <div className={`w-5 h-5 md:w-8 md:h-8 rounded-full border flex items-center justify-center z-10 bg-[#fdf9f0] select-none transition-all duration-300 mt-[1px] md:mt-[3px] ${
