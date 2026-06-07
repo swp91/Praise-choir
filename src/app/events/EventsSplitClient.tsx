@@ -199,9 +199,9 @@ export default function EventsSplitClient({
           className="flex flex-col items-center justify-center border-r border-[rgba(184,154,90,0.12)] bg-[#fdf9f0]/40 backdrop-blur-[2px] relative p-3 md:p-12 cursor-ns-resize md:cursor-col-resize"
         >
           {/* Years Roller List Container */}
-          <div className="relative h-48 md:h-72 w-full flex items-center justify-center overflow-hidden pointer-events-auto z-20">
+          <div className="relative h-48 md:h-80 lg:h-96 w-full flex items-center justify-center overflow-hidden pointer-events-auto z-20">
             {/* Center Focus Highlight Bar */}
-            <div className="absolute left-1/2 -translate-x-1/2 w-28 md:w-36 h-14 md:h-20 border-y border-[#b89a5a]/20 pointer-events-none" />
+            <div className="absolute left-1/2 -translate-x-1/2 w-28 md:w-48 lg:w-56 h-14 md:h-24 lg:h-28 border-y border-[#b89a5a]/20 pointer-events-none" />
 
             {/* Roller Container */}
             <div className="relative w-full h-full">
@@ -210,10 +210,9 @@ export default function EventsSplitClient({
                 if (Math.abs(offset) > 2) return null;
 
                 const isCenter = offset === 0;
-                const label = item.display_type === 'schedule' ? '일정' : '활동 보고';
+                const label = item.display_type === 'schedule' ? '일정' : '보고';
 
-                const translateY = offset * 55; // md 기준 70, 모바일 기준 55
-                const scale = isCenter ? 1.15 : 0.75;
+                const scale = isCenter ? 1.15 : 0.72;
                 const opacity = isCenter ? 1.0 : Math.abs(offset) === 1 ? 0.35 : 0.08;
                 const rotateX = offset * -25; // 3D 회전 각도
 
@@ -230,16 +229,17 @@ export default function EventsSplitClient({
                       }
                     }}
                     style={{
-                      transform: `translateY(calc(-50% + ${translateY}px)) scale(${scale}) rotateX(${rotateX}deg)`,
+                      transform: `translateY(calc(-50% + var(--ty))) scale(${scale}) rotateX(${rotateX}deg)`,
                       opacity: opacity,
                       top: '50%',
+                      ['--offset' as any]: offset,
                     }}
-                    className="absolute left-0 right-0 flex flex-col items-center justify-center transition-all duration-500 ease-[0.16,1,0.3,1] backface-hidden"
+                    className="absolute left-0 right-0 flex flex-col items-center justify-center transition-all duration-500 ease-[0.16,1,0.3,1] backface-hidden [--ty:calc(var(--offset)*50px)] md:[--ty:calc(var(--offset)*85px)] lg:[--ty:calc(var(--offset)*105px)]"
                   >
-                    <span className="font-en italic font-bold text-[36px] sm:text-[40px] md:text-[56px] leading-none text-[#8a6f2f] tracking-wide select-none">
+                    <span className="font-en italic font-bold text-[36px] sm:text-[44px] md:text-[76px] lg:text-[96px] leading-none text-[#8a6f2f] tracking-wide select-none">
                       {item.year}
                     </span>
-                    <span className={`font-ko text-[10px] md:text-[11px] mt-1.5 tracking-wider transition-colors duration-500 ${
+                    <span className={`font-ko text-[10px] md:text-[12px] mt-1.5 tracking-wider transition-colors duration-500 ${
                       isCenter ? 'text-[#2a2620] font-bold' : 'text-[#9a8a70]'
                     }`}>
                       {label}
