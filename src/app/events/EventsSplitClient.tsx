@@ -281,7 +281,7 @@ export default function EventsSplitClient({
                             <>
                               {/* 1. 위쪽 선 (Incoming Line) */}
                               {index > 0 && (
-                                <div className="absolute left-3 md:left-4 -translate-x-1/2 top-0 h-[11px] md:h-[19px] w-[3px] z-0">
+                                <div className="absolute left-3 md:left-4 -translate-x-1/2 top-0 h-[43px] md:h-[99px] w-[3px] z-0">
                                   <div className="absolute inset-0 bg-[#9a8a70]/40" />
                                   {eventStatuses[index - 1].kind === 'done' && isDone && (
                                     <div className="absolute inset-0 bg-[#8a6f2f]" />
@@ -291,7 +291,7 @@ export default function EventsSplitClient({
                               
                               {/* 2. 아래쪽 선 (Outgoing Line) */}
                               {index < activeEvents.length - 1 && (
-                                <div className="absolute left-3 md:left-4 -translate-x-1/2 top-[11px] md:top-[19px] bottom-0 w-[3px] z-0">
+                                <div className="absolute left-3 md:left-4 -translate-x-1/2 top-[43px] md:top-[99px] bottom-0 w-[3px] z-0">
                                   <div className="absolute inset-0 bg-[#9a8a70]/40" />
                                   {isDone && (
                                     <div className="absolute inset-0 bg-[#8a6f2f]" />
@@ -305,12 +305,12 @@ export default function EventsSplitClient({
                           <div className="flex flex-col items-center shrink-0 relative w-6 md:w-8">
                             
                             {/* Stepper Dot node */}
-                            <div className={`w-5 h-5 md:w-8 md:h-8 rounded-full border flex items-center justify-center z-10 bg-[#fdf9f0] select-none transition-all duration-300 mt-[1px] md:mt-[3px] ${
+                            <div className={`w-5 h-5 md:w-8 md:h-8 rounded-full border flex items-center justify-center z-10 select-none transition-all duration-300 mt-[1px] md:mt-[3px] ${
                               isDone
                                 ? 'bg-[#8a6f2f] border-[#8a6f2f] text-white'
                                 : isCurrent
-                                ? 'border-[#8a6f2f] text-[#8a6f2f] ring-4 ring-[#b89a5a]/10 scale-105 font-bold'
-                                : 'border-[#9a8a70]/40 text-[#9a8a70]/60 group-hover:border-[#8a6f2f] group-hover:text-[#8a6f2f]'
+                                ? 'border-[#8a6f2f] text-[#8a6f2f] ring-4 ring-[#b89a5a]/10 scale-105 font-bold bg-[#fdf9f0]'
+                                : 'border-[#9a8a70]/40 text-[#9a8a70]/60 group-hover:border-[#8a6f2f] group-hover:text-[#8a6f2f] bg-[#fdf9f0]'
                             }`}>
                               {isDone ? (
                                 <svg className="w-3 h-3 md:w-4 md:h-4 stroke-current fill-none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
