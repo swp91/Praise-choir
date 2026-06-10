@@ -351,7 +351,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         </div>
       </div>
       {/* Bottom Center: '섬김의 손길들' large font header */}
-      <div className="absolute top-[52vh] sm:top-[50vh] left-1/2 -translate-x-1/2 z-20 w-full text-center pointer-events-none max-[768px]:top-[60vh] flex flex-col items-center">
+      <div className="absolute top-[64vh] sm:top-[62vh] left-1/2 -translate-x-1/2 z-20 w-full text-center pointer-events-none max-[768px]:top-[70vh] flex flex-col items-center">
         <h2 className="text-[28px] sm:text-[38px] font-bold text-neutral-800 tracking-wider">
           섬김의 손길들
         </h2>
