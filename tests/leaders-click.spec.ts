@@ -4,20 +4,10 @@ test('shows the Voku-style officer reel and opens details', async ({ page }) => 
   await page.goto('http://localhost:3000/leaders');
 
   await expect(page.getByRole('main')).toHaveAttribute('data-page-style', 'voku-officers');
-  await expect(page.getByRole('heading', { name: 'Officers' })).toBeVisible();
-  await expect(page.getByText('Serving, Now.')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Pause reel' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Sound off' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Fullscreen' })).toBeVisible();
   await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+  await expect(page.getByText('섬김의 손길들')).toBeVisible();
 
-  const activeName = page.getByTestId('active-officer-name');
-  const firstName = await activeName.innerText();
-
-  await page.getByRole('button', { name: 'Next officer' }).click();
-  await expect(activeName).not.toHaveText(firstName);
-
-  await page.getByRole('button', { name: 'Open details' }).click();
+  await page.locator('[data-testid="officer-card"][aria-current="true"]').first().evaluate(node => (node as HTMLButtonElement).click());
   await expect(page.getByRole('dialog', { name: 'Officer details' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Close details' })).toBeVisible();
 });
@@ -26,13 +16,15 @@ test('changes the active officer with wheel navigation', async ({ page }) => {
   await page.goto('http://localhost:3000/leaders');
   await expect(page.getByLabel('Officer photo reel')).toBeVisible();
 
-  const activeName = page.getByTestId('active-officer-name');
-  const firstName = await activeName.innerText();
+  const firstCard = page.getByTestId('officer-card').first();
+  const beforeOffset = await firstCard.getAttribute('data-reel-offset');
 
   await page.locator('[data-testid="officer-stage"]').hover();
   await page.mouse.wheel(0, 700);
+  await page.waitForTimeout(300);
 
-  await expect(activeName).not.toHaveText(firstName);
+  const afterOffset = await firstCard.getAttribute('data-reel-offset');
+  expect(afterOffset).not.toBe(beforeOffset);
 });
 
 test('arranges the reel as a centered mountain arc', async ({ page }) => {
@@ -261,5 +253,4 @@ test('keeps the photo reel dominant on mobile', async ({ page }) => {
   const box = await stage.boundingBox();
   expect(box).not.toBeNull();
   expect(box!.height).toBeGreaterThan(300);
-  await expect(page.getByRole('button', { name: 'Next officer' })).toBeVisible();
 });

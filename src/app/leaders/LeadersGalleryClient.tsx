@@ -34,7 +34,6 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const [reelPosition, setReelPosition] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const currentPositionRef = useRef(0);
   const targetPositionRef = useRef(0);
   const animationRef = useRef<number | null>(null);
@@ -104,24 +103,14 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   useEffect(() => {
     if (isPaused) return;
 
-    const timerId = window.setInterval(() => {
-      setElapsedSeconds((current) => current + 1);
-    }, 1000);
     const advanceId = window.setInterval(() => {
       move(1);
     }, 5200);
 
     return () => {
-      window.clearInterval(timerId);
       window.clearInterval(advanceId);
     };
   }, [isPaused, move]);
-
-  const elapsedText = useMemo(() => {
-    const minutes = Math.floor(elapsedSeconds / 60);
-    const seconds = elapsedSeconds % 60;
-    return `00:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  }, [elapsedSeconds]);
 
   const handleWheel = (event: React.WheelEvent<HTMLElement>) => {
     if (Math.abs(event.deltaY) < 0.1) return;
@@ -174,14 +163,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     if (Math.abs(distance) <= 8) return;
   };
 
-  const handleFullscreen = () => {
-    if (document.fullscreenElement) {
-      void document.exitFullscreen();
-      return;
-    }
-
-    void document.documentElement.requestFullscreen?.();
-  };
+  // Fullscreen helper removed as HUD is hidden
 
   return (
     <main
@@ -245,30 +227,19 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         }
       `}</style>
 
-      <aside className="absolute left-7 top-7 z-30 max-w-[210px] font-en text-[14px] font-bold leading-[1.05] tracking-normal max-[768px]:hidden">
-        <p>Serving, Now.</p>
-        <p className="mt-3">Choir Leadership</p>
-        <p>Prayer</p>
-        <p>Care</p>
-        <p>Design</p>
-        <Link href="/" className="mt-4 inline-block transition-opacity hover:opacity-45">
-          Praise Choir
-        </Link>
-      </aside>
-
-      <div className="absolute right-7 top-7 z-30 flex flex-col items-end gap-1 font-en text-[13px] font-bold leading-none tracking-normal max-[768px]:right-5 max-[768px]:top-5 max-[768px]:text-[12px]">
-        <button type="button" className="transition-opacity hover:opacity-45" aria-label="Elapsed time">
-          {elapsedText}
-        </button>
-        <button type="button" className="transition-opacity hover:opacity-45" aria-label={isPaused ? 'Play reel' : 'Pause reel'} onClick={() => setIsPaused((current) => !current)}>
-          {isPaused ? 'Play' : 'Pause'}
-        </button>
-        <button type="button" className="transition-opacity hover:opacity-45" aria-label="Sound off">
-          Sound off
-        </button>
-        <button type="button" className="transition-opacity hover:opacity-45" aria-label="Fullscreen" onClick={handleFullscreen}>
-          Fullscreen
-        </button>
+      {/* Top Center: Roulette active officer name & role */}
+      <div className="absolute top-[4.5vh] sm:top-[6vh] left-1/2 -translate-x-1/2 z-20 h-[50px] overflow-hidden text-center pointer-events-none w-full flex justify-center">
+        <div 
+          className="transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
+          style={{ transform: `translate3d(0, calc(-1 * ${activeIndex} * 50px), 0)` }}
+        >
+          {items.map((officer, index) => (
+            <div key={index} className="h-[50px] flex items-center justify-center whitespace-nowrap text-[18px] sm:text-[22px] tracking-wide">
+              <span className="font-semibold text-neutral-400 mr-2.5">{officer.role}</span>
+              <span className="font-bold text-neutral-900">{officer.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <section
@@ -354,28 +325,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         </div>
       </section>
 
-      <div className="absolute inset-x-0 top-[48vh] z-20 flex justify-center px-4 max-[768px]:top-[57vh]">
-        <nav className="flex max-w-[92vw] items-center gap-4 overflow-hidden whitespace-nowrap text-center font-en text-[13px] font-bold leading-none tracking-normal max-[768px]:gap-3 max-[768px]:text-[12px]">
-          <Link href="/" className="shrink-0 transition-opacity hover:opacity-45">
-            Praise Choir
-          </Link>
-          <h1 className="shrink-0 text-[13px] font-bold leading-none tracking-normal max-[768px]:text-[12px]">
-            Officers
-          </h1>
-          <span data-testid="active-officer-name" className="shrink-0">
-            {activeOfficer.name}.
-          </span>
-          <button type="button" className="shrink-0 transition-opacity hover:opacity-45" onClick={() => setDetailsOpen(true)}>
-            Open details
-          </button>
-          <button type="button" aria-label="Previous officer" className="shrink-0 transition-opacity hover:opacity-45" onClick={() => move(-1)}>
-            Prev
-          </button>
-          <button type="button" aria-label="Next officer" className="shrink-0 transition-opacity hover:opacity-45" onClick={() => move(1)}>
-            Next
-          </button>
-        </nav>
-      </div>
+      {/* Bottom navigation HUD removed as requested */}
 
       <div className="pointer-events-none absolute inset-x-0 bottom-[19vh] z-0 flex justify-center max-[768px]:bottom-[15vh]">
         <div className="relative h-28 w-44 opacity-60">
@@ -399,6 +349,12 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             );
           })}
         </div>
+      </div>
+      {/* Bottom Center: '섬김의 손길들' large font header */}
+      <div className="absolute top-[52vh] sm:top-[50vh] left-1/2 -translate-x-1/2 z-20 w-full text-center pointer-events-none max-[768px]:top-[60vh] flex flex-col items-center">
+        <h2 className="text-[28px] sm:text-[38px] font-bold text-neutral-800 tracking-wider">
+          섬김의 손길들
+        </h2>
       </div>
 
       <div className="pointer-events-none absolute bottom-7 left-0 right-0 z-0 overflow-hidden opacity-[0.035]">
