@@ -41,6 +41,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const dragStartRef = useRef<number | null>(null);
   const dragTargetStartRef = useRef(0);
   const dragMovedRef = useRef(false);
+  const dragDivisorRef = useRef(150);
 
   const activeIndex = wrapIndex(Math.round(reelPosition), items.length);
   const activeOfficer = items[activeIndex] ?? items[0];
@@ -136,6 +137,20 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     dragStartRef.current = event.clientX;
     dragTargetStartRef.current = targetPositionRef.current;
     dragMovedRef.current = false;
+    
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth <= 480) {
+        dragDivisorRef.current = 48.75;
+      } else if (window.innerWidth <= 768) {
+        dragDivisorRef.current = 60;
+      } else if (window.innerWidth <= 1024) {
+        dragDivisorRef.current = 96;
+      } else {
+        const computedStep = Math.max(48, Math.min(190, window.innerWidth * 0.125));
+        dragDivisorRef.current = computedStep;
+      }
+    }
+
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
@@ -146,7 +161,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     if (Math.abs(distance) > 8) {
       dragMovedRef.current = true;
       setDetailsOpen(false);
-      targetPositionRef.current = dragTargetStartRef.current - distance / 150;
+      targetPositionRef.current = dragTargetStartRef.current - distance / dragDivisorRef.current;
     }
   };
 
@@ -174,6 +189,32 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       className="relative h-screen w-screen overflow-hidden bg-[#fffdfc] text-[#0a0a0a] selection:bg-black selection:text-white"
     >
       <style jsx global>{`
+        body.leaders-voku-page {
+          --min-card-width: 82px;
+          --min-card-step: 48px;
+        }
+
+        @media (max-width: 1024px) {
+          body.leaders-voku-page {
+            --min-card-width: 160px;
+            --min-card-step: 90px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          body.leaders-voku-page {
+            --min-card-width: 130px;
+            --min-card-step: 60px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          body.leaders-voku-page {
+            --min-card-width: 110px;
+            --min-card-step: 48px;
+          }
+        }
+
         body.leaders-voku-page header {
           display: none !important;
         }
@@ -238,14 +279,14 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         <div className="absolute inset-0 flex items-center justify-center">
           {visibleCards.map(({ officer, index, offset }) => {
             const absOffset = Math.abs(offset);
+            const signedSlot = cardOffset(index, activeIndex, items.length);
+            const absSlot = Math.abs(signedSlot);
             const isActive = Math.abs(offset) < 0.5;
-            const clamped = Math.max(-5, Math.min(5, offset));
-            const x = clamped * 190;
+            const clamped = Math.max(-3.6, Math.min(3.6, offset));
             const y = Math.pow(Math.min(absOffset, 5), 1.28) * 28;
             const scale = Math.max(0.56, 1.03 - Math.min(absOffset, 5) * 0.075);
-            const seamFade = absOffset > 2.85 ? Math.max(0, 1 - (absOffset - 2.85) / 0.35) : 1;
-            const opacity = absOffset > 3.2 ? 0 : Math.max(0.08, 1 - absOffset * 0.11) * seamFade;
-            const width = 'clamp(150px, 13vw, 248px)';
+            const opacity = absSlot <= 3 ? Math.max(0.18, 1 - absOffset * 0.11) : 0;
+            const width = 'clamp(var(--min-card-width, 82px), 13vw, 248px)';
             const zIndex = Math.round(1000 - absOffset * 100);
             const imageSrc = imageUrl(officer.photo);
 
@@ -255,13 +296,14 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 type="button"
                 data-testid="officer-card"
                 data-reel-offset={absOffset.toFixed(4)}
+                data-reel-signed-offset={signedSlot.toFixed(4)}
                 data-reel-scale={scale.toFixed(4)}
                 className="group absolute aspect-square overflow-hidden bg-black text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-black"
                 style={{
                   width,
                   zIndex,
                   opacity,
-                  transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
+                  transform: `translate3d(calc(${clamped.toFixed(4)} * clamp(var(--min-card-step, 48px), 12.5vw, 190px)), ${y}px, 0) scale(${scale})`,
                   filter: 'none',
                 }}
                 aria-label={`Show ${officer.name}`}
@@ -305,7 +347,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         </div>
       </section>
 
-      <div className="absolute inset-x-0 top-[48vh] z-20 flex justify-center px-4 max-[768px]:top-[53vh]">
+      <div className="absolute inset-x-0 top-[48vh] z-20 flex justify-center px-4 max-[768px]:top-[57vh]">
         <nav className="flex max-w-[92vw] items-center gap-4 overflow-hidden whitespace-nowrap text-center font-en text-[13px] font-bold leading-none tracking-normal max-[768px]:gap-3 max-[768px]:text-[12px]">
           <Link href="/" className="shrink-0 transition-opacity hover:opacity-45">
             Praise Choir

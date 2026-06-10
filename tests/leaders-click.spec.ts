@@ -201,6 +201,56 @@ test('keeps the mountain form stable during fast wheel input', async ({ page }) 
   }
 });
 
+test('keeps seven reel cards visible around the center while scrolling', async ({ page }) => {
+  await page.goto('http://localhost:3000/leaders');
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+
+  await page.locator('[data-testid="officer-stage"]').hover();
+  await page.mouse.wheel(0, 12);
+  await page.waitForTimeout(260);
+
+  const visibleSlots = await page.getByTestId('officer-card').evaluateAll((elements) =>
+    elements
+      .map((card) => {
+        const element = card as HTMLElement;
+        return {
+          signedOffset: Number(element.dataset.reelSignedOffset ?? '0'),
+          offset: Math.abs(Number(element.dataset.reelOffset ?? '0')),
+          opacity: Number(getComputedStyle(element).opacity),
+        };
+      })
+      .filter((card) => card.opacity > 0.12)
+      .map((card) => Math.round(card.signedOffset))
+      .sort((a, b) => a - b),
+  );
+
+  expect(visibleSlots).toEqual([-3, -2, -1, 0, 1, 2, 3]);
+});
+
+test('keeps a compact seven-card reel on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://localhost:3000/leaders');
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+
+  const visibleCards = await page.getByTestId('officer-card').evaluateAll((elements) =>
+    elements
+      .map((card) => {
+        const element = card as HTMLElement;
+        const rect = element.getBoundingClientRect();
+        return {
+          offset: Math.abs(Number(element.dataset.reelOffset ?? '0')),
+          opacity: Number(getComputedStyle(element).opacity),
+          width: rect.width,
+          inViewport: rect.left >= 0 && rect.right <= window.innerWidth,
+        };
+      })
+      .filter((card) => card.opacity > 0.12 && card.inViewport),
+  );
+
+  expect(visibleCards).toHaveLength(7);
+  expect(Math.max(...visibleCards.map((card) => card.width))).toBeLessThan(185);
+});
+
 test('keeps the photo reel dominant on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://localhost:3000/leaders');
