@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { imageUrl } from '@/lib/media';
@@ -10,269 +10,159 @@ interface LeadersGalleryClientProps {
   officers: Officer[];
 }
 
+const EMPTY_OFFICERS: Officer[] = [
+  {
+    role: 'Officers',
+    name: 'Praise Choir',
+    part: 'No officers registered',
+  },
+];
+
+function wrapIndex(index: number, length: number) {
+  return ((index % length) + length) % length;
+}
+
+function cardOffset(index: number, activeIndex: number, total: number) {
+  const raw = index - activeIndex;
+  if (raw > total / 2) return raw - total;
+  if (raw < -total / 2) return raw + total;
+  return raw;
+}
+
 export default function LeadersGalleryClient({ officers }: LeadersGalleryClientProps) {
-  const [rotationY, setRotationY] = useState(0);
-  const [activeIdx, setActiveIdx] = useState<number | null>(null);
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
-  const [transitionStyle, setTransitionStyle] = useState('transform 0.4s cubic-bezier(0.1, 0.8, 0.2, 1)');
+  const items = officers.length ? officers : EMPTY_OFFICERS;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const wheelLockRef = useRef(false);
+  const dragStartRef = useRef<number | null>(null);
+  const dragMovedRef = useRef(false);
 
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const targetRotationRef = useRef(0);
-  const currentRotationRef = useRef(0);
-  const requestRef = useRef<number | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const activeOfficer = items[activeIndex] ?? items[0];
 
-  // Drag and Swipe Tracking Refs
-  const isDraggingRef = useRef(false);
-  const startXRef = useRef(0);
-  const dragStartRef = useRef({ x: 0, y: 0, hasMoved: false });
-
-  // Monitor screen size for mobile responsive parameters
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    document.body.classList.add('leaders-voku-page');
+    return () => document.body.classList.remove('leaders-voku-page');
   }, []);
 
-  // RequestAnimationFrame smooth damping loop (Inertia Engine)
+  const move = useCallback(
+    (direction: 1 | -1) => {
+      setDetailsOpen(false);
+      setActiveIndex((current) => wrapIndex(current + direction, items.length));
+    },
+    [items.length],
+  );
+
+  const visibleCards = useMemo(
+    () =>
+      items.map((officer, index) => ({
+        officer,
+        index,
+        offset: cardOffset(index, activeIndex, items.length),
+      })),
+    [activeIndex, items],
+  );
+
   useEffect(() => {
-    const animate = () => {
-      const diff = targetRotationRef.current - currentRotationRef.current;
-      // Smoothly damp current rotation towards target rotation
-      currentRotationRef.current += diff * 0.055;
-      setRotationY(currentRotationRef.current);
-      requestRef.current = requestAnimationFrame(animate);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight') move(1);
+      if (event.key === 'ArrowLeft') move(-1);
+      if (event.key === 'Escape') setDetailsOpen(false);
     };
-    requestRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    };
-  }, []);
 
-  // Prevent memory leaks
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [move]);
+
   useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
+    if (isPaused) return;
 
-  // Custom infinite scroll/wheel listener
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-
-    const handleWheel = (e: WheelEvent) => {
-      if (activeIdx !== null) return;
-      e.preventDefault();
-      // Mouse wheel directly adjusts target rotation infinitely
-      targetRotationRef.current += e.deltaY * 0.065;
-    };
-
-    viewport.addEventListener('wheel', handleWheel, { passive: false });
-    return () => {
-      viewport.removeEventListener('wheel', handleWheel);
-    };
-  }, [activeIdx]);
-
-  // Global touch drag/swipe events for infinite scrolling on mobile
-  useEffect(() => {
-    const handleGlobalTouchMove = (e: TouchEvent) => {
-      if (!isDraggingRef.current || activeIdx !== null) return;
-      const currentX = e.touches[0].clientX;
-      const currentY = e.touches[0].clientY;
-      
-      const dx = currentX - dragStartRef.current.x;
-      const dy = currentY - dragStartRef.current.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-
-      if (!dragStartRef.current.hasMoved && dist > 6) {
-        dragStartRef.current.hasMoved = true;
-      }
-
-      if (dragStartRef.current.hasMoved) {
-        const deltaX = currentX - startXRef.current;
-        targetRotationRef.current += deltaX * 0.38;
-        startXRef.current = currentX;
-      }
-    };
-
-    const handleGlobalTouchEnd = () => {
-      isDraggingRef.current = false;
-    };
-
-    window.addEventListener('touchmove', handleGlobalTouchMove, { passive: true });
-    window.addEventListener('touchend', handleGlobalTouchEnd);
+    const timerId = window.setInterval(() => {
+      setElapsedSeconds((current) => current + 1);
+    }, 1000);
+    const advanceId = window.setInterval(() => {
+      move(1);
+    }, 5200);
 
     return () => {
-      window.removeEventListener('touchmove', handleGlobalTouchMove);
-      window.removeEventListener('touchend', handleGlobalTouchEnd);
+      window.clearInterval(timerId);
+      window.clearInterval(advanceId);
     };
-  }, [activeIdx]);
+  }, [isPaused, move]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (activeIdx !== null) return;
-    isDraggingRef.current = true;
-    const clientX = e.touches[0].clientX;
-    startXRef.current = clientX;
-    dragStartRef.current = {
-      x: clientX,
-      y: e.touches[0].clientY,
-      hasMoved: false,
-    };
+  const elapsedText = useMemo(() => {
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = elapsedSeconds % 60;
+    return `00:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }, [elapsedSeconds]);
+
+  const handleWheel = (event: React.WheelEvent<HTMLElement>) => {
+    if (Math.abs(event.deltaY) < 24 || wheelLockRef.current) return;
+
+    wheelLockRef.current = true;
+    move(event.deltaY > 0 ? 1 : -1);
+    window.setTimeout(() => {
+      wheelLockRef.current = false;
+    }, 620);
   };
 
-  // Click card focuses on that officer via shortest-path algorithm
-  const handleCardClick = (index: number) => {
-    // If we were dragging (e.g. on mobile touch), ignore the click
-    if (dragStartRef.current.hasMoved) {
+  const handlePointerDown = (event: React.PointerEvent<HTMLElement>) => {
+    dragStartRef.current = event.clientX;
+    dragMovedRef.current = false;
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
+    if (dragStartRef.current === null) return;
+    if (Math.abs(event.clientX - dragStartRef.current) > 8) {
+      dragMovedRef.current = true;
+    }
+  };
+
+  const handlePointerUp = (event: React.PointerEvent<HTMLElement>) => {
+    if (dragStartRef.current === null) return;
+
+    const distance = event.clientX - dragStartRef.current;
+    dragStartRef.current = null;
+
+    if (Math.abs(distance) > 56) {
+      move(distance < 0 ? 1 : -1);
+    }
+  };
+
+  const handleFullscreen = () => {
+    if (document.fullscreenElement) {
+      void document.exitFullscreen();
       return;
     }
 
-    if (activeIdx === index) {
-      handleClose();
-      return;
-    }
-    
-    // Shortest-path rotation mapping
-    const totalCards = officers.length;
-    const targetAngle = -(index * (360 / totalCards));
-    const currentRot = currentRotationRef.current;
-    
-    let diff = (targetAngle - currentRot) % 360;
-    if (diff < -180) diff += 360;
-    if (diff > 180) diff -= 360;
-    
-    setTransitionStyle('transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)');
-    targetRotationRef.current = currentRot + diff;
-    setActiveIdx(index);
+    void document.documentElement.requestFullscreen?.();
   };
-
-  const getCardAtPoint = (clientX: number, clientY: number) => {
-    return cardRefs.current
-      .map((element, index) => {
-        if (!element) return null;
-        const rect = element.getBoundingClientRect();
-        const style = window.getComputedStyle(element);
-        const photoStyle = element.firstElementChild
-          ? window.getComputedStyle(element.firstElementChild)
-          : null;
-        const isUnderPointer =
-          clientX >= rect.left &&
-          clientX <= rect.right &&
-          clientY >= rect.top &&
-          clientY <= rect.bottom;
-
-        if (
-          !isUnderPointer ||
-          style.pointerEvents === 'none' ||
-          Number(photoStyle?.opacity ?? '1') < 0.2
-        ) {
-          return null;
-        }
-
-        return {
-          index,
-          zIndex: Number(style.zIndex) || 0,
-        };
-      })
-      .filter((item): item is { index: number; zIndex: number } => item !== null)
-      .sort((a, b) => b.zIndex - a.zIndex)[0];
-  };
-
-  const handleViewportClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (dragStartRef.current.hasMoved) return;
-    if (activeIdx !== null) {
-      handleClose();
-      return;
-    }
-
-    const clickedCard = getCardAtPoint(e.clientX, e.clientY);
-
-    if (clickedCard) {
-      handleCardClick(clickedCard.index);
-    }
-  };
-
-  const handleViewportMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (activeIdx !== null || dragStartRef.current.hasMoved) {
-      if (hoveredIdx !== null) setHoveredIdx(null);
-      return;
-    }
-
-    const hoveredCard = getCardAtPoint(e.clientX, e.clientY);
-    const nextHoveredIdx = hoveredCard?.index ?? null;
-    if (hoveredIdx !== nextHoveredIdx) {
-      setHoveredIdx(nextHoveredIdx);
-    }
-  };
-
-  const handleViewportMouseLeave = () => {
-    setHoveredIdx(null);
-  };
-
-  const handleClose = () => {
-    setTransitionStyle('transform 0.8s cubic-bezier(0.16, 1, 0.3, 1)');
-    setActiveIdx(null);
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      setTransitionStyle('transform 0.4s cubic-bezier(0.1, 0.8, 0.2, 1)');
-    }, 800);
-  };
-
-  const totalCards = officers.length;
-  // Calculate dynamic radius to prevent card overlap and match wide perspective
-  const radius = isMobile 
-    ? Math.max(205, (totalCards * 100) / (2 * Math.PI)) 
-    : Math.max(405, (totalCards * 145) / (2 * Math.PI));
-
-  // Camera sits inside the cylinder; lower perspective values make depth more visible.
-  const cameraZ = isMobile ? 760 : 900;
-  const viewDistance = isMobile ? 295 : 500;
-  // cylinder center is translated forward in Z to place the camera inside
-  const cylinderZ = cameraZ + radius - viewDistance;
-
-  const cardWidth = isMobile ? 90 : 160;
-  const cardHeight = isMobile ? 120 : 213;
-
-  const activeOfficer = activeIdx !== null ? officers[activeIdx] : null;
-  const animatedText = (text: string, baseDelay = 0) =>
-    Array.from(text).map((char, index) => (
-      <span
-        key={`${char}-${index}`}
-        className="inline-block opacity-0"
-        style={{
-          animation: 'officer-text-rise 0.58s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          animationDelay: `${baseDelay + index * 0.045}s`,
-        }}
-      >
-        {char === ' ' ? '\u00A0' : char}
-      </span>
-    ));
 
   return (
-    <main className="main-content p-0 w-screen h-screen overflow-hidden bg-[#fdf9f0] relative select-none">
-      {/* 3D viewport style injection */}
+    <main
+      data-page-style="voku-officers"
+      className="relative h-screen w-screen overflow-hidden bg-[#fffdfc] text-[#0a0a0a] selection:bg-black selection:text-white"
+    >
       <style jsx global>{`
-        .viewport-3d {
-          perspective: ${cameraZ}px;
-          perspective-origin: 50% 50%;
+        body.leaders-voku-page header {
+          display: none !important;
         }
-        .cylinder-container {
-          transform-style: preserve-3d;
+
+        @keyframes officer-pulse {
+          0%,
+          100% {
+            transform: scale(0.88);
+            opacity: 0.1;
+          }
+          50% {
+            transform: scale(1);
+            opacity: 0.32;
+          }
         }
-        .officer-card-3d {
-          transform-style: preserve-3d;
-          backface-visibility: hidden;
-        }
-        .latin-watermark-track {
-          animation: latin-watermark-slide 42s linear infinite;
-        }
-        @keyframes latin-watermark-slide {
+
+        @keyframes officer-marquee {
           from {
             transform: translate3d(0, 0, 0);
           }
@@ -280,182 +170,201 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             transform: translate3d(-50%, 0, 0);
           }
         }
-        @keyframes officer-text-rise {
-          from {
-            opacity: 0;
-            transform: translate3d(0, 18px, 0);
-          }
-          to {
-            opacity: 1;
-            transform: translate3d(0, 0, 0);
-          }
-        }
       `}</style>
 
-      {/* Moving Latin watermark */}
-      <div className="pointer-events-none absolute inset-0 z-0 flex items-center overflow-hidden opacity-[0.055]">
-        <div className="latin-watermark-track flex min-w-[200%] whitespace-nowrap font-en text-[84px] font-semibold uppercase tracking-[0.18em] text-gold-deep italic max-[768px]:text-[46px]">
+      <aside className="absolute left-7 top-7 z-30 max-w-[210px] font-en text-[14px] font-bold leading-[1.05] tracking-normal max-[768px]:hidden">
+        <p>Serving, Now.</p>
+        <p className="mt-3">Choir Leadership</p>
+        <p>Prayer</p>
+        <p>Care</p>
+        <p>Design</p>
+        <Link href="/" className="mt-4 inline-block transition-opacity hover:opacity-45">
+          Praise Choir
+        </Link>
+      </aside>
+
+      <div className="absolute right-7 top-7 z-30 flex flex-col items-end gap-1 font-en text-[13px] font-bold leading-none tracking-normal max-[768px]:right-5 max-[768px]:top-5 max-[768px]:text-[12px]">
+        <button type="button" className="transition-opacity hover:opacity-45" aria-label="Elapsed time">
+          {elapsedText}
+        </button>
+        <button type="button" className="transition-opacity hover:opacity-45" aria-label={isPaused ? 'Play reel' : 'Pause reel'} onClick={() => setIsPaused((current) => !current)}>
+          {isPaused ? 'Play' : 'Pause'}
+        </button>
+        <button type="button" className="transition-opacity hover:opacity-45" aria-label="Sound off">
+          Sound off
+        </button>
+        <button type="button" className="transition-opacity hover:opacity-45" aria-label="Fullscreen" onClick={handleFullscreen}>
+          Fullscreen
+        </button>
+      </div>
+
+      <section
+        data-testid="officer-stage"
+        aria-label="Officer photo reel"
+        className="absolute inset-x-0 top-[6vh] z-10 mx-auto h-[44vh] min-h-[340px] max-w-[1260px] touch-pan-y overflow-visible max-[768px]:top-[16vh] max-[768px]:h-[43vh] max-[768px]:min-h-[360px]"
+        onWheel={handleWheel}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+      >
+        <div className="absolute inset-0 flex items-center justify-center">
+          {visibleCards.map(({ officer, index, offset }) => {
+            const absOffset = Math.abs(offset);
+            const isActive = offset === 0;
+            const clamped = Math.max(-5, Math.min(5, offset));
+            const x = clamped * 118;
+            const y = isActive ? 0 : absOffset % 2 === 0 ? 18 : 52;
+            const scale = isActive ? 1.04 : Math.max(0.48, 0.88 - absOffset * 0.08);
+            const opacity = absOffset > 5 ? 0 : Math.max(0.14, 1 - absOffset * 0.13);
+            const width = isActive ? 'clamp(220px, 16.5vw, 310px)' : 'clamp(132px, 12vw, 220px)';
+            const zIndex = 50 - absOffset;
+            const imageSrc = imageUrl(officer.photo);
+
+            return (
+              <button
+                key={`${officer.name}-${index}`}
+                type="button"
+                className="group absolute aspect-square overflow-hidden bg-black text-white shadow-none outline-none transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:ring-2 focus-visible:ring-black"
+                style={{
+                  width,
+                  zIndex,
+                  opacity,
+                  transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
+                  filter: isActive ? 'none' : `contrast(${1 + absOffset * 0.05}) saturate(${0.85 - absOffset * 0.04})`,
+                }}
+                aria-label={`Show ${officer.name}`}
+                aria-current={isActive ? 'true' : undefined}
+                onClick={() => {
+                  if (dragMovedRef.current) return;
+                  if (isActive) {
+                    setDetailsOpen(true);
+                  } else {
+                    setDetailsOpen(false);
+                    setActiveIndex(index);
+                  }
+                }}
+              >
+                {imageSrc ? (
+                  <Image
+                    src={imageSrc}
+                    alt={officer.name}
+                    fill
+                    priority={absOffset < 3}
+                    sizes="(max-width: 768px) 60vw, 310px"
+                    className="object-cover grayscale transition duration-700 group-hover:grayscale-0"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center bg-black">
+                    <span className="font-en text-[clamp(42px,6vw,82px)] font-semibold uppercase tracking-normal text-white">
+                      {officer.name.slice(0, 1)}
+                    </span>
+                  </div>
+                )}
+
+                <span className="absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/10" />
+                {isActive ? (
+                  <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-5 text-center font-en text-[clamp(18px,2vw,28px)] font-semibold uppercase leading-none tracking-normal text-white mix-blend-difference">
+                    {officer.role}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      <div className="absolute inset-x-0 top-[48vh] z-20 flex justify-center px-4 max-[768px]:top-[53vh]">
+        <nav className="flex max-w-[92vw] items-center gap-4 overflow-hidden whitespace-nowrap text-center font-en text-[13px] font-bold leading-none tracking-normal max-[768px]:gap-3 max-[768px]:text-[12px]">
+          <Link href="/" className="shrink-0 transition-opacity hover:opacity-45">
+            Praise Choir
+          </Link>
+          <h1 className="shrink-0 text-[13px] font-bold leading-none tracking-normal max-[768px]:text-[12px]">
+            Officers
+          </h1>
+          <span data-testid="active-officer-name" className="shrink-0">
+            {activeOfficer.name}.
+          </span>
+          <button type="button" className="shrink-0 transition-opacity hover:opacity-45" onClick={() => setDetailsOpen(true)}>
+            Open details
+          </button>
+          <button type="button" aria-label="Previous officer" className="shrink-0 transition-opacity hover:opacity-45" onClick={() => move(-1)}>
+            Prev
+          </button>
+          <button type="button" aria-label="Next officer" className="shrink-0 transition-opacity hover:opacity-45" onClick={() => move(1)}>
+            Next
+          </button>
+        </nav>
+      </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-[19vh] z-0 flex justify-center max-[768px]:bottom-[15vh]">
+        <div className="relative h-28 w-44 opacity-60">
+          {Array.from({ length: 7 }).map((_, index) => {
+            const angle = (-95 + index * 31) * (Math.PI / 180);
+            const left = 78 + Math.cos(angle) * 66;
+            const top = 58 + Math.sin(angle) * 52;
+
+            return (
+              <span
+                key={index}
+                className="absolute block rounded-full border border-[#d9d9d9]"
+                style={{
+                  left,
+                  top,
+                  width: index === 3 ? 68 : 38,
+                  height: index === 3 ? 68 : 38,
+                  animation: `officer-pulse 2.2s ease-in-out ${index * 0.14}s infinite`,
+                }}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="pointer-events-none absolute bottom-7 left-0 right-0 z-0 overflow-hidden opacity-[0.035]">
+        <div className="flex min-w-[200%] animate-none whitespace-nowrap font-en text-[80px] font-bold uppercase leading-none tracking-normal max-[768px]:text-[52px]" style={{ animation: 'officer-marquee 38s linear infinite' }}>
           {Array.from({ length: 8 }).map((_, index) => (
-            <span key={index} className="mx-10">
-              MANUS MINISTRANTES
+            <span key={index} className="mr-10">
+              Praise Choir Officers
             </span>
           ))}
         </div>
       </div>
 
-      {/* Floating Header */}
-      <div className="absolute top-10 left-0 right-0 z-20 flex flex-col items-center pointer-events-none text-center px-6">
-        <span className="font-en text-[11px] uppercase tracking-[0.3em] text-gold-deep mb-1.5">Choir Officers</span>
-        <h1 className="font-ko text-[30px] font-bold text-ink tracking-wide max-[768px]:text-[25px]">섬기는 손길들</h1>
-        <div className="w-12 h-[1.5px] bg-gold/40 mt-2.5" />
-      </div>
-
-      {/* Floating Home Back Button */}
-      <div className="fixed top-8 left-8 z-30 max-[880px]:top-6 max-[880px]:left-6">
-        <Link href="/" className="font-ko text-[12px] font-medium tracking-wide text-ink hover:text-gold transition-colors duration-300 flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-line-soft bg-[#fdf9f0]/60 backdrop-blur-sm shadow-sm">
-          <span>←</span> 홈으로
-        </Link>
-      </div>
-
-      {/* 3D Visual Gallery Page Container */}
-      <div 
-        ref={viewportRef}
-        onTouchStart={handleTouchStart}
-        onClick={handleViewportClick}
-        onMouseMove={handleViewportMouseMove}
-        onMouseLeave={handleViewportMouseLeave}
-        className="viewport-3d relative z-10 w-full h-full flex items-center justify-center"
-        style={{ cursor: hoveredIdx !== null ? 'pointer' : undefined }}
-      >
-        {/* 3D Cylinder Container */}
-        <div 
-          className="cylinder-container relative z-30 w-full h-[50vh] flex items-center justify-center transition-all"
-          style={{ 
-            transform: `translateZ(${cylinderZ.toFixed(2)}px) rotateY(${rotationY.toFixed(4)}deg)`,
-            transition: transitionStyle
-          }}
+      {detailsOpen ? (
+        <div
+          role="dialog"
+          aria-label="Officer details"
+          className="fixed inset-0 z-40 flex items-end justify-center bg-[#fffdfc]/92 px-5 pb-10 backdrop-blur-sm max-[768px]:items-center max-[768px]:pb-0"
+          onClick={() => setDetailsOpen(false)}
         >
-          {officers.map((officer, i) => {
-            const angle = i * (360 / totalCards);
-            const isActive = activeIdx === i;
-            const isHovered = hoveredIdx === i && activeIdx === null;
-            const isAnyActive = activeIdx !== null;
-            
-            // Calculate relative angle in viewport space to apply depth effects
-            const relativeAngle = ((angle + rotationY) % 360 + 360) % 360;
-            const rad = (relativeAngle * Math.PI) / 180;
-            const cosAngle = Math.cos(rad); // 1 = closest, -1 = furthest
-
-            // Compute deterministic scattered offsets for scrolling mode
-            const seedX = Math.sin(i * 2.3);
-            const seedY = Math.cos(i * 1.7);
-            const seedZ = Math.sin(i * 3.1);
-            const seedRotY = Math.cos(i * 4.7);
-
-            const frontness = Math.max(0, cosAngle);
-            const sideDepth = 1 - Math.abs(cosAngle);
-            const offsetY = isAnyActive ? 0 : seedY * 22;
-            const rotateX = isAnyActive ? 0 : seedX * 5; // tilt forward/backward
-            const rotateYOffset = isAnyActive ? 0 : (seedRotY * 4) - (Math.sin(rad) * 16); // subtly face the camera
-            const rotateZ = isAnyActive ? 0 : seedZ * 3; // roll tilt
-            
-            // Focus card details
-            const focusAdvance = isMobile ? 80 : 180;
-            const depthAdvance = isMobile ? frontness * 45 : frontness * 70;
-            const depthRetreat = isMobile ? sideDepth * 14 : sideDepth * 24;
-            const translateZVal = isActive ? -(radius - focusAdvance) : -(radius - depthAdvance + depthRetreat);
-            const scale = isActive ? (isMobile ? 0.85 : 1) : (isAnyActive ? 0.62 : 0.7 + frontness * 0.22);
-
-            // WebGL-like depth fade effects using cosAngle
-            // Front-facing cards are clear and opaque, back-facing cards fade
-            const normalOpacity = Math.max(0.1, 0.2 + frontness * 0.8);
-            const opacity = isAnyActive ? (isActive ? 1 : 0.15) : normalOpacity;
-
-            // Sort cards in 3D layering space
-            const zIndex = isActive ? 50 : Math.round((cosAngle + 1) * 100);
-
-            // Check if card is in the front half of the cylinder
-            const pointerEvents = cosAngle > 0.1 && (!isAnyActive || isActive) ? 'auto' : 'none';
-
-            // Formatted values to prevent SSR/Hydration mismatch from floating point precision
-            const transformStr = `rotateY(${angle.toFixed(2)}deg) translateZ(${translateZVal.toFixed(2)}px) rotateY(${rotateYOffset.toFixed(4)}deg) rotateX(${rotateX.toFixed(4)}deg) rotateZ(${rotateZ.toFixed(4)}deg) translateY(${offsetY.toFixed(2)}px) scale(${scale.toFixed(4)})`;
-            const opacityVal = parseFloat(opacity.toFixed(4));
-
-            // Selectively preload only front-facing cards initially visible to user
-            const isInitiallyVisible = i < 3 || i > totalCards - 4;
-
-            return (
-              <div
-                key={i}
-                ref={(element) => {
-                  cardRefs.current[i] = element;
-                }}
-                data-hovered={isHovered ? 'true' : undefined}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  handleCardClick(i);
-                }}
-                className="officer-card-3d absolute w-[160px] h-[213px] max-[768px]:w-[90px] max-[768px]:h-[120px] cursor-pointer"
-                style={{
-                  transform: transformStr,
-                  zIndex: zIndex,
-                  pointerEvents: pointerEvents,
-                  left: `calc(50% - ${cardWidth / 2}px)`,
-                  top: `calc(50% - ${cardHeight / 2}px)`,
-                }}
-              >
-                <div 
-                  className={`w-full h-full relative transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] rounded-sm overflow-hidden border shadow-lg ${
-                    isActive 
-                      ? 'border-gold shadow-[0_15px_45px_rgba(184,154,90,0.5)] bg-card' 
-                      : isHovered
-                        ? 'border-gold shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
-                        : 'border-line/40 hover:border-gold shadow-black/8 hover:shadow-[0_12px_28px_rgba(138,111,47,0.18)] bg-card'
-                  }`}
-                  style={{ opacity: opacityVal }}
-                >
-                  {officer.photo ? (
-                    <Image 
-                      src={imageUrl(officer.photo, { width: 320, height: 426, crop: 'fill', gravity: 'face' })} 
-                      alt={officer.name} 
-                      fill 
-                      priority={isInitiallyVisible}
-                      sizes="(max-width: 768px) 180px, 320px" 
-                      className={`object-cover transition-transform duration-500 ${isHovered ? 'scale-105' : 'hover:scale-105'}`}
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-[repeating-linear-gradient(45deg,#ebe0c4_0_5px,#ddd0ad_5px_10px)] flex items-center justify-center">
-                      <span className="font-en text-[28px] max-[768px]:text-[18px] text-ink-soft opacity-30">P</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Faded Background Mask Overlay */}
-        {activeIdx !== null && (
-          <div 
-            className="fixed inset-0 z-20 cursor-pointer bg-[#fdf9f0]/45 transition-opacity duration-700"
-            onClick={handleClose}
-          />
-        )}
-
-        {activeOfficer && (
           <div
-            key={`${activeIdx}-${activeOfficer.role}-${activeOfficer.name}`}
-            className="pointer-events-none fixed left-[calc(50%+265px)] top-[calc(50%-270px)] z-40 flex flex-col items-start whitespace-nowrap max-[1024px]:left-[calc(50%+240px)] max-[1024px]:top-[calc(50%-250px)] max-[768px]:left-1/2 max-[768px]:top-[calc(50%+200px)] max-[768px]:-translate-x-1/2 max-[768px]:items-center"
+            className="w-full max-w-[720px] border-t border-black pt-5 font-en text-black"
+            onClick={(event) => event.stopPropagation()}
           >
-            <span className="font-ko text-[24px] font-semibold leading-none text-gold-deep max-[1024px]:text-[20px] max-[768px]:text-[18px]">
-              {animatedText(activeOfficer.role, 0.54)}
-            </span>
-            <span className="mt-8 font-ko text-[48px] font-bold leading-none tracking-wide text-ink max-[1024px]:mt-6 max-[1024px]:text-[36px] max-[768px]:mt-4 max-[768px]:text-[30px]">
-              {animatedText(activeOfficer.name, 0.66)}
-            </span>
+            <div className="flex items-start justify-between gap-5">
+              <div>
+                <p className="text-[12px] font-bold uppercase leading-none tracking-normal">Officer details</p>
+                <p className="mt-5 text-[clamp(42px,7vw,88px)] font-bold uppercase leading-[0.88] tracking-normal">
+                  {activeOfficer.name}
+                </p>
+              </div>
+              <button type="button" aria-label="Close details" className="text-[13px] font-bold underline underline-offset-4" onClick={() => setDetailsOpen(false)}>
+                Close
+              </button>
+            </div>
+            <dl className="mt-7 grid grid-cols-2 gap-x-8 gap-y-4 text-[15px] font-bold leading-tight max-[560px]:grid-cols-1">
+              <div>
+                <dt className="text-black/40">Role</dt>
+                <dd className="mt-1">{activeOfficer.role}</dd>
+              </div>
+              <div>
+                <dt className="text-black/40">Part</dt>
+                <dd className="mt-1">{activeOfficer.part || 'Praise Choir'}</dd>
+              </div>
+            </dl>
           </div>
-        )}
-      </div>
+        </div>
+      ) : null}
     </main>
   );
 }

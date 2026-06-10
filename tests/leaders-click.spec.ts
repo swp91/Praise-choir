@@ -1,41 +1,49 @@
 import { expect, test } from '@playwright/test';
 
-test('opens officer details when a leader photo is clicked', async ({ page }) => {
+test('shows the Voku-style officer reel and opens details', async ({ page }) => {
   await page.goto('http://localhost:3000/leaders');
-  await page.waitForSelector('.officer-card-3d');
-  await page.waitForTimeout(500);
 
-  const firstCardBox = await page.locator('.officer-card-3d').first().boundingBox();
-  expect(firstCardBox).not.toBeNull();
+  await expect(page.getByRole('main')).toHaveAttribute('data-page-style', 'voku-officers');
+  await expect(page.getByRole('heading', { name: 'Officers' })).toBeVisible();
+  await expect(page.getByText('Serving, Now.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Pause reel' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Sound off' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Fullscreen' })).toBeVisible();
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
 
-  await page.mouse.click(
-    firstCardBox!.x + firstCardBox!.width / 2,
-    firstCardBox!.y + firstCardBox!.height / 2,
-  );
+  const activeName = page.getByTestId('active-officer-name');
+  const firstName = await activeName.innerText();
 
-  await expect(page.getByLabel('Close Details')).toBeVisible();
+  await page.getByRole('button', { name: 'Next officer' }).click();
+  await expect(activeName).not.toHaveText(firstName);
+
+  await page.getByRole('button', { name: 'Open details' }).click();
+  await expect(page.getByRole('dialog', { name: 'Officer details' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Close details' })).toBeVisible();
 });
 
-test('applies photo hover styling when the pointer is over a leader photo', async ({ page }) => {
+test('changes the active officer with wheel navigation', async ({ page }) => {
   await page.goto('http://localhost:3000/leaders');
-  await page.waitForSelector('.officer-card-3d');
-  await page.waitForTimeout(500);
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
 
-  const firstCardBox = await page.locator('.officer-card-3d').first().boundingBox();
-  expect(firstCardBox).not.toBeNull();
+  const activeName = page.getByTestId('active-officer-name');
+  const firstName = await activeName.innerText();
 
-  await page.mouse.move(
-    firstCardBox!.x + firstCardBox!.width / 2,
-    firstCardBox!.y + firstCardBox!.height / 2,
-  );
-  await page.waitForTimeout(100);
+  await page.locator('[data-testid="officer-stage"]').hover();
+  await page.mouse.wheel(0, 700);
 
-  const isHovered = await page.locator('.officer-card-3d').first().getAttribute('data-hovered');
-  expect(isHovered).toBe('true');
+  await expect(activeName).not.toHaveText(firstName);
+});
 
-  const cursor = await page.evaluate(() => {
-    const element = document.elementFromPoint(window.innerWidth / 2, window.innerHeight / 2);
-    return element ? window.getComputedStyle(element).cursor : null;
-  });
-  expect(cursor).toBe('pointer');
+test('keeps the photo reel dominant on mobile', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://localhost:3000/leaders');
+
+  const stage = page.getByTestId('officer-stage');
+  await expect(stage).toBeVisible();
+
+  const box = await stage.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.height).toBeGreaterThan(300);
+  await expect(page.getByRole('button', { name: 'Next officer' })).toBeVisible();
 });
