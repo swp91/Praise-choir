@@ -22,23 +22,27 @@ function wrapIndex(index: number, length: number) {
   return ((index % length) + length) % length;
 }
 
-function cardOffset(index: number, activeIndex: number, total: number) {
-  const raw = index - activeIndex;
-  if (raw > total / 2) return raw - total;
-  if (raw < -total / 2) return raw + total;
+function cardOffset(index: number, position: number, total: number) {
+  let raw = index - position;
+  while (raw > total / 2) raw -= total;
+  while (raw < -total / 2) raw += total;
   return raw;
 }
 
 export default function LeadersGalleryClient({ officers }: LeadersGalleryClientProps) {
   const items = officers.length ? officers : EMPTY_OFFICERS;
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [reelPosition, setReelPosition] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const wheelLockRef = useRef(false);
+  const currentPositionRef = useRef(0);
+  const targetPositionRef = useRef(0);
+  const animationRef = useRef<number | null>(null);
   const dragStartRef = useRef<number | null>(null);
+  const dragTargetStartRef = useRef(0);
   const dragMovedRef = useRef(false);
 
+  const activeIndex = wrapIndex(Math.round(reelPosition), items.length);
   const activeOfficer = items[activeIndex] ?? items[0];
 
   useEffect(() => {
@@ -49,9 +53,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const move = useCallback(
     (direction: 1 | -1) => {
       setDetailsOpen(false);
-      setActiveIndex((current) => wrapIndex(current + direction, items.length));
+      targetPositionRef.current += direction;
     },
-    [items.length],
+    [],
   );
 
   const visibleCards = useMemo(
@@ -59,10 +63,31 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       items.map((officer, index) => ({
         officer,
         index,
-        offset: cardOffset(index, activeIndex, items.length),
+        offset: cardOffset(index, reelPosition, items.length),
       })),
-    [activeIndex, items],
+    [items, reelPosition],
   );
+
+  useEffect(() => {
+    const animate = () => {
+      const diff = targetPositionRef.current - currentPositionRef.current;
+
+      if (Math.abs(diff) > 0.0008) {
+        currentPositionRef.current += diff * 0.12;
+        setReelPosition(currentPositionRef.current);
+      } else if (currentPositionRef.current !== targetPositionRef.current) {
+        currentPositionRef.current = targetPositionRef.current;
+        setReelPosition(currentPositionRef.current);
+      }
+
+      animationRef.current = window.requestAnimationFrame(animate);
+    };
+
+    animationRef.current = window.requestAnimationFrame(animate);
+    return () => {
+      if (animationRef.current) window.cancelAnimationFrame(animationRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -98,25 +123,27 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   }, [elapsedSeconds]);
 
   const handleWheel = (event: React.WheelEvent<HTMLElement>) => {
-    if (Math.abs(event.deltaY) < 24 || wheelLockRef.current) return;
-
-    wheelLockRef.current = true;
-    move(event.deltaY > 0 ? 1 : -1);
-    window.setTimeout(() => {
-      wheelLockRef.current = false;
-    }, 620);
+    if (Math.abs(event.deltaY) < 2) return;
+    event.preventDefault();
+    setDetailsOpen(false);
+    targetPositionRef.current += event.deltaY * 0.006;
   };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLElement>) => {
     dragStartRef.current = event.clientX;
+    dragTargetStartRef.current = targetPositionRef.current;
     dragMovedRef.current = false;
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLElement>) => {
     if (dragStartRef.current === null) return;
-    if (Math.abs(event.clientX - dragStartRef.current) > 8) {
+    const distance = event.clientX - dragStartRef.current;
+
+    if (Math.abs(distance) > 8) {
       dragMovedRef.current = true;
+      setDetailsOpen(false);
+      targetPositionRef.current = dragTargetStartRef.current - distance / 150;
     }
   };
 
@@ -126,9 +153,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     const distance = event.clientX - dragStartRef.current;
     dragStartRef.current = null;
 
-    if (Math.abs(distance) > 56) {
-      move(distance < 0 ? 1 : -1);
-    }
+    if (Math.abs(distance) <= 8) return;
   };
 
   const handleFullscreen = () => {
@@ -210,10 +235,10 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         <div className="absolute inset-0 flex items-center justify-center">
           {visibleCards.map(({ officer, index, offset }) => {
             const absOffset = Math.abs(offset);
-            const isActive = offset === 0;
+            const isActive = Math.abs(offset) < 0.5;
             const clamped = Math.max(-5, Math.min(5, offset));
             const x = clamped * 118;
-            const y = isActive ? 0 : absOffset % 2 === 0 ? 18 : 52;
+            const y = Math.pow(Math.min(absOffset, 5), 1.28) * 28;
             const scale = isActive ? 1.04 : Math.max(0.48, 0.88 - absOffset * 0.08);
             const opacity = absOffset > 5 ? 0 : Math.max(0.14, 1 - absOffset * 0.13);
             const width = isActive ? 'clamp(220px, 16.5vw, 310px)' : 'clamp(132px, 12vw, 220px)';
@@ -224,6 +249,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
               <button
                 key={`${officer.name}-${index}`}
                 type="button"
+                data-testid="officer-card"
+                data-reel-offset={absOffset.toFixed(4)}
                 className="group absolute aspect-square overflow-hidden bg-black text-white shadow-none outline-none transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:ring-2 focus-visible:ring-black"
                 style={{
                   width,
@@ -240,7 +267,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                     setDetailsOpen(true);
                   } else {
                     setDetailsOpen(false);
-                    setActiveIndex(index);
+                    targetPositionRef.current += offset;
                   }
                 }}
               >

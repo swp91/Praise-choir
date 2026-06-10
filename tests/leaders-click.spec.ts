@@ -35,6 +35,45 @@ test('changes the active officer with wheel navigation', async ({ page }) => {
   await expect(activeName).not.toHaveText(firstName);
 });
 
+test('arranges the reel as a centered mountain arc', async ({ page }) => {
+  await page.goto('http://localhost:3000/leaders');
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+
+  const cardPositions = await page.getByTestId('officer-card').evaluateAll((cards) =>
+    cards
+      .map((card) => {
+        const element = card as HTMLElement;
+        const rect = element.getBoundingClientRect();
+        return {
+          offset: Math.abs(Number(element.dataset.reelOffset ?? '0')),
+          top: rect.top,
+        };
+      })
+      .filter((card) => card.offset <= 3)
+      .sort((a, b) => a.offset - b.offset),
+  );
+
+  expect(cardPositions.length).toBeGreaterThanOrEqual(4);
+  for (let index = 1; index < cardPositions.length; index += 1) {
+    expect(cardPositions[index].top).toBeGreaterThanOrEqual(cardPositions[index - 1].top - 1);
+  }
+});
+
+test('moves the reel continuously for partial wheel input', async ({ page }) => {
+  await page.goto('http://localhost:3000/leaders');
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+
+  const firstCard = page.getByTestId('officer-card').first();
+  const before = await firstCard.evaluate((element) => getComputedStyle(element).transform);
+
+  await page.locator('[data-testid="officer-stage"]').hover();
+  await page.mouse.wheel(0, 120);
+  await page.waitForTimeout(220);
+
+  const after = await firstCard.evaluate((element) => getComputedStyle(element).transform);
+  expect(after).not.toBe(before);
+});
+
 test('keeps the photo reel dominant on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://localhost:3000/leaders');
