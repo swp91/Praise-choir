@@ -140,11 +140,11 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     
     if (typeof window !== 'undefined') {
       if (window.innerWidth <= 480) {
-        dragDivisorRef.current = 54;
+        dragDivisorRef.current = 64;
       } else if (window.innerWidth <= 768) {
-        dragDivisorRef.current = 60;
+        dragDivisorRef.current = 72;
       } else if (window.innerWidth <= 1024) {
-        dragDivisorRef.current = 90;
+        dragDivisorRef.current = 80;
       } else {
         const computedStep = Math.max(48, Math.min(190, window.innerWidth * 0.125));
         dragDivisorRef.current = computedStep;
@@ -196,15 +196,15 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
         @media (max-width: 1024px) {
           body.leaders-voku-page {
-            --min-card-width: 160px;
-            --min-card-step: 90px;
+            --min-card-width: 150px;
+            --min-card-step: 80px;
           }
         }
 
         @media (max-width: 768px) {
           body.leaders-voku-page {
-            --min-card-width: 140px;
-            --min-card-step: 60px;
+            --min-card-width: 130px;
+            --min-card-step: 72px;
           }
           body.leaders-voku-page [data-slot="3"] {
             opacity: 0 !important;
@@ -214,8 +214,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
         @media (max-width: 480px) {
           body.leaders-voku-page {
-            --min-card-width: 130px;
-            --min-card-step: 54px;
+            --min-card-width: 120px;
+            --min-card-step: 64px;
           }
         }
 
@@ -308,7 +308,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                   width,
                   zIndex,
                   opacity,
-                  transform: `translate3d(calc(${clamped.toFixed(4)} * clamp(var(--min-card-step, 48px), 12.5vw, 190px)), ${y}px, 0) scale(${scale})`,
+                  left: '50%',
+                  top: '50%',
+                  transform: `translate3d(calc(-50% + ${clamped.toFixed(4)} * clamp(var(--min-card-step, 48px), 12.5vw, 190px)), calc(-50% + ${y}px), 0) scale(${scale})`,
                   filter: 'none',
                 }}
                 aria-label={`Show ${officer.name}`}
