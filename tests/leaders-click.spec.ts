@@ -227,7 +227,7 @@ test('keeps seven reel cards visible around the center while scrolling', async (
   expect(visibleSlots).toEqual([-3, -2, -1, 0, 1, 2, 3]);
 });
 
-test('keeps a compact seven-card reel on mobile', async ({ page }) => {
+test('keeps a compact five-card reel on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://localhost:3000/leaders');
   await expect(page.getByLabel('Officer photo reel')).toBeVisible();
@@ -247,7 +247,7 @@ test('keeps a compact seven-card reel on mobile', async ({ page }) => {
       .filter((card) => card.opacity > 0.12 && card.inViewport),
   );
 
-  expect(visibleCards).toHaveLength(7);
+  expect(visibleCards).toHaveLength(5);
   expect(Math.max(...visibleCards.map((card) => card.width))).toBeLessThan(185);
 });
 

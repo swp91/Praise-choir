@@ -140,11 +140,11 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     
     if (typeof window !== 'undefined') {
       if (window.innerWidth <= 480) {
-        dragDivisorRef.current = 48.75;
+        dragDivisorRef.current = 54;
       } else if (window.innerWidth <= 768) {
         dragDivisorRef.current = 60;
       } else if (window.innerWidth <= 1024) {
-        dragDivisorRef.current = 96;
+        dragDivisorRef.current = 90;
       } else {
         const computedStep = Math.max(48, Math.min(190, window.innerWidth * 0.125));
         dragDivisorRef.current = computedStep;
@@ -203,15 +203,19 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
         @media (max-width: 768px) {
           body.leaders-voku-page {
-            --min-card-width: 130px;
+            --min-card-width: 140px;
             --min-card-step: 60px;
+          }
+          body.leaders-voku-page [data-slot="3"] {
+            opacity: 0 !important;
+            pointer-events: none !important;
           }
         }
 
         @media (max-width: 480px) {
           body.leaders-voku-page {
-            --min-card-width: 110px;
-            --min-card-step: 48px;
+            --min-card-width: 130px;
+            --min-card-step: 54px;
           }
         }
 
@@ -298,6 +302,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 data-reel-offset={absOffset.toFixed(4)}
                 data-reel-signed-offset={signedSlot.toFixed(4)}
                 data-reel-scale={scale.toFixed(4)}
+                data-slot={absSlot}
                 className="group absolute aspect-square overflow-hidden bg-black text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-black"
                 style={{
                   width,
