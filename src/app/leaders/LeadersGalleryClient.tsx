@@ -243,8 +243,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const x = clamped * 190;
             const y = Math.pow(Math.min(absOffset, 5), 1.28) * 28;
             const scale = Math.max(0.56, 1.03 - Math.min(absOffset, 5) * 0.075);
-            const seamFade = absOffset > 3.85 ? Math.max(0, 1 - (absOffset - 3.85) / 0.35) : 1;
-            const opacity = absOffset > 4.2 ? 0 : Math.max(0.08, 1 - absOffset * 0.11) * seamFade;
+            const seamFade = absOffset > 2.85 ? Math.max(0, 1 - (absOffset - 2.85) / 0.35) : 1;
+            const opacity = absOffset > 3.2 ? 0 : Math.max(0.08, 1 - absOffset * 0.11) * seamFade;
             const width = 'clamp(150px, 13vw, 248px)';
             const zIndex = Math.round(1000 - absOffset * 100);
             const imageSrc = imageUrl(officer.photo);
@@ -256,7 +256,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 data-testid="officer-card"
                 data-reel-offset={absOffset.toFixed(4)}
                 data-reel-scale={scale.toFixed(4)}
-                className="group absolute aspect-square overflow-hidden bg-black text-white shadow-none outline-none transition-[transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:ring-2 focus-visible:ring-black"
+                className="group absolute aspect-square overflow-hidden bg-black text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-black"
                 style={{
                   width,
                   zIndex,

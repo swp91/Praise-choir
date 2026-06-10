@@ -165,6 +165,42 @@ test('hides wraparound cards at the reel seam while scrolling', async ({ page })
   }
 });
 
+test('keeps the mountain form stable during fast wheel input', async ({ page }) => {
+  await page.goto('http://localhost:3000/leaders');
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+
+  await page.locator('[data-testid="officer-stage"]').hover();
+  for (let index = 0; index < 8; index += 1) {
+    await page.mouse.wheel(0, 1800);
+  }
+  await page.waitForTimeout(260);
+
+  const visibleCards = await page.getByTestId('officer-card').evaluateAll((elements) =>
+    elements
+      .map((card) => {
+        const element = card as HTMLElement;
+        const rect = element.getBoundingClientRect();
+        return {
+          offset: Math.abs(Number(element.dataset.reelOffset ?? '0')),
+          top: rect.top,
+          opacity: Number(getComputedStyle(element).opacity),
+          transitionProperty: getComputedStyle(element).transitionProperty,
+        };
+      })
+      .filter((card) => card.opacity > 0.12)
+      .sort((a, b) => a.offset - b.offset),
+  );
+
+  expect(visibleCards.length).toBeLessThanOrEqual(7);
+  for (const card of visibleCards) {
+    expect(card.offset).toBeLessThan(3.5);
+    expect(card.transitionProperty).not.toContain('transform');
+  }
+  for (let index = 1; index < visibleCards.length; index += 1) {
+    expect(visibleCards[index].top).toBeGreaterThanOrEqual(visibleCards[index - 1].top - 1);
+  }
+});
+
 test('keeps the photo reel dominant on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://localhost:3000/leaders');
