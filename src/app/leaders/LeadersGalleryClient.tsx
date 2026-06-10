@@ -237,12 +237,13 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const absOffset = Math.abs(offset);
             const isActive = Math.abs(offset) < 0.5;
             const clamped = Math.max(-5, Math.min(5, offset));
-            const x = clamped * 118;
+            const x = clamped * 190;
             const y = Math.pow(Math.min(absOffset, 5), 1.28) * 28;
-            const scale = isActive ? 1.04 : Math.max(0.48, 0.88 - absOffset * 0.08);
-            const opacity = absOffset > 5 ? 0 : Math.max(0.14, 1 - absOffset * 0.13);
-            const width = isActive ? 'clamp(220px, 16.5vw, 310px)' : 'clamp(132px, 12vw, 220px)';
-            const zIndex = 50 - absOffset;
+            const scale = Math.max(0.56, 1.03 - Math.min(absOffset, 5) * 0.075);
+            const seamFade = absOffset > 3.85 ? Math.max(0, 1 - (absOffset - 3.85) / 0.35) : 1;
+            const opacity = absOffset > 4.2 ? 0 : Math.max(0.08, 1 - absOffset * 0.11) * seamFade;
+            const width = 'clamp(150px, 13vw, 248px)';
+            const zIndex = Math.round(1000 - absOffset * 100);
             const imageSrc = imageUrl(officer.photo);
 
             return (
@@ -251,7 +252,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 type="button"
                 data-testid="officer-card"
                 data-reel-offset={absOffset.toFixed(4)}
-                className="group absolute aspect-square overflow-hidden bg-black text-white shadow-none outline-none transition-[transform,opacity,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:ring-2 focus-visible:ring-black"
+                data-reel-scale={scale.toFixed(4)}
+                className="group absolute aspect-square overflow-hidden bg-black text-white shadow-none outline-none transition-[transform,filter] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:ring-2 focus-visible:ring-black"
                 style={{
                   width,
                   zIndex,

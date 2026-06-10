@@ -74,6 +74,68 @@ test('moves the reel continuously for partial wheel input', async ({ page }) => 
   expect(after).not.toBe(before);
 });
 
+test('keeps cards spaced with gradual scale and center priority', async ({ page }) => {
+  await page.goto('http://localhost:3000/leaders');
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+
+  const cards = await page.getByTestId('officer-card').evaluateAll((elements) =>
+    elements
+      .map((card) => {
+        const element = card as HTMLElement;
+        const rect = element.getBoundingClientRect();
+        return {
+          offset: Math.abs(Number(element.dataset.reelOffset ?? '0')),
+          left: rect.left,
+          right: rect.right,
+          width: rect.width,
+          zIndex: Number(getComputedStyle(element).zIndex),
+          scale: Number(element.dataset.reelScale ?? '0'),
+          opacity: Number(getComputedStyle(element).opacity),
+        };
+      })
+      .filter((card) => card.opacity > 0.2)
+      .sort((a, b) => a.left - b.left),
+  );
+
+  for (let index = 1; index < cards.length; index += 1) {
+    const previous = cards[index - 1];
+    const current = cards[index];
+    const overlap = Math.max(0, previous.right - current.left);
+    expect(overlap / Math.min(previous.width, current.width)).toBeLessThan(0.24);
+  }
+
+  const byOffset = [...cards].sort((a, b) => a.offset - b.offset);
+  expect(byOffset[0].zIndex).toBeGreaterThan(byOffset[1].zIndex);
+  expect(Math.abs(byOffset[0].scale - byOffset[1].scale)).toBeLessThan(0.12);
+});
+
+test('hides wraparound cards at the reel seam while scrolling', async ({ page }) => {
+  await page.goto('http://localhost:3000/leaders');
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+
+  await page.locator('[data-testid="officer-stage"]').hover();
+  for (let index = 0; index < 12; index += 1) {
+    await page.mouse.wheel(0, 900);
+    await page.waitForTimeout(80);
+  }
+
+  const seamCards = await page.getByTestId('officer-card').evaluateAll((elements) =>
+    elements
+      .map((card) => {
+        const element = card as HTMLElement;
+        return {
+          offset: Number(element.dataset.reelOffset ?? '0'),
+          opacity: Number(getComputedStyle(element).opacity),
+        };
+      })
+      .filter((card) => card.offset > 4.4),
+  );
+
+  for (const card of seamCards) {
+    expect(card.opacity).toBeLessThan(0.06);
+  }
+});
+
 test('keeps the photo reel dominant on mobile', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('http://localhost:3000/leaders');
