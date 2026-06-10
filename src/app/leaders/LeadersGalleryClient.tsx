@@ -123,10 +123,13 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   }, [elapsedSeconds]);
 
   const handleWheel = (event: React.WheelEvent<HTMLElement>) => {
-    if (Math.abs(event.deltaY) < 2) return;
+    if (Math.abs(event.deltaY) < 0.1) return;
     event.preventDefault();
     setDetailsOpen(false);
-    targetPositionRef.current += event.deltaY * 0.006;
+    const normalizedDelta =
+      event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1);
+    const wheelStep = Math.max(-1.2, Math.min(1.2, normalizedDelta * 0.025));
+    targetPositionRef.current += wheelStep;
   };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLElement>) => {
@@ -259,7 +262,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                   zIndex,
                   opacity,
                   transform: `translate3d(${x}px, ${y}px, 0) scale(${scale})`,
-                  filter: isActive ? 'none' : `contrast(${1 + absOffset * 0.05}) saturate(${0.85 - absOffset * 0.04})`,
+                  filter: 'none',
                 }}
                 aria-label={`Show ${officer.name}`}
                 aria-current={isActive ? 'true' : undefined}
@@ -280,7 +283,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                     fill
                     priority={absOffset < 3}
                     sizes="(max-width: 768px) 60vw, 310px"
-                    className="object-cover grayscale transition duration-700 group-hover:grayscale-0"
+                    className="object-cover"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-black">

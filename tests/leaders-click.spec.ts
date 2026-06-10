@@ -74,6 +74,35 @@ test('moves the reel continuously for partial wheel input', async ({ page }) => 
   expect(after).not.toBe(before);
 });
 
+test('responds visibly to slow wheel input', async ({ page }) => {
+  await page.goto('http://localhost:3000/leaders');
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+
+  const firstCard = page.getByTestId('officer-card').first();
+  const before = await firstCard.evaluate((element) => getComputedStyle(element).transform);
+
+  await page.locator('[data-testid="officer-stage"]').hover();
+  await page.mouse.wheel(0, 1);
+  await page.waitForTimeout(220);
+
+  const after = await firstCard.evaluate((element) => getComputedStyle(element).transform);
+  expect(after).not.toBe(before);
+});
+
+test('keeps officer photos in color', async ({ page }) => {
+  await page.goto('http://localhost:3000/leaders');
+  await expect(page.getByLabel('Officer photo reel')).toBeVisible();
+
+  const photoFilters = await page.locator('[data-testid="officer-card"] img').evaluateAll((images) =>
+    images.map((image) => getComputedStyle(image).filter),
+  );
+
+  expect(photoFilters.length).toBeGreaterThan(0);
+  for (const filter of photoFilters) {
+    expect(filter).not.toContain('grayscale');
+  }
+});
+
 test('keeps cards spaced with gradual scale and center priority', async ({ page }) => {
   await page.goto('http://localhost:3000/leaders');
   await expect(page.getByLabel('Officer photo reel')).toBeVisible();
