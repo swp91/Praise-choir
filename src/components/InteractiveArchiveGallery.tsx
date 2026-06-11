@@ -190,7 +190,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         y: 0,
         duration: 0.45,
         ease: 'power2.out',
-      }, 1.15); // 0.3 + 0.85 = 1.15 (exactly when image animation completes)
+      }, 0.95); // Starts 0.2s before the image finishes scaling
     }
   }, [active]);
 
