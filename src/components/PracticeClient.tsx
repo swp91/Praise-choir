@@ -760,7 +760,7 @@ export default function PracticeClient({ data }: Props) {
       <div className="min-[881px]:hidden flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 py-3">
         
         {/* Book Wrapper */}
-        <div className="relative w-full max-w-[320px] max-h-[50vh] aspect-[340/480] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
+        <div className="relative w-full max-w-[350px] h-[72dvh] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
           
 
 
