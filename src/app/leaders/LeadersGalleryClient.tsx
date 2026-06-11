@@ -150,12 +150,12 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   return (
     <main
       data-page-style="facil-officers"
-      className="relative h-screen w-screen overflow-hidden bg-white text-[#171717] selection:bg-[#d9ff3f] selection:text-black"
+      className="relative h-screen w-screen overflow-hidden bg-[#fdf9f0] text-[#171717] selection:bg-[#d9ff3f] selection:text-black"
     >
       <style jsx global>{`
         body.leaders-facil-page {
           overflow: hidden !important;
-          background: #ffffff;
+          background: #fdf9f0;
         }
 
         body.leaders-facil-page header {
@@ -177,20 +177,40 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           data-testid="leaders-background-type"
           className="w-full"
         >
-          <svg viewBox="0 0 800 240" className="w-full h-auto translate-y-[20px]" preserveAspectRatio="xMidYMax meet">
+          <svg viewBox="0 0 800 360" className="w-full h-auto translate-y-[20px]" preserveAspectRatio="xMidYMax meet">
             <text
               x="50%"
-              y="215"
+              y="150"
               textAnchor="middle"
               textLength="800"
               lengthAdjust="spacingAndGlyphs"
               fill="#171717"
               style={{
-                fontSize: '245px',
-                fontFamily: 'Georgia, serif',
-                fontWeight: 900,
+                fontSize: '170px',
+                fontFamily: 'var(--font-cormorant), "Times New Roman", serif',
+                fontWeight: 800,
                 stroke: '#171717',
-                strokeWidth: '8px',
+                strokeWidth: '5px',
+                paintOrder: 'stroke fill',
+                strokeLinejoin: 'round',
+              }}
+              className="uppercase"
+            >
+              CHOIR
+            </text>
+            <text
+              x="50%"
+              y="320"
+              textAnchor="middle"
+              textLength="800"
+              lengthAdjust="spacingAndGlyphs"
+              fill="#171717"
+              style={{
+                fontSize: '170px',
+                fontFamily: 'var(--font-cormorant), "Times New Roman", serif',
+                fontWeight: 800,
+                stroke: '#171717',
+                strokeWidth: '5px',
                 paintOrder: 'stroke fill',
                 strokeLinejoin: 'round',
               }}
