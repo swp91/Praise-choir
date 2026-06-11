@@ -28,6 +28,52 @@ function cardOffset(index: number, position: number, total: number) {
   return raw;
 }
 
+const DEFAULT_PALETTE = ['#b89a5a', '#f5eed9', '#8a6f2f', '#e6dec9', '#b89a5a'];
+
+async function extractColors(url: string): Promise<string[]> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve(DEFAULT_PALETTE);
+      return;
+    }
+    const img = new window.Image();
+    img.crossOrigin = 'anonymous';
+    img.src = url;
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 10;
+        canvas.height = 10;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(DEFAULT_PALETTE);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, 10, 10);
+        // Sample colors from 5 points on the 10x10 canvas to get representative colors
+        const points = [
+          [1, 1], // top-left
+          [8, 1], // top-right
+          [5, 5], // center
+          [2, 8], // bottom-left
+          [7, 8], // bottom-right
+        ];
+        const colors = points.map(([x, y]) => {
+          const pixel = ctx.getImageData(x, y, 1, 1).data;
+          return `rgb(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+        });
+        resolve(colors);
+      } catch (err) {
+        console.warn('CORS or canvas error extracting colors:', err);
+        resolve(DEFAULT_PALETTE);
+      }
+    };
+    img.onerror = () => {
+      resolve(DEFAULT_PALETTE);
+    };
+  });
+}
+
 export default function LeadersGalleryClient({ officers }: LeadersGalleryClientProps) {
   const items = officers.length ? officers : EMPTY_OFFICERS;
   const [reelPosition, setReelPosition] = useState(0);
@@ -41,9 +87,28 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const dragMovedRef = useRef(false);
   const dragDivisorRef = useRef(150);
   const wheelTimeoutRef = useRef<number | null>(null);
+  const [colorPalettes, setColorPalettes] = useState<Record<number, string[]>>({});
 
   const activeIndex = wrapIndex(Math.round(reelPosition), items.length);
   const activeOfficer = items[activeIndex] ?? items[0];
+
+  useEffect(() => {
+    // Extract colors for all officers on client side
+    const extractAll = async () => {
+      const palettes: Record<number, string[]> = {};
+      for (let i = 0; i < items.length; i++) {
+        const photo = items[i]?.photo;
+        if (photo) {
+          const src = imageUrl(photo);
+          palettes[i] = await extractColors(src);
+        } else {
+          palettes[i] = DEFAULT_PALETTE;
+        }
+      }
+      setColorPalettes(palettes);
+    };
+    extractAll();
+  }, [items]);
 
   useEffect(() => {
     document.body.classList.add('leaders-voku-page');
@@ -194,8 +259,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none transition-all duration-1000 ease-in-out">
         {items.map((officer, index) => {
           const isActive = index === activeIndex;
-          const src = imageUrl(officer.photo);
-          if (!src) return null;
+          const colors = colorPalettes[index] || DEFAULT_PALETTE;
           return (
             <div
               key={`bg-${index}`}
@@ -205,21 +269,26 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 zIndex: isActive ? 1 : 0,
               }}
             >
-              {/* Warp the image using SVG displacement map for fluid irregular paint swirls */}
+              {/* Warp the color blocks using SVG displacement map for fluid irregular paint swirls */}
               <div 
                 className="absolute inset-0 scale-[1.5]"
                 style={{
-                  filter: 'url(#marble-filter) saturate(240%) contrast(180%) brightness(0.95) blur(1.5px)',
+                  filter: 'url(#marble-filter) saturate(240%) contrast(190%) brightness(0.95) blur(1.5px)',
                 }}
               >
-                <Image
-                  src={src}
-                  alt=""
-                  fill
-                  priority={isActive}
-                  sizes="100vw"
-                  className="object-cover"
-                />
+                {/* Pure color blocks and gradients - NO IMAGE AT ALL */}
+                <div className="absolute inset-0 w-full h-full flex flex-wrap">
+                  <div className="w-1/2 h-1/2 transition-colors duration-500" style={{ backgroundColor: colors[0] }} />
+                  <div className="w-1/2 h-1/2 transition-colors duration-500" style={{ backgroundColor: colors[1] }} />
+                  <div className="w-full h-1/3 absolute top-1/3 left-0 transition-colors duration-500" style={{ backgroundColor: colors[2], mixBlendMode: 'multiply', opacity: 0.8 }} />
+                  <div className="w-1/2 h-1/2 transition-colors duration-500" style={{ backgroundColor: colors[3] }} />
+                  <div className="w-1/2 h-1/2 transition-colors duration-500" style={{ backgroundColor: colors[4] }} />
+                  
+                  {/* Overlapping radial gradients to add organic variety before warping */}
+                  <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{
+                    background: `radial-gradient(circle at 30% 30%, ${colors[1]} 0%, transparent 60%), radial-gradient(circle at 70% 70%, ${colors[3]} 0%, transparent 60%)`
+                  }} />
+                </div>
               </div>
             </div>
           );
