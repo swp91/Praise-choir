@@ -41,7 +41,6 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const dragMovedRef = useRef(false);
   const dragDivisorRef = useRef(150);
   const wheelTimeoutRef = useRef<number | null>(null);
-  const stageRef = useRef<HTMLElement>(null);
 
   const activeIndex = wrapIndex(Math.round(reelPosition), items.length);
   const activeOfficer = items[activeIndex] ?? items[0];
@@ -115,10 +114,10 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   }, [isPaused, move]);
 
   useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
-
     const handleNativeWheel = (event: WheelEvent) => {
+      // 모달 상세 창이 열려 있을 때는 모달 내 스크롤을 허용하기 위해 이벤트를 가로채지 않습니다.
+      if (detailsOpen) return;
+
       if (Math.abs(event.deltaY) < 0.1) return;
       event.preventDefault();
       setDetailsOpen(false);
@@ -135,11 +134,11 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       }, 150);
     };
 
-    stage.addEventListener('wheel', handleNativeWheel, { passive: false });
+    window.addEventListener('wheel', handleNativeWheel, { passive: false });
     return () => {
-      stage.removeEventListener('wheel', handleNativeWheel);
+      window.removeEventListener('wheel', handleNativeWheel);
     };
-  }, []);
+  }, [detailsOpen]);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLElement>) => {
     dragStartRef.current = event.clientX;
@@ -306,7 +305,6 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       </div>
 
       <section
-        ref={stageRef}
         data-testid="officer-stage"
         aria-label="Officer photo reel"
         className="absolute inset-x-0 top-[6vh] z-10 mx-auto h-[44vh] min-h-[340px] max-w-[1260px] touch-pan-y overflow-visible max-[768px]:top-[16vh] max-[768px]:h-[43vh] max-[768px]:min-h-[360px]"
