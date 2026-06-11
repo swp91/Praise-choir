@@ -324,7 +324,7 @@ export default function Header() {
             />
             <span
               className={`h-[1.5px] bg-ink rounded-full transition-all duration-300 origin-center ${
-                isOpen ? 'w-5 absolute top-1.5 -rotate-45' : 'w-3.5 group-hover:w-5'
+                isOpen ? 'w-5 absolute top-1.5 -rotate-45' : 'w-5'
               }`}
             />
           </div>
