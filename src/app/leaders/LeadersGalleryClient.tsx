@@ -182,8 +182,6 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
               x="50%"
               y="150"
               textAnchor="middle"
-              textLength="800"
-              lengthAdjust="spacingAndGlyphs"
               fill="#171717"
               style={{
                 fontSize: '170px',
