@@ -170,14 +170,27 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       `}</style>
 
       <section
-        className="pointer-events-none absolute left-0 top-0 z-0 flex h-full w-full items-end overflow-hidden px-6 pb-3"
+        className="pointer-events-none absolute left-0 top-0 z-0 flex h-full w-full items-end overflow-hidden pb-1"
         aria-hidden="true"
       >
         <div
           data-testid="leaders-background-type"
-          className="font-en text-[168px] font-black uppercase leading-[0.72] tracking-normal text-[#171717] sm:text-[260px] lg:text-[370px] xl:text-[430px]"
+          className="w-full"
         >
-          OFFICERS
+          <svg viewBox="0 0 800 130" className="w-full h-auto translate-y-[18px]" preserveAspectRatio="xMidYMax meet">
+            <text
+              x="50%"
+              y="110"
+              textAnchor="middle"
+              textLength="800"
+              lengthAdjust="spacingAndGlyphs"
+              className="font-en font-black uppercase"
+              fill="#171717"
+              style={{ fontSize: '130px' }}
+            >
+              OFFICERS
+            </text>
+          </svg>
         </div>
       </section>
 
