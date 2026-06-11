@@ -137,7 +137,7 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
             <div className="relative max-h-[72vh] overflow-hidden">
               {active.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={active.url} alt={active.title} className="mx-auto block max-h-[72vh] w-auto max-w-full" />
+                <img src={active.url} alt={active.title} className="mx-auto block max-h-[68vh] w-full h-auto object-contain" />
               ) : (
                 <Placeholder photo={active} />
               )}
