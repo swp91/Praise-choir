@@ -25,19 +25,19 @@ const EMPTY_OFFICERS: Officer[] = [
 ];
 
 const LANES = [
-  { x: 9, start: 80, width: 29, tilt: -1.5, speed_x: -0.035, label: 'left-high' },
-  { x: 39, start: 90, width: 33, tilt: 0.8, speed_x: 0.04, label: 'right-low' },
-  { x: 62, start: 80, width: 27, tilt: -0.6, speed_x: -0.03, label: 'right-high' },
-  { x: 21, start: 90, width: 31, tilt: 1.2, speed_x: 0.035, label: 'left-low' },
-  { x: 50, start: 85, width: 36, tilt: -1.1, speed_x: -0.04, label: 'wide' },
+  { x: 9, start: 80, width: 29, tilt: -1.5, speed_x: -0.012, label: 'left-high' },
+  { x: 39, start: 90, width: 33, tilt: 0.8, speed_x: 0.015, label: 'right-low' },
+  { x: 62, start: 80, width: 27, tilt: -0.6, speed_x: -0.010, label: 'right-high' },
+  { x: 21, start: 90, width: 31, tilt: 1.2, speed_x: 0.012, label: 'left-low' },
+  { x: 50, start: 85, width: 36, tilt: -1.1, speed_x: -0.015, label: 'wide' },
 ];
 
 const MOBILE_LANES = [
-  { x: 9, start: 180, width: 60, tilt: -1.2, speed_x: -0.02, label: 'left-high' },
-  { x: 31, start: 190, width: 62, tilt: 0.7, speed_x: 0.025, label: 'right-low' },
-  { x: 14, start: 180, width: 60, tilt: -0.5, speed_x: -0.02, label: 'right-high' },
-  { x: 23, start: 190, width: 61, tilt: 1.0, speed_x: 0.02, label: 'left-low' },
-  { x: 11, start: 185, width: 67, tilt: -0.8, speed_x: -0.025, label: 'wide' },
+  { x: 9, start: 180, width: 60, tilt: -1.2, speed_x: -0.006, label: 'left-high' },
+  { x: 31, start: 190, width: 62, tilt: 0.7, speed_x: 0.008, label: 'right-low' },
+  { x: 14, start: 180, width: 60, tilt: -0.5, speed_x: -0.006, label: 'right-high' },
+  { x: 23, start: 190, width: 61, tilt: 1.0, speed_x: 0.006, label: 'left-low' },
+  { x: 11, start: 185, width: 67, tilt: -0.8, speed_x: -0.008, label: 'wide' },
 ];
 
 function positiveModulo(value: number, modulo: number) {
