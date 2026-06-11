@@ -25,19 +25,19 @@ const EMPTY_OFFICERS: Officer[] = [
 ];
 
 const LANES = [
-  { x: 9, start: 80, width: 29, tilt: -1.5, label: 'left-high' },
-  { x: 39, start: 90, width: 33, tilt: 0.8, label: 'right-low' },
-  { x: 62, start: 80, width: 27, tilt: -0.6, label: 'right-high' },
-  { x: 21, start: 90, width: 31, tilt: 1.2, label: 'left-low' },
-  { x: 50, start: 85, width: 36, tilt: -1.1, label: 'wide' },
+  { x: 9, start: 80, width: 29, tilt: -1.5, speed_x: -0.035, label: 'left-high' },
+  { x: 39, start: 90, width: 33, tilt: 0.8, speed_x: 0.04, label: 'right-low' },
+  { x: 62, start: 80, width: 27, tilt: -0.6, speed_x: -0.03, label: 'right-high' },
+  { x: 21, start: 90, width: 31, tilt: 1.2, speed_x: 0.035, label: 'left-low' },
+  { x: 50, start: 85, width: 36, tilt: -1.1, speed_x: -0.04, label: 'wide' },
 ];
 
 const MOBILE_LANES = [
-  { x: 9, start: 180, width: 60, tilt: -1.2, label: 'left-high' },
-  { x: 31, start: 190, width: 62, tilt: 0.7, label: 'right-low' },
-  { x: 14, start: 180, width: 60, tilt: -0.5, label: 'right-high' },
-  { x: 23, start: 190, width: 61, tilt: 1.0, label: 'left-low' },
-  { x: 11, start: 185, width: 67, tilt: -0.8, label: 'wide' },
+  { x: 9, start: 180, width: 60, tilt: -1.2, speed_x: -0.02, label: 'left-high' },
+  { x: 31, start: 190, width: 62, tilt: 0.7, speed_x: 0.025, label: 'right-low' },
+  { x: 14, start: 180, width: 60, tilt: -0.5, speed_x: -0.02, label: 'right-high' },
+  { x: 23, start: 190, width: 61, tilt: 1.0, speed_x: 0.02, label: 'left-low' },
+  { x: 11, start: 185, width: 67, tilt: -0.8, speed_x: -0.025, label: 'wide' },
 ];
 
 function positiveModulo(value: number, modulo: number) {
@@ -190,8 +190,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
       <section
         aria-label="Infinite officer portrait stream"
-        className="absolute -left-[20vw] -top-[20vh] -right-[20vw] -bottom-[20vh] z-10 cursor-grab touch-none overflow-hidden active:cursor-grabbing origin-center"
-        style={{ transform: 'rotate(-10deg)' }}
+        className="absolute inset-0 z-10 cursor-grab touch-none overflow-hidden active:cursor-grabbing"
         onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -220,6 +219,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 : 'clamp(220px, 21vw, 360px)'
               : `clamp(210px, ${config.width}vw, 560px)`;
 
+          const y_center = isMobile ? 350 : 450;
+          const leftPos = config.x + (y_center - y) * config.speed_x;
+
           return (
             <article
               key={`${officer.name}-${virtualIndex}`}
@@ -229,10 +231,10 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
               data-cycle={`${appearanceCycle}-${layoutLane}`}
               className="leaders-stream-card absolute select-none"
               style={{
-                left: `${config.x}%`,
+                left: `${leftPos.toFixed(2)}%`,
                 top: 0,
                 width: cardWidth,
-                transform: `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${10 + config.tilt}deg)`,
+                transform: `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${config.tilt}deg)`,
                 zIndex: activeBand ? 8 : 4 + (virtualIndex % 3),
                 opacity: y < -exitOffset || y > 1050 ? 0 : 1,
               }}
