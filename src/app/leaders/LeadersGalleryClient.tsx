@@ -191,6 +191,37 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       data-page-style="voku-officers"
       className="relative h-screen w-screen overflow-hidden bg-[#fffdfc] text-[#0a0a0a] selection:bg-black selection:text-white font-ko"
     >
+      {/* Dynamic Blurred Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none transition-all duration-1000 ease-in-out">
+        {items.map((officer, index) => {
+          const isActive = index === activeIndex;
+          const src = imageUrl(officer.photo);
+          if (!src) return null;
+          return (
+            <div
+              key={`bg-${index}`}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                isActive ? 'opacity-[0.14]' : 'opacity-0'
+              }`}
+              style={{
+                filter: 'blur(72px) saturate(140%)',
+                transform: 'scale(1.2)', // Prevents white edges from blur
+              }}
+            >
+              <Image
+                src={src}
+                alt=""
+                fill
+                priority={isActive}
+                sizes="100vw"
+                className="object-cover"
+              />
+            </div>
+          );
+        })}
+        {/* Soft overlay gradient to ensure text readability */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#fffdfc]/40 via-transparent to-[#fffdfc]/50" />
+      </div>
       <style jsx global>{`
         body.leaders-voku-page {
           --min-card-width: 82px;
@@ -279,11 +310,12 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         data-testid="officer-stage"
         aria-label="Officer photo reel"
         className="absolute inset-x-0 top-[6vh] z-10 mx-auto h-[44vh] min-h-[340px] max-w-[1260px] touch-pan-y overflow-visible max-[768px]:top-[16vh] max-[768px]:h-[43vh] max-[768px]:min-h-[360px]"
+        style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
       >
-        <div className="absolute inset-0 flex items-center justify-center">
+        <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
           {visibleCards.map(({ officer, index, offset }) => {
             const absOffset = Math.abs(offset);
             const signedSlot = cardOffset(index, activeIndex, items.length);
@@ -297,6 +329,10 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const zIndex = Math.round(1000 - absOffset * 100);
             const imageSrc = imageUrl(officer.photo);
 
+            // 3D coverflow specific values
+            const rotateY = clamped * -16; // Slight rotation towards the center
+            const translateZ = -Math.abs(clamped) * 60; // Push non-active cards back in Z-space
+
             return (
               <div
                 key={`${officer.name}-${index}`}
@@ -307,8 +343,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                   opacity,
                   left: '50%',
                   top: '50%',
-                  transform: `translate3d(calc(-50% + ${clamped.toFixed(4)} * clamp(var(--min-card-step, 48px), 12.5vw, 190px)), calc(-50% + ${y}px), 0) scale(${scale})`,
-                  filter: 'none',
+                  transform: `translate3d(calc(-50% + ${clamped.toFixed(4)} * clamp(var(--min-card-step, 48px), 12.5vw, 190px)), calc(-50% + ${y}px), ${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
+                  filter: `grayscale(${Math.min(1, absOffset * 0.45).toFixed(2)}) brightness(${Math.max(0.65, 1 - absOffset * 0.15).toFixed(2)})`,
+                  transformStyle: 'preserve-3d',
                 }}
               >
                 <button
@@ -318,7 +355,11 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                   data-reel-signed-offset={signedSlot.toFixed(4)}
                   data-reel-scale={scale.toFixed(4)}
                   data-slot={absSlot}
-                  className="group w-full h-full overflow-hidden bg-black text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-black relative"
+                  className={`group w-full h-full overflow-hidden bg-black text-white outline-none focus-visible:ring-2 focus-visible:ring-black relative transition-all duration-500 ease-out ${
+                    isActive
+                      ? 'rounded-xl border-2 border-[#b89a5a] shadow-[0_15px_35px_rgba(184,154,90,0.28)]'
+                      : 'rounded-lg border border-neutral-200/30 shadow-md'
+                  }`}
                   aria-label={`Show ${officer.name}`}
                   aria-current={isActive ? 'true' : undefined}
                   onClick={() => {
@@ -379,7 +420,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             return (
               <span
                 key={index}
-                className="absolute block rounded-full border border-[#d9d9d9]"
+                className="absolute block rounded-full border border-[#b89a5a]/25"
                 style={{
                   left,
                   top,
