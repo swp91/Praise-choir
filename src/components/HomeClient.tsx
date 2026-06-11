@@ -456,9 +456,6 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
             }}
           />
           
-          {/* 텍스트 가독성을 방해하지 않는 극도로 은은한 반투명 소프트 필터 레이어 */}
-          <div className="absolute inset-0 bg-black/15 z-0" />
-
           {/* 좌측 대형 타이포그래피 콘텐츠 */}
           <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-20 -translate-y-24">
             <motion.div 
