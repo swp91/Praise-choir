@@ -40,7 +40,7 @@ function formatTime(time: string) {
 function MaskLeft({ children }: { children: React.ReactNode }) {
   return (
     <div 
-      className="absolute left-0 top-0 w-[calc(100%+1px)] h-full overflow-hidden rounded-l-2xl bg-[#fbf7ec]"
+      className="absolute left-0 top-0 w-[calc(100%+1px)] h-full overflow-hidden rounded-l-2xl bg-[#ffffff]"
       style={{
         borderTop: '1px solid rgba(212, 196, 160, 0.42)',
         borderBottom: '1px solid rgba(212, 196, 160, 0.42)',
@@ -58,7 +58,7 @@ function MaskLeft({ children }: { children: React.ReactNode }) {
 function MaskRight({ children }: { children: React.ReactNode }) {
   return (
     <div 
-      className="absolute right-0 top-0 w-[calc(100%+1px)] h-full overflow-hidden rounded-r-2xl bg-[#fbf7ec]"
+      className="absolute right-0 top-0 w-[calc(100%+1px)] h-full overflow-hidden rounded-r-2xl bg-[#ffffff]"
       style={{
         borderTop: '1px solid rgba(212, 196, 160, 0.42)',
         borderBottom: '1px solid rgba(212, 196, 160, 0.42)',
@@ -76,7 +76,7 @@ function MaskRight({ children }: { children: React.ReactNode }) {
 function MaskTop({ children }: { children: React.ReactNode }) {
   return (
     <div 
-      className="absolute left-0 top-0 w-full h-[calc(100%+1px)] overflow-hidden rounded-t-2xl bg-[#fbf7ec]"
+      className="absolute left-0 top-0 w-full h-[calc(100%+1px)] overflow-hidden rounded-t-2xl bg-[#ffffff]"
       style={{
         borderTop: '1px solid rgba(212, 196, 160, 0.42)',
         borderLeft: '1px solid rgba(212, 196, 160, 0.42)',
@@ -94,7 +94,7 @@ function MaskTop({ children }: { children: React.ReactNode }) {
 function MaskBottom({ children }: { children: React.ReactNode }) {
   return (
     <div 
-      className="absolute left-0 bottom-0 w-full h-[calc(100%+1px)] overflow-hidden rounded-b-2xl bg-[#fbf7ec]"
+      className="absolute left-0 bottom-0 w-full h-[calc(100%+1px)] overflow-hidden rounded-b-2xl bg-[#ffffff]"
       style={{
         borderBottom: '1px solid rgba(212, 196, 160, 0.42)',
         borderLeft: '1px solid rgba(212, 196, 160, 0.42)',
@@ -581,7 +581,7 @@ export default function PracticeClient({ data }: Props) {
       <div className="hidden min-[881px]:flex flex-col items-center justify-center flex-1 w-full max-w-6xl mx-auto px-4 relative z-10">
         
         {/* Book Wrapper (화면 크기에 따라 유연하게 웅장해지는 스케일 업) */}
-        <div className="relative w-full max-w-[1020px] xl:max-w-[1240px] h-[480px] xl:h-[580px] flex items-center justify-center rounded-2xl shadow-[0_28px_90px_rgba(42,38,32,0.16)] bg-[#fbf7ec] transition-all duration-300">
+        <div className="relative w-full max-w-[1020px] xl:max-w-[1240px] h-[480px] xl:h-[580px] flex items-center justify-center rounded-2xl shadow-[0_28px_90px_rgba(42,38,32,0.16)] bg-[#ffffff] transition-all duration-300">
           
 
 
@@ -633,7 +633,7 @@ export default function PracticeClient({ data }: Props) {
                   >
                     {/* Front: Spread 0 Right (Evening Schedules) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskRight>{renderSpread0()}</MaskRight>
@@ -641,7 +641,7 @@ export default function PracticeClient({ data }: Props) {
 
                     {/* Back: Spread 1 Left (Motto Left) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskLeft>{renderSpread1()}</MaskLeft>
@@ -678,7 +678,7 @@ export default function PracticeClient({ data }: Props) {
                   >
                     {/* Front: Spread 1 Right (Motto Right) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskRight>{renderSpread1()}</MaskRight>
@@ -686,7 +686,7 @@ export default function PracticeClient({ data }: Props) {
 
                     {/* Back: Spread 2 Left (Goals 1-4 Left) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskLeft>{renderSpread2()}</MaskLeft>
@@ -723,7 +723,7 @@ export default function PracticeClient({ data }: Props) {
                   >
                     {/* Front: Spread 2 Right (Goals 1-4 Right) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskRight>{renderSpread2()}</MaskRight>
@@ -731,7 +731,7 @@ export default function PracticeClient({ data }: Props) {
 
                     {/* Back: Spread 3 Left (Goals 5-7 Left) */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskLeft>{renderSpread3()}</MaskLeft>
@@ -765,7 +765,7 @@ export default function PracticeClient({ data }: Props) {
       <div className="min-[881px]:hidden flex flex-col items-center justify-start flex-1 w-full max-w-md mx-auto px-6 relative z-10 pt-14 pb-14">
         
         {/* Book Wrapper */}
-        <div className="relative w-full max-w-[380px] aspect-[340/480] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#fbf7ec]">
+        <div className="relative w-full max-w-[380px] aspect-[340/480] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
           
 
 
@@ -817,7 +817,7 @@ export default function PracticeClient({ data }: Props) {
                   >
                     {/* Front: Spread 0 Bottom */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskBottom>{renderMobileSpread0()}</MaskBottom>
@@ -825,7 +825,7 @@ export default function PracticeClient({ data }: Props) {
 
                     {/* Back: Spread 1 Top */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ transform: 'rotateX(-180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskTop>{renderMobileSpread1()}</MaskTop>
@@ -862,7 +862,7 @@ export default function PracticeClient({ data }: Props) {
                   >
                     {/* Front: Spread 1 Bottom */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskBottom>{renderMobileSpread1()}</MaskBottom>
@@ -870,7 +870,7 @@ export default function PracticeClient({ data }: Props) {
 
                     {/* Back: Spread 2 Top */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ transform: 'rotateX(-180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskTop>{renderMobileSpread2()}</MaskTop>
@@ -907,7 +907,7 @@ export default function PracticeClient({ data }: Props) {
                   >
                     {/* Front: Spread 2 Bottom */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskBottom>{renderMobileSpread2()}</MaskBottom>
@@ -915,7 +915,7 @@ export default function PracticeClient({ data }: Props) {
 
                     {/* Back: Spread 3 Top */}
                     <div 
-                      className="absolute inset-0 bg-[#fbf7ec]"
+                      className="absolute inset-0 bg-[#ffffff]"
                       style={{ transform: 'rotateX(-180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
                     >
                       <MaskTop>{renderMobileSpread3()}</MaskTop>
