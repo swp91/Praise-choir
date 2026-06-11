@@ -74,6 +74,23 @@ async function extractColors(url: string): Promise<string[]> {
   });
 }
 
+function getSpiralPath(cx: number, cy: number, armIndex: number, totalArms: number, numTurns: number, rStart: number, rEnd: number): string {
+  const points: string[] = [];
+  const steps = 100;
+  const startAngle = (armIndex / totalArms) * 2 * Math.PI;
+  const maxAngle = numTurns * 2 * Math.PI;
+
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    const angle = startAngle + t * maxAngle;
+    const r = rStart + Math.pow(t, 1.1) * (rEnd - rStart);
+    const x = cx + r * Math.cos(angle);
+    const y = cy + r * Math.sin(angle);
+    points.push(`${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`);
+  }
+  return points.join(' ');
+}
+
 export default function LeadersGalleryClient({ officers }: LeadersGalleryClientProps) {
   const items = officers.length ? officers : EMPTY_OFFICERS;
   const [reelPosition, setReelPosition] = useState(0);
@@ -255,57 +272,45 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       data-page-style="voku-officers"
       className="relative h-screen w-screen overflow-hidden bg-[#fffdfc] text-[#0a0a0a] selection:bg-black selection:text-white font-ko"
     >
-      {/* Dynamic Blurred Background with SVG Marble Warp */}
+      {/* Dynamic Calder Tapestry Background */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none transition-all duration-1000 ease-in-out">
         {items.map((officer, index) => {
           const isActive = index === activeIndex;
           const colors = colorPalettes[index] || DEFAULT_PALETTE;
           
-          // Vary the abstract layout based on index to create completely unique patterns
-          const layoutStyle = index % 3 === 0 ? (
-            // Layout 0: Quad split with center cross overlay
-            <div className="absolute inset-0 w-full h-full flex flex-wrap">
-              <div className="w-1/2 h-1/2" style={{ backgroundColor: colors[0] }} />
-              <div className="w-1/2 h-1/2" style={{ backgroundColor: colors[1] }} />
-              <div className="w-1/2 h-1/2" style={{ backgroundColor: colors[3] }} />
-              <div className="w-1/2 h-1/2" style={{ backgroundColor: colors[4] }} />
-              <div className="absolute w-[60%] h-[60%] left-[20%] top-[20%] rounded-full opacity-70 mix-blend-multiply" style={{ backgroundColor: colors[2] }} />
-              <div className="absolute inset-0 opacity-50 mix-blend-overlay" style={{
-                background: `radial-gradient(circle at 30% 30%, ${colors[1]} 0%, transparent 60%), radial-gradient(circle at 70% 70%, ${colors[3]} 0%, transparent 60%)`
-              }} />
-            </div>
-          ) : index % 3 === 1 ? (
-            // Layout 1: Horizontal bands with offset circular blobs
-            <div className="absolute inset-0 w-full h-full flex flex-col">
-              <div className="w-full h-1/3" style={{ backgroundColor: colors[0] }} />
-              <div className="w-full h-1/3" style={{ backgroundColor: colors[2] }} />
-              <div className="w-full h-1/3" style={{ backgroundColor: colors[4] }} />
-              <div className="absolute w-[45%] h-[45%] left-[10%] top-[40%] rounded-full opacity-80 mix-blend-screen" style={{ backgroundColor: colors[1] }} />
-              <div className="absolute w-[45%] h-[45%] right-[10%] top-[10%] rounded-full opacity-80 mix-blend-multiply" style={{ backgroundColor: colors[3] }} />
-              <div className="absolute inset-0 opacity-50 mix-blend-overlay" style={{
-                background: `radial-gradient(circle at 10% 80%, ${colors[0]} 0%, transparent 70%), radial-gradient(circle at 90% 20%, ${colors[4]} 0%, transparent 70%)`
-              }} />
-            </div>
-          ) : (
-            // Layout 2: Vertical columns with multi-stop linear gradients
-            <div className="absolute inset-0 w-full h-full flex">
-              <div className="w-1/3 h-full" style={{ backgroundColor: colors[0] }} />
-              <div className="w-1/3 h-full" style={{ backgroundColor: colors[1] }} />
-              <div className="w-1/3 h-full" style={{ backgroundColor: colors[4] }} />
-              <div className="absolute inset-y-0 left-[20%] w-[30%] opacity-85 mix-blend-color-burn" style={{ backgroundColor: colors[2] }} />
-              <div className="absolute inset-y-0 right-[20%] w-[30%] opacity-85 mix-blend-hard-light" style={{ backgroundColor: colors[3] }} />
-              <div className="absolute inset-0 opacity-60 mix-blend-overlay" style={{
-                background: `linear-gradient(135deg, ${colors[0]} 0%, transparent 50%, ${colors[2]} 50%, transparent 100%)`
-              }} />
-            </div>
-          );
+          // Center coordinates for viewBox 0 0 1000 1000
+          const cx = 500;
+          const cy = 500;
+
+          // Define 3 main spiral arms
+          const arm0 = getSpiralPath(cx, cy, 0, 3, 1.4, 25, 330);
+          const arm1 = getSpiralPath(cx, cy, 1, 3, 1.4, 25, 330);
+          const arm2 = getSpiralPath(cx, cy, 2, 3, 1.4, 25, 330);
+
+          // Inner dashed block spiral (offset slightly in radius to sit between arms)
+          const dashedArm = getSpiralPath(cx, cy, 0.5, 3, 1.2, 40, 260);
+
+          // Outer sun-like rays on the right side (-75 to +75 degrees)
+          const totalRays = 13;
+          const rays = Array.from({ length: totalRays }).map((_, i) => {
+            const angle = ((-75 + (i / (totalRays - 1)) * 150) * Math.PI) / 180;
+            const rStart = 270;
+            const rEnd = 750;
+            const x1 = cx + rStart * Math.cos(angle);
+            const y1 = cy + rStart * Math.sin(angle);
+            const x2 = cx + rEnd * Math.cos(angle);
+            const y2 = cy + rEnd * Math.sin(angle);
+            // Alternate colors for rays
+            const rayColor = i % 2 === 0 ? colors[0] : colors[2];
+            return { x1, y1, x2, y2, color: rayColor };
+          });
 
           return (
             <div
               key={`bg-${index}`}
               className="absolute inset-0 overflow-hidden"
               style={{
-                opacity: isActive ? 0.75 : 0,
+                opacity: isActive ? 0.78 : 0,
                 zIndex: isActive ? 2 : 1,
                 clipPath: isActive 
                   ? 'circle(150% at 50% 50%)' 
@@ -313,22 +318,66 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 transition: isActive
                   ? 'clip-path 1300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms ease-out'
                   : 'clip-path 0ms 1300ms, opacity 1000ms ease-out',
+                backgroundColor: colors[1], // Canvas background color (beige/cream)
               }}
             >
-              {/* Warp the color blocks using SVG displacement map for fluid irregular paint swirls */}
-              <div 
-                className="absolute inset-0 scale-[1.5]"
+              {/* Calder Tapestry SVG Wrapper */}
+              <svg 
+                viewBox="0 0 1000 1000" 
+                className="absolute inset-0 w-full h-full scale-[1.1]"
+                preserveAspectRatio="xMidYMid slice"
                 style={{
-                  filter: `url(#marble-filter-${index}) saturate(240%) contrast(190%) brightness(0.95) blur(1.5px)`,
+                  filter: `url(#calder-warp-${index}) saturate(180%) contrast(120%) brightness(0.96)`,
                 }}
               >
-                {layoutStyle}
-              </div>
+                {/* 1. Radiating Sun Rays (Right Side) */}
+                <g opacity="0.9">
+                  {rays.map((ray, rIdx) => (
+                    <line
+                      key={rIdx}
+                      x1={ray.x1}
+                      y1={ray.y1}
+                      x2={ray.x2}
+                      y2={ray.y2}
+                      stroke={ray.color}
+                      strokeWidth="48"
+                      strokeLinecap="round"
+                    />
+                  ))}
+                </g>
+
+                {/* 2. Main Spiral Arms */}
+                <g fill="none" strokeLinecap="round" opacity="0.95">
+                  <path d={arm0} stroke={colors[0]} strokeWidth="60" />
+                  <path d={arm1} stroke={colors[2]} strokeWidth="60" />
+                  <path d={arm2} stroke={colors[3]} strokeWidth="60" />
+                </g>
+
+                {/* 3. Dashed Block Spiral (Inner details) */}
+                <path
+                  d={dashedArm}
+                  fill="none"
+                  stroke={colors[4]}
+                  strokeWidth="16"
+                  strokeDasharray="14, 20"
+                  strokeLinecap="butt"
+                  opacity="0.85"
+                />
+
+                {/* 4. Center Circle Core */}
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r="35"
+                  fill={colors[4]}
+                  opacity="0.95"
+                />
+              </svg>
             </div>
           );
         })}
         {/* Soft overlay gradient to ensure text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#fffdfc]/55 via-[#fffdfc]/25 to-[#fffdfc]/65 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#fffdfc]/45 via-transparent to-[#fffdfc]/55 z-10" />
       </div>
       <style jsx global>{`
         body.leaders-voku-page {
@@ -593,23 +642,22 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         </div>
       ) : null}
 
-      {/* SVG Filter for Fluid Marble / Paint Swirls - Rendered dynamically for each index with a unique seed */}
+      {/* SVG Filter for Fluid Calder Tapestry Warp - Rendered dynamically for each index with a unique seed */}
       <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
         <defs>
           {items.map((_, index) => (
-            <filter key={index} id={`marble-filter-${index}`} colorInterpolationFilters="sRGB">
-              {/* Vary the seed and frequency slightly to create completely distinct abstract wave patterns */}
+            <filter key={index} id={`calder-warp-${index}`} colorInterpolationFilters="sRGB">
               <feTurbulence 
                 type="fractalNoise" 
-                baseFrequency={index % 2 === 0 ? "0.0045" : "0.0055"} 
-                numOctaves="4" 
-                seed={(index + 1) * 23} 
+                baseFrequency={index % 2 === 0 ? "0.014" : "0.018"} 
+                numOctaves="3" 
+                seed={(index + 1) * 37} 
                 result="noise" 
               />
               <feDisplacementMap 
                 in="SourceGraphic" 
                 in2="noise" 
-                scale={index % 2 === 0 ? "340" : "370"} 
+                scale={index % 2 === 0 ? "20" : "24"} 
                 xChannelSelector="R" 
                 yChannelSelector="G" 
               />
