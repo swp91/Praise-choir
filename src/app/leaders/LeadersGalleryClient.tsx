@@ -263,10 +263,16 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           return (
             <div
               key={`bg-${index}`}
-              className="absolute inset-0 transition-opacity duration-1000 ease-in-out overflow-hidden"
+              className="absolute inset-0 overflow-hidden"
               style={{
                 opacity: isActive ? 0.75 : 0,
-                zIndex: isActive ? 1 : 0,
+                zIndex: isActive ? 2 : 1,
+                clipPath: isActive 
+                  ? 'circle(150% at 50% 50%)' 
+                  : 'circle(0% at 50% 50%)',
+                transition: isActive
+                  ? 'clip-path 1300ms cubic-bezier(0.16, 1, 0.3, 1), opacity 500ms ease-out'
+                  : 'clip-path 0ms 1300ms, opacity 1000ms ease-out',
               }}
             >
               {/* Warp the color blocks using SVG displacement map for fluid irregular paint swirls */}
