@@ -45,11 +45,6 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const activeIndex = wrapIndex(Math.round(reelPosition), items.length);
   const activeOfficer = items[activeIndex] ?? items[0];
 
-  const [lastActiveIndex, setLastActiveIndex] = useState(activeIndex);
-  useEffect(() => {
-    setLastActiveIndex(activeIndex);
-  }, [activeIndex]);
-
   useEffect(() => {
     document.body.classList.add('leaders-voku-page');
     return () => document.body.classList.remove('leaders-voku-page');
@@ -199,37 +194,17 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none transition-all duration-1000 ease-in-out">
         {items.map((officer, index) => {
           const isActive = index === activeIndex;
-          const isWasActive = index === lastActiveIndex;
           const src = imageUrl(officer.photo);
           if (!src) return null;
-
-          // Determine opacity, scale, blur, and z-index based on active/outgoing state
-          let opacity = 0;
-          let scale = 0.3;
-          let blurVal = '8px';
-          let zIndex = 0;
-
-          if (isActive) {
-            opacity = 0.65; // Vivid and clear!
-            scale = 1.3;
-            blurVal = '32px'; // Distinct but smooth
-            zIndex = 2; // On top of outgoing background
-          } else if (isWasActive) {
-            opacity = 0; // Fade out
-            scale = 1.3; // DO NOT shrink back, stay at full size!
-            blurVal = '32px'; // Keep same blur during fade out
-            zIndex = 1; // Below the active one but above the rest
-          }
-
           return (
             <div
               key={`bg-${index}`}
-              className="absolute inset-0 transition-all duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+              className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
               style={{
-                opacity,
-                transform: `scale(${scale})`,
-                filter: `blur(${blurVal}) saturate(180%) contrast(108%) brightness(1.02)`,
-                zIndex,
+                opacity: isActive ? 0.65 : 0,
+                transform: 'scale(1.3)',
+                filter: 'blur(32px) saturate(180%) contrast(108%) brightness(1.02)',
+                zIndex: isActive ? 1 : 0,
               }}
             >
               <Image
