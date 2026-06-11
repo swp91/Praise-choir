@@ -72,6 +72,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const overlayImageRef = useRef<HTMLImageElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
+  const controlsRef = useRef<HTMLDivElement>(null);
   const photoRefs = useRef<HTMLSpanElement[]>([]);
   const positionRef = useRef(0);
   const velocityRef = useRef(0);
@@ -153,11 +154,13 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
     const overlay = overlayRef.current;
     const image = overlayImageRef.current;
     const title = titleRef.current;
+    const controls = controlsRef.current;
     const target = targetRect(active.rect);
 
     closingRef.current = false;
     gsap.killTweensOf([overlay, image]);
     if (title) gsap.killTweensOf(title);
+    if (controls) gsap.killTweensOf(controls);
 
     gsap.set(overlay, { autoAlpha: 1 });
     gsap.set(image, {
@@ -168,6 +171,9 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
     });
     if (title) {
       gsap.set(title, { autoAlpha: 0, y: 15 });
+    }
+    if (controls) {
+      gsap.set(controls, { autoAlpha: 0 });
     }
 
     const tl = gsap.timeline();
@@ -191,6 +197,14 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         duration: 0.45,
         ease: 'power2.out',
       }, 0.95); // Starts 0.2s before the image finishes scaling
+    }
+
+    if (controls) {
+      tl.to(controls, {
+        autoAlpha: 1,
+        duration: 0.45,
+        ease: 'power2.out',
+      }, 0.3); // Fades in with the background
     }
   }, [active]);
 
@@ -221,8 +235,10 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
     const overlay = overlayRef.current;
     const image = overlayImageRef.current;
     const title = titleRef.current;
+    const controls = controlsRef.current;
     gsap.killTweensOf([overlay, image]);
     if (title) gsap.killTweensOf(title);
+    if (controls) gsap.killTweensOf(controls);
 
     const tl = gsap.timeline({
       onComplete: () => {
@@ -235,6 +251,14 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       tl.to(title, {
         autoAlpha: 0,
         y: 10,
+        duration: 0.2,
+        ease: 'power2.out',
+      }, 0);
+    }
+
+    if (controls) {
+      tl.to(controls, {
+        autoAlpha: 0,
         duration: 0.2,
         ease: 'power2.out',
       }, 0);
@@ -343,7 +367,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
           className="fixed inset-0 z-[1000] opacity-0"
           onClick={() => closePhoto()}
         >
-          <div className="absolute right-8 top-8 z-20 flex gap-2">
+          <div ref={controlsRef} className="absolute right-8 top-8 z-20 flex gap-2 opacity-0">
             {active.photo.downloadUrl ? (
               <a
                 href={active.photo.downloadUrl}
