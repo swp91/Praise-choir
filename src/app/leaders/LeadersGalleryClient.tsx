@@ -200,10 +200,6 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           }
         }
 
-        body.leaders-voku-page header {
-          display: none !important;
-        }
-
         @keyframes officer-pulse {
           0%,
           100% {
