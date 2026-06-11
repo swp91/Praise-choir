@@ -190,7 +190,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
       <section
         aria-label="Infinite officer portrait stream"
-        className="absolute inset-0 z-10 cursor-grab touch-none overflow-hidden active:cursor-grabbing"
+        className="absolute -left-[20vw] -top-[20vh] -right-[20vw] -bottom-[20vh] z-10 cursor-grab touch-none overflow-hidden active:cursor-grabbing origin-center"
+        style={{ transform: 'rotate(-10deg)' }}
         onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -231,7 +232,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 left: `${config.x}%`,
                 top: 0,
                 width: cardWidth,
-                transform: `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${config.tilt}deg)`,
+                transform: `translate3d(0, ${y.toFixed(2)}px, 0) rotate(${10 + config.tilt}deg)`,
                 zIndex: activeBand ? 8 : 4 + (virtualIndex % 3),
                 opacity: y < -exitOffset || y > 1050 ? 0 : 1,
               }}
