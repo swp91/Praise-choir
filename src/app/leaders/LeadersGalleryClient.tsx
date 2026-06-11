@@ -175,7 +175,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       >
         <div
           data-testid="leaders-background-type"
-          className="w-full"
+          className="w-full md:max-w-[750px] lg:max-w-[850px] md:pl-12 lg:pl-20"
         >
           <svg viewBox="0 0 800 360" className="w-full h-auto translate-y-[20px]" preserveAspectRatio="xMidYMax meet">
             <text
