@@ -178,7 +178,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   return (
     <main
       data-page-style="voku-officers"
-      className="relative h-screen w-screen overflow-hidden bg-[#fffdfc] text-[#0a0a0a] selection:bg-black selection:text-white"
+      className="relative h-screen w-screen overflow-hidden bg-[#fffdfc] text-[#0a0a0a] selection:bg-black selection:text-white font-ko"
     >
       <style jsx global>{`
         body.leaders-voku-page {
@@ -373,7 +373,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       </div>
       {/* Bottom Center: '섬김의 손길들' large font header */}
       <div className="absolute top-[64vh] sm:top-[62vh] left-1/2 -translate-x-1/2 z-20 w-full text-center pointer-events-none max-[768px]:top-[70vh] flex flex-col items-center">
-        <h2 className="text-[28px] sm:text-[38px] font-bold text-neutral-800 tracking-wider">
+        <h2 className="text-[28px] sm:text-[38px] font-bold text-neutral-800 tracking-wider font-ko">
           섬김의 손길들
         </h2>
       </div>
