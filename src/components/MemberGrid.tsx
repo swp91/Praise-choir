@@ -410,11 +410,11 @@ export default function MemberGrid({ parts }: Props) {
               </p>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-3 text-[12px] md:text-[13px] opacity-75">
                 <span>총원 {currentPart.members.length}명</span>
-                {currentPart.leader && (
+                {currentPart.leader && expandedPart === 'staff' && (
                   <>
                     <span className="opacity-45">•</span>
                     <span>
-                      {expandedPart === 'staff' ? '지휘자' : '파트장'}: {currentPart.leader}
+                      지휘자: {currentPart.leader}
                     </span>
                   </>
                 )}
