@@ -258,7 +258,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 )}
 
                 <div
-                  className={`absolute top-1/2 flex -translate-y-1/2 items-center justify-between gap-3 max-[720px]:left-2 max-[720px]:w-[calc(100%-16px)] ${
+                  className={`absolute top-1/2 flex -translate-y-1/2 items-center justify-between gap-3 max-[720px]:left-[-24px] max-[720px]:w-[calc(100%+48px)] ${
                     labelReverse ? 'left-[-40px] w-[calc(100%+80px)] flex-row-reverse' : 'left-[-56px] w-[calc(100%+96px)]'
                   }`}
                 >
