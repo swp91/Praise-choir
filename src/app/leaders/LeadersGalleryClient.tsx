@@ -224,16 +224,31 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
       {/* Top Center: Roulette active officer name & role */}
       <div className="absolute top-[4.5vh] sm:top-[6vh] left-1/2 -translate-x-1/2 z-20 h-[50px] overflow-hidden text-center pointer-events-none w-full flex justify-center">
-        <div 
-          className="transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)]"
-          style={{ transform: `translate3d(0, calc(-1 * ${activeIndex} * 50px), 0)` }}
-        >
-          {items.map((officer, index) => (
-            <div key={index} className="h-[50px] flex items-center justify-center whitespace-nowrap text-[18px] sm:text-[22px] tracking-wide">
-              <span className="font-semibold text-neutral-400 mr-2.5">{officer.role}</span>
-              <span className="font-bold text-neutral-900">{officer.name}</span>
-            </div>
-          ))}
+        <div className="relative w-full h-full">
+          {items.map((officer, index) => {
+            const offset = cardOffset(index, reelPosition, items.length);
+            const absOffset = Math.abs(offset);
+            if (absOffset > 2) return null;
+            const opacity = Math.max(0, 1 - absOffset);
+            const y = offset * 50;
+
+            return (
+              <div
+                key={index}
+                style={{
+                  transform: `translate3d(0, calc(-50% + ${y}px), 0)`,
+                  opacity: opacity,
+                  top: '50%',
+                  left: 0,
+                  right: 0,
+                }}
+                className="absolute h-[50px] flex items-center justify-center whitespace-nowrap text-[18px] sm:text-[22px] tracking-wide"
+              >
+                <span className="font-semibold text-neutral-400 mr-2.5">{officer.role}</span>
+                <span className="font-bold text-neutral-900">{officer.name}</span>
+              </div>
+            );
+          })}
         </div>
       </div>
 
