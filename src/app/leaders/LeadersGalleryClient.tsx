@@ -260,6 +260,46 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         {items.map((officer, index) => {
           const isActive = index === activeIndex;
           const colors = colorPalettes[index] || DEFAULT_PALETTE;
+          
+          // Vary the abstract layout based on index to create completely unique patterns
+          const layoutStyle = index % 3 === 0 ? (
+            // Layout 0: Quad split with center cross overlay
+            <div className="absolute inset-0 w-full h-full flex flex-wrap">
+              <div className="w-1/2 h-1/2" style={{ backgroundColor: colors[0] }} />
+              <div className="w-1/2 h-1/2" style={{ backgroundColor: colors[1] }} />
+              <div className="w-1/2 h-1/2" style={{ backgroundColor: colors[3] }} />
+              <div className="w-1/2 h-1/2" style={{ backgroundColor: colors[4] }} />
+              <div className="absolute w-[60%] h-[60%] left-[20%] top-[20%] rounded-full opacity-70 mix-blend-multiply" style={{ backgroundColor: colors[2] }} />
+              <div className="absolute inset-0 opacity-50 mix-blend-overlay" style={{
+                background: `radial-gradient(circle at 30% 30%, ${colors[1]} 0%, transparent 60%), radial-gradient(circle at 70% 70%, ${colors[3]} 0%, transparent 60%)`
+              }} />
+            </div>
+          ) : index % 3 === 1 ? (
+            // Layout 1: Horizontal bands with offset circular blobs
+            <div className="absolute inset-0 w-full h-full flex flex-col">
+              <div className="w-full h-1/3" style={{ backgroundColor: colors[0] }} />
+              <div className="w-full h-1/3" style={{ backgroundColor: colors[2] }} />
+              <div className="w-full h-1/3" style={{ backgroundColor: colors[4] }} />
+              <div className="absolute w-[45%] h-[45%] left-[10%] top-[40%] rounded-full opacity-80 mix-blend-screen" style={{ backgroundColor: colors[1] }} />
+              <div className="absolute w-[45%] h-[45%] right-[10%] top-[10%] rounded-full opacity-80 mix-blend-multiply" style={{ backgroundColor: colors[3] }} />
+              <div className="absolute inset-0 opacity-50 mix-blend-overlay" style={{
+                background: `radial-gradient(circle at 10% 80%, ${colors[0]} 0%, transparent 70%), radial-gradient(circle at 90% 20%, ${colors[4]} 0%, transparent 70%)`
+              }} />
+            </div>
+          ) : (
+            // Layout 2: Vertical columns with multi-stop linear gradients
+            <div className="absolute inset-0 w-full h-full flex">
+              <div className="w-1/3 h-full" style={{ backgroundColor: colors[0] }} />
+              <div className="w-1/3 h-full" style={{ backgroundColor: colors[1] }} />
+              <div className="w-1/3 h-full" style={{ backgroundColor: colors[4] }} />
+              <div className="absolute inset-y-0 left-[20%] w-[30%] opacity-85 mix-blend-color-burn" style={{ backgroundColor: colors[2] }} />
+              <div className="absolute inset-y-0 right-[20%] w-[30%] opacity-85 mix-blend-hard-light" style={{ backgroundColor: colors[3] }} />
+              <div className="absolute inset-0 opacity-60 mix-blend-overlay" style={{
+                background: `linear-gradient(135deg, ${colors[0]} 0%, transparent 50%, ${colors[2]} 50%, transparent 100%)`
+              }} />
+            </div>
+          );
+
           return (
             <div
               key={`bg-${index}`}
@@ -279,22 +319,10 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
               <div 
                 className="absolute inset-0 scale-[1.5]"
                 style={{
-                  filter: 'url(#marble-filter) saturate(240%) contrast(190%) brightness(0.95) blur(1.5px)',
+                  filter: `url(#marble-filter-${index}) saturate(240%) contrast(190%) brightness(0.95) blur(1.5px)`,
                 }}
               >
-                {/* Pure color blocks and gradients - NO IMAGE AT ALL */}
-                <div className="absolute inset-0 w-full h-full flex flex-wrap">
-                  <div className="w-1/2 h-1/2 transition-colors duration-500" style={{ backgroundColor: colors[0] }} />
-                  <div className="w-1/2 h-1/2 transition-colors duration-500" style={{ backgroundColor: colors[1] }} />
-                  <div className="w-full h-1/3 absolute top-1/3 left-0 transition-colors duration-500" style={{ backgroundColor: colors[2], mixBlendMode: 'multiply', opacity: 0.8 }} />
-                  <div className="w-1/2 h-1/2 transition-colors duration-500" style={{ backgroundColor: colors[3] }} />
-                  <div className="w-1/2 h-1/2 transition-colors duration-500" style={{ backgroundColor: colors[4] }} />
-                  
-                  {/* Overlapping radial gradients to add organic variety before warping */}
-                  <div className="absolute inset-0 opacity-40 mix-blend-overlay" style={{
-                    background: `radial-gradient(circle at 30% 30%, ${colors[1]} 0%, transparent 60%), radial-gradient(circle at 70% 70%, ${colors[3]} 0%, transparent 60%)`
-                  }} />
-                </div>
+                {layoutStyle}
               </div>
             </div>
           );
@@ -565,13 +593,28 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         </div>
       ) : null}
 
-      {/* SVG Filter for Fluid Marble / Paint Swirls */}
+      {/* SVG Filter for Fluid Marble / Paint Swirls - Rendered dynamically for each index with a unique seed */}
       <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
         <defs>
-          <filter id="marble-filter" colorInterpolationFilters="sRGB">
-            <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="4" result="noise" />
-            <feDisplacementMap in="SourceGraphic" in2="noise" scale="350" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
+          {items.map((_, index) => (
+            <filter key={index} id={`marble-filter-${index}`} colorInterpolationFilters="sRGB">
+              {/* Vary the seed and frequency slightly to create completely distinct abstract wave patterns */}
+              <feTurbulence 
+                type="fractalNoise" 
+                baseFrequency={index % 2 === 0 ? "0.0045" : "0.0055"} 
+                numOctaves="4" 
+                seed={(index + 1) * 23} 
+                result="noise" 
+              />
+              <feDisplacementMap 
+                in="SourceGraphic" 
+                in2="noise" 
+                scale={index % 2 === 0 ? "340" : "370"} 
+                xChannelSelector="R" 
+                yChannelSelector="G" 
+              />
+            </filter>
+          ))}
         </defs>
       </svg>
     </main>
