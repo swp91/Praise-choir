@@ -190,7 +190,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       data-page-style="voku-officers"
       className="relative h-screen w-screen overflow-hidden bg-[#fffdfc] text-[#0a0a0a] selection:bg-black selection:text-white font-ko"
     >
-      {/* Dynamic Blurred Background */}
+      {/* Dynamic Blurred Background with SVG Marble Warp */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none transition-all duration-1000 ease-in-out">
         {items.map((officer, index) => {
           const isActive = index === activeIndex;
@@ -205,23 +205,21 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 zIndex: isActive ? 1 : 0,
               }}
             >
-              {/* 12px tiny container scaled up to destroy outlines and extract pure colors */}
+              {/* Warp the image using SVG displacement map for fluid irregular paint swirls */}
               <div 
-                className="absolute inset-0 flex items-center justify-center"
+                className="absolute inset-0 scale-[1.5]"
                 style={{
-                  filter: 'blur(48px) saturate(260%) contrast(150%) brightness(0.9)',
+                  filter: 'url(#marble-filter) saturate(240%) contrast(180%) brightness(0.95) blur(1.5px)',
                 }}
               >
-                <div className="relative w-3 h-3 overflow-hidden scale-[120]">
-                  <Image
-                    src={src}
-                    alt=""
-                    fill
-                    priority={isActive}
-                    sizes="12px"
-                    className="object-cover"
-                  />
-                </div>
+                <Image
+                  src={src}
+                  alt=""
+                  fill
+                  priority={isActive}
+                  sizes="100vw"
+                  className="object-cover"
+                />
               </div>
             </div>
           );
@@ -491,6 +489,16 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           </div>
         </div>
       ) : null}
+
+      {/* SVG Filter for Fluid Marble / Paint Swirls */}
+      <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
+        <defs>
+          <filter id="marble-filter" colorInterpolationFilters="sRGB">
+            <feTurbulence type="fractalNoise" baseFrequency="0.005" numOctaves="4" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="350" xChannelSelector="R" yChannelSelector="G" />
+          </filter>
+        </defs>
+      </svg>
     </main>
   );
 }
