@@ -201,9 +201,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
               key={`bg-${index}`}
               className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
               style={{
-                opacity: isActive ? 0.65 : 0,
+                opacity: isActive ? 0.75 : 0,
                 transform: 'scale(1.3)',
-                filter: 'blur(32px) saturate(180%) contrast(108%) brightness(1.02)',
+                filter: 'blur(16px) saturate(260%) contrast(150%) brightness(0.9)',
                 zIndex: isActive ? 1 : 0,
               }}
             >
