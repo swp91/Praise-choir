@@ -45,6 +45,11 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const activeIndex = wrapIndex(Math.round(reelPosition), items.length);
   const activeOfficer = items[activeIndex] ?? items[0];
 
+  const [lastActiveIndex, setLastActiveIndex] = useState(activeIndex);
+  useEffect(() => {
+    setLastActiveIndex(activeIndex);
+  }, [activeIndex]);
+
   useEffect(() => {
     document.body.classList.add('leaders-voku-page');
     return () => document.body.classList.remove('leaders-voku-page');
@@ -194,19 +199,37 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none transition-all duration-1000 ease-in-out">
         {items.map((officer, index) => {
           const isActive = index === activeIndex;
+          const isWasActive = index === lastActiveIndex;
           const src = imageUrl(officer.photo);
           if (!src) return null;
+
+          // Determine opacity, scale, blur, and z-index based on active/outgoing state
+          let opacity = 0;
+          let scale = 0.3;
+          let blurVal = '8px';
+          let zIndex = 0;
+
+          if (isActive) {
+            opacity = 0.65; // Vivid and clear!
+            scale = 1.3;
+            blurVal = '32px'; // Distinct but smooth
+            zIndex = 2; // On top of outgoing background
+          } else if (isWasActive) {
+            opacity = 0; // Fade out
+            scale = 1.3; // DO NOT shrink back, stay at full size!
+            blurVal = '32px'; // Keep same blur during fade out
+            zIndex = 1; // Below the active one but above the rest
+          }
+
           return (
             <div
               key={`bg-${index}`}
               className="absolute inset-0 transition-all duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
-                opacity: isActive ? 0.16 : 0,
-                transform: isActive ? 'scale(1.3)' : 'scale(0.3)',
-                filter: isActive 
-                  ? 'blur(28px) saturate(170%) contrast(105%) brightness(1.02)' 
-                  : 'blur(8px) saturate(100%) brightness(1)',
-                zIndex: isActive ? 1 : 0,
+                opacity,
+                transform: `scale(${scale})`,
+                filter: `blur(${blurVal}) saturate(180%) contrast(108%) brightness(1.02)`,
+                zIndex,
               }}
             >
               <Image
@@ -221,7 +244,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           );
         })}
         {/* Soft overlay gradient to ensure text readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#fffdfc]/40 via-transparent to-[#fffdfc]/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#fffdfc]/55 via-[#fffdfc]/25 to-[#fffdfc]/65 z-10" />
       </div>
       <style jsx global>{`
         body.leaders-voku-page {
