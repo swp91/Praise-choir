@@ -177,16 +177,24 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           data-testid="leaders-background-type"
           className="w-full"
         >
-          <svg viewBox="0 0 800 130" className="w-full h-auto translate-y-[18px]" preserveAspectRatio="xMidYMax meet">
+          <svg viewBox="0 0 800 240" className="w-full h-auto translate-y-[20px]" preserveAspectRatio="xMidYMax meet">
             <text
               x="50%"
-              y="110"
+              y="215"
               textAnchor="middle"
               textLength="800"
               lengthAdjust="spacingAndGlyphs"
-              className="font-en font-black uppercase"
               fill="#171717"
-              style={{ fontSize: '130px' }}
+              style={{
+                fontSize: '245px',
+                fontFamily: 'Georgia, serif',
+                fontWeight: 900,
+                stroke: '#171717',
+                strokeWidth: '8px',
+                paintOrder: 'stroke fill',
+                strokeLinejoin: 'round',
+              }}
+              className="uppercase"
             >
               OFFICERS
             </text>
