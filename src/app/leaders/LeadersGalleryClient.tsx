@@ -234,7 +234,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       `}</style>
 
       {/* Top Center: Roulette active officer name & role */}
-      <div className="absolute top-[4.5vh] sm:top-[6vh] left-1/2 -translate-x-1/2 z-20 h-[50px] overflow-hidden text-center pointer-events-none w-full flex justify-center">
+      <div className="absolute top-[120px] sm:top-[6vh] left-1/2 -translate-x-1/2 z-20 h-[50px] overflow-hidden text-center pointer-events-none w-full flex justify-center">
         <div className="relative w-full h-full">
           {items.map((officer, index) => {
             const offset = cardOffset(index, reelPosition, items.length);
@@ -389,7 +389,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       </div>
 
       <div className="pointer-events-none absolute bottom-7 left-0 right-0 z-0 overflow-hidden opacity-[0.035]">
-        <div className="flex min-w-[200%] animate-none whitespace-nowrap font-en text-[80px] font-bold uppercase leading-none tracking-normal max-[768px]:text-[52px]" style={{ animation: 'officer-marquee 38s linear infinite' }}>
+        <div className="flex min-w-[200%] animate-none whitespace-nowrap font-en text-[80px] font-bold uppercase leading-none tracking-normal max-[768px]:text-[52px]" style={{ animation: 'officer-marquee 20s linear infinite' }}>
           {Array.from({ length: 8 }).map((_, index) => (
             <span key={index} className="mr-10">
               Praise Choir Officers
