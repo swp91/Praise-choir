@@ -61,7 +61,10 @@ test('moves officer cards upward on wheel input and keeps them recyclable', asyn
   expect(afterTop).toBeLessThan(beforeTop);
 
   const beforeCycle = await page.getByTestId('officer-card').first().getAttribute('data-cycle');
-  await page.mouse.wheel(0, 900);
+  for (let i = 0; i < 4; i++) {
+    await page.mouse.wheel(0, 800);
+    await page.waitForTimeout(60);
+  }
   await page.waitForTimeout(260);
   const afterCycle = await page.getByTestId('officer-card').first().getAttribute('data-cycle');
 

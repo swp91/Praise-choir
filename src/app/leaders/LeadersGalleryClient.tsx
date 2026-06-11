@@ -25,19 +25,19 @@ const EMPTY_OFFICERS: Officer[] = [
 ];
 
 const LANES = [
-  { x: 9, start: 72, width: 29, tilt: -1.5, label: 'left-high' },
-  { x: 39, start: 96, width: 33, tilt: 0.8, label: 'right-low' },
-  { x: 62, start: 58, width: 27, tilt: -0.6, label: 'right-high' },
-  { x: 21, start: 118, width: 31, tilt: 1.2, label: 'left-low' },
-  { x: 50, start: 82, width: 36, tilt: -1.1, label: 'wide' },
+  { x: 9, start: 80, width: 29, tilt: -1.5, label: 'left-high' },
+  { x: 39, start: 90, width: 33, tilt: 0.8, label: 'right-low' },
+  { x: 62, start: 80, width: 27, tilt: -0.6, label: 'right-high' },
+  { x: 21, start: 90, width: 31, tilt: 1.2, label: 'left-low' },
+  { x: 50, start: 85, width: 36, tilt: -1.1, label: 'wide' },
 ];
 
 const MOBILE_LANES = [
-  { x: 9, start: 150, width: 60, tilt: -1.2, label: 'left-high' },
-  { x: 31, start: 212, width: 62, tilt: 0.7, label: 'right-low' },
+  { x: 9, start: 180, width: 60, tilt: -1.2, label: 'left-high' },
+  { x: 31, start: 200, width: 62, tilt: 0.7, label: 'right-low' },
   { x: 14, start: 180, width: 60, tilt: -0.5, label: 'right-high' },
-  { x: 23, start: 238, width: 61, tilt: 1.0, label: 'left-low' },
-  { x: 11, start: 198, width: 67, tilt: -0.8, label: 'wide' },
+  { x: 23, start: 200, width: 61, tilt: 1.0, label: 'left-low' },
+  { x: 11, start: 190, width: 67, tilt: -0.8, label: 'wide' },
 ];
 
 function positiveModulo(value: number, modulo: number) {
@@ -59,7 +59,8 @@ function getFrameStyle(officer: Officer, virtualIndex: number, appearanceCycle: 
 }
 
 function getRoleAdjustedLane(officer: Officer, baseLane: number, laneCount: number) {
-  if (officer.role.includes('\uCD1D\uBB34')) return positiveModulo(baseLane - 1, laneCount);
+  // Return baseLane to prevent consecutive cards from ending up in the same lane,
+  // which was causing vertical overlapping. Staggered lanes naturally prevent overlap.
   return baseLane;
 }
 
@@ -73,7 +74,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const animationRef = useRef<number | null>(null);
   const dragStartRef = useRef<number | null>(null);
   const dragOffsetStartRef = useRef(0);
-  const spacing = isMobile ? 290 : 365;
+  const spacing = isMobile ? 290 : 395;
   const cycleHeight = spacing * streamCards.length;
 
   const moveBy = useCallback((delta: number) => {
@@ -197,7 +198,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       >
         {streamCards.map(({ officer, virtualIndex }) => {
           const laneSet = isMobile ? MOBILE_LANES : LANES;
-          const exitOffset = isMobile ? 360 : 520;
+          const exitOffset = isMobile ? 400 : 1350;
           const lifecycleConfig = laneSet[virtualIndex % laneSet.length];
           const appearanceCycle = Math.max(
             0,
