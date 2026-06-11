@@ -39,8 +39,8 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
       { index: 2, delay: 500 },       // 2단계: 차콜 브라운 (#4a3e2e)
       { index: 3, delay: 450 },       // 3단계: 딥골드 (#8a6f2f)
       { index: 4, delay: 400 },       // 4단계: 실버골드 (#d4c4a0)
-      { index: 5, delay: 350 },       // 5단계: 중간 대원 사진 (/intro_5.webp) 안착 시작
-      { index: 6, delay: 1100 + 350 }, // 6단계: 최종 히어로 사진 안착 시작 (1.1초 동안 완전히 내려와 안착하고, 350ms 후에 다음 단계)
+      { index: 5, delay: 350 },       // 5단계: 중간 대원 사진 (/intro_5.webp) 낙하 시작
+      { index: 6, delay: 300 },       // 6단계: 최종 히어로 사진 낙하 시작
       { index: 7, delay: 1100 + 500 } // 7단계: 팽창 시작! (1.1초 동안 완전히 내려와 안착하고, 500ms 동안 감상 후 팽창)
     ];
 
