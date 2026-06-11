@@ -26,9 +26,9 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
     }
     return true;
   });
-  const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 6 (6단계가 최종 팽창)
+  const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 7 (7단계가 최종 팽창)
 
-  // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 1단계 + 최종 팽창)
+  // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 2단계 + 최종 팽창)
   useEffect(() => {
     if (!isIntroActive) return;
 
@@ -39,8 +39,9 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
       { index: 2, delay: 500 },       // 2단계: 차콜 브라운 (#4a3e2e)
       { index: 3, delay: 450 },       // 3단계: 딥골드 (#8a6f2f)
       { index: 4, delay: 400 },       // 4단계: 실버골드 (#d4c4a0)
-      { index: 5, delay: 350 },       // 5단계: 최종 히어로 사진 안착 시작
-      { index: 6, delay: 1100 + 500 } // 6단계: 팽창 시작! (1.1초 동안 완전히 내려와 안착하고, 500ms 동안 감상 후 팽창)
+      { index: 5, delay: 350 },       // 5단계: 중간 대원 사진 (/intro_5.webp) 안착 시작
+      { index: 6, delay: 1100 + 350 }, // 6단계: 최종 히어로 사진 안착 시작 (1.1초 동안 완전히 내려와 안착하고, 350ms 후에 다음 단계)
+      { index: 7, delay: 1100 + 500 } // 7단계: 팽창 시작! (1.1초 동안 완전히 내려와 안착하고, 500ms 동안 감상 후 팽창)
     ];
 
     const timers: NodeJS.Timeout[] = [];
@@ -309,7 +310,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
               borderRadius: "0px",
             }}
             animate={
-              montageIndex === 6
+              montageIndex === 7
                 ? {
                     width: "100vw",
                     height: "100vh",
@@ -326,7 +327,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
               ease: [0.16, 1, 0.3, 1], // 갤러리식 감속을 재현하는 초고격조 expo.out 베지에 곡선
             }}
             onAnimationComplete={(definition) => {
-              if (montageIndex === 6 && typeof definition === 'object' && definition !== null && 'width' in definition && definition.width === "100vw") {
+              if (montageIndex === 7 && typeof definition === 'object' && definition !== null && 'width' in definition && definition.width === "100vw") {
                 setIsIntroActive(false);
                 if (typeof window !== 'undefined') {
                   (window as unknown as { __hasSeenIntro?: boolean }).__hasSeenIntro = true;
@@ -368,10 +369,24 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
               className="absolute inset-0 bg-[#d4c4a0]"
             />
 
-            {/* 5단계: 최종 히어로 사진 레이어 */}
+            {/* 5단계: 중간 대원 사진 레이어 (intro_5.webp) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 5 ? { y: 0 } : { y: "-100%" }}
+              transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
+              className="absolute inset-0 bg-center bg-cover overflow-hidden"
+              style={{
+                backgroundColor: '#4a3e2e',
+                backgroundImage: "url('/intro_5.webp')",
+              }}
+            >
+              <div className="absolute inset-0 bg-black/15 z-10 pointer-events-none" />
+            </motion.div>
+
+            {/* 6단계: 최종 히어로 사진 레이어 */}
+            <motion.div
+              initial={{ y: "-100%" }}
+              animate={montageIndex >= 6 ? { y: 0 } : { y: "-100%" }}
               transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
               className="absolute inset-0 bg-center bg-cover overflow-hidden"
               style={{
@@ -383,16 +398,16 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
               <motion.div
                 initial={{ scale: 1.15 }}
                 animate={
-                  montageIndex === 6
+                  montageIndex === 7
                     ? { scale: 1.0 }
-                    : montageIndex >= 5
+                    : montageIndex >= 6
                     ? { scale: 1.0 }
                     : { scale: 1.15 }
                 }
                 transition={{
-                  duration: montageIndex === 6 ? 0.95 : 1.1,
-                  ease: montageIndex === 6 ? [0.16, 1, 0.3, 1] : "easeOut",
-                  delay: montageIndex === 6 ? 0 : 0.05
+                  duration: montageIndex === 7 ? 0.95 : 1.1,
+                  ease: montageIndex === 7 ? [0.16, 1, 0.3, 1] : "easeOut",
+                  delay: montageIndex === 7 ? 0 : 0.05
                 }}
                 className="w-full h-full bg-inherit bg-center bg-cover"
                 style={{
