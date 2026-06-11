@@ -199,22 +199,30 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           return (
             <div
               key={`bg-${index}`}
-              className="absolute inset-0 transition-opacity duration-1000 ease-in-out"
+              className="absolute inset-0 transition-opacity duration-1000 ease-in-out overflow-hidden"
               style={{
                 opacity: isActive ? 0.75 : 0,
-                transform: 'scale(1.3)',
-                filter: 'blur(16px) saturate(260%) contrast(150%) brightness(0.9)',
                 zIndex: isActive ? 1 : 0,
               }}
             >
-              <Image
-                src={src}
-                alt=""
-                fill
-                priority={isActive}
-                sizes="100vw"
-                className="object-cover"
-              />
+              {/* 12px tiny container scaled up to destroy outlines and extract pure colors */}
+              <div 
+                className="absolute inset-0 flex items-center justify-center"
+                style={{
+                  filter: 'blur(48px) saturate(260%) contrast(150%) brightness(0.9)',
+                }}
+              >
+                <div className="relative w-3 h-3 overflow-hidden scale-[120]">
+                  <Image
+                    src={src}
+                    alt=""
+                    fill
+                    priority={isActive}
+                    sizes="12px"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
             </div>
           );
         })}
