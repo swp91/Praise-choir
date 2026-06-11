@@ -555,7 +555,7 @@ export default function PracticeClient({ data }: Props) {
   );
 
   return (
-    <div className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-cream px-0 pt-10 md:pt-14 pb-8 select-none">
+    <div className="relative w-full h-[100dvh] max-h-[100dvh] flex flex-col justify-between overflow-hidden bg-cream px-0 pt-6 md:pt-14 pb-6 select-none">
       
       {/* 1. 백그라운드 라틴어 마키 연출 */}
       <div className="absolute top-8 left-0 right-0 overflow-hidden pointer-events-none select-none leading-none z-0">
@@ -569,7 +569,7 @@ export default function PracticeClient({ data }: Props) {
       </div>
 
       {/* 2. 중앙 상단 타이틀 */}
-      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0 mt-14 md:mt-6 mb-4">
+      <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0 mt-8 md:mt-6 mb-2">
         <h1 className="font-en text-[clamp(32px,3.8vw,48px)] font-bold leading-none tracking-normal text-ink">
           Hours &amp; Aims
         </h1>
@@ -762,10 +762,10 @@ export default function PracticeClient({ data }: Props) {
       {/* ==========================================
           [모바일 세로형 북플립 뷰] max-width: 880px
          ========================================== */}
-      <div className="min-[881px]:hidden flex flex-col items-center justify-start flex-1 w-full max-w-md mx-auto px-6 relative z-10 pt-14 pb-14">
+      <div className="min-[881px]:hidden flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 py-3">
         
         {/* Book Wrapper */}
-        <div className="relative w-full max-w-[380px] aspect-[340/480] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
+        <div className="relative w-full max-w-[320px] max-h-[50vh] aspect-[340/480] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
           
 
 
