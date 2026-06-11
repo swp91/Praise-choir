@@ -179,9 +179,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         >
           <svg viewBox="0 0 800 360" className="w-full h-auto translate-y-[20px]" preserveAspectRatio="xMidYMax meet">
             <text
-              x="50%"
+              x="0"
               y="150"
-              textAnchor="middle"
+              textAnchor="start"
               fill="#171717"
               style={{
                 fontSize: '170px',
