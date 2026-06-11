@@ -201,13 +201,13 @@ export default function EventsSplitClient({
           {/* Years Roller List Container */}
           <div 
             style={{
-              ['--bar-h-md' as any]: 'clamp(70px, 9.5vw, 95px)',
-              ['--bar-h-lg' as any]: 'clamp(100px, 11vw, 150px)',
-              ['--fs-md' as any]: 'clamp(55px, 7.5vw, 75px)',
-              ['--fs-lg' as any]: 'clamp(80px, 8.5vw, 115px)',
-              ['--ty-md' as any]: 'clamp(75px, 10vw, 100px)',
-              ['--ty-lg' as any]: 'clamp(105px, 11.5vw, 160px)',
-            }}
+              '--bar-h-md': 'clamp(70px, 9.5vw, 95px)',
+              '--bar-h-lg': 'clamp(100px, 11vw, 150px)',
+              '--fs-md': 'clamp(55px, 7.5vw, 75px)',
+              '--fs-lg': 'clamp(80px, 8.5vw, 115px)',
+              '--ty-md': 'clamp(75px, 10vw, 100px)',
+              '--ty-lg': 'clamp(105px, 11.5vw, 160px)',
+            } as React.CSSProperties}
             className="relative h-48 md:h-[40vw] lg:h-[35vw] w-full flex items-center justify-center overflow-hidden pointer-events-auto z-20"
           >
             {/* Center Focus Highlight Bar */}
@@ -242,8 +242,8 @@ export default function EventsSplitClient({
                       transform: `translateY(calc(-50% + var(--ty))) scale(${scale}) rotateX(${rotateX}deg)`,
                       opacity: opacity,
                       top: '50%',
-                      ['--offset' as any]: offset,
-                    }}
+                      '--offset': offset,
+                    } as React.CSSProperties}
                     className="absolute left-0 right-0 flex flex-col items-center justify-center transition-all duration-500 ease-[0.16,1,0.3,1] backface-hidden [--ty:calc(var(--offset)*13.5vw)] sm:[--ty:calc(var(--offset)*9.5vw)] md:[--ty:calc(var(--offset)*var(--ty-md))] lg:[--ty:calc(var(--offset)*var(--ty-lg))]"
                   >
                     <span 

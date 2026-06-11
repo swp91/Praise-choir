@@ -50,6 +50,18 @@ type GalleryItemRow = {
   gallery_albums?: { key: string } | { key: string }[] | null;
 };
 
+type EventRow = {
+  year: number;
+  date_label: string | null;
+  title: string;
+  detail: string | null;
+  is_highlight: boolean;
+  event_date: string | null;
+  month: number | null;
+  sort_order: number | null;
+  created_at: string | null;
+};
+
 const publicStorageBase = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public`;
 
 function mediaUrl(asset?: MediaAsset | null) {
@@ -346,17 +358,7 @@ export async function getEventsData() {
     'events',
   );
 
-  const toEvent = (event: {
-    year: number;
-    date_label: string | null;
-    title: string;
-    detail: string | null;
-    is_highlight: boolean;
-    event_date: string | null;
-    month: number | null;
-    sort_order: number | null;
-    created_at: string | null;
-  }) =>
+  const toEvent = (event: EventRow) =>
     ({
       year: event.year,
       when: formatPublicEventDate({
@@ -379,7 +381,7 @@ export async function getEventsData() {
       sortOrder: event.sort_order ?? 0,
       createdAt: event.created_at,
     }))
-  ).map((e) => toEvent(e as any));
+  ).map((e) => toEvent(e as EventRow));
 
   return {
     yearsList: finalYearsList,

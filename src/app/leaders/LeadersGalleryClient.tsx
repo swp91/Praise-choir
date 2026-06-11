@@ -2,7 +2,6 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { imageUrl } from '@/lib/media';
 import type { Officer } from '@/lib/types';
 
@@ -33,7 +32,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const items = officers.length ? officers : EMPTY_OFFICERS;
   const [reelPosition, setReelPosition] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
+  const [isPaused] = useState(false);
   const currentPositionRef = useRef(0);
   const targetPositionRef = useRef(0);
   const animationRef = useRef<number | null>(null);
