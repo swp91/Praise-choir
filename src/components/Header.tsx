@@ -369,10 +369,14 @@ export default function Header() {
                       data-active={active}
                       className="menu-item group select-none bg-transparent border-0 p-0 text-left cursor-pointer whitespace-nowrap font-en text-[clamp(28px,4.8vw,54px)] uppercase tracking-[0.04em] relative z-10"
                     >
-                      <div className="flex items-baseline gap-3.5 md:gap-5">
-                        {renderSplitText(p.num, active, false, true)}
-                        {renderSplitText(p.en, active, false, false)}
-                        {renderSplitText(p.ko, active, true, false)}
+                      <div className="flex flex-col md:flex-row md:items-baseline gap-0.5 md:gap-5">
+                        <div className="flex items-baseline gap-2.5 md:gap-3.5">
+                          {renderSplitText(p.num, active, false, true)}
+                          {renderSplitText(p.en, active, false, false)}
+                        </div>
+                        <div className="pl-[28px] md:pl-0 md:inline-block">
+                          {renderSplitText(p.ko, active, true, false)}
+                        </div>
                       </div>
                     </button>
                   </li>
