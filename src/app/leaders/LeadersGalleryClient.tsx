@@ -199,12 +199,14 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
           return (
             <div
               key={`bg-${index}`}
-              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                isActive ? 'opacity-[0.14]' : 'opacity-0'
-              }`}
+              className="absolute inset-0 transition-all duration-[1400ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
               style={{
-                filter: 'blur(72px) saturate(140%)',
-                transform: 'scale(1.2)', // Prevents white edges from blur
+                opacity: isActive ? 0.16 : 0,
+                transform: isActive ? 'scale(1.3)' : 'scale(0.3)',
+                filter: isActive 
+                  ? 'blur(80px) saturate(160%) brightness(1.05)' 
+                  : 'blur(24px) saturate(100%) brightness(1)',
+                zIndex: isActive ? 1 : 0,
               }}
             >
               <Image
