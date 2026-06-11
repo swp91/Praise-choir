@@ -347,9 +347,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
                 backgroundColor: '#2a2620',
                 backgroundImage: "url('/intro_1.webp')",
               }}
-            >
-              <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
-            </motion.div>
+            />
 
             {/* 2단계: intro_2.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
             <motion.div
@@ -361,9 +359,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
                 backgroundColor: '#4a3e2e',
                 backgroundImage: "url('/intro_2.webp')",
               }}
-            >
-              <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
-            </motion.div>
+            />
 
             {/* 3단계: intro_3.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
             <motion.div
@@ -375,9 +371,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
                 backgroundColor: '#8a6f2f',
                 backgroundImage: "url('/intro_3.webp')",
               }}
-            >
-              <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
-            </motion.div>
+            />
 
             {/* 4단계: intro_4.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
             <motion.div
@@ -389,9 +383,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
                 backgroundColor: '#d4c4a0',
                 backgroundImage: "url('/intro_4.webp')",
               }}
-            >
-              <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
-            </motion.div>
+            />
 
             {/* 5단계: 중간 대원 사진 레이어 (intro_5.webp) */}
             <motion.div
@@ -403,9 +395,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
                 backgroundColor: '#4a3e2e',
                 backgroundImage: "url('/intro_5.webp')",
               }}
-            >
-              <div className="absolute inset-0 bg-black/15 z-10 pointer-events-none" />
-            </motion.div>
+            />
 
             {/* 6단계: 최종 히어로 사진 레이어 */}
             <motion.div
@@ -439,7 +429,6 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
                   backgroundPosition: home.heroBackgroundPosition,
                 }}
               />
-              <div className="absolute inset-0 bg-black/15 z-10 pointer-events-none" />
             </motion.div>
             </motion.div>
           </motion.div>
