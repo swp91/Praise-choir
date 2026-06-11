@@ -181,12 +181,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
         </div>
       </section>
 
-      <section className="pointer-events-none absolute left-8 top-9 z-20 max-w-[310px] font-ko text-[14px] leading-[1.25] text-[#171717] max-[720px]:left-5 max-[720px]:top-20 max-[720px]:max-w-[230px] max-[720px]:text-[12px]">
-        <p>프레이즈찬양단을 섬기는 임원진입니다.</p>
-        <p>
-          스크롤하면 <strong className="font-black">사진만</strong> 계속 올라갑니다.
-        </p>
-      </section>
+
 
       <section
         aria-label="Infinite officer portrait stream"
