@@ -40,6 +40,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const dragTargetStartRef = useRef(0);
   const dragMovedRef = useRef(false);
   const dragDivisorRef = useRef(150);
+  const wheelTimeoutRef = useRef<number | null>(null);
 
   const activeIndex = wrapIndex(Math.round(reelPosition), items.length);
   const activeOfficer = items[activeIndex] ?? items[0];
@@ -85,6 +86,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     animationRef.current = window.requestAnimationFrame(animate);
     return () => {
       if (animationRef.current) window.cancelAnimationFrame(animationRef.current);
+      if (wheelTimeoutRef.current) window.clearTimeout(wheelTimeoutRef.current);
     };
   }, []);
 
@@ -119,6 +121,13 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
       event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1);
     const wheelStep = Math.max(-1.2, Math.min(1.2, normalizedDelta * 0.025));
     targetPositionRef.current += wheelStep;
+
+    if (wheelTimeoutRef.current) {
+      window.clearTimeout(wheelTimeoutRef.current);
+    }
+    wheelTimeoutRef.current = window.setTimeout(() => {
+      targetPositionRef.current = Math.round(targetPositionRef.current);
+    }, 150);
   };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLElement>) => {
@@ -158,6 +167,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
     const distance = event.clientX - dragStartRef.current;
     dragStartRef.current = null;
+
+    targetPositionRef.current = Math.round(targetPositionRef.current);
 
     if (Math.abs(distance) <= 8) return;
   };
