@@ -287,15 +287,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
             const imageSrc = imageUrl(officer.photo);
 
             return (
-              <button
+              <div
                 key={`${officer.name}-${index}`}
-                type="button"
-                data-testid="officer-card"
-                data-reel-offset={absOffset.toFixed(4)}
-                data-reel-signed-offset={signedSlot.toFixed(4)}
-                data-reel-scale={scale.toFixed(4)}
-                data-slot={absSlot}
-                className="group absolute aspect-square overflow-hidden bg-black text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-black"
+                className="absolute aspect-square select-none"
                 style={{
                   width,
                   zIndex,
@@ -305,42 +299,58 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                   transform: `translate3d(calc(-50% + ${clamped.toFixed(4)} * clamp(var(--min-card-step, 48px), 12.5vw, 190px)), calc(-50% + ${y}px), 0) scale(${scale})`,
                   filter: 'none',
                 }}
-                aria-label={`Show ${officer.name}`}
-                aria-current={isActive ? 'true' : undefined}
-                onClick={() => {
-                  if (dragMovedRef.current) return;
-                  if (isActive) {
-                    setDetailsOpen(true);
-                  } else {
-                    setDetailsOpen(false);
-                    targetPositionRef.current += offset;
-                  }
-                }}
               >
-                {imageSrc ? (
-                  <Image
-                    src={imageSrc}
-                    alt={officer.name}
-                    fill
-                    priority={absOffset < 3}
-                    sizes="(max-width: 768px) 60vw, 310px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-black">
-                    <span className="font-en text-[clamp(42px,6vw,82px)] font-semibold uppercase tracking-normal text-white">
-                      {officer.name.slice(0, 1)}
-                    </span>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  data-testid="officer-card"
+                  data-reel-offset={absOffset.toFixed(4)}
+                  data-reel-signed-offset={signedSlot.toFixed(4)}
+                  data-reel-scale={scale.toFixed(4)}
+                  data-slot={absSlot}
+                  className="group w-full h-full overflow-hidden bg-black text-white shadow-none outline-none focus-visible:ring-2 focus-visible:ring-black relative"
+                  aria-label={`Show ${officer.name}`}
+                  aria-current={isActive ? 'true' : undefined}
+                  onClick={() => {
+                    if (dragMovedRef.current) return;
+                    if (isActive) {
+                      setDetailsOpen(true);
+                    } else {
+                      setDetailsOpen(false);
+                      targetPositionRef.current += offset;
+                    }
+                  }}
+                >
+                  {imageSrc ? (
+                    <Image
+                      src={imageSrc}
+                      alt={officer.name}
+                      fill
+                      priority={absOffset < 3}
+                      sizes="(max-width: 768px) 60vw, 310px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-black">
+                      <span className="font-en text-[clamp(42px,6vw,82px)] font-semibold uppercase tracking-normal text-white">
+                        {officer.name.slice(0, 1)}
+                      </span>
+                    </div>
+                  )}
 
-                <span className="absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/10" />
-                {isActive ? (
-                  <span className="absolute inset-x-0 top-1/2 -translate-y-1/2 px-5 text-center font-en text-[clamp(18px,2vw,28px)] font-semibold uppercase leading-none tracking-normal text-white mix-blend-difference">
+                  <span className="absolute inset-0 bg-black/0 transition duration-500 group-hover:bg-black/10" />
+                </button>
+
+                {/* Role text below the photo card */}
+                <div
+                  className={`absolute left-0 right-0 top-[calc(100%+14px)] flex justify-center transition-all duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                    isActive ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-2 scale-95 pointer-events-none'
+                  }`}
+                >
+                  <span className="bg-[#f5eed9]/90 px-3.5 py-1 rounded-full border border-[#b89a5a]/30 text-[#8a6f2f] text-[clamp(13px,1.4vw,17px)] font-bold font-ko tracking-widest shadow-[0_2px_8px_rgba(184,154,90,0.08)]">
                     {officer.role}
                   </span>
-                ) : null}
-              </button>
+                </div>
+              </div>
             );
           })}
         </div>
