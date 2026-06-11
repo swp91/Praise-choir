@@ -337,37 +337,61 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
             }}
             className="relative overflow-hidden flex items-center justify-center bg-transparent"
           >
-            {/* 1단계: 다크잉크 (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
+            {/* 1단계: intro_1.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 1 ? { y: 0 } : { y: "-100%" }}
               transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-              className="absolute inset-0 bg-[#2a2620]"
-            />
+              className="absolute inset-0 bg-center bg-cover overflow-hidden"
+              style={{
+                backgroundColor: '#2a2620',
+                backgroundImage: "url('/intro_1.webp')",
+              }}
+            >
+              <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
+            </motion.div>
 
-            {/* 2단계: 차콜 브라운 (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
+            {/* 2단계: intro_2.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 2 ? { y: 0 } : { y: "-100%" }}
               transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-              className="absolute inset-0 bg-[#4a3e2e]"
-            />
+              className="absolute inset-0 bg-center bg-cover overflow-hidden"
+              style={{
+                backgroundColor: '#4a3e2e',
+                backgroundImage: "url('/intro_2.webp')",
+              }}
+            >
+              <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
+            </motion.div>
 
-            {/* 3단계: 딥골드 (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
+            {/* 3단계: intro_3.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 3 ? { y: 0 } : { y: "-100%" }}
               transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-              className="absolute inset-0 bg-[#8a6f2f]"
-            />
+              className="absolute inset-0 bg-center bg-cover overflow-hidden"
+              style={{
+                backgroundColor: '#8a6f2f',
+                backgroundImage: "url('/intro_3.webp')",
+              }}
+            >
+              <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
+            </motion.div>
 
-            {/* 4단계: 실버골드 (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
+            {/* 4단계: intro_4.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
             <motion.div
               initial={{ y: "-100%" }}
               animate={montageIndex >= 4 ? { y: 0 } : { y: "-100%" }}
               transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-              className="absolute inset-0 bg-[#d4c4a0]"
-            />
+              className="absolute inset-0 bg-center bg-cover overflow-hidden"
+              style={{
+                backgroundColor: '#d4c4a0',
+                backgroundImage: "url('/intro_4.webp')",
+              }}
+            >
+              <div className="absolute inset-0 bg-black/10 z-10 pointer-events-none" />
+            </motion.div>
 
             {/* 5단계: 중간 대원 사진 레이어 (intro_5.webp) */}
             <motion.div
