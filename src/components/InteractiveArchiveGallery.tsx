@@ -71,6 +71,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const overlayImageRef = useRef<HTMLImageElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
   const photoRefs = useRef<HTMLSpanElement[]>([]);
   const positionRef = useRef(0);
   const velocityRef = useRef(0);
@@ -151,10 +152,13 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
 
     const overlay = overlayRef.current;
     const image = overlayImageRef.current;
+    const title = titleRef.current;
     const target = targetRect(active.rect);
 
     closingRef.current = false;
     gsap.killTweensOf([overlay, image]);
+    if (title) gsap.killTweensOf(title);
+
     gsap.set(overlay, { autoAlpha: 1 });
     gsap.set(image, {
       left: active.rect.left,
@@ -162,21 +166,32 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       width: active.rect.width,
       height: active.rect.height,
     });
-    gsap
-      .timeline()
-      .fromTo(
-        overlay,
-        { backgroundColor: 'rgba(247,242,229,0)' },
-        { backgroundColor: 'rgba(247,242,229,1)', duration: 0.5, ease: 'power2.out' },
-      )
-      .to(image, {
-        left: target.left,
-        top: target.top,
-        width: target.width,
-        height: target.height,
-        duration: 0.85,
-        ease: 'expo.out',
-      }, 0.3);
+    if (title) {
+      gsap.set(title, { autoAlpha: 0, y: 15 });
+    }
+
+    const tl = gsap.timeline();
+    tl.fromTo(
+      overlay,
+      { backgroundColor: 'rgba(247,242,229,0)' },
+      { backgroundColor: 'rgba(247,242,229,1)', duration: 0.5, ease: 'power2.out' },
+    ).to(image, {
+      left: target.left,
+      top: target.top,
+      width: target.width,
+      height: target.height,
+      duration: 0.85,
+      ease: 'expo.out',
+    }, 0.3);
+
+    if (title) {
+      tl.to(title, {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.45,
+        ease: 'power2.out',
+      }, 1.15); // 0.3 + 0.85 = 1.15 (exactly when image animation completes)
+    }
   }, [active]);
 
   function openPhoto(photo: Photo, element: HTMLButtonElement) {
@@ -205,27 +220,39 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
     closingRef.current = true;
     const overlay = overlayRef.current;
     const image = overlayImageRef.current;
+    const title = titleRef.current;
     gsap.killTweensOf([overlay, image]);
-    gsap
-      .timeline({
-        onComplete: () => {
-          closingRef.current = false;
-          setActive(null);
-        },
-      })
-      .to(image, {
-        left: active.rect.left,
-        top: active.rect.top,
-        width: active.rect.width,
-        height: active.rect.height,
-        duration: 0.68,
-        ease: 'expo.inOut',
-      })
-      .to(overlay, {
-        backgroundColor: 'rgba(247,242,229,0)',
-        duration: 0.45,
+    if (title) gsap.killTweensOf(title);
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        closingRef.current = false;
+        setActive(null);
+      },
+    });
+
+    if (title) {
+      tl.to(title, {
+        autoAlpha: 0,
+        y: 10,
+        duration: 0.2,
         ease: 'power2.out',
-      }, 0.6);
+      }, 0);
+    }
+
+    tl.to(image, {
+      left: active.rect.left,
+      top: active.rect.top,
+      width: active.rect.width,
+      height: active.rect.height,
+      duration: 0.68,
+      ease: 'expo.inOut',
+    }, 0)
+    .to(overlay, {
+      backgroundColor: 'rgba(247,242,229,0)',
+      duration: 0.45,
+      ease: 'power2.out',
+    }, 0.4);
   }, [active]);
 
   // Handle hardware back/gesture popstate events
@@ -348,12 +375,25 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
               onClick={(event) => event.stopPropagation()}
             />
           ) : null}
-          <h2
-            id="archive-active-title"
-            className="absolute inset-x-0 bottom-10 z-20 text-center font-ko text-[18px] font-bold text-ink"
+          <div
+            ref={titleRef}
+            className="absolute inset-x-0 z-20 text-center font-ko pointer-events-none select-none opacity-0"
+            style={{
+              top: active ? `${targetRect(active.rect).top + targetRect(active.rect).height + 24}px` : 'auto'
+            }}
           >
-            {active.photo.title}
-          </h2>
+            <h2
+              id="archive-active-title"
+              className="text-[24px] md:text-[28px] font-bold text-ink leading-snug"
+            >
+              {active.photo.title}
+            </h2>
+            {active.photo.date ? (
+              <p className="font-en italic text-gold-deep text-[13px] md:text-[14px] mt-1.5">
+                {active.photo.date}
+              </p>
+            ) : null}
+          </div>
         </div>
       ) : null}
     </section>
