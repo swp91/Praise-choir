@@ -204,8 +204,8 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 opacity: isActive ? 0.16 : 0,
                 transform: isActive ? 'scale(1.3)' : 'scale(0.3)',
                 filter: isActive 
-                  ? 'blur(80px) saturate(160%) brightness(1.05)' 
-                  : 'blur(24px) saturate(100%) brightness(1)',
+                  ? 'blur(28px) saturate(170%) contrast(105%) brightness(1.02)' 
+                  : 'blur(8px) saturate(100%) brightness(1)',
                 zIndex: isActive ? 1 : 0,
               }}
             >
