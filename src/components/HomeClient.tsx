@@ -583,12 +583,6 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
               “오직 하나님을 기뻐함으로 <br /> 승리하는 프레이즈”
             </h2>
             
-            {home.themeEn && (
-              <p className="font-en italic text-gold-deep text-[15.5px] opacity-90 tracking-wide font-medium">
-                &ldquo;{home.themeEn}&rdquo;
-              </p>
-            )}
-
             {/* 위에서 아래로 그려지는 골드 드롭 실선 */}
             <div className="mt-14 w-[1px] h-16 bg-gradient-to-b from-gold to-transparent" />
           </div>
