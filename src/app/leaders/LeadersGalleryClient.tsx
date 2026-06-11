@@ -34,10 +34,10 @@ const LANES = [
 
 const MOBILE_LANES = [
   { x: 9, start: 180, width: 60, tilt: -1.2, label: 'left-high' },
-  { x: 31, start: 200, width: 62, tilt: 0.7, label: 'right-low' },
+  { x: 31, start: 190, width: 62, tilt: 0.7, label: 'right-low' },
   { x: 14, start: 180, width: 60, tilt: -0.5, label: 'right-high' },
-  { x: 23, start: 200, width: 61, tilt: 1.0, label: 'left-low' },
-  { x: 11, start: 190, width: 67, tilt: -0.8, label: 'wide' },
+  { x: 23, start: 190, width: 61, tilt: 1.0, label: 'left-low' },
+  { x: 11, start: 185, width: 67, tilt: -0.8, label: 'wide' },
 ];
 
 function positiveModulo(value: number, modulo: number) {
@@ -74,7 +74,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const animationRef = useRef<number | null>(null);
   const dragStartRef = useRef<number | null>(null);
   const dragOffsetStartRef = useRef(0);
-  const spacing = isMobile ? 290 : 395;
+  const spacing = isMobile ? 330 : 395;
   const cycleHeight = spacing * streamCards.length;
 
   const moveBy = useCallback((delta: number) => {
