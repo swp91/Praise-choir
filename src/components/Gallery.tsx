@@ -133,18 +133,23 @@ export default function Gallery({ photos }: { photos: Photo[] }) {
           className="fixed inset-0 bg-cream/95 backdrop-blur-sm z-200 flex items-center justify-center p-6"
           onClick={e => { if (e.target === e.currentTarget) closePhoto(); }}
         >
-          <div className="max-w-200 w-full bg-card border border-gold p-3.5 relative">
-            <div className="relative max-h-[72vh] overflow-hidden">
+          <div className="max-w-200 w-full flex flex-col items-center relative" onClick={e => { if (e.target === e.currentTarget) closePhoto(); }}>
+            <div className="relative max-h-[72vh] w-full overflow-hidden flex items-center justify-center">
               {active.url ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={active.url} alt={active.title} className="mx-auto block max-h-[68vh] w-full h-auto object-contain" />
+                <img 
+                  src={active.url} 
+                  alt={active.title} 
+                  className="block w-full h-auto max-h-[72vh] object-contain" 
+                  onClick={e => e.stopPropagation()}
+                />
               ) : (
                 <Placeholder photo={active} />
               )}
             </div>
-            <div className="pt-3.5 px-1.5 pb-1 text-center">
-              <h3 id="gallery-modal-title" className="font-ko text-[20px] font-bold mb-1">{active.title}</h3>
-              <p className="font-en italic text-gold-deep">{active.date}</p>
+            <div className="pt-4 text-center select-none pointer-events-none">
+              <h3 id="gallery-modal-title" className="font-ko text-[18px] md:text-[20px] font-bold mb-1 text-ink">{active.title}</h3>
+              <p className="font-en italic text-gold-deep text-[13px]">{active.date}</p>
             </div>
           </div>
         </div>
