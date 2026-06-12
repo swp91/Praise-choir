@@ -150,7 +150,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   return (
     <main
       data-page-style="facil-officers"
-      className="relative h-screen w-screen overflow-hidden bg-[#fdf9f0] text-[#171717] selection:bg-[#d9ff3f] selection:text-black"
+      className="relative h-screen w-screen overflow-hidden bg-[#fdf9f0] text-[#171717] selection:bg-[#b89a5a] selection:text-[#fdf9f0]"
     >
       <style jsx global>{`
         body.leaders-facil-page {
@@ -301,13 +301,13 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
                 >
                   <span
                     data-testid="officer-role-label"
-                    className="max-w-[46%] bg-[#d9ff3f] px-3 py-2 font-ko text-[16px] font-black leading-none text-[#595959] shadow-[0_8px_16px_rgba(0,0,0,0.08)] sm:text-[20px]"
+                    className="max-w-[46%] bg-[#f5eed9]/95 px-3 py-2 font-ko text-[16px] font-black leading-none text-[#8a6f2f] shadow-[0_8px_16px_rgba(42,38,32,0.08)] ring-1 ring-[#b89a5a]/25 sm:text-[20px]"
                   >
                     {officer.role}
                   </span>
                   <span
                     data-testid="officer-name-label"
-                    className="max-w-[52%] bg-[#d9ff3f] px-3 py-1.5 font-ko text-[13px] font-bold leading-none text-[#171717] shadow-[0_8px_16px_rgba(0,0,0,0.08)] sm:text-[16px]"
+                    className="max-w-[52%] bg-[#fdf9f0]/95 px-3 py-1.5 font-ko text-[13px] font-bold leading-none text-[#2a2620] shadow-[0_8px_16px_rgba(42,38,32,0.08)] ring-1 ring-[#b89a5a]/20 sm:text-[16px]"
                   >
                     {officer.name}
                   </span>
