@@ -598,9 +598,6 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
             <h2 className="font-ko text-[clamp(24px,3.2vw,40px)] font-bold text-ink leading-[1.48] tracking-wide mb-6">
               “오직 하나님을 기뻐함으로 <br /> 승리하는 프레이즈”
             </h2>
-            
-            {/* 위에서 아래로 그려지는 골드 드롭 실선 */}
-            <div className="mt-14 w-[1px] h-16 bg-gradient-to-b from-gold to-transparent" />
           </div>
         </motion.section>
 
