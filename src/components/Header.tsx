@@ -50,16 +50,20 @@ export default function Header() {
 
     setIsHeaderReady(false);
 
+    const showHeader = () => {
+      setIsHeaderReady(true);
+    };
+
     const scheduleHeader = () => {
       if (readyId) clearTimeout(readyId);
-      readyId = setTimeout(() => setIsHeaderReady(true), 2850);
+      readyId = setTimeout(showHeader, 150); // 150ms delay to align perfectly with the first word fade-in
     };
 
     if (typeof window !== 'undefined' && (window as unknown as { __hasSeenIntro?: boolean }).__hasSeenIntro) {
-      scheduleHeader();
+      showHeader();
     } else {
       window.addEventListener('intro-complete', scheduleHeader);
-      fallbackId = setTimeout(scheduleHeader, 8000);
+      fallbackId = setTimeout(scheduleHeader, 6000);
     }
 
     return () => {
