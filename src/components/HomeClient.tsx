@@ -27,6 +27,11 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
     return true;
   });
   const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 7 (7단계가 최종 팽창)
+  const [isFinalStepReady, setIsFinalStepReady] = useState(false);
+  const [isFinalStepActive, setIsFinalStepActive] = useState(false);
+  const [isAutoAdvancingFinalStep, setIsAutoAdvancingFinalStep] = useState(false);
+  const touchStartYRef = useRef<number | null>(null);
+  const autoScrollFrameRef = useRef<number | null>(null);
 
   // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 2단계 + 최종 팽창)
   useEffect(() => {
@@ -165,6 +170,122 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
   // 5. 입체적인 종형 조명 정밀 정렬을 위한 3D 가상 공간 깊이 틸트
   const rotateX = useTransform(scrollYProgress, [0, 0.48, 1], [0, 8, 8], { clamp: true });
   const translateZ = useTransform(scrollYProgress, [0, 0.48, 1], [0, 60, 60], { clamp: true });
+
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on('change', (latest) => {
+      setIsFinalStepReady(latest > 0.92);
+
+      if (isAutoAdvancingFinalStep && latest > 0.985) {
+        setIsFinalStepActive(true);
+        setIsAutoAdvancingFinalStep(false);
+      }
+
+      if (latest < 0.84) {
+        setIsFinalStepActive(false);
+        setIsAutoAdvancingFinalStep(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [isAutoAdvancingFinalStep, scrollYProgress]);
+
+  useEffect(() => {
+    if (isIntroActive) return;
+
+    const startFinalSequence = (event: Event) => {
+      if (scrollYProgress.get() > 0.08 || isFinalStepActive || isAutoAdvancingFinalStep) return;
+
+      event.preventDefault();
+      setIsFinalStepActive(false);
+      setIsAutoAdvancingFinalStep(true);
+
+      if (autoScrollFrameRef.current !== null) {
+        cancelAnimationFrame(autoScrollFrameRef.current);
+      }
+
+      const startY = window.scrollY;
+      const targetY = document.documentElement.scrollHeight - window.innerHeight;
+      const distance = targetY - startY;
+      const duration = 3200;
+      const startedAt = performance.now();
+      const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
+
+      const animateScroll = (now: number) => {
+        const elapsed = now - startedAt;
+        const progress = Math.min(elapsed / duration, 1);
+        window.scrollTo(0, startY + distance * easeInOutSine(progress));
+
+        if (progress < 1) {
+          autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
+          return;
+        }
+
+        autoScrollFrameRef.current = null;
+        setIsFinalStepActive(true);
+        setIsAutoAdvancingFinalStep(false);
+      };
+
+      autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      if (event.deltaY > 20) {
+        startFinalSequence(event);
+      }
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartYRef.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      const startY = touchStartYRef.current;
+      if (startY === null) return;
+
+      const currentY = event.touches[0]?.clientY ?? startY;
+      if (startY - currentY > 30) {
+        startFinalSequence(event);
+        touchStartYRef.current = null;
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      if (autoScrollFrameRef.current !== null) {
+        cancelAnimationFrame(autoScrollFrameRef.current);
+      }
+    };
+  }, [isAutoAdvancingFinalStep, isFinalStepActive, isIntroActive, scrollYProgress]);
+
+  useEffect(() => {
+    if (isIntroActive) return;
+
+    const handleWheel = (event: WheelEvent) => {
+      if (!isFinalStepReady || Math.abs(event.deltaY) < 20) return;
+
+      if (event.deltaY > 0 && !isFinalStepActive) {
+        event.preventDefault();
+        setIsFinalStepActive(true);
+      }
+
+      if (event.deltaY < 0 && isFinalStepActive) {
+        event.preventDefault();
+        setIsFinalStepActive(false);
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [isFinalStepActive, isFinalStepReady, isIntroActive]);
 
   // 6. 고해상도 HTML5 Canvas 기반 단일 '성스러운 태양기둥 (Sun Pillar / Light Shaft)' 렌더링 루프
   useEffect(() => {
@@ -595,11 +716,28 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
               — A.D. {home.year} Annual Theme
             </span>
             
-            <h2 className="font-ko text-[clamp(24px,3.2vw,40px)] font-bold text-ink leading-[1.48] tracking-wide mb-6">
+            <h2 className="font-ko text-[clamp(30px,4.2vw,56px)] font-bold text-ink leading-[1.36] tracking-wide mb-6">
               “오직 하나님을 기뻐함으로 <br /> 승리하는 프레이즈”
             </h2>
           </div>
         </motion.section>
+
+        <div className="absolute -inset-x-px -inset-y-px z-30 flex pointer-events-none overflow-hidden">
+          {Array.from({ length: 10 }, (_, index) => (
+            <motion.div
+              key={index}
+              initial={false}
+              animate={{ y: isFinalStepActive ? '0%' : '100%' }}
+              style={{ marginLeft: index === 0 ? 0 : -1 }}
+              transition={{
+                duration: 0.72,
+                delay: isFinalStepActive ? index * 0.055 : (9 - index) * 0.03,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="h-[calc(100%+2px)] w-[calc(10%+2px)] shrink-0 bg-[#071426]"
+            />
+          ))}
+        </div>
 
       </div>
 
