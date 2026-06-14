@@ -266,37 +266,23 @@ export default function Header() {
 
   return (
     <>
-      {/* 1. 중앙 상단 플로팅 글래스모피즘 헤더 바 (컴팩트 압축 & 크기 고정) */}
+      {/* 1. 우측 상단 플로팅 글래스모피즘 햄버거 버튼 (원형) */}
       {isHeaderReady && (
         <motion.header
-          initial={{ opacity: 0, scaleX: 0.58 }}
-          animate={{ opacity: 1, scaleX: 1 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
-          style={{ transformOrigin: 'left center' }}
-          className={`fixed z-[999] w-[90%] max-w-[190px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-between border border-line-soft/20 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-5 ${
+          style={{ transformOrigin: 'center' }}
+          className={`fixed z-[999] w-12.5 h-12.5 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-center border border-line-soft/20 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 ${
             isScrolled
               ? 'bg-cream/45 backdrop-blur-md shadow-[0_12px_32px_rgba(42,38,32,0.06)]'
               : 'bg-cream/25 backdrop-blur-sm'
           }`}
         >
-        {/* A. 테두리 라인부분만 빛이 순환하며 도는 3D 골드 대칭 듀얼 빛무리 (Symmetrical Border Beam) */}
-        <div className="border-glow-container">
+        {/* A. 원형 테두리 라인 빛무리 */}
+        <div className="border-glow-container rounded-full overflow-hidden">
           <div className="border-glow-beam-symmetrical" />
         </div>
-
-        {/* 좌측: 로고와 브랜드 타이틀 */}
-        <Link
-          href="/"
-          onClick={(e) => {
-            e.preventDefault();
-            handleLinkClick('/');
-          }}
-          className="relative z-10 flex items-center group select-none"
-        >
-          <span className="font-en italic text-[17px] md:text-[18px] font-semibold tracking-[0.1em] uppercase text-ink leading-none pt-0.5">
-            PRAISE
-          </span>
-        </Link>
 
         {/* 우측: 프리미엄 햄버거 토글러 */}
         <button
@@ -381,12 +367,7 @@ export default function Header() {
             </ul>
           </nav>
 
-          {/* 하단 푸터 데코레이션 */}
-          <div className="absolute bottom-10 left-10 md:left-28 lg:left-36 select-none z-10 pointer-events-none text-left">
-            <div className="font-en italic text-[11px] tracking-[0.24em] text-ink-mute uppercase">
-              PRAISE CHOIR · A.D. MMXXVI
-            </div>
-          </div>
+
         </div>
       )}
     </>
