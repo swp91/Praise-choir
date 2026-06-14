@@ -74,12 +74,29 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
   const animationRef = useRef<number | null>(null);
   const dragStartRef = useRef<number | null>(null);
   const dragOffsetStartRef = useRef(0);
+  const sectionRef = useRef<HTMLElement>(null);
   const spacing = isMobile ? 330 : 395;
   const cycleHeight = spacing * streamCards.length;
 
   const moveBy = useCallback((delta: number) => {
     targetOffsetRef.current = Math.max(0, targetOffsetRef.current + delta);
   }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault();
+      const normalizedDelta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1);
+      moveBy(Math.max(-520, Math.min(820, normalizedDelta * 0.78)));
+    };
+
+    section.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      section.removeEventListener('wheel', onWheel);
+    };
+  }, [moveBy]);
 
   useEffect(() => {
     document.body.classList.add('leaders-facil-page');
@@ -124,11 +141,7 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [moveBy]);
 
-  const handleWheel = (event: React.WheelEvent<HTMLElement>) => {
-    event.preventDefault();
-    const normalizedDelta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1);
-    moveBy(Math.max(-520, Math.min(820, normalizedDelta * 0.78)));
-  };
+
 
   const handlePointerDown = (event: React.PointerEvent<HTMLElement>) => {
     dragStartRef.current = event.clientY;
@@ -223,9 +236,9 @@ export default function LeadersGalleryClient({ officers }: LeadersGalleryClientP
 
 
       <section
+        ref={sectionRef}
         aria-label="Infinite officer portrait stream"
         className="absolute inset-0 z-10 cursor-grab touch-none overflow-hidden active:cursor-grabbing"
-        onWheel={handleWheel}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
