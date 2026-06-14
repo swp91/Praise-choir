@@ -660,15 +660,29 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
               >
                 찬양대
               </motion.span>
-              <motion.span 
-                initial={{ opacity: 0, y: 36 }}
-                animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.64 }}
-                className="inline-block font-en font-extralight italic text-[clamp(22px,3.5vw,48px)] text-[#ffd899]/80 ml-3.5 align-baseline shrink-0"
-              >
-                Praise
-              </motion.span>
             </h1>
+            <motion.div
+              initial={{ opacity: 0, x: 0, y: 38, scale: 1 }}
+              animate={
+                isIntroActive
+                  ? { opacity: 0, x: 0, y: 38, scale: 1 }
+                  : {
+                      opacity: [0, 1, 1, 0],
+                      x: ['0vw', '0vw', 'calc(100vw - 250px)', 'calc(100vw - 250px)'],
+                      y: [38, 0, 'calc(-46vh + 34px)', 'calc(-46vh + 34px)'],
+                      scale: [1, 1, 0.16, 0.16],
+                    }
+              }
+              transition={{
+                duration: 2.15,
+                times: [0, 0.28, 0.88, 1],
+                ease: [0.16, 1, 0.3, 1],
+                delay: 0.64,
+              }}
+              className="font-en italic text-[clamp(82px,12vw,190px)] font-semibold uppercase leading-[0.78] tracking-[0.02em] text-[#ffd899]/85 select-none origin-left"
+            >
+              PRAISE
+            </motion.div>
           </div>
 
           {/* 2026 로고 워터마크 데코 */}

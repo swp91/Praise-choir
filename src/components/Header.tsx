@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
-import Crest from './Crest';
 import { usePageTransition } from '@/lib/transition';
 import { motion } from 'framer-motion';
 
@@ -275,7 +274,7 @@ export default function Header() {
         initial={{ y: -64, opacity: 0 }}
         animate={isIntroRunning ? { y: -64, opacity: 0 } : { y: 0, opacity: 1 }}
         transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1], delay: pathname === '/' ? 0 : 0.15 }}
-        className={`fixed z-[999] w-[90%] max-w-[190px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-between border border-line-soft/20 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-3.5 ${
+        className={`fixed z-[999] w-[90%] max-w-[190px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-between border border-line-soft/20 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-5 ${
           isScrolled
             ? 'bg-cream/45 backdrop-blur-md shadow-[0_12px_32px_rgba(42,38,32,0.06)]'
             : 'bg-cream/25 backdrop-blur-sm'
@@ -293,13 +292,10 @@ export default function Header() {
             e.preventDefault();
             handleLinkClick('/');
           }}
-          className="relative z-10 flex items-center gap-2.5 group select-none"
+          className="relative z-10 flex items-center group select-none"
         >
-          <div className="w-7 h-7 shrink-0 transition-transform duration-300 group-hover:scale-105">
-            <Crest />
-          </div>
-          <span className="font-en text-[11px] md:text-[12px] font-bold tracking-[0.24em] uppercase text-ink leading-none pt-0.5">
-            Praise
+          <span className="font-en italic text-[17px] md:text-[18px] font-semibold tracking-[0.1em] uppercase text-ink leading-none pt-0.5">
+            PRAISE
           </span>
         </Link>
 
