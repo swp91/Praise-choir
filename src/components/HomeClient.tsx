@@ -280,11 +280,16 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [isAutoAdvancingFinalStep, isFinalStepActive, isIntroActive, sceneProgress]);
+
+  useEffect(() => {
+    return () => {
       if (autoScrollFrameRef.current !== null) {
         cancelAnimationFrame(autoScrollFrameRef.current);
       }
     };
-  }, [isAutoAdvancingFinalStep, isFinalStepActive, isIntroActive, sceneProgress]);
+  }, []);
 
   useEffect(() => {
     if (isIntroActive) return;
