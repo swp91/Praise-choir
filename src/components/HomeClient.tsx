@@ -216,6 +216,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
 
       const startProgress = sceneProgress.get();
       const distance = 1 - startProgress;
+      const targetY = document.documentElement.scrollHeight - window.innerHeight;
       const duration = 1800;
       const startedAt = performance.now();
       const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
@@ -231,6 +232,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
         }
 
         autoScrollFrameRef.current = null;
+        window.scrollTo(0, targetY);
         sceneProgress.set(1);
         setIsFinalStepActive(true);
         setIsAutoAdvancingFinalStep(false);
