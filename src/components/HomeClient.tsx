@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, AnimatePresence } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
 
 type Props = {
@@ -148,31 +148,32 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
 
   // 1. 브라우저 전체 스크롤 진척도 감지 (0 to 1)
   const { scrollYProgress } = useScroll();
+  const sceneProgress = useMotionValue(0);
 
   // 2. 1섹션 (Hero) 스타일 변환값 정의
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.42, 0.48, 1], [1, 0.15, 0, 0], { clamp: true });
-  const heroScale = useTransform(scrollYProgress, [0, 0.48, 1], [1, 1.04, 1.04], { clamp: true });
-  const heroBlur = useTransform(scrollYProgress, [0, 0.4, 1], ["blur(0px)", "blur(5px)", "blur(5px)"], { clamp: true });
+  const heroOpacity = useTransform(sceneProgress, [0, 0.42, 0.48, 1], [1, 0.15, 0, 0], { clamp: true });
+  const heroScale = useTransform(sceneProgress, [0, 0.48, 1], [1, 1.04, 1.04], { clamp: true });
+  const heroBlur = useTransform(sceneProgress, [0, 0.4, 1], ["blur(0px)", "blur(5px)", "blur(5px)"], { clamp: true });
 
   // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.48 ~ 0.58 지점에서 화면을 완전히 덮어 완벽한 심리스 전환 보증)
   const transitionOverlayOpacity = useTransform(
-    scrollYProgress,
+    sceneProgress,
     [0.38, 0.48, 0.58, 0.68, 1],
     [0, 1, 1, 0, 0],
     { clamp: true }
   );
 
   // 4. 2섹션 (The Sacred Space) 스타일 변환값 정의
-  const section2Opacity = useTransform(scrollYProgress, [0.48, 0.62, 1], [0, 1, 1], { clamp: true });
-  const section2Scale = useTransform(scrollYProgress, [0.48, 0.65, 1], [0.96, 1, 1], { clamp: true });
-  const section2Y = useTransform(scrollYProgress, [0.48, 0.65, 1], [24, 0, 0], { clamp: true });
+  const section2Opacity = useTransform(sceneProgress, [0.48, 0.62, 1], [0, 1, 1], { clamp: true });
+  const section2Scale = useTransform(sceneProgress, [0.48, 0.65, 1], [0.96, 1, 1], { clamp: true });
+  const section2Y = useTransform(sceneProgress, [0.48, 0.65, 1], [24, 0, 0], { clamp: true });
 
   // 5. 입체적인 종형 조명 정밀 정렬을 위한 3D 가상 공간 깊이 틸트
-  const rotateX = useTransform(scrollYProgress, [0, 0.48, 1], [0, 8, 8], { clamp: true });
-  const translateZ = useTransform(scrollYProgress, [0, 0.48, 1], [0, 60, 60], { clamp: true });
+  const rotateX = useTransform(sceneProgress, [0, 0.48, 1], [0, 8, 8], { clamp: true });
+  const translateZ = useTransform(sceneProgress, [0, 0.48, 1], [0, 60, 60], { clamp: true });
 
   useEffect(() => {
-    const unsubscribe = scrollYProgress.on('change', (latest) => {
+    const unsubscribe = sceneProgress.on('change', (latest) => {
       setIsFinalStepReady(latest > 0.92);
 
       if (isAutoAdvancingFinalStep && latest > 0.985) {
@@ -187,13 +188,23 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
     });
 
     return unsubscribe;
-  }, [isAutoAdvancingFinalStep, scrollYProgress]);
+  }, [isAutoAdvancingFinalStep, sceneProgress]);
+
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on('change', (latest) => {
+      if (!isAutoAdvancingFinalStep) {
+        sceneProgress.set(latest);
+      }
+    });
+
+    return unsubscribe;
+  }, [isAutoAdvancingFinalStep, sceneProgress, scrollYProgress]);
 
   useEffect(() => {
     if (isIntroActive) return;
 
     const startFinalSequence = (event: Event) => {
-      if (scrollYProgress.get() > 0.08 || isFinalStepActive || isAutoAdvancingFinalStep) return;
+      if (sceneProgress.get() > 0.08 || isFinalStepActive || isAutoAdvancingFinalStep) return;
 
       event.preventDefault();
       setIsFinalStepActive(false);
@@ -203,9 +214,8 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
         cancelAnimationFrame(autoScrollFrameRef.current);
       }
 
-      const startY = window.scrollY;
-      const targetY = document.documentElement.scrollHeight - window.innerHeight;
-      const distance = targetY - startY;
+      const startProgress = sceneProgress.get();
+      const distance = 1 - startProgress;
       const duration = 3200;
       const startedAt = performance.now();
       const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
@@ -213,7 +223,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
       const animateScroll = (now: number) => {
         const elapsed = now - startedAt;
         const progress = Math.min(elapsed / duration, 1);
-        window.scrollTo(0, startY + distance * easeInOutSine(progress));
+        sceneProgress.set(startProgress + distance * easeInOutSine(progress));
 
         if (progress < 1) {
           autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
@@ -221,6 +231,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
         }
 
         autoScrollFrameRef.current = null;
+        sceneProgress.set(1);
         setIsFinalStepActive(true);
         setIsAutoAdvancingFinalStep(false);
       };
@@ -229,6 +240,11 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
     };
 
     const handleWheel = (event: WheelEvent) => {
+      if (isAutoAdvancingFinalStep) {
+        event.preventDefault();
+        return;
+      }
+
       if (event.deltaY > 20) {
         startFinalSequence(event);
       }
@@ -239,6 +255,11 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
     };
 
     const handleTouchMove = (event: TouchEvent) => {
+      if (isAutoAdvancingFinalStep) {
+        event.preventDefault();
+        return;
+      }
+
       const startY = touchStartYRef.current;
       if (startY === null) return;
 
@@ -261,7 +282,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
         cancelAnimationFrame(autoScrollFrameRef.current);
       }
     };
-  }, [isAutoAdvancingFinalStep, isFinalStepActive, isIntroActive, scrollYProgress]);
+  }, [isAutoAdvancingFinalStep, isFinalStepActive, isIntroActive, sceneProgress]);
 
   useEffect(() => {
     if (isIntroActive) return;
@@ -311,7 +332,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
     const render = () => {
       ctx.clearRect(0, 0, width, height);
 
-      const progress = scrollYProgress.get();
+      const progress = sceneProgress.get();
 
       // 빛 효과 활성도 계산 (스크롤 0% ~ 48%에 등장, 58% ~ 75%에 걷힘)
       let activeAlpha = 0;
@@ -425,7 +446,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [scrollYProgress]);
+  }, [sceneProgress]);
 
   return (
     <div ref={containerRef} className="relative h-[220vh] bg-cream">
