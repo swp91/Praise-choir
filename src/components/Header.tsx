@@ -21,7 +21,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const { navigate } = usePageTransition();
-  const [isIntroRunning, setIsIntroRunning] = useState(false);
+  const [isHeaderReady, setIsHeaderReady] = useState(false);
   
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -39,36 +39,33 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // 인트로 진행 상태에 따른 헤더 노출 타이밍 연동
   useEffect(() => {
+    let readyId: NodeJS.Timeout | null = null;
+    let fallbackId: NodeJS.Timeout | null = null;
+
     if (pathname !== '/') {
-      setTimeout(() => setIsIntroRunning(false), 0);
+      setIsHeaderReady(true);
       return;
     }
 
-    // 이미 인트로를 본 적이 있다면 대기 없이 즉시 노출
-    if (typeof window !== 'undefined' && (window as unknown as { __hasSeenIntro?: boolean }).__hasSeenIntro) {
-      setTimeout(() => setIsIntroRunning(false), 0);
-      return;
-    }
+    setIsHeaderReady(false);
 
-    // 메인 홈 화면에서는 인트로 완료 이벤트를 수신하기 전까지 대기
-    setTimeout(() => setIsIntroRunning(true), 0);
-
-    const handleIntroComplete = () => {
-      setIsIntroRunning(false);
+    const scheduleHeader = () => {
+      if (readyId) clearTimeout(readyId);
+      readyId = setTimeout(() => setIsHeaderReady(true), 2850);
     };
 
-    window.addEventListener('intro-complete', handleIntroComplete);
-
-    // 이벤트 유실 대비 백업용 타임아웃 (8초 후 강제 노출)
-    const fallbackId = setTimeout(() => {
-      setIsIntroRunning(false);
-    }, 8000);
+    if (typeof window !== 'undefined' && (window as unknown as { __hasSeenIntro?: boolean }).__hasSeenIntro) {
+      scheduleHeader();
+    } else {
+      window.addEventListener('intro-complete', scheduleHeader);
+      fallbackId = setTimeout(scheduleHeader, 8000);
+    }
 
     return () => {
-      window.removeEventListener('intro-complete', handleIntroComplete);
-      clearTimeout(fallbackId);
+      window.removeEventListener('intro-complete', scheduleHeader);
+      if (readyId) clearTimeout(readyId);
+      if (fallbackId) clearTimeout(fallbackId);
     };
   }, [pathname]);
 
@@ -270,16 +267,18 @@ export default function Header() {
   return (
     <>
       {/* 1. 중앙 상단 플로팅 글래스모피즘 헤더 바 (컴팩트 압축 & 크기 고정) */}
-      <motion.header
-        initial={{ y: -64, opacity: 0 }}
-        animate={isIntroRunning ? { y: -64, opacity: 0 } : { y: 0, opacity: 1 }}
-        transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1], delay: pathname === '/' ? 0 : 0.15 }}
-        className={`fixed z-[999] w-[90%] max-w-[190px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-between border border-line-soft/20 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-5 ${
-          isScrolled
-            ? 'bg-cream/45 backdrop-blur-md shadow-[0_12px_32px_rgba(42,38,32,0.06)]'
-            : 'bg-cream/25 backdrop-blur-sm'
-        }`}
-      >
+      {isHeaderReady && (
+        <motion.header
+          initial={{ opacity: 0, scaleX: 0.58 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+          style={{ transformOrigin: 'left center' }}
+          className={`fixed z-[999] w-[90%] max-w-[190px] transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-between border border-line-soft/20 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 h-12.5 px-5 ${
+            isScrolled
+              ? 'bg-cream/45 backdrop-blur-md shadow-[0_12px_32px_rgba(42,38,32,0.06)]'
+              : 'bg-cream/25 backdrop-blur-sm'
+          }`}
+        >
         {/* A. 테두리 라인부분만 빛이 순환하며 도는 3D 골드 대칭 듀얼 빛무리 (Symmetrical Border Beam) */}
         <div className="border-glow-container">
           <div className="border-glow-beam-symmetrical" />
@@ -325,7 +324,8 @@ export default function Header() {
             />
           </div>
         </button>
-      </motion.header>
+        </motion.header>
+      )}
 
       {/* 2. GSAP 연동 풀스크린 내비게이션 오버레이 (무거운 backdrop-blur-2xl 제거하여 텍스트 렌더링 번짐/플리커 해결) */}
       {isOpen && (

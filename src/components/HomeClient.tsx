@@ -30,8 +30,23 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
   const [isFinalStepReady, setIsFinalStepReady] = useState(false);
   const [isFinalStepActive, setIsFinalStepActive] = useState(false);
   const [isAutoAdvancingFinalStep, setIsAutoAdvancingFinalStep] = useState(false);
+  const [viewportSize, setViewportSize] = useState({ width: 1440, height: 900 });
+  const [wordmarkProgress, setWordmarkProgress] = useState(0);
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const syncViewportSize = () => {
+      setViewportSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    syncViewportSize();
+    window.addEventListener('resize', syncViewportSize);
+
+    return () => {
+      window.removeEventListener('resize', syncViewportSize);
+    };
+  }, []);
 
   // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 2단계 + 최종 팽창)
   useEffect(() => {
@@ -66,6 +81,32 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
 
     return () => {
       timers.forEach((t) => clearTimeout(t));
+    };
+  }, [isIntroActive]);
+
+  useEffect(() => {
+    if (isIntroActive) {
+      setWordmarkProgress(0);
+      return;
+    }
+
+    let animationFrameId: number;
+    const duration = 2850;
+    const startedAt = performance.now();
+
+    const tick = (now: number) => {
+      const nextProgress = Math.min((now - startedAt) / duration, 1);
+      setWordmarkProgress(nextProgress);
+
+      if (nextProgress < 1) {
+        animationFrameId = requestAnimationFrame(tick);
+      }
+    };
+
+    animationFrameId = requestAnimationFrame(tick);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
     };
   }, [isIntroActive]);
 
@@ -149,6 +190,22 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
   // 1. 브라우저 전체 스크롤 진척도 감지 (0 to 1)
   const { scrollYProgress } = useScroll();
   const sceneProgress = useMotionValue(0);
+  const wordmarkStartLeft = Math.min(Math.max(viewportSize.width * 0.05, 40), 72);
+  const wordmarkStartTop = viewportSize.height * 0.58;
+  const wordmarkEndLeft = viewportSize.width - (viewportSize.width < 881 ? 176 : 220);
+  const wordmarkEndTop = 35;
+  const wordmarkMoveRaw = Math.min(Math.max((wordmarkProgress - 0.42) / 0.52, 0), 1);
+  const wordmarkMove = -(Math.cos(Math.PI * wordmarkMoveRaw) - 1) / 2;
+  const wordmarkOpacity = isIntroActive
+    ? 0
+    : wordmarkProgress < 0.18
+      ? wordmarkProgress / 0.18
+      : wordmarkProgress > 0.94
+        ? Math.max(0, (1 - wordmarkProgress) / 0.06)
+        : 1;
+  const wordmarkScale = 1 - wordmarkMove * 0.86;
+  const wordmarkX = (wordmarkEndLeft - wordmarkStartLeft) * wordmarkMove;
+  const wordmarkY = (wordmarkEndTop - wordmarkStartTop) * wordmarkMove;
 
   // 2. 1섹션 (Hero) 스타일 변환값 정의
   const heroOpacity = useTransform(sceneProgress, [0, 0.42, 0.48, 1], [1, 0.15, 0, 0], { clamp: true });
@@ -661,28 +718,6 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
                 찬양대
               </motion.span>
             </h1>
-            <motion.div
-              initial={{ opacity: 0, x: 0, y: 38, scale: 1 }}
-              animate={
-                isIntroActive
-                  ? { opacity: 0, x: 0, y: 38, scale: 1 }
-                  : {
-                      opacity: [0, 1, 1, 0],
-                      x: ['0vw', '0vw', 'calc(100vw - 250px)', 'calc(100vw - 250px)'],
-                      y: [38, 0, 'calc(-46vh + 34px)', 'calc(-46vh + 34px)'],
-                      scale: [1, 1, 0.16, 0.16],
-                    }
-              }
-              transition={{
-                duration: 2.15,
-                times: [0, 0.28, 0.88, 1],
-                ease: [0.16, 1, 0.3, 1],
-                delay: 0.64,
-              }}
-              className="font-en italic text-[clamp(82px,12vw,190px)] font-semibold uppercase leading-[0.78] tracking-[0.02em] text-[#ffd899]/85 select-none origin-left"
-            >
-              PRAISE
-            </motion.div>
           </div>
 
           {/* 2026 로고 워터마크 데코 */}
@@ -763,6 +798,18 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
             </h2>
           </div>
         </motion.section>
+
+        <div
+          style={{
+            left: wordmarkStartLeft,
+            top: wordmarkStartTop,
+            opacity: wordmarkOpacity,
+            transform: `translate3d(${wordmarkX}px, ${wordmarkY}px, 0) scale(${wordmarkScale})`,
+          }}
+          className="fixed z-[1000] pointer-events-none font-en italic text-[clamp(88px,12vw,190px)] font-semibold uppercase leading-[0.78] tracking-[0.02em] text-[#ffd899]/85 select-none origin-left"
+        >
+          PRAISE
+        </div>
 
         <div className="absolute -inset-x-px -inset-y-px z-30 flex pointer-events-none overflow-hidden">
           {Array.from({ length: 10 }, (_, index) => (
