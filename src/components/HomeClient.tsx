@@ -216,7 +216,7 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
 
       const startProgress = sceneProgress.get();
       const distance = 1 - startProgress;
-      const duration = 3200;
+      const duration = 1800;
       const startedAt = performance.now();
       const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
 
