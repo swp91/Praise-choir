@@ -45,7 +45,8 @@ next-env.d.ts
 /*.png
 /test-results/
 
-# AI Coding Assistants / Codex
+# AI Coding Assistants / Codex / MCP
 /CLAUDE.md
 /AGENTS.md
 /.codex/
+/.mcp.json
