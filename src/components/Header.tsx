@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import gsap from 'gsap';
 import { usePageTransition } from '@/lib/transition';
@@ -42,13 +41,7 @@ export default function Header() {
   useEffect(() => {
     let readyId: NodeJS.Timeout | null = null;
     let fallbackId: NodeJS.Timeout | null = null;
-
-    if (pathname !== '/') {
-      setIsHeaderReady(true);
-      return;
-    }
-
-    setIsHeaderReady(false);
+    let initId: NodeJS.Timeout | null = null;
 
     const showHeader = () => {
       setIsHeaderReady(true);
@@ -59,14 +52,24 @@ export default function Header() {
       readyId = setTimeout(showHeader, 150); // 150ms delay to align perfectly with the first word fade-in
     };
 
-    if (typeof window !== 'undefined' && (window as unknown as { __hasSeenIntro?: boolean }).__hasSeenIntro) {
-      showHeader();
-    } else {
-      window.addEventListener('intro-complete', scheduleHeader);
-      fallbackId = setTimeout(scheduleHeader, 6000);
-    }
+    initId = setTimeout(() => {
+      if (pathname !== '/') {
+        setIsHeaderReady(true);
+        return;
+      }
+
+      setIsHeaderReady(false);
+
+      if (typeof window !== 'undefined' && (window as unknown as { __hasSeenIntro?: boolean }).__hasSeenIntro) {
+        showHeader();
+      } else {
+        window.addEventListener('intro-complete', scheduleHeader);
+        fallbackId = setTimeout(scheduleHeader, 6000);
+      }
+    }, 0);
 
     return () => {
+      if (initId) clearTimeout(initId);
       window.removeEventListener('intro-complete', scheduleHeader);
       if (readyId) clearTimeout(readyId);
       if (fallbackId) clearTimeout(fallbackId);
@@ -155,8 +158,6 @@ export default function Header() {
     }
     // 페이지 전환 뷰를 덮는 vellum sheet 모션이 실행되기 전에 메뉴를 닫아 스냅감을 줍니다.
     setIsOpen(false);
-    document.body.style.overflow = '';
-    document.documentElement.style.overflow = '';
     navigate(href);
   };
 

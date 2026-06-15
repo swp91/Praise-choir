@@ -58,7 +58,7 @@ function getFrameStyle(officer: Officer, virtualIndex: number, appearanceCycle: 
   return (virtualIndex + appearanceCycle) % 2 === 0 ? 'portrait' : 'landscape';
 }
 
-function getRoleAdjustedLane(officer: Officer, baseLane: number, laneCount: number) {
+function getRoleAdjustedLane(officer: Officer, baseLane: number, _laneCount: number) {
   // Return baseLane to prevent consecutive cards from ending up in the same lane,
   // which was causing vertical overlapping. Staggered lanes naturally prevent overlap.
   return baseLane;

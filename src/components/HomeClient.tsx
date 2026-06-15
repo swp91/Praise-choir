@@ -1,7 +1,10 @@
 'use client';
 
 import { motion, useScroll, useTransform, useMotionValue, AnimatePresence } from 'framer-motion';
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import type { Conductor, Officer } from '@/lib/types';
 
 type Props = {
   home: {
@@ -11,11 +14,15 @@ type Props = {
     heroBackgroundUrl: string;
     heroBackgroundPosition: string;
   };
+  leaders: {
+    conductors: Conductor[];
+    officers: Officer[];
+  };
   preloadPhotos?: string[];
 };
 
 
-export default function HomeClient({ home, preloadPhotos = [] }: Props) {
+export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -33,6 +40,21 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
   const [viewportSize, setViewportSize] = useState({ width: 1440, height: 900 });
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
+
+  const handleReturnToHome = useCallback(() => {
+    setIsFinalStepActive(false);
+    setIsAutoAdvancingFinalStep(false);
+    if (autoScrollFrameRef.current !== null) {
+      cancelAnimationFrame(autoScrollFrameRef.current);
+      autoScrollFrameRef.current = null;
+    }
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const targetY = maxScroll * 0.75;
+    window.scrollTo({
+      top: targetY,
+      behavior: 'smooth'
+    });
+  }, []);
 
   useEffect(() => {
     const syncViewportSize = () => {
@@ -784,6 +806,105 @@ export default function HomeClient({ home, preloadPhotos = [] }: Props) {
             />
           ))}
         </div>
+
+        <AnimatePresence>
+          {isFinalStepActive && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6, delay: 0.45 }}
+              className="absolute inset-0 z-40 flex flex-col items-center justify-center bg-transparent px-6 text-[#fbf7ee]"
+            >
+              {/* 상단 문구: 섬김의 손길들 */}
+              <motion.div
+                initial={{ y: 24, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.65, ease: [0.16, 1, 0.3, 1] }}
+                className="text-center mb-10 md:mb-14 select-none"
+              >
+                <span className="font-en text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-gold mb-2 block font-semibold">
+                  Praise Servants
+                </span>
+                <h3 className="font-ko text-[clamp(28px,3.5vw,48px)] font-bold tracking-wide text-cream bg-gradient-to-b from-[#fbf7ee] to-[#d4c4a0] bg-clip-text text-transparent">
+                  섬김의 손길들
+                </h3>
+              </motion.div>
+
+              {/* 지휘자/반주자 프로필 영역 */}
+              <motion.div
+                initial={{ y: 32, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.9, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-wrap justify-center gap-8 md:gap-14 max-w-5xl mb-12 md:mb-16 select-none"
+              >
+                {leaders.conductors.map((staff, idx) => (
+                  <div key={idx} className="flex flex-col items-center group">
+                    {/* 프로필 이미지 (골드 원형 서클 및 은은한 광채 효과) */}
+                    <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden border border-gold/30 shadow-[0_12px_36px_rgba(0,0,0,0.3)] mb-4 md:mb-5 transition-all duration-500 group-hover:scale-105 group-hover:border-gold/60">
+                      <div className="absolute inset-0 bg-[#071426]/30 z-10 transition-opacity duration-500 group-hover:opacity-0" />
+                      {staff.photo ? (
+                        <Image
+                          src={staff.photo}
+                          alt={staff.name}
+                          fill
+                          className="object-cover object-center"
+                          sizes="(max-width: 768px) 150px, 200px"
+                          priority
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-[#171717] text-gold/40">
+                          <span className="font-ko text-xs">사진 없음</span>
+                        </div>
+                      )}
+                      {/* 은은한 링 광채 데코 */}
+                      <div className="absolute inset-0 border border-gold/0 rounded-full transition-all duration-500 group-hover:border-gold/40 group-hover:scale-[1.02]" />
+                    </div>
+                    
+                    {/* 역할 (지휘자, 반주자 등) */}
+                    <span className="font-ko text-[11px] md:text-[12px] text-gold font-semibold tracking-widest uppercase mb-1.5 opacity-90">
+                      {staff.role}
+                    </span>
+                    
+                    {/* 이름 */}
+                    <span className="font-ko text-[15px] md:text-[17px] text-cream font-medium tracking-wider">
+                      {staff.name}
+                    </span>
+                  </div>
+                ))}
+              </motion.div>
+
+              {/* 하단 페이지 이동 및 위로 가기 제어부 */}
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.95, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col sm:flex-row items-center gap-4 relative z-50"
+              >
+                <Link
+                  href="/members"
+                  className="px-6 py-2.5 rounded-full bg-gold/10 hover:bg-gold/20 border border-gold/30 hover:border-gold/60 text-gold text-xs font-semibold tracking-wider transition-all duration-300 backdrop-blur-sm shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center gap-1.5"
+                >
+                  대원 소개 보러가기
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+                
+                <button
+                  onClick={handleReturnToHome}
+                  className="px-6 py-2.5 rounded-full hover:bg-white/5 border border-[#fbf7ee]/10 hover:border-[#fbf7ee]/25 text-cream/70 hover:text-cream text-xs font-medium tracking-wider transition-all duration-300 flex items-center gap-1.5"
+                >
+                  <svg className="w-3.5 h-3.5 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  다시 메인으로
+                </button>
+              </motion.div>
+
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
 

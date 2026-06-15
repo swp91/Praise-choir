@@ -42,7 +42,7 @@ export default async function HomePage() {
 
   return (
     <main className="main-content min-h-screen p-0 relative bg-cream animate-fadeIn">
-      <HomeClient home={home} preloadPhotos={preloadPhotos} />
+      <HomeClient home={home} leaders={leaders} preloadPhotos={preloadPhotos} />
     </main>
   );
 }
