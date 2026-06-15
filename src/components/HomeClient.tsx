@@ -1,8 +1,7 @@
 'use client';
 
 import { motion, useScroll, useTransform, useMotionValue, AnimatePresence } from 'framer-motion';
-import { useRef, useEffect, useState, useCallback } from 'react';
-import Link from 'next/link';
+import { useRef, useEffect, useState } from 'react';
 import Image from 'next/image';
 import type { Conductor, Officer } from '@/lib/types';
 
@@ -22,6 +21,19 @@ type Props = {
 };
 
 
+const textContainerVariants = {
+  animate: {
+    transition: {
+      staggerChildren: 0.15
+    }
+  }
+};
+
+const textItemVariants = {
+  initial: { y: 36, opacity: 0 },
+  animate: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } }
+};
+
 export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -37,24 +49,10 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   const [isFinalStepReady, setIsFinalStepReady] = useState(false);
   const [isFinalStepActive, setIsFinalStepActive] = useState(false);
   const [isAutoAdvancingFinalStep, setIsAutoAdvancingFinalStep] = useState(false);
+  const [isSopranoActive, setIsSopranoActive] = useState(false);
   const [viewportSize, setViewportSize] = useState({ width: 1440, height: 900 });
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
-
-  const handleReturnToHome = useCallback(() => {
-    setIsFinalStepActive(false);
-    setIsAutoAdvancingFinalStep(false);
-    if (autoScrollFrameRef.current !== null) {
-      cancelAnimationFrame(autoScrollFrameRef.current);
-      autoScrollFrameRef.current = null;
-    }
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const targetY = maxScroll * 0.75;
-    window.scrollTo({
-      top: targetY,
-      behavior: 'smooth'
-    });
-  }, []);
 
   useEffect(() => {
     const syncViewportSize = () => {
@@ -343,23 +341,75 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
     const handleWheel = (event: WheelEvent) => {
       if (!isFinalStepReady || Math.abs(event.deltaY) < 20) return;
 
-      if (event.deltaY > 0 && !isFinalStepActive) {
-        event.preventDefault();
-        setIsFinalStepActive(true);
+      if (event.deltaY > 0) {
+        // Scroll down
+        if (!isFinalStepActive) {
+          event.preventDefault();
+          setIsFinalStepActive(true);
+        } else if (isFinalStepActive && !isSopranoActive) {
+          event.preventDefault();
+          setIsSopranoActive(true);
+        }
+      } else if (event.deltaY < 0) {
+        // Scroll up
+        if (isSopranoActive) {
+          event.preventDefault();
+          setIsSopranoActive(false);
+        } else if (isFinalStepActive && !isSopranoActive) {
+          event.preventDefault();
+          setIsFinalStepActive(false);
+        }
       }
+    };
 
-      if (event.deltaY < 0 && isFinalStepActive) {
-        event.preventDefault();
-        setIsFinalStepActive(false);
+    let touchStart = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStart = e.touches[0]?.clientY ?? 0;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isFinalStepReady) return;
+      const currentY = e.touches[0]?.clientY ?? 0;
+      const diff = touchStart - currentY;
+
+      if (Math.abs(diff) > 40) {
+        if (diff > 0) {
+          // Swipe up (scroll down)
+          if (!isFinalStepActive) {
+            e.preventDefault();
+            setIsFinalStepActive(true);
+            touchStart = currentY;
+          } else if (isFinalStepActive && !isSopranoActive) {
+            e.preventDefault();
+            setIsSopranoActive(true);
+            touchStart = currentY;
+          }
+        } else {
+          // Swipe down (scroll up)
+          if (isSopranoActive) {
+            e.preventDefault();
+            setIsSopranoActive(false);
+            touchStart = currentY;
+          } else if (isFinalStepActive && !isSopranoActive) {
+            e.preventDefault();
+            setIsFinalStepActive(false);
+            touchStart = currentY;
+          }
+        }
       }
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [isFinalStepActive, isFinalStepReady, isIntroActive]);
+  }, [isFinalStepActive, isFinalStepReady, isIntroActive, isSopranoActive]);
 
   // 6. 고해상도 HTML5 Canvas 기반 단일 '성스러운 태양기둥 (Sun Pillar / Light Shaft)' 렌더링 루프
   useEffect(() => {
@@ -836,7 +886,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
                 initial={{ y: 32, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.9, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-wrap justify-center gap-8 md:gap-14 max-w-5xl mb-12 md:mb-16 select-none"
+                className="flex flex-wrap justify-center gap-8 md:gap-14 max-w-5xl select-none"
               >
                 {leaders.conductors.map((staff, idx) => (
                   <div key={idx} className="flex flex-col items-center group">
@@ -874,34 +924,83 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
                 ))}
               </motion.div>
 
-              {/* 하단 페이지 이동 및 위로 가기 제어부 */}
-              <motion.div
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.95, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col sm:flex-row items-center gap-4 relative z-50"
-              >
-                <Link
-                  href="/members"
-                  className="px-6 py-2.5 rounded-full bg-gold/10 hover:bg-gold/20 border border-gold/30 hover:border-gold/60 text-gold text-xs font-semibold tracking-wider transition-all duration-300 backdrop-blur-sm shadow-[0_4px_12px_rgba(0,0,0,0.15)] flex items-center gap-1.5"
-                >
-                  대원 소개 보러가기
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </Link>
-                
-                <button
-                  onClick={handleReturnToHome}
-                  className="px-6 py-2.5 rounded-full hover:bg-white/5 border border-[#fbf7ee]/10 hover:border-[#fbf7ee]/25 text-cream/70 hover:text-cream text-xs font-medium tracking-wider transition-all duration-300 flex items-center gap-1.5"
-                >
-                  <svg className="w-3.5 h-3.5 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                  다시 메인으로
-                </button>
-              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
+        {/* ---------------- 6. '소프라노 파트' 오버레이 (isSopranoActive === true 일 때 슬라이드 업) ---------------- */}
+        <AnimatePresence>
+          {isSopranoActive && (
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ duration: 0.82, ease: [0.16, 1, 0.3, 1] }}
+              className="absolute inset-0 z-50 flex flex-col md:flex-row overflow-hidden bg-[#F5EED9] text-[#2A2620]"
+            >
+              {/* 좌측 40% 영역: 텍스트 (정중앙 정렬) */}
+              <div className="w-full md:w-[40%] h-[45%] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 py-8 md:py-0 select-none">
+                <motion.div
+                  variants={textContainerVariants}
+                  initial="initial"
+                  animate={isSopranoActive ? "animate" : "initial"}
+                  className="flex flex-col gap-3 md:gap-4.5"
+                >
+                  {/* 영문 서브타이틀 */}
+                  <motion.span 
+                    variants={textItemVariants} 
+                    className="font-en text-xs md:text-sm tracking-[0.35em] text-[#8a6f2f] font-semibold uppercase"
+                  >
+                    SOPRANO
+                  </motion.span>
+                  
+                  {/* 국문 메인 타이틀 */}
+                  <motion.h3 
+                    variants={textItemVariants} 
+                    className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold text-[#2A2620] leading-none mb-1.5 md:mb-2.5"
+                  >
+                    소프라노
+                  </motion.h3>
+                  
+                  {/* 대표 시 (Poem) */}
+                  <motion.p 
+                    variants={textItemVariants} 
+                    className="font-ko text-base md:text-[20px] italic text-[#4a3e2e] leading-relaxed border-l-2 border-[#8a6f2f] pl-4 my-1.5 md:my-2"
+                  >
+                    {"\"가장 높은 곳에서 빛나는 천사의 목소리\""}
+                  </motion.p>
+                  
+                  {/* 파트 소개문 (Desc) */}
+                  <motion.p 
+                    variants={textItemVariants} 
+                    className="font-ko text-sm md:text-base text-[#2A2620]/80 leading-relaxed font-light"
+                  >
+                    맑고 투명한 천상의 고음으로 프레이즈 찬양의 선율을 이끕니다.
+                  </motion.p>
+                </motion.div>
+              </div>
+
+              {/* 우측 60% 영역: 이미지 (intro_4.webp) */}
+              <div className="w-full md:w-[60%] h-[55%] md:h-full relative overflow-hidden">
+                <motion.div
+                  initial={{ scale: 1.12, opacity: 0 }}
+                  animate={isSopranoActive ? { scale: 1, opacity: 1 } : { scale: 1.12, opacity: 0 }}
+                  transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-full h-full relative"
+                >
+                  <Image
+                    src="/intro_4.webp"
+                    alt="소프라노 파트"
+                    fill
+                    priority
+                    className="object-cover object-center select-none"
+                    sizes="(max-width: 768px) 100vw, 60vw"
+                  />
+                  {/* 경계 구분을 부드럽게 해주는 리넨 베이지 그라데이션 오버레이 */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#F5EED9] via-transparent to-transparent hidden md:block pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-[#F5EED9] via-transparent to-transparent block md:hidden pointer-events-none" />
+                </motion.div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
