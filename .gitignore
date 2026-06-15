@@ -44,3 +44,8 @@ next-env.d.ts
 # test screenshots & results
 /*.png
 /test-results/
+
+# AI Coding Assistants / Codex
+/CLAUDE.md
+/AGENTS.md
+/.codex/
