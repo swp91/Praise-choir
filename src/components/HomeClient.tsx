@@ -34,6 +34,64 @@ const textItemVariants = {
   animate: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } }
 };
 
+const PART_STEPS = [
+  {
+    key: 'soprano1',
+    tagline: 'SOPRANO 1',
+    title: '소프라노 1',
+    poem: '가장 높은 곳에서 빛나는 천사의 목소리',
+    desc: '맑고 투명한 천상의 고음으로 프레이즈 찬양의 선율을 이끕니다.',
+    photo: '/intro_4.webp',
+    bg: '#F5EED9',
+    text: '#2A2620',
+    accent: '#8a6f2f'
+  },
+  {
+    key: 'soprano2',
+    tagline: 'SOPRANO 2',
+    title: '소프라노 2',
+    poem: '가장 높은 곳에서 빛나는 천사의 목소리',
+    desc: '맑고 투명한 천상의 고음으로 프레이즈 찬양의 선율을 이끕니다.',
+    photo: '/intro_5.webp',
+    bg: '#F5EED9',
+    text: '#2A2620',
+    accent: '#8a6f2f'
+  },
+  {
+    key: 'alto',
+    tagline: 'ALTO',
+    title: '알토',
+    poem: '찬양의 기둥이 되는 깊고 따뜻한 울림',
+    desc: '묵묵하고 포근한 중저음으로 하모니의 풍성함을 더해줍니다.',
+    photo: '/intro_2.webp',
+    bg: '#B45A3F',
+    text: '#FFFDF9',
+    accent: '#ffd899'
+  },
+  {
+    key: 'tenor',
+    tagline: 'TENOR',
+    title: '테너',
+    poem: '하늘을 향해 높이 뻗어가는 화려한 선율',
+    desc: '시원하고 당찬 미성으로 찬양에 밝은 에너지를 부여합니다.',
+    photo: '/intro_1.webp',
+    bg: '#FFFFFF',
+    text: '#2A2620',
+    accent: '#8a6f2f'
+  },
+  {
+    key: 'bass',
+    tagline: 'BASS',
+    title: '베이스',
+    poem: '모든 소리를 든든하게 받쳐주는 찬양의 기초',
+    desc: '중후하고 깊은 저음으로 화성의 중심을 단단히 잡아줍니다.',
+    photo: '/intro_3.webp',
+    bg: '#4E7088',
+    text: '#FFFDF9',
+    accent: '#ffd899'
+  }
+];
+
 export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -49,23 +107,9 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   const [isFinalStepReady, setIsFinalStepReady] = useState(false);
   const [isFinalStepActive, setIsFinalStepActive] = useState(false);
   const [isAutoAdvancingFinalStep, setIsAutoAdvancingFinalStep] = useState(false);
-  const [isSopranoActive, setIsSopranoActive] = useState(false);
-  const [viewportSize, setViewportSize] = useState({ width: 1440, height: 900 });
+  const [currentPartStep, setCurrentPartStep] = useState(-1);
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const syncViewportSize = () => {
-      setViewportSize({ width: window.innerWidth, height: window.innerHeight });
-    };
-
-    syncViewportSize();
-    window.addEventListener('resize', syncViewportSize);
-
-    return () => {
-      window.removeEventListener('resize', syncViewportSize);
-    };
-  }, []);
 
   // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 2단계 + 최종 팽창)
   useEffect(() => {
@@ -346,16 +390,16 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
         if (!isFinalStepActive) {
           event.preventDefault();
           setIsFinalStepActive(true);
-        } else if (isFinalStepActive && !isSopranoActive) {
+        } else if (isFinalStepActive && currentPartStep < PART_STEPS.length - 1) {
           event.preventDefault();
-          setIsSopranoActive(true);
+          setCurrentPartStep((prev) => prev + 1);
         }
       } else if (event.deltaY < 0) {
         // Scroll up
-        if (isSopranoActive) {
+        if (currentPartStep >= 0) {
           event.preventDefault();
-          setIsSopranoActive(false);
-        } else if (isFinalStepActive && !isSopranoActive) {
+          setCurrentPartStep((prev) => prev - 1);
+        } else if (isFinalStepActive && currentPartStep === -1) {
           event.preventDefault();
           setIsFinalStepActive(false);
         }
@@ -380,18 +424,18 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
             e.preventDefault();
             setIsFinalStepActive(true);
             touchStart = currentY;
-          } else if (isFinalStepActive && !isSopranoActive) {
+          } else if (isFinalStepActive && currentPartStep < PART_STEPS.length - 1) {
             e.preventDefault();
-            setIsSopranoActive(true);
+            setCurrentPartStep((prev) => prev + 1);
             touchStart = currentY;
           }
         } else {
           // Swipe down (scroll up)
-          if (isSopranoActive) {
+          if (currentPartStep >= 0) {
             e.preventDefault();
-            setIsSopranoActive(false);
+            setCurrentPartStep((prev) => prev - 1);
             touchStart = currentY;
-          } else if (isFinalStepActive && !isSopranoActive) {
+          } else if (isFinalStepActive && currentPartStep === -1) {
             e.preventDefault();
             setIsFinalStepActive(false);
             touchStart = currentY;
@@ -409,7 +453,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [isFinalStepActive, isFinalStepReady, isIntroActive, isSopranoActive]);
+  }, [isFinalStepActive, isFinalStepReady, isIntroActive, currentPartStep]);
 
   // 6. 고해상도 HTML5 Canvas 기반 단일 '성스러운 태양기둥 (Sun Pillar / Light Shaft)' 렌더링 루프
   useEffect(() => {
@@ -928,82 +972,107 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
           )}
         </AnimatePresence>
 
-        {/* ---------------- 6. '소프라노 파트' 오버레이 (isSopranoActive === true 일 때 슬라이드 업) ---------------- */}
-        <AnimatePresence>
-          {isSopranoActive && (
+        {/* ---------------- 6. 파트별 소개 스택 카드 (Soprano 1 ~ Bass) ---------------- */}
+        {PART_STEPS.map((step, index) => {
+          const isActive = currentPartStep >= index;
+          const isCurrent = currentPartStep === index;
+
+          return (
             <motion.div
+              key={step.key}
               initial={{ y: '100%' }}
-              animate={{ y: 0 }}
-              exit={{ y: '100%' }}
+              animate={{ y: isActive ? 0 : '100%' }}
               transition={{ duration: 0.82, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 z-50 flex flex-col md:flex-row overflow-hidden bg-[#F5EED9] text-[#2A2620]"
+              style={{
+                backgroundColor: step.bg,
+                color: step.text,
+                zIndex: 50 + index,
+              }}
+              className="absolute inset-0 flex flex-col md:flex-row overflow-hidden"
             >
               {/* 좌측 40% 영역: 텍스트 (정중앙 정렬) */}
               <div className="w-full md:w-[40%] h-[45%] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 py-8 md:py-0 select-none">
                 <motion.div
                   variants={textContainerVariants}
                   initial="initial"
-                  animate={isSopranoActive ? "animate" : "initial"}
+                  animate={isCurrent ? 'animate' : 'initial'}
                   className="flex flex-col gap-3 md:gap-4.5"
                 >
                   {/* 영문 서브타이틀 */}
-                  <motion.span 
-                    variants={textItemVariants} 
-                    className="font-en text-xs md:text-sm tracking-[0.35em] text-[#8a6f2f] font-semibold uppercase"
+                  <motion.span
+                    variants={textItemVariants}
+                    style={{ color: step.accent }}
+                    className="font-en text-xs md:text-sm tracking-[0.35em] font-semibold uppercase"
                   >
-                    SOPRANO
+                    {step.tagline}
                   </motion.span>
-                  
+
                   {/* 국문 메인 타이틀 */}
-                  <motion.h3 
-                    variants={textItemVariants} 
-                    className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold text-[#2A2620] leading-none mb-1.5 md:mb-2.5"
+                  <motion.h3
+                    variants={textItemVariants}
+                    style={{ color: step.text }}
+                    className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold leading-none mb-1.5 md:mb-2.5"
                   >
-                    소프라노
+                    {step.title}
                   </motion.h3>
-                  
+
                   {/* 대표 시 (Poem) */}
-                  <motion.p 
-                    variants={textItemVariants} 
-                    className="font-ko text-base md:text-[20px] italic text-[#4a3e2e] leading-relaxed border-l-2 border-[#8a6f2f] pl-4 my-1.5 md:my-2"
+                  <motion.p
+                    variants={textItemVariants}
+                    style={{
+                      color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.85)' : 'rgba(74, 62, 46, 0.9)',
+                      borderColor: step.accent,
+                    }}
+                    className="font-ko text-base md:text-[20px] italic leading-relaxed border-l-2 pl-4 my-1.5 md:my-2"
                   >
-                    {"\"가장 높은 곳에서 빛나는 천사의 목소리\""}
+                    {`"${step.poem}"`}
                   </motion.p>
-                  
+
                   {/* 파트 소개문 (Desc) */}
-                  <motion.p 
-                    variants={textItemVariants} 
-                    className="font-ko text-sm md:text-base text-[#2A2620]/80 leading-relaxed font-light"
+                  <motion.p
+                    variants={textItemVariants}
+                    style={{ color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.75)' : 'rgba(42, 38, 32, 0.8)' }}
+                    className="font-ko text-sm md:text-base leading-relaxed font-light"
                   >
-                    맑고 투명한 천상의 고음으로 프레이즈 찬양의 선율을 이끕니다.
+                    {step.desc}
                   </motion.p>
                 </motion.div>
               </div>
 
-              {/* 우측 60% 영역: 이미지 (intro_4.webp) */}
+              {/* 우측 60% 영역: 이미지 */}
               <div className="w-full md:w-[60%] h-[55%] md:h-full relative overflow-hidden">
                 <motion.div
                   initial={{ scale: 1.12, opacity: 0 }}
-                  animate={isSopranoActive ? { scale: 1, opacity: 1 } : { scale: 1.12, opacity: 0 }}
+                  animate={isCurrent ? { scale: 1, opacity: 1 } : { scale: 1.12, opacity: 0 }}
                   transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
                   className="w-full h-full relative"
                 >
                   <Image
-                    src="/intro_4.webp"
-                    alt="소프라노 파트"
+                    src={step.photo}
+                    alt={step.title}
                     fill
                     priority
                     className="object-cover object-center select-none"
                     sizes="(max-width: 768px) 100vw, 60vw"
                   />
-                  {/* 경계 구분을 부드럽게 해주는 리넨 베이지 그라데이션 오버레이 */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#F5EED9] via-transparent to-transparent hidden md:block pointer-events-none" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-[#F5EED9] via-transparent to-transparent block md:hidden pointer-events-none" />
+                  {/* 경계 구분을 부드럽게 해주는 배경색 맞춤형 그라데이션 오버레이 */}
+                  <div
+                    style={{
+                      background: `linear-gradient(to right, ${step.bg}, transparent, transparent)`,
+                    }}
+                    className="absolute inset-0 hidden md:block pointer-events-none"
+                  />
+                  <div
+                    style={{
+                      background: `linear-gradient(to bottom, ${step.bg}, transparent, transparent)`,
+                    }}
+                    className="absolute inset-0 block md:hidden pointer-events-none"
+                  />
                 </motion.div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          );
+        })}
 
       </div>
 
