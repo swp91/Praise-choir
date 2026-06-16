@@ -117,6 +117,9 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 7 (7단계가 최종 팽창)
   const [isFinalStepActive, setIsFinalStepActive] = useState(false);
   const [currentPartStep, setCurrentPartStep] = useState(-1);
+  const [isAutoAdvancingFinalStep, setIsAutoAdvancingFinalStep] = useState(false);
+  const touchStartYRef = useRef<number | null>(null);
+  const autoScrollFrameRef = useRef<number | null>(null);
 
   // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 2단계 + 최종 팽창)
   useEffect(() => {
@@ -278,9 +281,104 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   // 브라우저 기본 스크롤 진행 상황 동기화
   useEffect(() => {
     return scrollYProgress.on('change', (latest) => {
-      sceneProgress.set(latest);
+      if (!isAutoAdvancingFinalStep) {
+        sceneProgress.set(latest);
+      }
     });
-  }, [sceneProgress, scrollYProgress]);
+  }, [isAutoAdvancingFinalStep, sceneProgress, scrollYProgress]);
+
+  // 표어 등장 전까지 자동 스크롤(Step 연출) 제어
+  useEffect(() => {
+    if (isIntroActive) return;
+
+    const startFinalSequence = (event: Event) => {
+      if (sceneProgress.get() > 0.08 || isAutoAdvancingFinalStep) return;
+
+      event.preventDefault();
+      setIsAutoAdvancingFinalStep(true);
+
+      if (autoScrollFrameRef.current !== null) {
+        cancelAnimationFrame(autoScrollFrameRef.current);
+      }
+
+      const startProgress = sceneProgress.get();
+      const targetProgress = 0.45; // 표어가 완전히 드러나는 0.45 지점을 향해 자동 이동
+      const distance = targetProgress - startProgress;
+      const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+      const targetY = targetProgress * maxScrollY;
+      const duration = 1500;
+      const startedAt = performance.now();
+      const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
+
+      const animateScroll = (now: number) => {
+        const elapsed = now - startedAt;
+        const progress = Math.min(elapsed / duration, 1);
+        sceneProgress.set(startProgress + distance * easeInOutSine(progress));
+
+        if (progress < 1) {
+          autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
+          return;
+        }
+
+        autoScrollFrameRef.current = null;
+        window.scrollTo(0, targetY);
+        sceneProgress.set(targetProgress);
+        setIsAutoAdvancingFinalStep(false);
+      };
+
+      autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      if (isAutoAdvancingFinalStep) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.deltaY > 20) {
+        startFinalSequence(event);
+      }
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartYRef.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (isAutoAdvancingFinalStep) {
+        event.preventDefault();
+        return;
+      }
+
+      const startY = touchStartYRef.current;
+      if (startY === null) return;
+
+      const currentY = event.touches[0]?.clientY ?? startY;
+      if (startY - currentY > 30) {
+        startFinalSequence(event);
+        touchStartYRef.current = null;
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [isAutoAdvancingFinalStep, isIntroActive, sceneProgress]);
+
+  // 컴포넌트 언마운트 시 자동 스크롤 타이머 해제
+  useEffect(() => {
+    return () => {
+      if (autoScrollFrameRef.current !== null) {
+        cancelAnimationFrame(autoScrollFrameRef.current);
+      }
+    };
+  }, []);
 
   // 스크롤 위치에 따른 최종 단계 연출 감지
   useEffect(() => {
