@@ -92,14 +92,14 @@ const PART_STEPS = [
   },
   {
     key: 'ensemble',
-    tagline: 'ENSEMBLE',
+    tagline: 'HAGIOS ENSEMBLE',
     title: '악단',
-    poem: '다채로운 선율로 찬양의 깊이를 더하는 악기들의 울림',
-    desc: '현악기와 관악기의 아름다운 하모니로 찬양을 더욱 풍성하고 장엄하게 보좌합니다.',
+    poem: '아름다운 악기 소리로 찬양을 완성하는 하기오스',
+    desc: '현악과 관악의 조화로 성가를 더욱 입체적이고 아름답게 꾸밉니다.',
     photo: '/ensemble-.webp',
-    bg: '#2A2620',
-    text: '#FFFDF9',
-    accent: '#b89a5a'
+    bg: '#D6C7DE',
+    text: '#2A2620',
+    accent: '#8a6f2f'
   }
 ];
 
