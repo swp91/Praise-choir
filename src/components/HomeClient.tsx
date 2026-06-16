@@ -110,6 +110,8 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   const [currentPartStep, setCurrentPartStep] = useState(-1);
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
+  const isTransitioningRef = useRef(false);
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 2단계 + 최종 팽창)
   useEffect(() => {
@@ -376,32 +378,52 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
       if (autoScrollFrameRef.current !== null) {
         cancelAnimationFrame(autoScrollFrameRef.current);
       }
+      if (transitionTimeoutRef.current !== null) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
     };
   }, []);
 
   useEffect(() => {
     if (isIntroActive) return;
 
+    const triggerTransition = (action: () => void) => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+      isTransitioningRef.current = true;
+      action();
+      transitionTimeoutRef.current = setTimeout(() => {
+        isTransitioningRef.current = false;
+        transitionTimeoutRef.current = null;
+      }, 1000); // 1초간 스크롤 동작 제한
+    };
+
     const handleWheel = (event: WheelEvent) => {
       if (!isFinalStepReady || Math.abs(event.deltaY) < 20) return;
+
+      if (isTransitioningRef.current) {
+        event.preventDefault();
+        return;
+      }
 
       if (event.deltaY > 0) {
         // Scroll down
         if (!isFinalStepActive) {
           event.preventDefault();
-          setIsFinalStepActive(true);
+          triggerTransition(() => setIsFinalStepActive(true));
         } else if (isFinalStepActive && currentPartStep < PART_STEPS.length - 1) {
           event.preventDefault();
-          setCurrentPartStep((prev) => prev + 1);
+          triggerTransition(() => setCurrentPartStep((prev) => prev + 1));
         }
       } else if (event.deltaY < 0) {
         // Scroll up
         if (currentPartStep >= 0) {
           event.preventDefault();
-          setCurrentPartStep((prev) => prev - 1);
+          triggerTransition(() => setCurrentPartStep((prev) => prev - 1));
         } else if (isFinalStepActive && currentPartStep === -1) {
           event.preventDefault();
-          setIsFinalStepActive(false);
+          triggerTransition(() => setIsFinalStepActive(false));
         }
       }
     };
@@ -415,6 +437,13 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
     const handleTouchMove = (e: TouchEvent) => {
       if (!isFinalStepReady) return;
       const currentY = e.touches[0]?.clientY ?? 0;
+
+      if (isTransitioningRef.current) {
+        e.preventDefault();
+        touchStart = currentY; // transition 중인 동안에는 touchStart를 계속 갱신하여 누적 마우스 이동량 초기화
+        return;
+      }
+
       const diff = touchStart - currentY;
 
       if (Math.abs(diff) > 40) {
@@ -422,22 +451,30 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
           // Swipe up (scroll down)
           if (!isFinalStepActive) {
             e.preventDefault();
-            setIsFinalStepActive(true);
+            triggerTransition(() => {
+              setIsFinalStepActive(true);
+            });
             touchStart = currentY;
           } else if (isFinalStepActive && currentPartStep < PART_STEPS.length - 1) {
             e.preventDefault();
-            setCurrentPartStep((prev) => prev + 1);
+            triggerTransition(() => {
+              setCurrentPartStep((prev) => prev + 1);
+            });
             touchStart = currentY;
           }
         } else {
           // Swipe down (scroll up)
           if (currentPartStep >= 0) {
             e.preventDefault();
-            setCurrentPartStep((prev) => prev - 1);
+            triggerTransition(() => {
+              setCurrentPartStep((prev) => prev - 1);
+            });
             touchStart = currentY;
           } else if (isFinalStepActive && currentPartStep === -1) {
             e.preventDefault();
-            setIsFinalStepActive(false);
+            triggerTransition(() => {
+              setIsFinalStepActive(false);
+            });
             touchStart = currentY;
           }
         }
