@@ -278,7 +278,6 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
       setIsFinalStepReady(latest > 0.92);
 
       if (isAutoAdvancingFinalStep && latest > 0.985) {
-        setIsFinalStepActive(true);
         setIsAutoAdvancingFinalStep(false);
       }
 
@@ -335,7 +334,6 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
         autoScrollFrameRef.current = null;
         window.scrollTo(0, targetY);
         sceneProgress.set(1);
-        setIsFinalStepActive(true);
         setIsAutoAdvancingFinalStep(false);
       };
 
