@@ -1039,7 +1039,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
               className="absolute inset-0 flex flex-col md:flex-row overflow-hidden"
             >
               {/* 좌측 40% 영역: 텍스트 (정중앙 정렬) */}
-              <div className="w-full md:w-[40%] h-[45%] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 py-8 md:py-0 select-none">
+              <div className="w-full md:w-[40%] flex-1 md:flex-none md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 py-8 md:py-0 select-none">
                 <motion.div
                   variants={textContainerVariants}
                   initial="initial"
@@ -1088,7 +1088,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
               </div>
 
               {/* 우측 60% 영역: 이미지 */}
-              <div className="w-full md:w-[60%] h-[55%] md:h-full relative overflow-hidden">
+              <div className="w-full md:w-[60%] aspect-[1.6] md:aspect-none md:h-full relative overflow-hidden">
                 <motion.div
                   initial={{ scale: 1.12, opacity: 0 }}
                   animate={isCurrent ? { scale: 1, opacity: 1 } : { scale: 1.12, opacity: 0 }}
