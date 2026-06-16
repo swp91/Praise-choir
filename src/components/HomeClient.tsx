@@ -115,11 +115,14 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
     return true;
   });
   const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 7 (7단계가 최종 팽창)
+  const [isFinalStepReady, setIsFinalStepReady] = useState(false);
   const [isFinalStepActive, setIsFinalStepActive] = useState(false);
-  const [currentPartStep, setCurrentPartStep] = useState(-1);
   const [isAutoAdvancingFinalStep, setIsAutoAdvancingFinalStep] = useState(false);
+  const [currentPartStep, setCurrentPartStep] = useState(-1);
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
+  const isTransitioningRef = useRef(false);
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 2단계 + 최종 팽창)
   useEffect(() => {
@@ -249,52 +252,62 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
 
 
   // 2. 1섹션 (Hero) 스타일 변환값 정의
-  const heroOpacity = useTransform(sceneProgress, [0, 0.18, 0.25, 1], [1, 0.15, 0, 0], { clamp: true });
-  const heroScale = useTransform(sceneProgress, [0, 0.25, 1], [1, 1.04, 1.04], { clamp: true });
-  const heroBlur = useTransform(sceneProgress, [0, 0.18, 1], ["blur(0px)", "blur(5px)", "blur(5px)"], { clamp: true });
+  const heroOpacity = useTransform(sceneProgress, [0, 0.42, 0.48, 1], [1, 0.15, 0, 0], { clamp: true });
+  const heroScale = useTransform(sceneProgress, [0, 0.48, 1], [1, 1.04, 1.04], { clamp: true });
+  const heroBlur = useTransform(sceneProgress, [0, 0.4, 1], ["blur(0px)", "blur(5px)", "blur(5px)"], { clamp: true });
 
-  // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.20 지점에서 화면을 완전히 덮어 완벽한 심리스 전환 보증)
+  // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.48 ~ 0.58 지점에서 화면을 완전히 덮어 완벽한 심리스 전환 보증)
   const transitionOverlayOpacity = useTransform(
     sceneProgress,
-    [0.12, 0.20, 0.28, 0.36, 1],
+    [0.38, 0.48, 0.58, 0.68, 1],
     [0, 1, 1, 0, 0],
     { clamp: true }
   );
 
   // 4. 2섹션 (The Sacred Space) 스타일 변환값 정의
-  const section2Opacity = useTransform(sceneProgress, [0.28, 0.38, 1], [0, 1, 1], { clamp: true });
-  const section2Scale = useTransform(sceneProgress, [0.28, 0.40, 1], [0.96, 1, 1], { clamp: true });
-  const section2Y = useTransform(sceneProgress, [0.28, 0.40, 1], [24, 0, 0], { clamp: true });
+  const section2Opacity = useTransform(sceneProgress, [0.48, 0.62, 1], [0, 1, 1], { clamp: true });
+  const section2Scale = useTransform(sceneProgress, [0.48, 0.65, 1], [0.96, 1, 1], { clamp: true });
+  const section2Y = useTransform(sceneProgress, [0.48, 0.65, 1], [24, 0, 0], { clamp: true });
 
   // 5. 입체적인 종형 조명 정밀 정렬을 위한 3D 가상 공간 깊이 틸트
-  const rotateX = useTransform(sceneProgress, [0, 0.22, 1], [0, 8, 8], { clamp: true });
-  const translateZ = useTransform(sceneProgress, [0, 0.22, 1], [0, 60, 60], { clamp: true });
+  const rotateX = useTransform(sceneProgress, [0, 0.48, 1], [0, 8, 8], { clamp: true });
+  const translateZ = useTransform(sceneProgress, [0, 0.48, 1], [0, 60, 60], { clamp: true });
 
-  // 6. 파트별 이미지 세로 스크러빙용 변환값 정의
-  const partsScrollY = useTransform(
-    sceneProgress,
-    [0.68, 1.0],
-    ["0%", "-83.333%"],
-    { clamp: true }
-  );
-
-  // 브라우저 기본 스크롤 진행 상황 동기화
   useEffect(() => {
-    return scrollYProgress.on('change', (latest) => {
+    const unsubscribe = sceneProgress.on('change', (latest) => {
+      setIsFinalStepReady(latest > 0.92);
+
+      if (isAutoAdvancingFinalStep && latest > 0.985) {
+        setIsAutoAdvancingFinalStep(false);
+      }
+
+      if (latest < 0.84) {
+        setIsFinalStepActive(false);
+        setIsAutoAdvancingFinalStep(false);
+      }
+    });
+
+    return unsubscribe;
+  }, [isAutoAdvancingFinalStep, sceneProgress]);
+
+  useEffect(() => {
+    const unsubscribe = scrollYProgress.on('change', (latest) => {
       if (!isAutoAdvancingFinalStep) {
         sceneProgress.set(latest);
       }
     });
+
+    return unsubscribe;
   }, [isAutoAdvancingFinalStep, sceneProgress, scrollYProgress]);
 
-  // 표어 등장 전까지 자동 스크롤(Step 연출) 제어
   useEffect(() => {
     if (isIntroActive) return;
 
     const startFinalSequence = (event: Event) => {
-      if (sceneProgress.get() > 0.08 || isAutoAdvancingFinalStep) return;
+      if (sceneProgress.get() > 0.08 || isFinalStepActive || isAutoAdvancingFinalStep) return;
 
       event.preventDefault();
+      setIsFinalStepActive(false);
       setIsAutoAdvancingFinalStep(true);
 
       if (autoScrollFrameRef.current !== null) {
@@ -302,11 +315,9 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
       }
 
       const startProgress = sceneProgress.get();
-      const targetProgress = 0.45; // 표어가 완전히 드러나는 0.45 지점을 향해 자동 이동
-      const distance = targetProgress - startProgress;
-      const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
-      const targetY = targetProgress * maxScrollY;
-      const duration = 1500;
+      const distance = 1 - startProgress;
+      const targetY = document.documentElement.scrollHeight - window.innerHeight;
+      const duration = 1800;
       const startedAt = performance.now();
       const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
 
@@ -322,7 +333,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
 
         autoScrollFrameRef.current = null;
         window.scrollTo(0, targetY);
-        sceneProgress.set(targetProgress);
+        sceneProgress.set(1);
         setIsAutoAdvancingFinalStep(false);
       };
 
@@ -369,38 +380,126 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, [isAutoAdvancingFinalStep, isIntroActive, sceneProgress]);
+  }, [isAutoAdvancingFinalStep, isFinalStepActive, isIntroActive, sceneProgress]);
 
-  // 컴포넌트 언마운트 시 자동 스크롤 타이머 해제
   useEffect(() => {
     return () => {
       if (autoScrollFrameRef.current !== null) {
         cancelAnimationFrame(autoScrollFrameRef.current);
       }
+      if (transitionTimeoutRef.current !== null) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
     };
   }, []);
 
-  // 스크롤 위치에 따른 최종 단계 연출 감지
   useEffect(() => {
-    const unsubscribe = sceneProgress.on('change', (latest) => {
-      // 0.52 이상에서 어두운 오버레이 활성화
-      setIsFinalStepActive(latest > 0.52);
+    if (isIntroActive) return;
 
-      // 0.68 이상부터 파트별 소개 정보 진행
-      if (latest < 0.68) {
-        setCurrentPartStep(-1);
-      } else {
-        const progressInParts = (latest - 0.68) / (1.0 - 0.68);
-        const step = Math.min(
-          PART_STEPS.length - 1,
-          Math.floor(progressInParts * PART_STEPS.length)
-        );
-        setCurrentPartStep(step);
+    const triggerTransition = (action: () => void) => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
       }
-    });
+      isTransitioningRef.current = true;
+      action();
+      transitionTimeoutRef.current = setTimeout(() => {
+        isTransitioningRef.current = false;
+        transitionTimeoutRef.current = null;
+      }, 1000); // 1초간 스크롤 동작 제한
+    };
 
-    return unsubscribe;
-  }, [sceneProgress]);
+    const handleWheel = (event: WheelEvent) => {
+      if (!isFinalStepReady || Math.abs(event.deltaY) < 20) return;
+
+      if (isTransitioningRef.current) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.deltaY > 0) {
+        // Scroll down
+        if (!isFinalStepActive) {
+          event.preventDefault();
+          triggerTransition(() => setIsFinalStepActive(true));
+        } else if (isFinalStepActive && currentPartStep < PART_STEPS.length - 1) {
+          event.preventDefault();
+          triggerTransition(() => setCurrentPartStep((prev) => prev + 1));
+        }
+      } else if (event.deltaY < 0) {
+        // Scroll up
+        if (currentPartStep >= 0) {
+          event.preventDefault();
+          triggerTransition(() => setCurrentPartStep((prev) => prev - 1));
+        } else if (isFinalStepActive && currentPartStep === -1) {
+          event.preventDefault();
+          triggerTransition(() => setIsFinalStepActive(false));
+        }
+      }
+    };
+
+    let touchStart = 0;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStart = e.touches[0]?.clientY ?? 0;
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!isFinalStepReady) return;
+      const currentY = e.touches[0]?.clientY ?? 0;
+
+      if (isTransitioningRef.current) {
+        e.preventDefault();
+        touchStart = currentY; // transition 중인 동안에는 touchStart를 계속 갱신하여 누적 마우스 이동량 초기화
+        return;
+      }
+
+      const diff = touchStart - currentY;
+
+      if (Math.abs(diff) > 40) {
+        if (diff > 0) {
+          // Swipe up (scroll down)
+          if (!isFinalStepActive) {
+            e.preventDefault();
+            triggerTransition(() => {
+              setIsFinalStepActive(true);
+            });
+            touchStart = currentY;
+          } else if (isFinalStepActive && currentPartStep < PART_STEPS.length - 1) {
+            e.preventDefault();
+            triggerTransition(() => {
+              setCurrentPartStep((prev) => prev + 1);
+            });
+            touchStart = currentY;
+          }
+        } else {
+          // Swipe down (scroll up)
+          if (currentPartStep >= 0) {
+            e.preventDefault();
+            triggerTransition(() => {
+              setCurrentPartStep((prev) => prev - 1);
+            });
+            touchStart = currentY;
+          } else if (isFinalStepActive && currentPartStep === -1) {
+            e.preventDefault();
+            triggerTransition(() => {
+              setIsFinalStepActive(false);
+            });
+            touchStart = currentY;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [isFinalStepActive, isFinalStepReady, isIntroActive, currentPartStep]);
 
   // 6. 고해상도 HTML5 Canvas 기반 단일 '성스러운 태양기둥 (Sun Pillar / Light Shaft)' 렌더링 루프
   useEffect(() => {
@@ -428,14 +527,14 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
 
       const progress = sceneProgress.get();
 
-      // 빛 효과 활성도 계산 (스크롤 0% ~ 22%에 등장, 28% ~ 36%에 걷힘)
+      // 빛 효과 활성도 계산 (스크롤 0% ~ 48%에 등장, 58% ~ 75%에 걷힘)
       let activeAlpha = 0;
-      if (progress < 0.22) {
-        activeAlpha = progress / 0.22; // 서서히 충전
-      } else if (progress <= 0.28) {
+      if (progress < 0.48) {
+        activeAlpha = progress / 0.48; // 서서히 충전
+      } else if (progress <= 0.58) {
         activeAlpha = 1.0;            // 최대 밝기 유지
-      } else if (progress < 0.36) {
-        activeAlpha = Math.max(0, 1.0 - (progress - 0.28) / 0.08); // 걷힘
+      } else if (progress < 0.75) {
+        activeAlpha = Math.max(0, 1.0 - (progress - 0.58) / 0.17); // 걷힘
       }
 
       if (activeAlpha > 0) {
@@ -543,7 +642,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   }, [sceneProgress]);
 
   return (
-    <div ref={containerRef} className="relative h-[500vh] bg-cream">
+    <div ref={containerRef} className="relative h-[220vh] bg-cream">
       
       {/* ============================================================= */}
       {/* D&G / Shed.design 영감 - 시네마틱 몽타주 플래시 -> 개방 인트로 */}
@@ -919,111 +1018,107 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
           )}
         </AnimatePresence>
 
-        {/* ---------------- 6. 파트별 소개 스크럽 (Soprano 1 ~ Ensemble) ---------------- */}
-        <AnimatePresence>
-          {isFinalStepActive && currentPartStep >= 0 && (
+        {/* ---------------- 6. 파트별 소개 스택 카드 (Soprano 1 ~ Bass) ---------------- */}
+        {PART_STEPS.map((step, index) => {
+          const isActive = currentPartStep >= index;
+          const isCurrent = currentPartStep === index;
+
+          return (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.5 }}
+              key={step.key}
+              initial={{ y: '100%' }}
+              animate={{ y: isActive ? 0 : '100%' }}
+              transition={{ duration: 0.82, ease: [0.16, 1, 0.3, 1] }}
               style={{
-                backgroundColor: PART_STEPS[currentPartStep]?.bg || '#fbf7ee',
-                color: PART_STEPS[currentPartStep]?.text || '#2A2620',
-                zIndex: 50,
+                backgroundColor: step.bg,
+                color: step.text,
+                zIndex: 50 + index,
               }}
-              className="absolute inset-0 flex flex-col md:flex-row overflow-hidden transition-colors duration-700"
+              className="absolute inset-0 flex flex-col md:flex-row overflow-hidden"
             >
-              {/* 좌측 40% 영역: 텍스트 (고정되어 있고 콘텐츠만 페이드인/아웃 전환) */}
+              {/* 좌측 40% 영역: 텍스트 (정중앙 정렬) */}
               <div className="w-full md:w-[40%] flex-1 md:flex-none md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 py-8 md:py-0 select-none">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentPartStep}
-                    initial={{ y: 24, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -24, opacity: 0 }}
-                    transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-                    className="flex flex-col gap-3 md:gap-4.5"
+                <motion.div
+                  variants={textContainerVariants}
+                  initial="initial"
+                  animate={isCurrent ? 'animate' : 'initial'}
+                  className="flex flex-col gap-3 md:gap-4.5"
+                >
+                  {/* 영문 서브타이틀 */}
+                  <motion.span
+                    variants={textItemVariants}
+                    style={{ color: step.accent }}
+                    className="font-en text-xs md:text-sm tracking-[0.35em] font-semibold uppercase"
                   >
-                    {/* 영문 서브타이틀 */}
-                    <span
-                      style={{ color: PART_STEPS[currentPartStep]?.accent }}
-                      className="font-en text-xs md:text-sm tracking-[0.35em] font-semibold uppercase"
-                    >
-                      {PART_STEPS[currentPartStep]?.tagline}
-                    </span>
+                    {step.tagline}
+                  </motion.span>
 
-                    {/* 국문 메인 타이틀 */}
-                    <h3
-                      style={{ color: PART_STEPS[currentPartStep]?.text }}
-                      className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold leading-none mb-1.5 md:mb-2.5"
-                    >
-                      {PART_STEPS[currentPartStep]?.title}
-                    </h3>
+                  {/* 국문 메인 타이틀 */}
+                  <motion.h3
+                    variants={textItemVariants}
+                    style={{ color: step.text }}
+                    className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold leading-none mb-1.5 md:mb-2.5"
+                  >
+                    {step.title}
+                  </motion.h3>
 
-                    {/* 대표 시 (Poem) */}
-                    <p
-                      style={{
-                        color: PART_STEPS[currentPartStep]?.text === '#FFFDF9' ? 'rgba(255,253,249,0.85)' : 'rgba(74, 62, 46, 0.9)',
-                        borderColor: PART_STEPS[currentPartStep]?.accent,
-                      }}
-                      className="font-ko text-base md:text-[20px] italic leading-relaxed border-l-2 pl-4 my-1.5 md:my-2"
-                    >
-                      {`"${PART_STEPS[currentPartStep]?.poem}"`}
-                    </p>
+                  {/* 대표 시 (Poem) */}
+                  <motion.p
+                    variants={textItemVariants}
+                    style={{
+                      color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.85)' : 'rgba(74, 62, 46, 0.9)',
+                      borderColor: step.accent,
+                    }}
+                    className="font-ko text-base md:text-[20px] italic leading-relaxed border-l-2 pl-4 my-1.5 md:my-2"
+                  >
+                    {`"${step.poem}"`}
+                  </motion.p>
 
-                    {/* 파트 소개문 (Desc) */}
-                    <p
-                      style={{ color: PART_STEPS[currentPartStep]?.text === '#FFFDF9' ? 'rgba(255,253,249,0.75)' : 'rgba(42, 38, 32, 0.8)' }}
-                      className="font-ko text-sm md:text-base leading-relaxed font-light"
-                    >
-                      {PART_STEPS[currentPartStep]?.desc}
-                    </p>
-                  </motion.div>
-                </AnimatePresence>
+                  {/* 파트 소개문 (Desc) */}
+                  <motion.p
+                    variants={textItemVariants}
+                    style={{ color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.75)' : 'rgba(42, 38, 32, 0.8)' }}
+                    className="font-ko text-sm md:text-base leading-relaxed font-light"
+                  >
+                    {step.desc}
+                  </motion.p>
+                </motion.div>
               </div>
 
-              {/* 우측 60% 영역: 이미지 (스크롤 진척도에 따라 가로 또는 세로로 스크러빙 슬라이딩) */}
+              {/* 우측 60% 영역: 이미지 */}
               <div className="w-full md:w-[60%] aspect-[1.6] md:aspect-none md:h-full relative overflow-hidden">
                 <motion.div
-                  style={{
-                    y: partsScrollY,
-                  }}
-                  className="absolute inset-x-0 top-0 flex flex-col w-full h-[600%] md:h-[600%]"
+                  initial={{ scale: 1.12, opacity: 0 }}
+                  animate={isCurrent ? { scale: 1, opacity: 1 } : { scale: 1.12, opacity: 0 }}
+                  transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+                  className="w-full h-full relative"
                 >
-                  {PART_STEPS.map((step) => (
-                    <div
-                      key={step.key}
-                      className="w-full h-[16.666%] relative"
-                    >
-                      <Image
-                        src={step.photo}
-                        alt={step.title}
-                        fill
-                        priority
-                        className="object-cover object-center select-none"
-                        sizes="(max-width: 768px) 100vw, 60vw"
-                      />
-                      {/* 경계 구분을 부드럽게 해주는 배경색 맞춤형 그라데이션 오버레이 */}
-                      <div
-                        style={{
-                          background: `linear-gradient(to right, ${step.bg}, transparent, transparent)`,
-                        }}
-                        className="absolute inset-0 hidden md:block pointer-events-none"
-                      />
-                      <div
-                        style={{
-                          background: `linear-gradient(to bottom, ${step.bg}, transparent, transparent)`,
-                        }}
-                        className="absolute inset-0 block md:hidden pointer-events-none"
-                      />
-                    </div>
-                  ))}
+                  <Image
+                    src={step.photo}
+                    alt={step.title}
+                    fill
+                    priority
+                    className="object-cover object-center select-none"
+                    sizes="(max-width: 768px) 100vw, 60vw"
+                  />
+                  {/* 경계 구분을 부드럽게 해주는 배경색 맞춤형 그라데이션 오버레이 */}
+                  <div
+                    style={{
+                      background: `linear-gradient(to right, ${step.bg}, transparent, transparent)`,
+                    }}
+                    className="absolute inset-0 hidden md:block pointer-events-none"
+                  />
+                  <div
+                    style={{
+                      background: `linear-gradient(to bottom, ${step.bg}, transparent, transparent)`,
+                    }}
+                    className="absolute inset-0 block md:hidden pointer-events-none"
+                  />
                 </motion.div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
+          );
+        })}
 
       </div>
 
