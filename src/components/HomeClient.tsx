@@ -89,6 +89,17 @@ const PART_STEPS = [
     bg: '#4E7088',
     text: '#FFFDF9',
     accent: '#ffd899'
+  },
+  {
+    key: 'ensemble',
+    tagline: 'ENSEMBLE',
+    title: '악단',
+    poem: '다채로운 선율로 찬양의 깊이를 더하는 악기들의 울림',
+    desc: '현악기와 관악기의 아름다운 하모니로 찬양을 더욱 풍성하고 장엄하게 보좌합니다.',
+    photo: '/ensemble-.webp',
+    bg: '#2A2620',
+    text: '#FFFDF9',
+    accent: '#b89a5a'
   }
 ];
 
