@@ -53,7 +53,7 @@ const PART_STEPS = [
     poem: '가장 높은 곳에서 빛나는 천사의 목소리',
     desc: '맑고 투명한 천상의 고음으로 프레이즈 찬양의 선율을 이끕니다.',
     photo: '/intro_5.webp',
-    bg: '#F5EED9',
+    bg: '#E2D7BD',
     text: '#2A2620',
     accent: '#8a6f2f'
   },
