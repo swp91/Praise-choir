@@ -249,26 +249,26 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
 
 
   // 2. 1섹션 (Hero) 스타일 변환값 정의
-  const heroOpacity = useTransform(sceneProgress, [0, 0.30, 0.35, 1], [1, 0.15, 0, 0], { clamp: true });
-  const heroScale = useTransform(sceneProgress, [0, 0.35, 1], [1, 1.04, 1.04], { clamp: true });
-  const heroBlur = useTransform(sceneProgress, [0, 0.28, 1], ["blur(0px)", "blur(5px)", "blur(5px)"], { clamp: true });
+  const heroOpacity = useTransform(sceneProgress, [0, 0.18, 0.25, 1], [1, 0.15, 0, 0], { clamp: true });
+  const heroScale = useTransform(sceneProgress, [0, 0.25, 1], [1, 1.04, 1.04], { clamp: true });
+  const heroBlur = useTransform(sceneProgress, [0, 0.18, 1], ["blur(0px)", "blur(5px)", "blur(5px)"], { clamp: true });
 
-  // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.35 지점에서 화면을 완전히 덮어 완벽한 심리스 전환 보증)
+  // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.20 지점에서 화면을 완전히 덮어 완벽한 심리스 전환 보증)
   const transitionOverlayOpacity = useTransform(
     sceneProgress,
-    [0.25, 0.35, 0.45, 0.55, 1],
+    [0.12, 0.20, 0.28, 0.36, 1],
     [0, 1, 1, 0, 0],
     { clamp: true }
   );
 
   // 4. 2섹션 (The Sacred Space) 스타일 변환값 정의
-  const section2Opacity = useTransform(sceneProgress, [0.35, 0.48, 1], [0, 1, 1], { clamp: true });
-  const section2Scale = useTransform(sceneProgress, [0.35, 0.50, 1], [0.96, 1, 1], { clamp: true });
-  const section2Y = useTransform(sceneProgress, [0.35, 0.50, 1], [24, 0, 0], { clamp: true });
+  const section2Opacity = useTransform(sceneProgress, [0.28, 0.38, 1], [0, 1, 1], { clamp: true });
+  const section2Scale = useTransform(sceneProgress, [0.28, 0.40, 1], [0.96, 1, 1], { clamp: true });
+  const section2Y = useTransform(sceneProgress, [0.28, 0.40, 1], [24, 0, 0], { clamp: true });
 
   // 5. 입체적인 종형 조명 정밀 정렬을 위한 3D 가상 공간 깊이 틸트
-  const rotateX = useTransform(sceneProgress, [0, 0.35, 1], [0, 8, 8], { clamp: true });
-  const translateZ = useTransform(sceneProgress, [0, 0.35, 1], [0, 60, 60], { clamp: true });
+  const rotateX = useTransform(sceneProgress, [0, 0.22, 1], [0, 8, 8], { clamp: true });
+  const translateZ = useTransform(sceneProgress, [0, 0.22, 1], [0, 60, 60], { clamp: true });
 
   // 6. 파트별 이미지 세로 스크러빙용 변환값 정의
   const partsScrollY = useTransform(
@@ -428,14 +428,14 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
 
       const progress = sceneProgress.get();
 
-      // 빛 효과 활성도 계산 (스크롤 0% ~ 35%에 등장, 45% ~ 55%에 걷힘)
+      // 빛 효과 활성도 계산 (스크롤 0% ~ 22%에 등장, 28% ~ 36%에 걷힘)
       let activeAlpha = 0;
-      if (progress < 0.35) {
-        activeAlpha = progress / 0.35; // 서서히 충전
-      } else if (progress <= 0.45) {
+      if (progress < 0.22) {
+        activeAlpha = progress / 0.22; // 서서히 충전
+      } else if (progress <= 0.28) {
         activeAlpha = 1.0;            // 최대 밝기 유지
-      } else if (progress < 0.55) {
-        activeAlpha = Math.max(0, 1.0 - (progress - 0.45) / 0.10); // 걷힘
+      } else if (progress < 0.36) {
+        activeAlpha = Math.max(0, 1.0 - (progress - 0.28) / 0.08); // 걷힘
       }
 
       if (activeAlpha > 0) {
