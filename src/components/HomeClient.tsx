@@ -92,101 +92,7 @@ const PART_STEPS = [
   }
 ];
 
-type PartStepSectionProps = {
-  step: typeof PART_STEPS[number];
-  index: number;
-};
 
-function PartStepSection({ step, index }: PartStepSectionProps) {
-  return (
-    <section 
-      style={{ 
-        backgroundColor: step.bg,
-        color: step.text,
-      }}
-      className="relative w-full min-h-screen flex flex-col md:flex-row overflow-hidden"
-    >
-      {/* 좌측 40% 영역: 텍스트 (뷰포트에 들어올 때 애니메이션) */}
-      <div className="w-full md:w-[40%] h-[45%] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 py-16 md:py-0 select-none">
-        <motion.div
-          initial={{ y: 40, opacity: 0 }}
-          whileInView={{ y: 0, opacity: 1 }}
-          viewport={{ once: true, margin: "-15%" }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col gap-3 md:gap-4.5"
-        >
-          {/* 영문 서브타이틀 */}
-          <span
-            style={{ color: step.accent }}
-            className="font-en text-xs md:text-sm tracking-[0.35em] font-semibold uppercase"
-          >
-            {step.tagline}
-          </span>
-
-          {/* 국문 메인 타이틀 */}
-          <h3
-            style={{ color: step.text }}
-            className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold leading-none mb-1.5 md:mb-2.5"
-          >
-            {step.title}
-          </h3>
-
-          {/* 대표 시 (Poem) */}
-          <p
-            style={{
-              color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.85)' : 'rgba(74, 62, 46, 0.9)',
-              borderColor: step.accent,
-            }}
-            className="font-ko text-base md:text-[20px] italic leading-relaxed border-l-2 pl-4 my-1.5 md:my-2"
-          >
-            {`"${step.poem}"`}
-          </p>
-
-          {/* 파트 소개문 (Desc) */}
-          <p
-            style={{ color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.75)' : 'rgba(42, 38, 32, 0.8)' }}
-            className="font-ko text-sm md:text-base leading-relaxed font-light"
-          >
-            {step.desc}
-          </p>
-        </motion.div>
-      </div>
-
-      {/* 우측 60% 영역: 이미지 (뷰포트에 들어올 때 스케일 업 애니메이션) */}
-      <div className="w-full md:w-[60%] h-[55vh] md:h-screen relative overflow-hidden">
-        <motion.div
-          initial={{ scale: 1.1, opacity: 0 }}
-          whileInView={{ scale: 1, opacity: 1 }}
-          viewport={{ once: true, margin: "-15%" }}
-          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
-          className="w-full h-full relative"
-        >
-          <Image
-            src={step.photo}
-            alt={step.title}
-            fill
-            priority
-            className="object-cover object-center select-none"
-            sizes="(max-width: 768px) 100vw, 60vw"
-          />
-          {/* 경계 구분을 부드럽게 해주는 배경색 맞춤형 그라데이션 오버레이 */}
-          <div
-            style={{
-              background: `linear-gradient(to right, ${step.bg}, transparent, transparent)`,
-            }}
-            className="absolute inset-0 hidden md:block pointer-events-none"
-          />
-          <div
-            style={{
-              background: `linear-gradient(to bottom, ${step.bg}, transparent, transparent)`,
-            }}
-            className="absolute inset-0 block md:hidden pointer-events-none"
-          />
-        </motion.div>
-      </div>
-    </section>
-  );
-}
 
 type SlideCardProps = {
   item: {
@@ -876,8 +782,8 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
         )}
       </AnimatePresence>
 
-      {/* Sticky Section Wrapper (총 스크롤 400vh 범위 제공) */}
-      <div className="relative h-[400vh]">
+      {/* Sticky Section Wrapper (총 스크롤 500vh 범위 제공) */}
+      <div className="relative h-[500vh]">
         <div className="sticky top-0 w-full h-screen overflow-hidden">
           
           {/* ---------------- 1섹션: 웅장한 시네마틱 Hero ---------------- */}
@@ -1081,16 +987,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
         </div>
       </div>
 
-      {/* ---------------- 6. 파트별 소개 섹션 리스트 (일반 스크롤) ---------------- */}
-      <div className="relative z-40 bg-cream">
-        {PART_STEPS.map((step, index) => (
-          <PartStepSection
-            key={step.key}
-            step={step}
-            index={index}
-          />
-        ))}
-      </div>
+
 
     </div>
   );
