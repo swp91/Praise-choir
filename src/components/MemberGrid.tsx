@@ -5,6 +5,8 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Member } from '@/lib/types';
 import { imageUrl } from '@/lib/media';
+import { useQuery } from '@tanstack/react-query';
+import { getMembersData } from '@/lib/supabase/choir';
 
 // Birth date display helper
 function BirthDisplay({ birth }: { birth: string }) {
@@ -90,7 +92,71 @@ const PART_DESIGNS = {
   },
 } as const;
 
-export default function MemberGrid({ parts }: Props) {
+export default function MemberGrid() {
+  const { data: rawParts = [] } = useQuery({
+    queryKey: ['members'],
+    queryFn: getMembersData,
+  });
+
+  // Combine s1 and s2 into Soprano
+  const s1 = rawParts.find((p) => p.key === 's1');
+  const s2 = rawParts.find((p) => p.key === 's2');
+  const alto = rawParts.find((p) => p.key === 'a');
+  const tenor = rawParts.find((p) => p.key === 't');
+  const bass = rawParts.find((p) => p.key === 'b');
+  const band = rawParts.find((p) => p.key === 'h');
+  const staff = rawParts.find((p) => p.key === 'staff');
+
+  const sopranoMembers = [
+    ...(s1?.members.map((m) => ({ ...m, subPart: '소프라노 1' })) || []),
+    ...(s2?.members.map((m) => ({ ...m, subPart: '소프라노 2' })) || []),
+  ];
+
+  const parts: PartData[] = [
+    {
+      key: 'soprano',
+      name: '소프라노',
+      nameEn: 'Soprano',
+      leader: s1?.leader || s2?.leader || '',
+      members: sopranoMembers,
+    },
+    {
+      key: 'alto',
+      name: alto?.name || '알토',
+      nameEn: alto?.nameEn || 'Alto',
+      leader: alto?.leader || '',
+      members: alto?.members || [],
+    },
+    {
+      key: 'tenor',
+      name: tenor?.name || '테너',
+      nameEn: tenor?.nameEn || 'Tenor',
+      leader: tenor?.leader || '',
+      members: tenor?.members || [],
+    },
+    {
+      key: 'bass',
+      name: bass?.name || '베이스',
+      nameEn: bass?.nameEn || 'Bass',
+      leader: bass?.leader || '',
+      members: bass?.members || [],
+    },
+    {
+      key: 'band',
+      name: '악단',
+      nameEn: 'Hagios Ensemble',
+      leader: band?.leader || '',
+      members: band?.members || [],
+    },
+    {
+      key: 'staff',
+      name: staff?.name || '스태프',
+      nameEn: staff?.nameEn || 'Staff',
+      leader: staff?.leader || '',
+      members: staff?.members || [],
+    },
+  ];
+
   const [expandedPart, setExpandedPart] = useState<string | null>(null);
   const [showFloatingBack, setShowFloatingBack] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);

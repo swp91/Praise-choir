@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import type { PracticeSlot } from '@/lib/types';
+import { useQuery } from '@tanstack/react-query';
+import { getPracticeData } from '@/lib/supabase/choir';
 
 type Props = {
   data: {
@@ -108,7 +110,12 @@ function MaskBottom({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function PracticeClient({ data }: Props) {
+export default function PracticeClient() {
+  const { data } = useQuery({
+    queryKey: ['practice'],
+    queryFn: getPracticeData,
+  });
+
   // 데스크톱: 0~3 (총 4개 스프레드 / 8개 페이지)
   const [activeSpread, setActiveSpread] = useState(0);
   const [prevSpread, setPrevSpread] = useState(0);
@@ -154,6 +161,8 @@ export default function PracticeClient({ data }: Props) {
       setTargetSpread(nextSpread);
     }
   };
+
+  if (!data) return null;
 
   // 일정 그룹화
   const morning = data.practice.filter((_, idx) => idx <= 2);

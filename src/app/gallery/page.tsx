@@ -3,11 +3,17 @@ import HeroBlock from '@/components/HeroBlock';
 import SectionCap from '@/components/SectionCap';
 import Gallery from '@/components/Gallery';
 import { getGalleryData } from '@/lib/supabase/choir';
+import { QueryClient, dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
 export const metadata: Metadata = { title: 'Archive · 프레이즈찬양대' };
 
 export default async function GalleryPage() {
-  const photos = await getGalleryData();
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ['gallery'],
+    queryFn: getGalleryData,
+  });
 
   return (
     <main className="main-content h-screen overflow-hidden p-0 max-[880px]:min-h-screen max-[880px]:h-auto max-[880px]:overflow-visible">
@@ -22,7 +28,9 @@ export default async function GalleryPage() {
         <SectionCap label="Albums" note="Photo Archive" />
       </div>
 
-      <Gallery photos={photos} />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Gallery />
+      </HydrationBoundary>
     </main>
   );
 }

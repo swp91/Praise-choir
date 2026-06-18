@@ -2,6 +2,8 @@
 import { useState, useEffect } from 'react';
 import type { Photo } from '@/lib/types';
 import InteractiveArchiveGallery from './InteractiveArchiveGallery';
+import { useQuery } from '@tanstack/react-query';
+import { getGalleryData } from '@/lib/supabase/choir';
 
 function Placeholder({ photo }: { photo: Photo }) {
   if (photo.url) {
@@ -27,7 +29,12 @@ function Placeholder({ photo }: { photo: Photo }) {
   );
 }
 
-export default function Gallery({ photos }: { photos: Photo[] }) {
+export default function Gallery() {
+  const { data: photos = [] } = useQuery({
+    queryKey: ['gallery'],
+    queryFn: getGalleryData,
+  });
+
   const [active, setActive] = useState<Photo | null>(null);
   const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
 

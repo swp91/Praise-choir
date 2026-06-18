@@ -3,6 +3,8 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ChoirEvent } from '@/lib/types';
+import { useQuery } from '@tanstack/react-query';
+import { getEventsData } from '@/lib/supabase/choir';
 
 interface EventsSplitClientProps {
   yearsList: Array<{ year: number; display_type: string }>;
@@ -75,10 +77,13 @@ function computeStatus(event: ChoirEvent, year: number, today: Date): Status {
   return { kind: 'upcoming', days: Math.ceil((firstMs - todayMs) / 86400000) };
 }
 
-export default function EventsSplitClient({
-  yearsList,
-  allEvents,
-}: EventsSplitClientProps) {
+export default function EventsSplitClient() {
+  const { data } = useQuery({
+    queryKey: ['events'],
+    queryFn: getEventsData,
+  });
+
+  const { yearsList = [], allEvents = [] } = data || {};
   const initialYear = useMemo(() => {
     const schedule = yearsList.find((y) => y.display_type === 'schedule');
     return schedule ? schedule.year : (yearsList[0]?.year ?? new Date().getFullYear());

@@ -4,6 +4,8 @@ import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { imageUrl } from '@/lib/media';
 import type { Officer } from '@/lib/types';
+import { useQuery } from '@tanstack/react-query';
+import { getLeadersData } from '@/lib/supabase/choir';
 
 interface LeadersGalleryClientProps {
   officers: Officer[];
@@ -64,7 +66,13 @@ function getRoleAdjustedLane(officer: Officer, baseLane: number, _laneCount: num
   return baseLane;
 }
 
-export default function LeadersGalleryClient({ officers }: LeadersGalleryClientProps) {
+export default function LeadersGalleryClient() {
+  const { data: leaders } = useQuery({
+    queryKey: ['leaders'],
+    queryFn: getLeadersData,
+  });
+
+  const officers = leaders?.officers || [];
   const items = officers.length ? officers : EMPTY_OFFICERS;
   const streamCards = useMemo(() => buildCards(items), [items]);
   const [offset, setOffset] = useState(0);
