@@ -4,19 +4,10 @@ import { motion, useScroll, useTransform, useMotionValue, AnimatePresence } from
 import { useRef, useEffect, useState } from 'react';
 import Image from 'next/image';
 import type { Conductor, Officer } from '@/lib/types';
+import { useQuery } from '@tanstack/react-query';
+import { getHomeData, getLeadersData } from '@/lib/supabase/choir';
 
 type Props = {
-  home: {
-    year: number;
-    themeKo: string;
-    themeEn: string | null;
-    heroBackgroundUrl: string;
-    heroBackgroundPosition: string;
-  };
-  leaders: {
-    conductors: Conductor[];
-    officers: Officer[];
-  };
   preloadPhotos?: string[];
 };
 
@@ -142,8 +133,20 @@ function SlideCard({ item }: SlideCardProps) {
   );
 }
 
-export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props) {
+export default function HomeClient({ preloadPhotos = [] }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const { data: home } = useQuery({
+    queryKey: ['home'],
+    queryFn: getHomeData,
+  });
+
+  const { data: leaders } = useQuery({
+    queryKey: ['leaders'],
+    queryFn: getLeadersData,
+  });
+
+  if (!home || !leaders) return null;
 
   const conductorsList = leaders?.conductors || [];
   const conductorSlides = conductorsList.map((c) => ({
