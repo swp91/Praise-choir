@@ -437,6 +437,16 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   const navyBorderRadius = useTransform(navyProgress, [0.00, 1.00], [32, 0], { clamp: true });
   const navyContentOpacity = useTransform(navyProgress, [0.60, 1.00], [0, 1], { clamp: true });
 
+  // 7. 슬라이더 등장 트랜지션 변환값 (300vh ~ 400vh 구간에서 트리거)
+  const sliderProgress = useTransform(scrollY, (value) => {
+    if (typeof window === 'undefined') return 0;
+    const vh = window.innerHeight;
+    return Math.min(Math.max((value - 3 * vh) / vh, 0), 1);
+  });
+  const sliderY = useTransform(sliderProgress, [0.00, 1.00], ["60vh", "0vh"], { clamp: true });
+  const sliderOpacity = useTransform(sliderProgress, [0.00, 0.80], [0, 1], { clamp: true });
+  const textY = useTransform(sliderProgress, [0.00, 1.00], ["0px", "-60px"], { clamp: true });
+
   useEffect(() => {
     const unsubscribe = navyProgress.on('change', (latest) => {
       if (latest < 0.2) {
@@ -866,8 +876,8 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
         )}
       </AnimatePresence>
 
-      {/* Sticky Section Wrapper (총 스크롤 300vh 범위 제공) */}
-      <div className="relative h-[300vh]">
+      {/* Sticky Section Wrapper (총 스크롤 400vh 범위 제공) */}
+      <div className="relative h-[400vh]">
         <div className="sticky top-0 w-full h-screen overflow-hidden">
           
           {/* ---------------- 1섹션: 웅장한 시네마틱 Hero ---------------- */}
@@ -1032,7 +1042,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
 
               {/* 좌측 정렬 타이포그래피 텍스트 */}
               <motion.div
-                style={{ opacity: navyContentOpacity }}
+                style={{ opacity: navyContentOpacity, y: textY }}
                 className="relative z-10 flex flex-col items-start justify-center max-w-7xl w-full px-8 md:px-20 select-none pt-4 md:pt-10"
               >
                 <span className="font-en text-[11px] md:text-[13px] tracking-[0.35em] uppercase text-gold font-semibold mb-3 md:mb-5 opacity-90">
@@ -1046,7 +1056,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
 
               {/* 하단 무한 루프 슬라이더 */}
               <motion.div 
-                style={{ opacity: navyContentOpacity }}
+                style={{ opacity: sliderOpacity, y: sliderY }}
                 className="w-full z-10 mt-auto select-none overflow-hidden"
               >
                 {/* 무한반복 가로 롤러 */}
