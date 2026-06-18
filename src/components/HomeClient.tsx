@@ -93,27 +93,27 @@ const PART_STEPS = [
 ];
 
 const PART_RANGES = [
-  { start: 0.52, end: 0.60 }, // Soprano 1
-  { start: 0.68, end: 0.76 }, // Soprano 2
-  { start: 0.82, end: 0.88 }, // Alto
-  { start: 0.92, end: 0.95 }, // Tenor
-  { start: 0.97, end: 0.99 }, // Bass
+  { start: 0.28, end: 0.38 }, // Soprano 1
+  { start: 0.46, end: 0.56 }, // Soprano 2
+  { start: 0.64, end: 0.74 }, // Alto
+  { start: 0.80, end: 0.88 }, // Tenor
+  { start: 0.92, end: 0.98 }, // Bass
 ];
 
 type PartStepCardProps = {
   step: typeof PART_STEPS[number];
   index: number;
-  sceneProgress: any;
+  scrubProgress: any;
   startRange: number;
   endRange: number;
   isCurrent: boolean;
 };
 
-function PartStepCard({ step, index, sceneProgress, startRange, endRange, isCurrent }: PartStepCardProps) {
-  const y = useTransform(sceneProgress, [startRange, endRange], ["100vh", "0vh"], { clamp: true });
-  const width = useTransform(sceneProgress, [startRange, endRange], ["92vw", "100vw"], { clamp: true });
-  const height = useTransform(sceneProgress, [startRange, endRange], ["92vh", "100vh"], { clamp: true });
-  const borderRadius = useTransform(sceneProgress, [startRange, endRange], [32, 0], { clamp: true });
+function PartStepCard({ step, index, scrubProgress, startRange, endRange, isCurrent }: PartStepCardProps) {
+  const y = useTransform(scrubProgress, [startRange, endRange], ["100vh", "0vh"], { clamp: true });
+  const width = useTransform(scrubProgress, [startRange, endRange], ["92vw", "100vw"], { clamp: true });
+  const height = useTransform(scrubProgress, [startRange, endRange], ["92vh", "100vh"], { clamp: true });
+  const borderRadius = useTransform(scrubProgress, [startRange, endRange], [32, 0], { clamp: true });
 
   return (
     <div 
@@ -229,6 +229,9 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   });
   const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 7 (7단계가 최종 팽창)
   const [activeCardIndex, setActiveCardIndex] = useState(-1); // -1: Slogan, 0: Navy, 1~5: Parts
+  const [isAutoAdvancingFinalStep, setIsAutoAdvancingFinalStep] = useState(false);
+  const touchStartYRef = useRef<number | null>(null);
+  const autoScrollFrameRef = useRef<number | null>(null);
 
   // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 2단계 + 최종 팽창)
   useEffect(() => {
@@ -353,52 +356,66 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   }, [isIntroActive, preloadPhotos]);
 
   // 1. 브라우저 전체 스크롤 진척도 감지 (0 to 1)
-  const { scrollYProgress } = useScroll();
-  const sceneProgress = useMotionValue(0);
+  const { scrollY } = useScroll();
 
+  const sceneProgress = useTransform(scrollY, (value) => {
+    if (typeof window === 'undefined') return 0;
+    const vh = window.innerHeight;
+    return Math.min(Math.max(value / vh, 0), 1);
+  });
+
+  const scrubProgress = useTransform(scrollY, (value) => {
+    if (typeof window === 'undefined') return 0;
+    const vh = window.innerHeight;
+    const totalScroll = document.documentElement.scrollHeight - vh;
+    const scrollAfterSlogan = totalScroll - vh;
+    if (scrollAfterSlogan <= 0) return 0;
+    const progress = (value - vh) / scrollAfterSlogan;
+    return Math.min(Math.max(progress, 0), 1);
+  });
 
   // 2. 1섹션 (Hero) 스타일 변환값 정의
-  const heroOpacity = useTransform(sceneProgress, [0, 0.15, 0.20, 1], [1, 0.15, 0, 0], { clamp: true });
-  const heroScale = useTransform(sceneProgress, [0, 0.20, 1], [1, 1.04, 1.04], { clamp: true });
-  const heroBlur = useTransform(sceneProgress, [0, 0.15, 1], ["blur(0px)", "blur(5px)", "blur(5px)"], { clamp: true });
+  const heroOpacity = useTransform(sceneProgress, [0, 0.42, 0.48, 1], [1, 0.15, 0, 0], { clamp: true });
+  const heroScale = useTransform(sceneProgress, [0, 0.48, 1], [1, 1.04, 1.04], { clamp: true });
+  const heroBlur = useTransform(sceneProgress, [0, 0.4, 1], ["blur(0px)", "blur(5px)", "blur(5px)"], { clamp: true });
 
-  // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.12 ~ 0.26 지점)
+  // 3. 포탈 정점 교차 지점용 따뜻한 금빛 단색 장막 오버레이 (0.48 ~ 0.58 지점에서 화면을 완전히 덮어 완벽한 심리스 전환 보증)
   const transitionOverlayOpacity = useTransform(
     sceneProgress,
-    [0.08, 0.14, 0.18, 0.24, 1],
+    [0.38, 0.48, 0.58, 0.68, 1],
     [0, 1, 1, 0, 0],
     { clamp: true }
   );
 
   // 4. 2섹션 (The Sacred Space) 스타일 변환값 정의
-  const section2Opacity = useTransform(sceneProgress, [0.20, 0.30, 0.40, 0.45], [0, 1, 1, 0], { clamp: true });
-  const section2Scale = useTransform(sceneProgress, [0.20, 0.30], [0.96, 1], { clamp: true });
-  const section2Y = useTransform(sceneProgress, [0.20, 0.30], [24, 0], { clamp: true });
+  const section2Opacity = useTransform(sceneProgress, [0.48, 0.62, 1], [0, 1, 1], { clamp: true });
+  const section2Scale = useTransform(sceneProgress, [0.48, 0.65, 1], [0.96, 1, 1], { clamp: true });
+  const section2Y = useTransform(sceneProgress, [0.48, 0.65, 1], [24, 0, 0], { clamp: true });
 
   // 5. 입체적인 종형 조명 정밀 정렬을 위한 3D 가상 공간 깊이 틸트
-  const rotateX = useTransform(sceneProgress, [0, 0.15, 1], [0, 8, 8], { clamp: true });
-  const translateZ = useTransform(sceneProgress, [0, 0.15, 1], [0, 60, 60], { clamp: true });
+  const rotateX = useTransform(sceneProgress, [0, 0.48, 1], [0, 8, 8], { clamp: true });
+  const translateZ = useTransform(sceneProgress, [0, 0.48, 1], [0, 60, 60], { clamp: true });
 
   // 6. 네이비 색깔 화면 (섬김의 손길들) 스크럽 트랜지션 변환값
-  const navyY = useTransform(sceneProgress, [0.30, 0.40], ["100vh", "0vh"], { clamp: true });
-  const navyWidth = useTransform(sceneProgress, [0.30, 0.40], ["92vw", "100vw"], { clamp: true });
-  const navyHeight = useTransform(sceneProgress, [0.30, 0.40], ["92vh", "100vh"], { clamp: true });
-  const navyBorderRadius = useTransform(sceneProgress, [0.30, 0.40], [32, 0], { clamp: true });
-  const navyContentOpacity = useTransform(sceneProgress, [0.36, 0.40], [0, 1], { clamp: true });
+  const navyY = useTransform(scrubProgress, [0.00, 0.12], ["100vh", "0vh"], { clamp: true });
+  const navyWidth = useTransform(scrubProgress, [0.00, 0.12], ["92vw", "100vw"], { clamp: true });
+  const navyHeight = useTransform(scrubProgress, [0.00, 0.12], ["92vh", "100vh"], { clamp: true });
+  const navyBorderRadius = useTransform(scrubProgress, [0.00, 0.12], [32, 0], { clamp: true });
+  const navyContentOpacity = useTransform(scrubProgress, [0.08, 0.12], [0, 1], { clamp: true });
 
   useEffect(() => {
-    const unsubscribe = sceneProgress.on('change', (latest) => {
-      if (latest < 0.30) {
+    const unsubscribe = scrubProgress.on('change', (latest) => {
+      if (latest < 0.12) {
         setActiveCardIndex(-1);
-      } else if (latest >= 0.30 && latest < 0.52) {
+      } else if (latest >= 0.12 && latest < 0.28) {
         setActiveCardIndex(0); // Navy Screen
-      } else if (latest >= 0.52 && latest < 0.68) {
+      } else if (latest >= 0.28 && latest < 0.46) {
         setActiveCardIndex(1); // Soprano 1
-      } else if (latest >= 0.68 && latest < 0.82) {
+      } else if (latest >= 0.46 && latest < 0.64) {
         setActiveCardIndex(2); // Soprano 2
-      } else if (latest >= 0.82 && latest < 0.92) {
+      } else if (latest >= 0.64 && latest < 0.80) {
         setActiveCardIndex(3); // Alto
-      } else if (latest >= 0.92 && latest < 0.97) {
+      } else if (latest >= 0.80 && latest < 0.92) {
         setActiveCardIndex(4); // Tenor
       } else {
         setActiveCardIndex(5); // Bass
@@ -406,17 +423,96 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
     });
 
     return unsubscribe;
-  }, [sceneProgress]);
+  }, [scrubProgress]);
 
   useEffect(() => {
     if (isIntroActive) return;
 
-    const unsubscribe = scrollYProgress.on('change', (latest) => {
-      sceneProgress.set(latest);
-    });
+    const startFinalSequence = (event: Event) => {
+      if (scrollY.get() > window.innerHeight * 0.08 || isAutoAdvancingFinalStep) return;
 
-    return unsubscribe;
-  }, [isIntroActive, sceneProgress, scrollYProgress]);
+      event.preventDefault();
+      setIsAutoAdvancingFinalStep(true);
+
+      if (autoScrollFrameRef.current !== null) {
+        cancelAnimationFrame(autoScrollFrameRef.current);
+      }
+
+      const startY = window.scrollY;
+      const targetY = window.innerHeight;
+      const distance = targetY - startY;
+      const duration = 1800;
+      const startedAt = performance.now();
+      const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
+
+      const animateScroll = (now: number) => {
+        const elapsed = now - startedAt;
+        const progress = Math.min(elapsed / duration, 1);
+        const currentY = startY + distance * easeInOutSine(progress);
+        window.scrollTo(0, currentY);
+
+        if (progress < 1) {
+          autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
+          return;
+        }
+
+        autoScrollFrameRef.current = null;
+        window.scrollTo(0, targetY);
+        setIsAutoAdvancingFinalStep(false);
+      };
+
+      autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
+    };
+
+    const handleWheel = (event: WheelEvent) => {
+      if (isAutoAdvancingFinalStep) {
+        event.preventDefault();
+        return;
+      }
+
+      if (event.deltaY > 20) {
+        startFinalSequence(event);
+      }
+    };
+
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartYRef.current = event.touches[0]?.clientY ?? null;
+    };
+
+    const handleTouchMove = (event: TouchEvent) => {
+      if (isAutoAdvancingFinalStep) {
+        event.preventDefault();
+        return;
+      }
+
+      const startY = touchStartYRef.current;
+      if (startY === null) return;
+
+      const currentY = event.touches[0]?.clientY ?? startY;
+      if (startY - currentY > 30) {
+        startFinalSequence(event);
+        touchStartYRef.current = null;
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+    };
+  }, [isAutoAdvancingFinalStep, isIntroActive, scrollY]);
+
+  useEffect(() => {
+    return () => {
+      if (autoScrollFrameRef.current !== null) {
+        cancelAnimationFrame(autoScrollFrameRef.current);
+      }
+    };
+  }, []);
 
   // 6. 고해상도 HTML5 Canvas 기반 단일 '성스러운 태양기둥 (Sun Pillar / Light Shaft)' 렌더링 루프
   useEffect(() => {
@@ -444,14 +540,14 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
 
       const progress = sceneProgress.get();
 
-      // 빛 효과 활성도 계산 (스크롤 0% ~ 15%에 등장, 20% ~ 28%에 걷힘)
+      // 빛 효과 활성도 계산 (스크롤 0% ~ 48%에 등장, 58% ~ 75%에 걷힘)
       let activeAlpha = 0;
-      if (progress < 0.15) {
-        activeAlpha = progress / 0.15; // 서서히 충전
-      } else if (progress <= 0.20) {
+      if (progress < 0.48) {
+        activeAlpha = progress / 0.48; // 서서히 충전
+      } else if (progress <= 0.58) {
         activeAlpha = 1.0;            // 최대 밝기 유지
-      } else if (progress < 0.28) {
-        activeAlpha = Math.max(0, 1.0 - (progress - 0.20) / 0.08); // 걷힘
+      } else if (progress < 0.75) {
+        activeAlpha = Math.max(0, 1.0 - (progress - 0.58) / 0.17); // 걷힘
       }
 
       if (activeAlpha > 0) {
@@ -933,7 +1029,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
               key={step.key}
               step={step}
               index={index}
-              sceneProgress={sceneProgress}
+              scrubProgress={scrubProgress}
               startRange={range.start}
               endRange={range.end}
               isCurrent={isCurrent}
