@@ -308,6 +308,12 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
     return Math.min(Math.max(value / vh, 0), 1);
   });
 
+  const navyProgress = useTransform(scrollY, (value) => {
+    if (typeof window === 'undefined') return 0;
+    const vh = window.innerHeight;
+    return Math.min(Math.max((value - vh) / vh, 0), 1);
+  });
+
   // 2. 1섹션 (Hero) 스타일 변환값 정의
   const heroOpacity = useTransform(sceneProgress, [0, 0.42, 0.48, 1], [1, 0.15, 0, 0], { clamp: true });
   const heroScale = useTransform(sceneProgress, [0, 0.48, 1], [1, 1.04, 1.04], { clamp: true });
@@ -330,7 +336,25 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   const rotateX = useTransform(sceneProgress, [0, 0.48, 1], [0, 8, 8], { clamp: true });
   const translateZ = useTransform(sceneProgress, [0, 0.48, 1], [0, 60, 60], { clamp: true });
 
+  // 6. 네이비 색깔 화면 (섬김의 손길들) 스크럽 트랜지션 변환값
+  const navyY = useTransform(navyProgress, [0.00, 1.00], ["100vh", "0vh"], { clamp: true });
+  const navyWidth = useTransform(navyProgress, [0.00, 1.00], ["92vw", "100vw"], { clamp: true });
+  const navyHeight = useTransform(navyProgress, [0.00, 1.00], ["92vh", "100vh"], { clamp: true });
+  const navyBorderRadius = useTransform(navyProgress, [0.00, 1.00], [32, 0], { clamp: true });
+  const navyContentOpacity = useTransform(navyProgress, [0.60, 1.00], [0, 1], { clamp: true });
 
+
+  useEffect(() => {
+    const unsubscribe = navyProgress.on('change', (latest) => {
+      if (latest < 0.2) {
+        setActiveCardIndex(-1);
+      } else {
+        setActiveCardIndex(0); // Navy Screen
+      }
+    });
+
+    return unsubscribe;
+  }, [navyProgress]);
 
   useEffect(() => {
     if (isIntroActive) return;
@@ -749,8 +773,8 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
         )}
       </AnimatePresence>
 
-      {/* Sticky Section Wrapper (Hero -> The Sacred Space 전환용, 총 스크롤 200vh 범위 제공) */}
-      <div className="relative h-[200vh]">
+      {/* Sticky Section Wrapper (총 스크롤 300vh 범위 제공) */}
+      <div className="relative h-[300vh]">
         <div className="sticky top-0 w-full h-screen overflow-hidden">
           
           {/* ---------------- 1섹션: 웅장한 시네마틱 Hero ---------------- */}
@@ -892,54 +916,67 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
             </div>
           </motion.section>
 
+
+
+          {/* ---------------- 5. 네이비 색깔 화면 (섬김의 손길들) ---------------- */}
+          <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none" style={{ zIndex: 30 }}>
+            <motion.div
+              style={{
+                y: navyY,
+                width: navyWidth,
+                height: navyHeight,
+                borderRadius: navyBorderRadius,
+              }}
+              className="relative bg-[#071426] text-[#fbf7ee] pointer-events-auto overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.3)] w-full h-full"
+            >
+              {/* 상단 100vh 영역: 배경 이미지 + 텍스트 */}
+              <div className="relative w-full h-screen flex flex-col justify-center py-12 md:py-20">
+                {/* 뒷배경 praise_02.webp 사진 적용 */}
+                <div 
+                  className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]" 
+                  style={{ backgroundImage: "url('/praise_02.webp')" }} 
+                />
+                {/* 어두운 그라데이션 오버레이 */}
+                <div className="absolute inset-0 z-5 bg-gradient-to-b from-black/0 via-black/25 to-[#071426]/90 pointer-events-none" />
+
+                {/* 좌측 정렬 타이포그래피 텍스트 */}
+                <div className="relative z-10 flex flex-col items-start justify-center max-w-7xl w-full px-8 md:px-20 select-none pt-4 md:pt-10">
+                  <span className="font-en text-[11px] md:text-[13px] tracking-[0.35em] uppercase text-gold font-semibold mb-3 md:mb-5 opacity-90">
+                    Praise Servants
+                  </span>
+                  <h3 className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold tracking-tight leading-[1.22] text-cream text-left">
+                    프레이즈 <br />
+                    섬김의 손길들
+                  </h3>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
         </div>
       </div>
 
-      {/* ---------------- 5. 네이비 색깔 화면 (섬김의 손길들) - 일반 네이티브 스크롤로 밀려 올라가는 구조 ---------------- */}
-      <div className="relative bg-[#071426] text-[#fbf7ee] w-full overflow-hidden shadow-[0_-12px_48px_rgba(0,0,0,0.15)] z-30">
-        
-        {/* 상단 100vh 영역: 배경 이미지 + 텍스트 */}
-        <div className="relative w-full h-screen flex flex-col justify-center py-12 md:py-20">
-          {/* 뒷배경 praise_02.webp 사진 적용 */}
-          <div 
-            className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]" 
-            style={{ backgroundImage: "url('/praise_02.webp')" }} 
-          />
-          {/* 어두운 그라데이션 오버레이 */}
-          <div className="absolute inset-0 z-5 bg-gradient-to-b from-black/0 via-black/25 to-[#071426]/90 pointer-events-none" />
-
-          {/* 좌측 정렬 타이포그래피 텍스트 */}
-          <div className="relative z-10 flex flex-col items-start justify-center max-w-7xl w-full px-8 md:px-20 select-none pt-4 md:pt-10">
-            <span className="font-en text-[11px] md:text-[13px] tracking-[0.35em] uppercase text-gold font-semibold mb-3 md:mb-5 opacity-90">
-              Praise Servants
-            </span>
-            <h3 className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold tracking-tight leading-[1.22] text-cream text-left">
-              프레이즈 <br />
-              섬김의 손길들
-            </h3>
+      {/* ---------------- 6. 섬김의 손길들 하단 슬라이더 영역 - 일반 네이티브 스크롤로 밀려 올라가는 구조 ---------------- */}
+      <div className="relative w-full h-[60vh] flex flex-col justify-center bg-[#071426] z-30 select-none overflow-hidden pb-12 md:pb-20 shadow-[0_-12px_48px_rgba(0,0,0,0.15)]">
+        {/* 무한반복 가로 롤러 */}
+        <div className="relative flex overflow-hidden w-full py-4 pointer-events-auto">
+          {/* Track 1 */}
+          <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" style={{ animationDuration: '28s' }}>
+            {slideItems.map((item) => (
+              <SlideCard key={item.key} item={item} />
+            ))}
+          </div>
+          {/* Track 2 (Duplicate for loop) */}
+          <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" aria-hidden="true" style={{ animationDuration: '28s' }}>
+            {slideItems.map((item) => (
+              <SlideCard key={`${item.key}-dup`} item={item} />
+            ))}
           </div>
         </div>
-
-        {/* 하단 60vh 영역: 슬라이더 */}
-        <div className="w-full h-[60vh] flex flex-col justify-center bg-[#071426] z-10 select-none overflow-hidden pb-12 md:pb-20">
-          {/* 무한반복 가로 롤러 */}
-          <div className="relative flex overflow-hidden w-full py-4 pointer-events-auto">
-            {/* Track 1 */}
-            <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" style={{ animationDuration: '28s' }}>
-              {slideItems.map((item) => (
-                <SlideCard key={item.key} item={item} />
-              ))}
-            </div>
-            {/* Track 2 (Duplicate for loop) */}
-            <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" aria-hidden="true" style={{ animationDuration: '28s' }}>
-              {slideItems.map((item) => (
-                <SlideCard key={`${item.key}-dup`} item={item} />
-              ))}
-            </div>
-          </div>
-        </div>
-
       </div>
+
+
+
     </div>
   );
 }
