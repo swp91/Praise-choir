@@ -464,6 +464,42 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
       autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
     };
 
+    const startReverseSequence = (event: Event) => {
+      if (scrollY.get() < window.innerHeight * 0.1 || scrollY.get() > window.innerHeight * 1.05 || isAutoAdvancingFinalStep) return;
+
+      event.preventDefault();
+      setIsAutoAdvancingFinalStep(true);
+
+      if (autoScrollFrameRef.current !== null) {
+        cancelAnimationFrame(autoScrollFrameRef.current);
+      }
+
+      const startY = window.scrollY;
+      const targetY = 0;
+      const distance = targetY - startY;
+      const duration = 1800;
+      const startedAt = performance.now();
+      const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
+
+      const animateScroll = (now: number) => {
+        const elapsed = now - startedAt;
+        const progress = Math.min(elapsed / duration, 1);
+        const currentY = startY + distance * easeInOutSine(progress);
+        window.scrollTo(0, currentY);
+
+        if (progress < 1) {
+          autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
+          return;
+        }
+
+        autoScrollFrameRef.current = null;
+        window.scrollTo(0, targetY);
+        setIsAutoAdvancingFinalStep(false);
+      };
+
+      autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
+    };
+
     const handleWheel = (event: WheelEvent) => {
       if (isAutoAdvancingFinalStep) {
         event.preventDefault();
@@ -472,6 +508,8 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
 
       if (event.deltaY > 20) {
         startFinalSequence(event);
+      } else if (event.deltaY < -20) {
+        startReverseSequence(event);
       }
     };
 
@@ -489,8 +527,13 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
       if (startY === null) return;
 
       const currentY = event.touches[0]?.clientY ?? startY;
-      if (startY - currentY > 30) {
+      const diff = startY - currentY;
+
+      if (diff > 30) {
         startFinalSequence(event);
+        touchStartYRef.current = null;
+      } else if (diff < -30) {
+        startReverseSequence(event);
         touchStartYRef.current = null;
       }
     };
