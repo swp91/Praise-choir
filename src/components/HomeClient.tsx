@@ -106,7 +106,7 @@ type SlideCardProps = {
 
 function SlideCard({ item }: SlideCardProps) {
   return (
-    <div className="relative w-[180px] md:w-[260px] h-[240px] md:h-[350px] rounded-2xl overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.3)] border border-white/10 shrink-0 select-none group">
+    <div className="relative w-[220px] md:w-[320px] h-[150px] md:h-[210px] rounded-2xl overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.3)] border border-white/10 shrink-0 select-none group">
       {/* Background Photo */}
       <div className="w-full h-full relative overflow-hidden">
         {item.photo ? (
@@ -116,7 +116,7 @@ function SlideCard({ item }: SlideCardProps) {
             fill
             priority
             className="object-cover object-center transition-transform duration-[800ms] ease-[0.16, 1, 0.3, 1] group-hover:scale-105"
-            sizes="(max-width: 768px) 180px, 260px"
+            sizes="(max-width: 768px) 220px, 320px"
           />
         ) : (
           <div className="w-full h-full bg-[#1e2530] flex items-center justify-center text-[#ffd899]/30">
@@ -134,7 +134,7 @@ function SlideCard({ item }: SlideCardProps) {
 
       {/* Name/Title (Bottom Left) */}
       <div className="absolute bottom-4 left-4 flex flex-col items-start gap-1">
-        <span className="font-ko text-[15px] md:text-[20px] font-bold text-[#fbf7ee] tracking-wide">
+        <span className="font-ko text-[14px] md:text-[18px] font-bold text-[#fbf7ee] tracking-wide">
           {item.title}
         </span>
       </div>
@@ -957,17 +957,17 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
       </div>
 
       {/* ---------------- 6. 섬김의 손길들 하단 슬라이더 영역 - 일반 네이티브 스크롤로 밀려 올라가는 구조 ---------------- */}
-      <div className="relative w-full h-[60vh] flex flex-col justify-center bg-[#071426] z-30 select-none overflow-hidden pb-12 md:pb-20 shadow-[0_-12px_48px_rgba(0,0,0,0.15)]">
+      <div className="relative w-full h-[60vh] flex flex-col justify-center bg-[#071426] z-30 select-none overflow-hidden py-8 md:py-12 shadow-[0_-12px_48px_rgba(0,0,0,0.15)]">
         {/* 무한반복 가로 롤러 */}
-        <div className="relative flex overflow-hidden w-full py-4 pointer-events-auto">
+        <div className="relative flex overflow-hidden w-full py-6 pointer-events-auto">
           {/* Track 1 */}
-          <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" style={{ animationDuration: '28s' }}>
+          <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" style={{ animationDuration: '18s' }}>
             {slideItems.map((item) => (
               <SlideCard key={item.key} item={item} />
             ))}
           </div>
           {/* Track 2 (Duplicate for loop) */}
-          <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" aria-hidden="true" style={{ animationDuration: '28s' }}>
+          <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" aria-hidden="true" style={{ animationDuration: '18s' }}>
             {slideItems.map((item) => (
               <SlideCard key={`${item.key}-dup`} item={item} />
             ))}
