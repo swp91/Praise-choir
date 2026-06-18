@@ -188,8 +188,75 @@ function PartStepSection({ step, index }: PartStepSectionProps) {
   );
 }
 
+type SlideCardProps = {
+  item: {
+    key: string;
+    title: string;
+    tagline: string;
+    photo: string;
+    isStaff: boolean;
+  };
+};
+
+function SlideCard({ item }: SlideCardProps) {
+  return (
+    <div className="relative w-[180px] md:w-[260px] h-[240px] md:h-[350px] rounded-2xl overflow-hidden shadow-[0_12px_36px_rgba(0,0,0,0.3)] border border-white/10 shrink-0 select-none group">
+      {/* Background Photo */}
+      <div className="w-full h-full relative overflow-hidden">
+        {item.photo ? (
+          <Image
+            src={item.photo}
+            alt={item.title}
+            fill
+            priority
+            className="object-cover object-center transition-transform duration-[800ms] ease-[0.16, 1, 0.3, 1] group-hover:scale-105"
+            sizes="(max-width: 768px) 180px, 260px"
+          />
+        ) : (
+          <div className="w-full h-full bg-[#1e2530] flex items-center justify-center text-[#ffd899]/30">
+            <span className="text-xs">사진 없음</span>
+          </div>
+        )}
+        {/* Dark Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+      </div>
+
+      {/* Tagline Badge (Top Left) */}
+      <span className="absolute top-4 left-4 font-en text-[9px] md:text-[10px] tracking-[0.18em] uppercase px-2.5 py-1 rounded bg-[#071426]/60 backdrop-blur-md text-[#ffd899] border border-white/5 font-semibold">
+        {item.tagline}
+      </span>
+
+      {/* Name/Title (Bottom Left) */}
+      <div className="absolute bottom-4 left-4 flex flex-col items-start gap-1">
+        <span className="font-ko text-[15px] md:text-[20px] font-bold text-[#fbf7ee] tracking-wide">
+          {item.title}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const conductorsList = leaders?.conductors || [];
+  const conductorSlides = conductorsList.map((c) => ({
+    key: `conductor-${c.name}-${c.role}`,
+    title: c.name,
+    tagline: c.role,
+    photo: c.photo || '',
+    isStaff: true
+  }));
+
+  const partSlides = PART_STEPS.map((step) => ({
+    key: `part-${step.key}`,
+    title: step.title,
+    tagline: step.tagline,
+    photo: step.photo,
+    isStaff: false
+  }));
+
+  const slideItems = [...conductorSlides, ...partSlides];
 
   // A. 인트로 애니메이션 제어용 상태 (Shed.design 영감 시네마틱 개방)
   const [isIntroActive, setIsIntroActive] = useState(() => {
@@ -953,69 +1020,50 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
                 height: navyHeight,
                 borderRadius: navyBorderRadius,
               }}
-              className="bg-[#071426] flex flex-col items-center justify-center px-6 text-[#fbf7ee] pointer-events-auto overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.3)]"
+              className="relative flex flex-col justify-between py-12 md:py-20 text-[#fbf7ee] pointer-events-auto overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.3)] bg-[#071426]"
             >
+              {/* 뒷배경 praise_02.webp 사진 적용 */}
+              <div 
+                className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]" 
+                style={{ backgroundImage: "url('/praise_02.webp')" }} 
+              />
+              {/* 어두운 그라데이션 오버레이 (아래로 갈수록 어두워짐) */}
+              <div className="absolute inset-0 z-5 bg-gradient-to-b from-[#071426]/30 via-[#071426]/75 to-[#071426] pointer-events-none" />
+
+              {/* 좌측 정렬 타이포그래피 텍스트 */}
               <motion.div
                 style={{ opacity: navyContentOpacity }}
-                className="flex flex-col items-center justify-center max-w-5xl w-full"
+                className="relative z-10 flex flex-col items-start justify-center max-w-7xl w-full px-8 md:px-20 select-none pt-4 md:pt-10"
               >
-                {/* 상단 문구: 섬김의 손길들 */}
-                <motion.div
-                  initial={{ y: 24, opacity: 0 }}
-                  animate={activeCardIndex === 0 ? { y: 0, opacity: 1 } : { y: 24, opacity: 0 }}
-                  transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                  className="text-center mb-10 md:mb-14 select-none"
-                >
-                  <span className="font-en text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-gold mb-2 block font-semibold">
-                    Praise Servants
-                  </span>
-                  <h3 className="font-ko text-[clamp(28px,3.5vw,48px)] font-bold tracking-wide text-cream bg-gradient-to-b from-[#fbf7ee] to-[#d4c4a0] bg-clip-text text-transparent">
-                    섬김의 손길들
-                  </h3>
-                </motion.div>
+                <span className="font-en text-[11px] md:text-[13px] tracking-[0.35em] uppercase text-gold font-semibold mb-3 md:mb-5 opacity-90">
+                  Praise Servants
+                </span>
+                <h3 className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold tracking-tight leading-[1.22] text-cream text-left">
+                  프레이즈 <br />
+                  섬김의 손길들
+                </h3>
+              </motion.div>
 
-                {/* 지휘자/반주자 프로필 영역 */}
-                <motion.div
-                  initial={{ y: 32, opacity: 0 }}
-                  animate={activeCardIndex === 0 ? { y: 0, opacity: 1 } : { y: 32, opacity: 0 }}
-                  transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                  className="flex flex-wrap justify-center gap-8 md:gap-14 max-w-5xl select-none"
-                >
-                  {leaders.conductors.map((staff, idx) => (
-                    <div key={idx} className="flex flex-col items-center group">
-                      {/* 프로필 이미지 (골드 원형 서클 및 은은한 광채 효과) */}
-                      <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden border border-gold/30 shadow-[0_12px_36px_rgba(0,0,0,0.3)] mb-4 md:mb-5 transition-all duration-500 group-hover:scale-105 group-hover:border-gold/60">
-                        <div className="absolute inset-0 bg-[#071426]/30 z-10 transition-opacity duration-500 group-hover:opacity-0" />
-                        {staff.photo ? (
-                          <Image
-                            src={staff.photo}
-                            alt={staff.name}
-                            fill
-                            className="object-cover object-center"
-                            sizes="(max-width: 768px) 150px, 200px"
-                            priority
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-[#171717] text-gold/40">
-                            <span className="font-ko text-xs">사진 없음</span>
-                          </div>
-                        )}
-                        {/* 은은한 링 광채 데코 */}
-                        <div className="absolute inset-0 border border-gold/0 rounded-full transition-all duration-500 group-hover:border-gold/40 group-hover:scale-[1.02]" />
-                      </div>
-                      
-                      {/* 역할 (지휘자, 반주자 등) */}
-                      <span className="font-ko text-[11px] md:text-[12px] text-gold font-semibold tracking-widest uppercase mb-1.5 opacity-90">
-                        {staff.role}
-                      </span>
-                      
-                      {/* 이름 */}
-                      <span className="font-ko text-[15px] md:text-[17px] text-cream font-medium tracking-wider">
-                        {staff.name}
-                      </span>
-                    </div>
-                  ))}
-                </motion.div>
+              {/* 하단 무한 루프 슬라이더 */}
+              <motion.div 
+                style={{ opacity: navyContentOpacity }}
+                className="w-full z-10 mt-auto select-none overflow-hidden"
+              >
+                {/* 무한반복 가로 롤러 */}
+                <div className="relative flex overflow-hidden w-full py-4 pointer-events-auto">
+                  {/* Track 1 */}
+                  <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" style={{ animationDuration: '28s' }}>
+                    {slideItems.map((item) => (
+                      <SlideCard key={item.key} item={item} />
+                    ))}
+                  </div>
+                  {/* Track 2 (Duplicate for loop) */}
+                  <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" aria-hidden="true" style={{ animationDuration: '28s' }}>
+                    {slideItems.map((item) => (
+                      <SlideCard key={`${item.key}-dup`} item={item} />
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             </motion.div>
           </div>
