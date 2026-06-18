@@ -31,6 +31,10 @@
   from { transform: translateX(-50%); }
   to   { transform: translateX(0); }
 }
+@keyframes marquee-servants {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
 @keyframes gonfalon-sway {
   0%, 100% { transform: rotate(0deg) translateY(0); }
   18% { transform: rotate(-1.25deg) translateY(-2px); }
@@ -39,9 +43,10 @@
 }
 
 @layer utilities {
-  .animate-marquee        { animation: marquee        38s linear infinite; }
-  .animate-marquee-rev    { animation: marquee-rev    30s linear infinite; }
-  .animate-gonfalon-sway  { animation: gonfalon-sway  1.2s ease-in-out both; }
+  .animate-marquee          { animation: marquee          38s linear infinite; }
+  .animate-marquee-rev      { animation: marquee-rev      30s linear infinite; }
+  .animate-marquee-servants  { animation: marquee-servants 18s linear infinite; }
+  .animate-gonfalon-sway    { animation: gonfalon-sway    1.2s ease-in-out both; }
 }
 
 @keyframes hero-type-press {

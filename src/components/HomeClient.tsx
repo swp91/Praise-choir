@@ -961,13 +961,13 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
         {/* 무한반복 가로 롤러 */}
         <div className="relative flex overflow-hidden w-full py-6 pointer-events-auto">
           {/* Track 1 */}
-          <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" style={{ animationDuration: '18s' }}>
+          <div className="flex shrink-0 gap-6 animate-marquee-servants whitespace-nowrap min-w-full pr-6" style={{ animationDuration: '18s' }}>
             {slideItems.map((item) => (
               <SlideCard key={item.key} item={item} />
             ))}
           </div>
           {/* Track 2 (Duplicate for loop) */}
-          <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" aria-hidden="true" style={{ animationDuration: '18s' }}>
+          <div className="flex shrink-0 gap-6 animate-marquee-servants whitespace-nowrap min-w-full pr-6" aria-hidden="true" style={{ animationDuration: '18s' }}>
             {slideItems.map((item) => (
               <SlideCard key={`${item.key}-dup`} item={item} />
             ))}
