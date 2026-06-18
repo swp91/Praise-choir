@@ -930,7 +930,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
               className="relative bg-[#071426] text-[#fbf7ee] pointer-events-auto overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.3)] w-full h-full"
             >
               {/* 상단 100vh 영역: 배경 이미지 + 텍스트 */}
-              <div className="relative w-full h-screen flex flex-col justify-center py-12 md:py-20">
+              <div className="relative w-full h-screen flex flex-col justify-end pb-16 md:pb-24">
                 {/* 뒷배경 praise_02.webp 사진 적용 */}
                 <div 
                   className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]" 
@@ -940,7 +940,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
                 <div className="absolute inset-0 z-5 bg-gradient-to-b from-black/0 via-black/25 to-[#071426]/90 pointer-events-none" />
 
                 {/* 좌측 정렬 타이포그래피 텍스트 */}
-                <div className="relative z-10 flex flex-col items-start justify-center max-w-7xl w-full px-8 md:px-20 select-none pt-4 md:pt-10">
+                <div className="relative z-10 flex flex-col items-start justify-end max-w-7xl w-full px-8 md:px-20 select-none pt-4 md:pt-10">
                   <span className="font-en text-[11px] md:text-[13px] tracking-[0.35em] uppercase text-gold font-semibold mb-3 md:mb-5 opacity-90">
                     Praise Servants
                   </span>
