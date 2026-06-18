@@ -22,7 +22,7 @@ const EMPTY_OFFICERS: Officer[] = [
   {
     role: '임원',
     name: 'Praise Choir',
-    part: 'Officers',
+    part: 'Leadership',
   },
 ];
 
@@ -123,7 +123,8 @@ export default function LeadersGalleryClient() {
       const diff = targetOffsetRef.current - currentOffsetRef.current;
 
       if (Math.abs(diff) > 0.04) {
-        currentOffsetRef.current += diff * 0.18;
+        // 프레이즈 스무스 스크롤 표준 계수 적용 (0.085)
+        currentOffsetRef.current += diff * 0.085;
       } else {
         currentOffsetRef.current = targetOffsetRef.current;
       }
@@ -200,26 +201,8 @@ export default function LeadersGalleryClient() {
         >
           <svg viewBox="0 0 800 360" className="w-full h-auto translate-y-[20px]" preserveAspectRatio="xMidYMax meet">
             <text
-              x="0"
-              y="150"
-              textAnchor="start"
-              fill="#171717"
-              style={{
-                fontSize: '170px',
-                fontFamily: 'var(--font-cormorant), "Times New Roman", serif',
-                fontWeight: 800,
-                stroke: '#171717',
-                strokeWidth: '5px',
-                paintOrder: 'stroke fill',
-                strokeLinejoin: 'round',
-              }}
-              className="uppercase"
-            >
-              CHOIR
-            </text>
-            <text
               x="50%"
-              y="320"
+              y="250"
               textAnchor="middle"
               textLength="800"
               lengthAdjust="spacingAndGlyphs"
@@ -228,14 +211,10 @@ export default function LeadersGalleryClient() {
                 fontSize: '170px',
                 fontFamily: 'var(--font-cormorant), "Times New Roman", serif',
                 fontWeight: 800,
-                stroke: '#171717',
-                strokeWidth: '5px',
-                paintOrder: 'stroke fill',
-                strokeLinejoin: 'round',
               }}
               className="uppercase"
             >
-              OFFICERS
+              LEADERSHIP
             </text>
           </svg>
         </div>
@@ -245,7 +224,7 @@ export default function LeadersGalleryClient() {
 
       <section
         ref={sectionRef}
-        aria-label="Infinite officer portrait stream"
+        aria-label="Infinite leadership portrait stream"
         className="absolute inset-0 z-10 cursor-grab touch-none overflow-hidden active:cursor-grabbing"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

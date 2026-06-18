@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getHomeData, getMembersData, getLeadersData } from "@/lib/supabase/choir";
+import { getHomeData, getMembersData, getLeadersData, getPracticeData } from "@/lib/supabase/choir";
 import { imageUrl } from "@/lib/media";
 import HomeClient from "@/components/HomeClient";
 import { QueryClient, dehydrate, HydrationBoundary } from "@tanstack/react-query";
@@ -23,18 +23,22 @@ export default async function HomePage() {
       queryKey: ["leaders"],
       queryFn: getLeadersData,
     }),
+    queryClient.prefetchQuery({
+      queryKey: ["practice"],
+      queryFn: getPracticeData,
+    }),
   ]);
 
   // 사전 이미지 프리로딩을 위해 쿼리 캐시 데이터 확보
-  const home = queryClient.getQueryData<any>(["home"]);
-  const members = queryClient.getQueryData<any[]>(["members"]) || [];
-  const leaders = queryClient.getQueryData<any>(["leaders"]) || { conductors: [], officers: [] };
+  const home = queryClient.getQueryData<Awaited<ReturnType<typeof getHomeData>>>(["home"]);
+  const members = queryClient.getQueryData<Awaited<ReturnType<typeof getMembersData>>>(["members"]) || [];
+  const leaders = queryClient.getQueryData<Awaited<ReturnType<typeof getLeadersData>>>(["leaders"]) || { conductors: [], officers: [] };
 
   const preloadSet = new Set<string>();
 
   // 1. 대원 사진 (160x160)
-  members.forEach((part: any) => {
-    part.members.forEach((m: any) => {
+  members.forEach((part) => {
+    part.members.forEach((m) => {
       if (m.photo) {
         preloadSet.add(imageUrl(m.photo, { width: 160, height: 160, crop: 'fill', gravity: 'face' }));
       }
@@ -42,14 +46,14 @@ export default async function HomePage() {
   });
 
   // 2. 지휘자/반주자/편곡자 스태프 사진 (240x240)
-  leaders.conductors.forEach((c: any) => {
+  leaders.conductors.forEach((c) => {
     if (c.photo) {
       preloadSet.add(imageUrl(c.photo, { width: 240, height: 240, crop: 'fill', gravity: 'face' }));
     }
   });
 
   // 3. 임원진 사진 (256x256)
-  leaders.officers.forEach((o: any) => {
+  leaders.officers.forEach((o) => {
     if (o.photo) {
       preloadSet.add(imageUrl(o.photo, { width: 256, height: 256, crop: 'fill', gravity: 'face' }));
     }

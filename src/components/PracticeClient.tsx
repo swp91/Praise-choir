@@ -304,7 +304,7 @@ export default function PracticeClient() {
       <div className="flex justify-between items-center border-b border-line-soft pb-3">
         <h3 className="font-en text-[10px] xl:text-[12px] tracking-[0.28em] uppercase text-gold-deep font-semibold flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-          Annual Aims (I – IV)
+          Annual VISION (I – IV)
         </h3>
       </div>
 
@@ -324,8 +324,8 @@ export default function PracticeClient() {
       </div>
 
       <div className="flex justify-between font-en text-[10px] text-ink-mute tracking-widest border-t border-line-soft pt-3">
-        <span>V / VIII · Aims</span>
-        <span>VI / VIII · Aims</span>
+        <span>V / VIII · VISION</span>
+        <span>VI / VIII · VISION</span>
       </div>
     </div>
   );
@@ -336,7 +336,7 @@ export default function PracticeClient() {
       <div className="flex justify-between items-center border-b border-line-soft pb-3">
         <h3 className="font-en text-[10px] xl:text-[12px] tracking-[0.28em] uppercase text-gold-deep font-semibold flex items-center gap-2">
           <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-          Annual Aims (V – VII)
+          Annual VISION (V – VII)
         </h3>
       </div>
 
@@ -356,8 +356,8 @@ export default function PracticeClient() {
       </div>
 
       <div className="flex justify-between font-en text-[10px] text-ink-mute tracking-widest border-t border-line-soft pt-3">
-        <span>VII / VIII · Aims</span>
-        <span>VIII / VIII · Aims</span>
+        <span>VII / VIII · VISION</span>
+        <span>VIII / VIII · VISION</span>
       </div>
     </div>
   );
@@ -488,7 +488,7 @@ export default function PracticeClient() {
         <div>
           <h3 className="font-en text-[11px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-1 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-            Aims (I – II)
+            VISION (I – II)
           </h3>
           <div className="flex flex-col">
             {renderMobileGoalItem(data.goals[0], 0, true)}
@@ -496,7 +496,7 @@ export default function PracticeClient() {
           </div>
         </div>
         <div className="font-en text-[11px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
-          V / VIII · Aims
+          V / VIII · VISION
         </div>
       </div>
 
@@ -505,7 +505,7 @@ export default function PracticeClient() {
         <div>
           <h3 className="font-en text-[11px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-1 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-            Aims (III – IV)
+            VISION (III – IV)
           </h3>
           <div className="flex flex-col">
             {renderMobileGoalItem(data.goals[2], 2, true)}
@@ -513,7 +513,7 @@ export default function PracticeClient() {
           </div>
         </div>
         <div className="font-en text-[8px] text-ink-mute tracking-widest text-right pt-1.5 border-t border-line-soft">
-          VI / VIII · Aims
+          VI / VIII · VISION
         </div>
       </div>
     </div>
@@ -527,7 +527,7 @@ export default function PracticeClient() {
         <div>
           <h3 className="font-en text-[10px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-1 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-            Aims (V – VI)
+            VISION (V – VI)
           </h3>
           <div className="flex flex-col">
             {renderMobileGoalItem(data.goals[4], 4, true)}
@@ -535,7 +535,7 @@ export default function PracticeClient() {
           </div>
         </div>
         <div className="font-en text-[10px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
-          VII / VIII · Aims
+          VII / VIII · VISION
         </div>
       </div>
 
@@ -544,7 +544,7 @@ export default function PracticeClient() {
         <div>
           <h3 className="font-en text-[10px] tracking-[0.2em] uppercase text-gold-deep font-bold mb-1 flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 bg-gold rounded-full" />
-            Aims (VII)
+            VISION (VII)
           </h3>
           <div className="flex flex-col">
             {renderMobileGoalItem(data.goals[6], 6, false)}
@@ -557,7 +557,7 @@ export default function PracticeClient() {
           </div>
         </div>
         <div className="font-en text-[10px] text-ink-mute tracking-widest text-right pt-1 border-t border-line-soft">
-          VIII / VIII · Aims
+          VIII / VIII · VISION
         </div>
       </div>
     </div>
@@ -600,7 +600,7 @@ export default function PracticeClient() {
                 <MaskLeft>{renderSpread0()}</MaskLeft>
               </div>
 
-              {/* [Page 8] Static Right Page (Aims - Goals 5-7, Spread 3 Right) */}
+              {/* [Page 8] Static Right Page (VISION - Goals 5-7, Spread 3 Right) */}
               <div className="absolute right-0 top-0 w-1/2 h-full">
                 <MaskRight>{renderSpread3()}</MaskRight>
               </div>

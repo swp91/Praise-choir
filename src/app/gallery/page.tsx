@@ -5,7 +5,7 @@ import Gallery from '@/components/Gallery';
 import { getGalleryData } from '@/lib/supabase/choir';
 import { QueryClient, dehydrate, HydrationBoundary } from '@tanstack/react-query';
 
-export const metadata: Metadata = { title: 'Archive · 프레이즈찬양대' };
+export const metadata: Metadata = { title: 'Gallery · 프레이즈찬양대' };
 
 export default async function GalleryPage() {
   const queryClient = new QueryClient();
@@ -19,13 +19,13 @@ export default async function GalleryPage() {
     <main className="main-content h-screen overflow-hidden p-0 max-[880px]:min-h-screen max-[880px]:h-auto max-[880px]:overflow-visible">
       <div className="min-[881px]:hidden">
         <HeroBlock
-          eyebrow="Photo Archive"
-          title="The Archive"
+          eyebrow="Photo Gallery"
+          title="The Gallery"
           titleKo="갤러리 · 함께한 순간들"
-          watermark="ARCHIVUM · MEMORIA"
+          watermark="GALLERIA · MEMORIA"
         />
 
-        <SectionCap label="Albums" note="Photo Archive" />
+        <SectionCap label="Albums" note="Photo Gallery" />
       </div>
 
       <HydrationBoundary state={dehydrate(queryClient)}>

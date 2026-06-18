@@ -86,9 +86,14 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
     const viewport = viewportRef.current;
     if (!track || !viewport || photos.length === 0) return;
 
+    // 마운트되거나 새 사진 목록이 로드될 때 너비 기준값을 초기화하여 오작동 방지
+    setWidthRef.current = 0;
+
     const measure = () => {
-      const oldSetWidth = setWidthRef.current;
       const newSetWidth = track.scrollWidth / 3;
+      if (!newSetWidth || isNaN(newSetWidth)) return;
+
+      const oldSetWidth = setWidthRef.current;
       setWidthRef.current = newSetWidth;
 
       if (!oldSetWidth || isNaN(oldSetWidth)) {
@@ -136,7 +141,12 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       });
     };
 
-    const resizeObserver = new ResizeObserver(measure);
+    const resizeObserver = new ResizeObserver(() => {
+      // 3D 회전 애니메이션 중(스크롤 속도가 있을 때)에는 너비 변화 측정을 스킵하여 튕김 현상 방지
+      if (Math.abs(velocityRef.current) < 0.05) {
+        measure();
+      }
+    });
     resizeObserver.observe(track);
     measure();
     gsap.ticker.add(tick);
@@ -307,7 +317,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
         <div className="animate-marquee flex whitespace-nowrap">
           {Array.from({ length: 10 }, (_, i) => (
             <span key={i} className="font-en tracking-[0.18em] uppercase text-gold/6 text-[clamp(40px,7vw,80px)] pr-20 shrink-0">
-              ARCHIVUM · MEMORIA
+              GALLERIA · MEMORIA
             </span>
           ))}
         </div>
@@ -315,7 +325,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
 
       <div className="pointer-events-none relative z-20 mx-auto text-center shrink-0">
         <h1 className="font-en text-[clamp(44px,5.2vw,72px)] font-bold leading-[0.85] tracking-normal text-ink">
-          The Archive
+          The Gallery
         </h1>
         <p className="mt-4 font-ko text-[clamp(13px,1.5vw,17px)] font-medium tracking-normal text-ink-soft">
           갤러리 · 함께한 순간들
@@ -363,7 +373,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
           ref={overlayRef}
           role="dialog"
           aria-modal="true"
-          aria-labelledby="archive-active-title"
+          aria-labelledby="gallery-active-title"
           className="fixed inset-0 z-[1000] opacity-0"
           onClick={() => closePhoto()}
         >
@@ -407,7 +417,7 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
             }}
           >
             <h2
-              id="archive-active-title"
+              id="gallery-active-title"
               className="text-[24px] md:text-[28px] font-bold text-ink leading-snug"
             >
               {active.photo.title}
