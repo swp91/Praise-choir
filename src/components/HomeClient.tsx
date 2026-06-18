@@ -943,8 +943,8 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
                 className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]" 
                 style={{ backgroundImage: "url('/praise_02.webp')" }} 
               />
-              {/* 어두운 그라데이션 오버레이 (아래로 갈수록 어두워짐) */}
-              <div className="absolute inset-0 z-5 bg-gradient-to-b from-[#071426]/30 via-[#071426]/75 to-[#071426] pointer-events-none" />
+              {/* 어두운 그라데이션 오버레이 (배경 사진 투명도 확보 및 하단 텍스트 가독성 최적화) */}
+              <div className="absolute inset-0 z-5 bg-gradient-to-b from-black/0 via-black/25 to-[#071426]/90 pointer-events-none" />
 
               {/* 좌측 정렬 타이포그래피 텍스트 */}
               <motion.div
