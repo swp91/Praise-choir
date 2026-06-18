@@ -21,18 +21,7 @@ type Props = {
 };
 
 
-const textContainerVariants = {
-  animate: {
-    transition: {
-      staggerChildren: 0.15
-    }
-  }
-};
 
-const textItemVariants = {
-  initial: { y: 36, opacity: 0 },
-  animate: { y: 0, opacity: 1, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } }
-};
 
 const PART_STEPS = [
   {
@@ -92,132 +81,103 @@ const PART_STEPS = [
   }
 ];
 
-const PART_RANGES = [
-  { start: 0.28, end: 0.38 }, // Soprano 1
-  { start: 0.46, end: 0.56 }, // Soprano 2
-  { start: 0.64, end: 0.74 }, // Alto
-  { start: 0.80, end: 0.88 }, // Tenor
-  { start: 0.92, end: 0.98 }, // Bass
-];
-
-type PartStepCardProps = {
+type PartStepSectionProps = {
   step: typeof PART_STEPS[number];
   index: number;
-  scrubProgress: any;
-  startRange: number;
-  endRange: number;
-  isCurrent: boolean;
 };
 
-function PartStepCard({ step, index, scrubProgress, startRange, endRange, isCurrent }: PartStepCardProps) {
-  const y = useTransform(scrubProgress, [startRange, endRange], ["100vh", "0vh"], { clamp: true });
-  const width = useTransform(scrubProgress, [startRange, endRange], ["92vw", "100vw"], { clamp: true });
-  const height = useTransform(scrubProgress, [startRange, endRange], ["92vh", "100vh"], { clamp: true });
-  const borderRadius = useTransform(scrubProgress, [startRange, endRange], [32, 0], { clamp: true });
-
+function PartStepSection({ step, index }: PartStepSectionProps) {
   return (
-    <div 
-      className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none" 
-      style={{ zIndex: 50 + index }}
+    <section 
+      style={{ 
+        backgroundColor: step.bg,
+        color: step.text,
+      }}
+      className="relative w-full min-h-screen flex flex-col md:flex-row overflow-hidden"
     >
-      <motion.div
-        style={{
-          y,
-          width,
-          height,
-          borderRadius,
-          backgroundColor: step.bg,
-          color: step.text,
-        }}
-        className="flex flex-col md:flex-row overflow-hidden pointer-events-auto shadow-[0_12px_48px_rgba(0,0,0,0.15)]"
-      >
-        {/* 좌측 40% 영역: 텍스트 (정중앙 정렬) */}
-        <div className="w-full md:w-[40%] h-[45%] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 py-8 md:py-0 select-none">
-          <motion.div
-            variants={textContainerVariants}
-            initial="initial"
-            animate={isCurrent ? 'animate' : 'initial'}
-            className="flex flex-col gap-3 md:gap-4.5"
+      {/* 좌측 40% 영역: 텍스트 (뷰포트에 들어올 때 애니메이션) */}
+      <div className="w-full md:w-[40%] h-[45%] md:h-full flex flex-col justify-center px-8 md:px-14 lg:px-20 py-16 md:py-0 select-none">
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true, margin: "-15%" }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col gap-3 md:gap-4.5"
+        >
+          {/* 영문 서브타이틀 */}
+          <span
+            style={{ color: step.accent }}
+            className="font-en text-xs md:text-sm tracking-[0.35em] font-semibold uppercase"
           >
-            {/* 영문 서브타이틀 */}
-            <motion.span
-              variants={textItemVariants}
-              style={{ color: step.accent }}
-              className="font-en text-xs md:text-sm tracking-[0.35em] font-semibold uppercase"
-            >
-              {step.tagline}
-            </motion.span>
+            {step.tagline}
+          </span>
 
-            {/* 국문 메인 타이틀 */}
-            <motion.h3
-              variants={textItemVariants}
-              style={{ color: step.text }}
-              className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold leading-none mb-1.5 md:mb-2.5"
-            >
-              {step.title}
-            </motion.h3>
-
-            {/* 대표 시 (Poem) */}
-            <motion.p
-              variants={textItemVariants}
-              style={{
-                color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.85)' : 'rgba(74, 62, 46, 0.9)',
-                borderColor: step.accent,
-              }}
-              className="font-ko text-base md:text-[20px] italic leading-relaxed border-l-2 pl-4 my-1.5 md:my-2"
-            >
-              {`"${step.poem}"`}
-            </motion.p>
-
-            {/* 파트 소개문 (Desc) */}
-            <motion.p
-              variants={textItemVariants}
-              style={{ color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.75)' : 'rgba(42, 38, 32, 0.8)' }}
-              className="font-ko text-sm md:text-base leading-relaxed font-light"
-            >
-              {step.desc}
-            </motion.p>
-          </motion.div>
-        </div>
-
-        {/* 우측 60% 영역: 이미지 */}
-        <div className="w-full md:w-[60%] h-[55%] md:h-full relative overflow-hidden">
-          <motion.div
-            initial={{ scale: 1.12, opacity: 0 }}
-            animate={isCurrent ? { scale: 1, opacity: 1 } : { scale: 1.12, opacity: 0 }}
-            transition={{ duration: 1.1, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
-            className="w-full h-full relative"
+          {/* 국문 메인 타이틀 */}
+          <h3
+            style={{ color: step.text }}
+            className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold leading-none mb-1.5 md:mb-2.5"
           >
-            <Image
-              src={step.photo}
-              alt={step.title}
-              fill
-              priority
-              className="object-cover object-center select-none"
-              sizes="(max-width: 768px) 100vw, 60vw"
-            />
-            {/* 경계 구분을 부드럽게 해주는 배경색 맞춤형 그라데이션 오버레이 */}
-            <div
-              style={{
-                background: `linear-gradient(to right, ${step.bg}, transparent, transparent)`,
-              }}
-              className="absolute inset-0 hidden md:block pointer-events-none"
-            />
-            <div
-              style={{
-                background: `linear-gradient(to bottom, ${step.bg}, transparent, transparent)`,
-              }}
-              className="absolute inset-0 block md:hidden pointer-events-none"
-            />
-          </motion.div>
-        </div>
-      </motion.div>
-    </div>
+            {step.title}
+          </h3>
+
+          {/* 대표 시 (Poem) */}
+          <p
+            style={{
+              color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.85)' : 'rgba(74, 62, 46, 0.9)',
+              borderColor: step.accent,
+            }}
+            className="font-ko text-base md:text-[20px] italic leading-relaxed border-l-2 pl-4 my-1.5 md:my-2"
+          >
+            {`"${step.poem}"`}
+          </p>
+
+          {/* 파트 소개문 (Desc) */}
+          <p
+            style={{ color: step.text === '#FFFDF9' ? 'rgba(255,253,249,0.75)' : 'rgba(42, 38, 32, 0.8)' }}
+            className="font-ko text-sm md:text-base leading-relaxed font-light"
+          >
+            {step.desc}
+          </p>
+        </motion.div>
+      </div>
+
+      {/* 우측 60% 영역: 이미지 (뷰포트에 들어올 때 스케일 업 애니메이션) */}
+      <div className="w-full md:w-[60%] h-[55vh] md:h-screen relative overflow-hidden">
+        <motion.div
+          initial={{ scale: 1.1, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          viewport={{ once: true, margin: "-15%" }}
+          transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
+          className="w-full h-full relative"
+        >
+          <Image
+            src={step.photo}
+            alt={step.title}
+            fill
+            priority
+            className="object-cover object-center select-none"
+            sizes="(max-width: 768px) 100vw, 60vw"
+          />
+          {/* 경계 구분을 부드럽게 해주는 배경색 맞춤형 그라데이션 오버레이 */}
+          <div
+            style={{
+              background: `linear-gradient(to right, ${step.bg}, transparent, transparent)`,
+            }}
+            className="absolute inset-0 hidden md:block pointer-events-none"
+          />
+          <div
+            style={{
+              background: `linear-gradient(to bottom, ${step.bg}, transparent, transparent)`,
+            }}
+            className="absolute inset-0 block md:hidden pointer-events-none"
+          />
+        </motion.div>
+      </div>
+    </section>
   );
 }
 
 export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // A. 인트로 애니메이션 제어용 상태 (Shed.design 영감 시네마틱 개방)
@@ -364,14 +324,10 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
     return Math.min(Math.max(value / vh, 0), 1);
   });
 
-  const scrubProgress = useTransform(scrollY, (value) => {
+  const navyProgress = useTransform(scrollY, (value) => {
     if (typeof window === 'undefined') return 0;
     const vh = window.innerHeight;
-    const totalScroll = document.documentElement.scrollHeight - vh;
-    const scrollAfterSlogan = totalScroll - vh;
-    if (scrollAfterSlogan <= 0) return 0;
-    const progress = (value - vh) / scrollAfterSlogan;
-    return Math.min(Math.max(progress, 0), 1);
+    return Math.min(Math.max((value - vh) / vh, 0), 1);
   });
 
   // 2. 1섹션 (Hero) 스타일 변환값 정의
@@ -397,33 +353,23 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   const translateZ = useTransform(sceneProgress, [0, 0.48, 1], [0, 60, 60], { clamp: true });
 
   // 6. 네이비 색깔 화면 (섬김의 손길들) 스크럽 트랜지션 변환값
-  const navyY = useTransform(scrubProgress, [0.00, 0.12], ["100vh", "0vh"], { clamp: true });
-  const navyWidth = useTransform(scrubProgress, [0.00, 0.12], ["92vw", "100vw"], { clamp: true });
-  const navyHeight = useTransform(scrubProgress, [0.00, 0.12], ["92vh", "100vh"], { clamp: true });
-  const navyBorderRadius = useTransform(scrubProgress, [0.00, 0.12], [32, 0], { clamp: true });
-  const navyContentOpacity = useTransform(scrubProgress, [0.08, 0.12], [0, 1], { clamp: true });
+  const navyY = useTransform(navyProgress, [0.00, 1.00], ["100vh", "0vh"], { clamp: true });
+  const navyWidth = useTransform(navyProgress, [0.00, 1.00], ["92vw", "100vw"], { clamp: true });
+  const navyHeight = useTransform(navyProgress, [0.00, 1.00], ["92vh", "100vh"], { clamp: true });
+  const navyBorderRadius = useTransform(navyProgress, [0.00, 1.00], [32, 0], { clamp: true });
+  const navyContentOpacity = useTransform(navyProgress, [0.60, 1.00], [0, 1], { clamp: true });
 
   useEffect(() => {
-    const unsubscribe = scrubProgress.on('change', (latest) => {
-      if (latest < 0.12) {
+    const unsubscribe = navyProgress.on('change', (latest) => {
+      if (latest < 0.2) {
         setActiveCardIndex(-1);
-      } else if (latest >= 0.12 && latest < 0.28) {
-        setActiveCardIndex(0); // Navy Screen
-      } else if (latest >= 0.28 && latest < 0.46) {
-        setActiveCardIndex(1); // Soprano 1
-      } else if (latest >= 0.46 && latest < 0.64) {
-        setActiveCardIndex(2); // Soprano 2
-      } else if (latest >= 0.64 && latest < 0.80) {
-        setActiveCardIndex(3); // Alto
-      } else if (latest >= 0.80 && latest < 0.92) {
-        setActiveCardIndex(4); // Tenor
       } else {
-        setActiveCardIndex(5); // Bass
+        setActiveCardIndex(0); // Navy Screen
       }
     });
 
     return unsubscribe;
-  }, [scrubProgress]);
+  }, [navyProgress]);
 
   useEffect(() => {
     if (isIntroActive) return;
@@ -698,7 +644,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   }, [sceneProgress]);
 
   return (
-    <div ref={containerRef} className="relative h-[750vh] bg-cream">
+    <div className="relative bg-cream">
       
       {/* ============================================================= */}
       {/* D&G / Shed.design 영감 - 시네마틱 몽타주 플래시 -> 개방 인트로 */}
@@ -842,244 +788,239 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
         )}
       </AnimatePresence>
 
-      {/* 뷰포트 고정 Sticky 프레임 */}
-      <div className="sticky top-0 w-full h-screen overflow-hidden">
-        
-        {/* ---------------- 1섹션: 웅장한 시네마틱 Hero ---------------- */}
-        <motion.section 
-          style={{ 
-            opacity: heroOpacity, 
-            scale: heroScale,
-            filter: heroBlur
-          }}
-          className="absolute inset-0 w-full h-full flex flex-col justify-between p-10 md:p-16 pb-12 md:pb-14 z-10 overflow-hidden"
-        >
-          {/* 생생한 원본 사진 복원 */}
-          <div
-            className="absolute inset-0 bg-center bg-cover transition-transform duration-[3s] scale-100"
-            style={{
-              backgroundImage: `url('${home.heroBackgroundUrl}')`,
-              backgroundPosition: home.heroBackgroundPosition,
-            }}
-          />
+      {/* Sticky Section Wrapper (총 스크롤 300vh 범위 제공) */}
+      <div className="relative h-[300vh]">
+        <div className="sticky top-0 w-full h-screen overflow-hidden">
           
-          {/* 좌측 대형 타이포그래피 콘텐츠 */}
-          <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-20 -translate-y-24">
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }}
-              animate={isIntroActive ? { opacity: 0, y: 30 } : { opacity: 1, y: 0 }}
-              transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
-              className="mb-6 select-none"
-            >
-              <span className="font-en text-[10px] tracking-[0.24em] uppercase text-[#ffd899] opacity-95 font-semibold">
-                Praise Choir
-              </span>
-            </motion.div>
-
-            <h1 className="font-ko text-[clamp(30px,4.5vw,66px)] font-light leading-[1.14] text-[#f5edd8] tracking-tight mb-5 select-none">
-              <motion.span 
-                initial={{ opacity: 0, y: 36 }}
-                animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.28 }}
-                className="inline-block mr-2 md:mr-0"
-              >
-                광진교회
-              </motion.span>
-              <br />
-              <motion.span 
-                initial={{ opacity: 0, y: 36 }}
-                animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
-                className="inline-block font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent mr-2 md:mr-3"
-              >
-                프레이즈
-              </motion.span>
-              <motion.span 
-                initial={{ opacity: 0, y: 36 }}
-                animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
-                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
-                className="inline-block font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent"
-              >
-                찬양대
-              </motion.span>
-            </h1>
-          </div>
-
-          {/* 2026 로고 워터마크 데코 */}
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={isIntroActive ? { opacity: 0 } : { opacity: 0.25 }}
-            transition={{ duration: 1.2, ease: "easeOut", delay: 0.8 }}
-            className="absolute right-12 top-1/2 -translate-y-1/2 select-none z-10 pointer-events-none hidden md:block drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
-          >
-            <img
-              src="/church.svg"
-              alt="광진교회"
-              className="w-24 mix-blend-screen"
-            />
-          </motion.div>
-        </motion.section>
-
-
-        {/* ---------------- 2. 단일 거대 '태양기둥 (Sun Pillar)' 조명 드로잉 캔버스 ---------------- */}
-        {/* 가상 3D 공간의 깊이를 주어 태양기둥 조명이 입체적으로 다가오도록 틸트 처리 */}
-        <motion.div
-          style={{
-            perspective: 1000,
-            transformStyle: 'preserve-3d',
-            rotateX: rotateX,
-            z: translateZ
-          }}
-          className="absolute inset-0 z-20 pointer-events-none w-full h-full flex items-center justify-center"
-        >
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full"
-          />
-        </motion.div>
-
-
-        {/* ---------------- 3. 심리스 포탈용 황금빛 안개 장막 (Aura Intersection) ---------------- */}
-        <motion.div
-          style={{ opacity: transitionOverlayOpacity }}
-          className="absolute inset-0 bg-[#fbf7ee] z-15 pointer-events-none"
-        />
-
-
-        {/* ---------------- 4섹션: 성스러운 공간 (The Sacred Space - 2섹션) ---------------- */}
-        <motion.section 
-          style={{ 
-            opacity: section2Opacity,
-            scale: section2Scale,
-            y: section2Y
-          }}
-          className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-cream z-10 px-8 select-none overflow-hidden"
-        >
-          {/* 장식용 은은한 성가대 배경 워터마크 라틴어 마키 */}
-          <div 
-            className="absolute top-[220px] left-0 right-0 overflow-hidden pointer-events-none select-none leading-none z-0 opacity-45"
-            style={{
-              WebkitMaskImage: 'linear-gradient(to right, transparent, white 15%, white 85%, transparent)',
-              maskImage: 'linear-gradient(to right, transparent, white 15%, white 85%, transparent)'
+          {/* ---------------- 1섹션: 웅장한 시네마틱 Hero ---------------- */}
+          <motion.section 
+            style={{ 
+              opacity: heroOpacity, 
+              scale: heroScale,
+              filter: heroBlur
             }}
+            className="absolute inset-0 w-full h-full flex flex-col justify-between p-10 md:p-16 pb-12 md:pb-14 z-10 overflow-hidden"
           >
-            <div className="animate-marquee flex whitespace-nowrap">
-              {Array.from({ length: 8 }, (_, i) => (
-                <span key={i} className="font-en tracking-[0.18em] uppercase text-gold/6 text-[clamp(40px,7vw,80px)] pr-20 shrink-0">
-                  SANCTUS · GLORIA · KYRIE · ALLELUIA
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* 중앙 콘텐츠: 올해의 표어 & 소개 브릿지 */}
-          <div className="relative z-10 text-center flex flex-col items-center max-w-3xl">
-            <span className="font-en text-[10.5px] tracking-[0.35em] uppercase text-gold mb-6 block font-semibold">
-              — A.D. {home.year} Annual Theme
-            </span>
+            {/* 생생한 원본 사진 복원 */}
+            <div
+              className="absolute inset-0 bg-center bg-cover transition-transform duration-[3s] scale-100"
+              style={{
+                backgroundImage: `url('${home.heroBackgroundUrl}')`,
+                backgroundPosition: home.heroBackgroundPosition,
+              }}
+            />
             
-            <h2 className="font-ko text-[clamp(30px,4.2vw,56px)] font-bold text-ink leading-[1.36] tracking-wide mb-6">
-              “오직 하나님을 기뻐함으로 <br /> 승리하는 프레이즈”
-            </h2>
-          </div>
-        </motion.section>
+            {/* 좌측 대형 타이포그래피 콘텐츠 */}
+            <div className="relative z-10 flex-1 flex flex-col justify-center max-w-[75%] md:max-w-[55%] max-[880px]:max-w-full drop-shadow-[0_2px_12px_rgba(0,0,0,0.65)] transform transition-transform duration-500 md:-translate-y-20 -translate-y-24">
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={isIntroActive ? { opacity: 0, y: 30 } : { opacity: 1, y: 0 }}
+                transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+                className="mb-6 select-none"
+              >
+                <span className="font-en text-[10px] tracking-[0.24em] uppercase text-[#ffd899] opacity-95 font-semibold">
+                  Praise Choir
+                </span>
+              </motion.div>
+
+              <h1 className="font-ko text-[clamp(30px,4.5vw,66px)] font-light leading-[1.14] text-[#f5edd8] tracking-tight mb-5 select-none">
+                <motion.span 
+                  initial={{ opacity: 0, y: 36 }}
+                  animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.28 }}
+                  className="inline-block mr-2 md:mr-0"
+                >
+                  광진교회
+                </motion.span>
+                <br />
+                <motion.span 
+                  initial={{ opacity: 0, y: 36 }}
+                  animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
+                  className="inline-block font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent mr-2 md:mr-3"
+                >
+                  프레이즈
+                </motion.span>
+                <motion.span 
+                  initial={{ opacity: 0, y: 36 }}
+                  animate={isIntroActive ? { opacity: 0, y: 36 } : { opacity: 1, y: 0 }}
+                  transition={{ duration: 0.85, ease: [0.16, 1, 0.3, 1], delay: 0.52 }}
+                  className="inline-block font-bold bg-gradient-to-r from-[#ffd899] via-gold to-[#ffd899] bg-clip-text text-transparent"
+                >
+                  찬양대
+                </motion.span>
+              </h1>
+            </div>
+
+            {/* 2026 로고 워터마크 데코 */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={isIntroActive ? { opacity: 0 } : { opacity: 0.25 }}
+              transition={{ duration: 1.2, ease: "easeOut", delay: 0.8 }}
+              className="absolute right-12 top-1/2 -translate-y-1/2 select-none z-10 pointer-events-none hidden md:block drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]"
+            >
+              <img
+                src="/church.svg"
+                alt="광진교회"
+                className="w-24 mix-blend-screen"
+              />
+            </motion.div>
+          </motion.section>
 
 
-
-        {/* ---------------- 5. 네이비 색깔 화면 (섬김의 손길들) ---------------- */}
-        <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none" style={{ zIndex: 30 }}>
+          {/* ---------------- 2. 단일 거대 '태양기둥 (Sun Pillar)' 조명 드로잉 캔버스 ---------------- */}
+          {/* 가상 3D 공간의 깊이를 주어 태양기둥 조명이 입체적으로 다가오도록 틸트 처리 */}
           <motion.div
             style={{
-              y: navyY,
-              width: navyWidth,
-              height: navyHeight,
-              borderRadius: navyBorderRadius,
+              perspective: 1000,
+              transformStyle: 'preserve-3d',
+              rotateX: rotateX,
+              z: translateZ
             }}
-            className="bg-[#071426] flex flex-col items-center justify-center px-6 text-[#fbf7ee] pointer-events-auto overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.3)]"
+            className="absolute inset-0 z-20 pointer-events-none w-full h-full flex items-center justify-center"
           >
-            <motion.div
-              style={{ opacity: navyContentOpacity }}
-              className="flex flex-col items-center justify-center max-w-5xl w-full"
-            >
-              {/* 상단 문구: 섬김의 손길들 */}
-              <motion.div
-                initial={{ y: 24, opacity: 0 }}
-                animate={activeCardIndex === 0 ? { y: 0, opacity: 1 } : { y: 24, opacity: 0 }}
-                transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-                className="text-center mb-10 md:mb-14 select-none"
-              >
-                <span className="font-en text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-gold mb-2 block font-semibold">
-                  Praise Servants
-                </span>
-                <h3 className="font-ko text-[clamp(28px,3.5vw,48px)] font-bold tracking-wide text-cream bg-gradient-to-b from-[#fbf7ee] to-[#d4c4a0] bg-clip-text text-transparent">
-                  섬김의 손길들
-                </h3>
-              </motion.div>
+            <canvas
+              ref={canvasRef}
+              className="w-full h-full"
+            />
+          </motion.div>
 
-              {/* 지휘자/반주자 프로필 영역 */}
-              <motion.div
-                initial={{ y: 32, opacity: 0 }}
-                animate={activeCardIndex === 0 ? { y: 0, opacity: 1 } : { y: 32, opacity: 0 }}
-                transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-wrap justify-center gap-8 md:gap-14 max-w-5xl select-none"
-              >
-                {leaders.conductors.map((staff, idx) => (
-                  <div key={idx} className="flex flex-col items-center group">
-                    {/* 프로필 이미지 (골드 원형 서클 및 은은한 광채 효과) */}
-                    <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden border border-gold/30 shadow-[0_12px_36px_rgba(0,0,0,0.3)] mb-4 md:mb-5 transition-all duration-500 group-hover:scale-105 group-hover:border-gold/60">
-                      <div className="absolute inset-0 bg-[#071426]/30 z-10 transition-opacity duration-500 group-hover:opacity-0" />
-                      {staff.photo ? (
-                        <Image
-                          src={staff.photo}
-                          alt={staff.name}
-                          fill
-                          className="object-cover object-center"
-                          sizes="(max-width: 768px) 150px, 200px"
-                          priority
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-[#171717] text-gold/40">
-                          <span className="font-ko text-xs">사진 없음</span>
-                        </div>
-                      )}
-                      {/* 은은한 링 광채 데코 */}
-                      <div className="absolute inset-0 border border-gold/0 rounded-full transition-all duration-500 group-hover:border-gold/40 group-hover:scale-[1.02]" />
-                    </div>
-                    
-                    {/* 역할 (지휘자, 반주자 등) */}
-                    <span className="font-ko text-[11px] md:text-[12px] text-gold font-semibold tracking-widest uppercase mb-1.5 opacity-90">
-                      {staff.role}
-                    </span>
-                    
-                    {/* 이름 */}
-                    <span className="font-ko text-[15px] md:text-[17px] text-cream font-medium tracking-wider">
-                      {staff.name}
-                    </span>
-                  </div>
+
+          {/* ---------------- 3. 심리스 포탈용 황금빛 안개 장막 (Aura Intersection) ---------------- */}
+          <motion.div
+            style={{ opacity: transitionOverlayOpacity }}
+            className="absolute inset-0 bg-[#fbf7ee] z-15 pointer-events-none"
+          />
+
+
+          {/* ---------------- 4섹션: 성스러운 공간 (The Sacred Space - 2섹션) ---------------- */}
+          <motion.section 
+            style={{ 
+              opacity: section2Opacity,
+              scale: section2Scale,
+              y: section2Y
+            }}
+            className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-cream z-10 px-8 select-none overflow-hidden"
+          >
+            {/* 장식용 은은한 성가대 배경 워터마크 라틴어 마키 */}
+            <div 
+              className="absolute top-[220px] left-0 right-0 overflow-hidden pointer-events-none select-none leading-none z-0 opacity-45"
+              style={{
+                WebkitMaskImage: 'linear-gradient(to right, transparent, white 15%, white 85%, transparent)',
+                maskImage: 'linear-gradient(to right, transparent, white 15%, white 85%, transparent)'
+              }}
+            >
+              <div className="animate-marquee flex whitespace-nowrap">
+                {Array.from({ length: 8 }, (_, i) => (
+                  <span key={i} className="font-en tracking-[0.18em] uppercase text-gold/6 text-[clamp(40px,7vw,80px)] pr-20 shrink-0">
+                    SANCTUS · GLORIA · KYRIE · ALLELUIA
+                  </span>
                 ))}
+              </div>
+            </div>
+
+            {/* 중앙 콘텐츠: 올해의 표어 & 소개 브릿지 */}
+            <div className="relative z-10 text-center flex flex-col items-center max-w-3xl">
+              <span className="font-en text-[10.5px] tracking-[0.35em] uppercase text-gold mb-6 block font-semibold">
+                — A.D. {home.year} Annual Theme
+              </span>
+              
+              <h2 className="font-ko text-[clamp(30px,4.2vw,56px)] font-bold text-ink leading-[1.36] tracking-wide mb-6">
+                “오직 하나님을 기뻐함으로 <br /> 승리하는 프레이즈”
+              </h2>
+            </div>
+          </motion.section>
+
+
+
+          {/* ---------------- 5. 네이비 색깔 화면 (섬김의 손길들) ---------------- */}
+          <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none" style={{ zIndex: 30 }}>
+            <motion.div
+              style={{
+                y: navyY,
+                width: navyWidth,
+                height: navyHeight,
+                borderRadius: navyBorderRadius,
+              }}
+              className="bg-[#071426] flex flex-col items-center justify-center px-6 text-[#fbf7ee] pointer-events-auto overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.3)]"
+            >
+              <motion.div
+                style={{ opacity: navyContentOpacity }}
+                className="flex flex-col items-center justify-center max-w-5xl w-full"
+              >
+                {/* 상단 문구: 섬김의 손길들 */}
+                <motion.div
+                  initial={{ y: 24, opacity: 0 }}
+                  animate={activeCardIndex === 0 ? { y: 0, opacity: 1 } : { y: 24, opacity: 0 }}
+                  transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-center mb-10 md:mb-14 select-none"
+                >
+                  <span className="font-en text-[10px] md:text-[11px] tracking-[0.35em] uppercase text-gold mb-2 block font-semibold">
+                    Praise Servants
+                  </span>
+                  <h3 className="font-ko text-[clamp(28px,3.5vw,48px)] font-bold tracking-wide text-cream bg-gradient-to-b from-[#fbf7ee] to-[#d4c4a0] bg-clip-text text-transparent">
+                    섬김의 손길들
+                  </h3>
+                </motion.div>
+
+                {/* 지휘자/반주자 프로필 영역 */}
+                <motion.div
+                  initial={{ y: 32, opacity: 0 }}
+                  animate={activeCardIndex === 0 ? { y: 0, opacity: 1 } : { y: 32, opacity: 0 }}
+                  transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex flex-wrap justify-center gap-8 md:gap-14 max-w-5xl select-none"
+                >
+                  {leaders.conductors.map((staff, idx) => (
+                    <div key={idx} className="flex flex-col items-center group">
+                      {/* 프로필 이미지 (골드 원형 서클 및 은은한 광채 효과) */}
+                      <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full overflow-hidden border border-gold/30 shadow-[0_12px_36px_rgba(0,0,0,0.3)] mb-4 md:mb-5 transition-all duration-500 group-hover:scale-105 group-hover:border-gold/60">
+                        <div className="absolute inset-0 bg-[#071426]/30 z-10 transition-opacity duration-500 group-hover:opacity-0" />
+                        {staff.photo ? (
+                          <Image
+                            src={staff.photo}
+                            alt={staff.name}
+                            fill
+                            className="object-cover object-center"
+                            sizes="(max-width: 768px) 150px, 200px"
+                            priority
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-[#171717] text-gold/40">
+                            <span className="font-ko text-xs">사진 없음</span>
+                          </div>
+                        )}
+                        {/* 은은한 링 광채 데코 */}
+                        <div className="absolute inset-0 border border-gold/0 rounded-full transition-all duration-500 group-hover:border-gold/40 group-hover:scale-[1.02]" />
+                      </div>
+                      
+                      {/* 역할 (지휘자, 반주자 등) */}
+                      <span className="font-ko text-[11px] md:text-[12px] text-gold font-semibold tracking-widest uppercase mb-1.5 opacity-90">
+                        {staff.role}
+                      </span>
+                      
+                      {/* 이름 */}
+                      <span className="font-ko text-[15px] md:text-[17px] text-cream font-medium tracking-wider">
+                        {staff.name}
+                      </span>
+                    </div>
+                  ))}
+                </motion.div>
               </motion.div>
             </motion.div>
-          </motion.div>
+          </div>
+
         </div>
+      </div>
 
-        {/* ---------------- 6. 파트별 소개 스택 카드 (Soprano 1 ~ Bass) ---------------- */}
-        {PART_STEPS.map((step, index) => {
-          const range = PART_RANGES[index];
-          const isCurrent = activeCardIndex === index + 1;
-
-          return (
-            <PartStepCard
-              key={step.key}
-              step={step}
-              index={index}
-              scrubProgress={scrubProgress}
-              startRange={range.start}
-              endRange={range.end}
-              isCurrent={isCurrent}
-            />
-          );
-        })}
-
+      {/* ---------------- 6. 파트별 소개 섹션 리스트 (일반 스크롤) ---------------- */}
+      <div className="relative z-40 bg-cream">
+        {PART_STEPS.map((step, index) => (
+          <PartStepSection
+            key={step.key}
+            step={step}
+            index={index}
+          />
+        ))}
       </div>
 
     </div>
