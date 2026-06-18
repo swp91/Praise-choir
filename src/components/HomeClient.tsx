@@ -957,7 +957,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
       </div>
 
       {/* ---------------- 6. 섬김의 손길들 하단 슬라이더 영역 - 일반 네이티브 스크롤로 밀려 올라가는 구조 ---------------- */}
-      <div className="relative w-full h-[60vh] flex flex-col justify-center bg-[#071426] z-30 select-none overflow-hidden py-8 md:py-12 shadow-[0_-12px_48px_rgba(0,0,0,0.15)]">
+      <div className="relative w-full min-h-[65vh] flex flex-col justify-center bg-[#071426] z-30 select-none overflow-hidden pt-8 md:pt-12 pb-20 md:pb-32 shadow-[0_-12px_48px_rgba(0,0,0,0.15)]">
         {/* 무한반복 가로 롤러 */}
         <div className="relative flex overflow-hidden w-full py-6 pointer-events-auto">
           {/* Track 1 */}
