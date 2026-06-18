@@ -343,15 +343,14 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
   const navyBorderRadius = useTransform(navyProgress, [0.00, 1.00], [32, 0], { clamp: true });
   const navyContentOpacity = useTransform(navyProgress, [0.60, 1.00], [0, 1], { clamp: true });
 
-  // 7. 슬라이더 등장 트랜지션 변환값 (300vh ~ 400vh 구간에서 트리거)
-  const sliderProgress = useTransform(scrollY, (value) => {
+  // 7. 섬김의 손길들 화면 내부 스크롤 변환값 (200vh ~ 300vh 구간에서 트리거)
+  const contentY = useTransform(scrollY, (value) => {
     if (typeof window === 'undefined') return 0;
     const vh = window.innerHeight;
-    return Math.min(Math.max((value - 3 * vh) / vh, 0), 1);
+    if (value <= 2 * vh) return 0;
+    const progress = Math.min(Math.max((value - 2 * vh) / vh, 0), 1);
+    return -progress * vh * 0.6; // 최대 60vh 만큼 위로 스크롤
   });
-  const sliderY = useTransform(sliderProgress, [0.00, 1.00], ["60vh", "0vh"], { clamp: true });
-  const sliderOpacity = useTransform(sliderProgress, [0.00, 0.80], [0, 1], { clamp: true });
-  const textY = useTransform(sliderProgress, [0.00, 1.00], ["0px", "-60px"], { clamp: true });
 
   useEffect(() => {
     const unsubscribe = navyProgress.on('change', (latest) => {
@@ -936,50 +935,54 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
                 height: navyHeight,
                 borderRadius: navyBorderRadius,
               }}
-              className="relative flex flex-col justify-between py-12 md:py-20 text-[#fbf7ee] pointer-events-auto overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.3)] bg-[#071426]"
+              className="relative bg-[#071426] text-[#fbf7ee] pointer-events-auto overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.3)] w-full h-full"
             >
-              {/* 뒷배경 praise_02.webp 사진 적용 */}
-              <div 
-                className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]" 
-                style={{ backgroundImage: "url('/praise_02.webp')" }} 
-              />
-              {/* 어두운 그라데이션 오버레이 (배경 사진 투명도 확보 및 하단 텍스트 가독성 최적화) */}
-              <div className="absolute inset-0 z-5 bg-gradient-to-b from-black/0 via-black/25 to-[#071426]/90 pointer-events-none" />
-
-              {/* 좌측 정렬 타이포그래피 텍스트 */}
-              <motion.div
-                style={{ opacity: navyContentOpacity, y: textY }}
-                className="relative z-10 flex flex-col items-start justify-center max-w-7xl w-full px-8 md:px-20 select-none pt-4 md:pt-10"
-              >
-                <span className="font-en text-[11px] md:text-[13px] tracking-[0.35em] uppercase text-gold font-semibold mb-3 md:mb-5 opacity-90">
-                  Praise Servants
-                </span>
-                <h3 className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold tracking-tight leading-[1.22] text-cream text-left">
-                  프레이즈 <br />
-                  섬김의 손길들
-                </h3>
-              </motion.div>
-
-              {/* 하단 무한 루프 슬라이더 */}
+              {/* 스크롤되는 전체 콘텐츠 영역 (높이 160vh) */}
               <motion.div 
-                style={{ opacity: sliderOpacity, y: sliderY }}
-                className="w-full z-10 mt-auto select-none overflow-hidden"
+                style={{ y: contentY }}
+                className="absolute inset-0 w-full h-[160vh] flex flex-col justify-start"
               >
-                {/* 무한반복 가로 롤러 */}
-                <div className="relative flex overflow-hidden w-full py-4 pointer-events-auto">
-                  {/* Track 1 */}
-                  <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" style={{ animationDuration: '28s' }}>
-                    {slideItems.map((item) => (
-                      <SlideCard key={item.key} item={item} />
-                    ))}
-                  </div>
-                  {/* Track 2 (Duplicate for loop) */}
-                  <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" aria-hidden="true" style={{ animationDuration: '28s' }}>
-                    {slideItems.map((item) => (
-                      <SlideCard key={`${item.key}-dup`} item={item} />
-                    ))}
+                {/* 상단 100vh 영역: 배경 이미지 + 텍스트 */}
+                <div className="relative w-full h-screen flex flex-col justify-center py-12 md:py-20">
+                  {/* 뒷배경 praise_02.webp 사진 적용 */}
+                  <div 
+                    className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]" 
+                    style={{ backgroundImage: "url('/praise_02.webp')" }} 
+                  />
+                  {/* 어두운 그라데이션 오버레이 (배경 사진 투명도 확보 및 하단 텍스트 가독성 최적화) */}
+                  <div className="absolute inset-0 z-5 bg-gradient-to-b from-black/0 via-black/25 to-[#071426]/90 pointer-events-none" />
+
+                  {/* 좌측 정렬 타이포그래피 텍스트 */}
+                  <div className="relative z-10 flex flex-col items-start justify-center max-w-7xl w-full px-8 md:px-20 select-none pt-4 md:pt-10">
+                    <span className="font-en text-[11px] md:text-[13px] tracking-[0.35em] uppercase text-gold font-semibold mb-3 md:mb-5 opacity-90">
+                      Praise Servants
+                    </span>
+                    <h3 className="font-ko text-[clamp(36px,5.2vw,72px)] font-bold tracking-tight leading-[1.22] text-cream text-left">
+                      프레이즈 <br />
+                      섬김의 손길들
+                    </h3>
                   </div>
                 </div>
+
+                {/* 하단 60vh 영역: 슬라이더 */}
+                <div className="w-full h-[60vh] flex flex-col justify-center bg-[#071426] z-10 select-none overflow-hidden pb-12 md:pb-20">
+                  {/* 무한반복 가로 롤러 */}
+                  <div className="relative flex overflow-hidden w-full py-4 pointer-events-auto">
+                    {/* Track 1 */}
+                    <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" style={{ animationDuration: '28s' }}>
+                      {slideItems.map((item) => (
+                        <SlideCard key={item.key} item={item} />
+                      ))}
+                    </div>
+                    {/* Track 2 (Duplicate for loop) */}
+                    <div className="flex shrink-0 gap-6 animate-marquee whitespace-nowrap min-w-full pr-6" aria-hidden="true" style={{ animationDuration: '28s' }}>
+                      {slideItems.map((item) => (
+                        <SlideCard key={`${item.key}-dup`} item={item} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
               </motion.div>
             </motion.div>
           </div>
