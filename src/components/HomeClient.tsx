@@ -930,7 +930,7 @@ export default function HomeClient({ home, leaders, preloadPhotos = [] }: Props)
               className="relative bg-[#071426] text-[#fbf7ee] pointer-events-auto overflow-hidden shadow-[0_12px_48px_rgba(0,0,0,0.3)] w-full h-full"
             >
               {/* 상단 100vh 영역: 배경 이미지 + 텍스트 */}
-              <div className="relative w-full h-screen flex flex-col justify-end pb-16 md:pb-24">
+              <div className="relative w-full h-screen flex flex-col justify-end pb-6 md:pb-10">
                 {/* 뒷배경 praise_02.webp 사진 적용 */}
                 <div 
                   className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]" 
