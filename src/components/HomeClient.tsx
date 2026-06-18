@@ -78,6 +78,17 @@ const PART_STEPS = [
     bg: '#4E7088',
     text: '#FFFDF9',
     accent: '#ffd899'
+  },
+  {
+    key: 'ensemble',
+    tagline: 'HAGIOS ENSEMBLE',
+    title: '하기오스 악단',
+    poem: '풍성한 찬양의 선율을 완성하는 아름다운 협주',
+    desc: '각종 현악기와 관악기의 조화로운 연주로 목소리와 함께 어우러져 더욱 웅장하고 풍성한 찬양을 드립니다.',
+    photo: '/intro_6.webp',
+    bg: '#1a2b3c',
+    text: '#FFFDF9',
+    accent: '#ffd899'
   }
 ];
 
