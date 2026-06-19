@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useImageCompress } from '@/hooks/useImageCompress';
 
 type Props = {
   action: (formData: FormData) => void;
@@ -16,12 +17,20 @@ export default function AddStaffForm({ action }: Props) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const { compress, isCompressing } = useImageCompress();
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) {
-      setPreviewUrl(URL.createObjectURL(file));
-    }
+    if (!file) return;
+
+    const compressed = await compress(file);
+
+    // DataTransfer를 사용하여 input의 files를 교체
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(compressed);
+    e.target.files = dataTransfer.files;
+
+    setPreviewUrl(URL.createObjectURL(compressed));
   }
 
   function handleRemovePreview() {
@@ -86,7 +95,7 @@ export default function AddStaffForm({ action }: Props) {
             required
             placeholder="예: 홍길동"
             className={inputClass}
-            disabled={submitting}
+            disabled={submitting || isCompressing}
           />
         </div>
         <div>
@@ -98,7 +107,7 @@ export default function AddStaffForm({ action }: Props) {
             required
             placeholder="예: 지휘자, 반주자, 편곡자"
             className={inputClass}
-            disabled={submitting}
+            disabled={submitting || isCompressing}
           />
         </div>
       </div>
@@ -108,7 +117,7 @@ export default function AddStaffForm({ action }: Props) {
         <span className={labelClass}>사진 등록 (선택)</span>
         <div className="flex flex-col sm:flex-row gap-4 items-start">
           <div
-            onClick={() => !submitting && fileInputRef.current?.click()}
+            onClick={() => !submitting && !isCompressing && fileInputRef.current?.click()}
             className="w-full sm:w-[200px] aspect-[4/3] relative border border-dashed border-line bg-card flex flex-col items-center justify-center cursor-pointer overflow-hidden group rounded-lg"
           >
             {previewUrl ? (
@@ -155,9 +164,22 @@ export default function AddStaffForm({ action }: Props) {
                 <span className="font-ko text-[11px] font-bold text-cream animate-pulse">등록 중...</span>
               </div>
             )}
+
+            {isCompressing && (
+              <div className="absolute inset-0 bg-ink/40 flex flex-col items-center justify-center gap-2 backdrop-blur-[1px] pointer-events-none">
+                <svg className="w-6 h-6 text-gold" viewBox="0 0 50 50">
+                  <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="31.4 31.4">
+                    <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite" />
+                  </circle>
+                </svg>
+                <span className="font-ko text-[10px] font-bold text-cream bg-ink/75 px-2 py-0.5 rounded shadow animate-pulse">
+                  최적화 중...
+                </span>
+              </div>
+            )}
           </div>
 
-          {previewUrl && !submitting && (
+          {previewUrl && !submitting && !isCompressing && (
             <button
               type="button"
               onClick={handleRemovePreview}
@@ -175,7 +197,7 @@ export default function AddStaffForm({ action }: Props) {
           type="file"
           accept="image/png, image/jpeg, image/webp"
           className="hidden"
-          disabled={submitting}
+          disabled={submitting || isCompressing}
           onChange={handleFileChange}
         />
       </div>
@@ -188,14 +210,14 @@ export default function AddStaffForm({ action }: Props) {
             handleRemovePreview();
             if (formRef.current) formRef.current.reset();
           }}
-          disabled={submitting}
+          disabled={submitting || isCompressing}
           className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold disabled:opacity-55"
         >
           취소
         </button>
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || isCompressing}
           className="border border-gold-deep bg-gold-deep px-5 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink disabled:opacity-55"
         >
           {submitting ? '등록 중...' : '+ 스태프 추가'}

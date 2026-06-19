@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useImageCompress } from '@/hooks/useImageCompress';
 
 type Props = {
   action: (formData: FormData) => void;
@@ -24,12 +25,20 @@ export default function ImageClickUploader({
   const formRef = useRef<HTMLFormElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const { compress, isCompressing } = useImageCompress();
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (file) {
-      setPreviewUrl(URL.createObjectURL(file));
-    }
+    if (!file) return;
+
+    const compressed = await compress(file);
+
+    // DataTransfer를 사용하여 input의 files를 교체
+    const dataTransfer = new DataTransfer();
+    dataTransfer.items.add(compressed);
+    e.target.files = dataTransfer.files;
+
+    setPreviewUrl(URL.createObjectURL(compressed));
   }
 
   function handleSubmit() {
@@ -78,8 +87,21 @@ export default function ImageClickUploader({
           </div>
         )}
 
+        {isCompressing && (
+          <div className="absolute inset-0 bg-ink/40 flex flex-col items-center justify-center gap-2 backdrop-blur-[1px] pointer-events-none">
+            <svg className="w-8 h-8 text-gold" viewBox="0 0 50 50">
+              <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" strokeWidth="4" strokeDasharray="31.4 31.4">
+                <animateTransform attributeName="transform" type="rotate" from="0 25 25" to="360 25 25" dur="1s" repeatCount="indefinite" />
+              </circle>
+            </svg>
+            <span className="font-ko text-[11px] font-bold text-cream bg-ink/75 px-2.5 py-1 rounded-full shadow-md">
+              이미지 최적화 중...
+            </span>
+          </div>
+        )}
+
         {/* 대기 상태 배지 */}
-        {previewUrl && !submitting && (
+        {previewUrl && !submitting && !isCompressing && (
           <div className="absolute top-2 right-2 px-2.5 py-1 rounded bg-gold-deep text-cream font-ko text-[10px] font-bold shadow-md">
             변경 대기 중 (저장 필요)
           </div>
@@ -92,7 +114,7 @@ export default function ImageClickUploader({
         name={name}
         type="file"
         accept="image/png, image/jpeg, image/webp"
-        disabled={submitting}
+        disabled={submitting || isCompressing}
         className="sr-only"
         onChange={handleFileChange}
       />
