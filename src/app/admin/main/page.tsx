@@ -302,9 +302,7 @@ export default async function AdminMainPage({ searchParams }: Props) {
                 </div>
                 <div className="px-5 py-5 space-y-6">
                   <p className="font-ko text-[13px] text-ink-soft leading-relaxed border-b border-line pb-4">
-                    홈페이지 최하단에 배치되는 문의 카드 목록입니다. 임원진 대원을 리스트에 지정할 수 있습니다.
-                    해당 대원들의 <strong>전화번호 및 역할명</strong>이 실시간으로 홈페이지에 공개됩니다.
-                    번호를 드래그하여 노출 순서를 변경할 수 있습니다.
+                    홈페이지 최하단에 배치되는 문의 카드 목록입니다.
                   </p>
 
                   <SortableContactList contacts={data.contacts} />
