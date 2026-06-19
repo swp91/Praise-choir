@@ -52,7 +52,7 @@ export default function DeleteGalleryItemButton({ id, title }: Props) {
             </div>
             <div className="px-5 py-5">
               <p className="font-ko text-[14px] leading-relaxed text-ink-soft">
-                <span className="font-bold text-ink">&ldquo;{title}&rdquo;</span> 사진과 Storage 파일을 삭제합니다.
+                <span className="font-bold text-ink">&ldquo;{title}&rdquo;</span> 사진을 삭제합니다.
               </p>
               <div className="mt-6 flex justify-end gap-2">
                 <button
