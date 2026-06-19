@@ -270,6 +270,17 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
 
+  // 최초 마운트 시 브라우저 자동 스크롤 복원 비활성화 (새로고침 시 스크롤 덜컹거림 버그 방지)
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.history) {
+      const originalScrollRestoration = window.history.scrollRestoration;
+      window.history.scrollRestoration = "manual";
+      return () => {
+        window.history.scrollRestoration = originalScrollRestoration;
+      };
+    }
+  }, []);
+
   // 인트로 이미지 및 히어로 배경 사전 로드 대기 로직 (Next.js 이미지 최적화 매칭)
   useEffect(() => {
     if (!isIntroActive) {
