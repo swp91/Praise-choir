@@ -61,8 +61,20 @@ export default async function HomePage() {
 
   const preloadPhotos = Array.from(preloadSet).filter(Boolean);
 
+  const introPhotos = home?.introImages && home.introImages.length > 0
+    ? home.introImages.slice(0, 5)
+    : ["/intro_1.webp", "/intro_2.webp", "/intro_3.webp", "/intro_4.webp", "/intro_5.webp"];
+  const heroBackgroundUrl = home?.heroBackgroundUrl || '/praise_photo.png';
+
   return (
     <main className="main-content min-h-screen p-0 relative bg-cream animate-fadeIn">
+      {/* 인트로 및 히어로 백그라운드 이미지 사전 로드 (Next.js 이미지 최적화 매칭) */}
+      {introPhotos.map((url) => {
+        const optimizedUrl = `/_next/image?url=${encodeURIComponent(url)}&w=1080&q=75`;
+        return <link key={url} rel="preload" as="image" href={optimizedUrl} />;
+      })}
+      <link rel="preload" as="image" href={`/_next/image?url=${encodeURIComponent(heroBackgroundUrl)}&w=1080&q=75`} />
+
       <HydrationBoundary state={dehydrate(queryClient)}>
         <HomeClient preloadPhotos={preloadPhotos} />
       </HydrationBoundary>

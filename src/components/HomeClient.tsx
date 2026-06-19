@@ -252,15 +252,60 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
     return true;
   });
   const [montageIndex, setMontageIndex] = useState(0); // 0 ~ (numImages + 2) 단계
+  const [introImagesLoaded, setIntroImagesLoaded] = useState(false);
   const [activeCardIndex, setActiveCardIndex] = useState(-1); // -1: Slogan, 0: Navy, 1~5: Parts
   const [isAutoAdvancingFinalStep, setIsAutoAdvancingFinalStep] =
     useState(false);
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
 
+  // 인트로 이미지 및 히어로 배경 사전 로드 대기 로직 (Next.js 이미지 최적화 매칭)
+  useEffect(() => {
+    if (!isIntroActive) {
+      setIntroImagesLoaded(true);
+      return;
+    }
+
+    const heroBgUrl = home?.heroBackgroundUrl || '/praise_photo.png';
+    const rawUrls = [...introPhotos, heroBgUrl];
+    const urls = rawUrls.map((url) => `/_next/image?url=${encodeURIComponent(url)}&w=1080&q=75`);
+    let loadedCount = 0;
+    const totalToLoad = urls.length;
+    let resolved = false;
+
+    // 안전장치 타임아웃 (최대 1.5초 대기 후 강제 시작하여 무한 로딩 방지)
+    const failSafeTimer = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        setIntroImagesLoaded(true);
+      }
+    }, 1500);
+
+    const checkLoaded = () => {
+      if (resolved) return;
+      loadedCount++;
+      if (loadedCount === totalToLoad) {
+        resolved = true;
+        clearTimeout(failSafeTimer);
+        setIntroImagesLoaded(true);
+      }
+    };
+
+    urls.forEach((url) => {
+      const img = new window.Image();
+      img.onload = checkLoaded;
+      img.onerror = checkLoaded; // 이미지 로드 에러 시에도 카운트를 채워 동작 보장
+      img.src = url;
+    });
+
+    return () => {
+      clearTimeout(failSafeTimer);
+    };
+  }, [isIntroActive, introPhotos, home?.heroBackgroundUrl]);
+
   // B. 점진적 가속 몽타주 플래시 타이머 (등록된 사진 수에 맞게 동적 구성)
   useEffect(() => {
-    if (!isIntroActive) return;
+    if (!isIntroActive || !introImagesLoaded) return;
 
     // 각 단계를 시작하기 전에 기다릴 대기 시간(delay) 정의
     // 이전 단계가 시작되고 이 대기시간이 지나면 다음 단계가 작동합니다.
@@ -969,7 +1014,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                     className="absolute inset-0 bg-center bg-cover overflow-hidden"
                     style={{
                       backgroundColor: bgColor,
-                      backgroundImage: `url('${imgUrl}')`,
+                      backgroundImage: `url('/_next/image?url=${encodeURIComponent(imgUrl)}&w=1080&q=75')`,
                     }}
                   />
                 );
@@ -983,7 +1028,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 className="absolute inset-0 bg-center bg-cover overflow-hidden"
                 style={{
                   backgroundColor: "#4a3e2e",
-                  backgroundImage: `url('${home?.heroBackgroundUrl || '/praise_photo.png'}')`,
+                  backgroundImage: `url('/_next/image?url=${encodeURIComponent(home?.heroBackgroundUrl || '/praise_photo.png')}&w=1080&q=75')`,
                   backgroundPosition: 'center 30%',
                 }}
               >
@@ -1003,7 +1048,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                   }}
                   className="w-full h-full bg-inherit bg-center bg-cover"
                   style={{
-                    backgroundImage: `url('${home?.heroBackgroundUrl || '/praise_photo.png'}')`,
+                    backgroundImage: `url('/_next/image?url=${encodeURIComponent(home?.heroBackgroundUrl || '/praise_photo.png')}&w=1080&q=75')`,
                     backgroundPosition: 'center 30%',
                   }}
                 />
