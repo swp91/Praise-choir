@@ -7,6 +7,13 @@ function must<T>(result: { data: T | null; error: DbError | null }, label: strin
   return result.data as T;
 }
 
+function validateImageFile(file: File) {
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
+  if (ext === 'gif' || file.type === 'image/gif') {
+    throw new Error('GIF 형식의 이미지는 업로드할 수 없습니다. (PNG, JPG, JPEG, WEBP만 가능)');
+  }
+}
+
 export type AdminIntroPhoto = {
   id: string;
   title: string;
@@ -273,6 +280,7 @@ export async function uploadSpecialImage(
   sectionKey: string | null,
   file: File
 ) {
+  validateImageFile(file);
   const supabase = getSupabaseAdmin();
   const id = crypto.randomUUID();
   const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
@@ -362,6 +370,7 @@ export async function uploadSpecialImage(
 }
 
 export async function uploadIntroPhoto(file: File) {
+  validateImageFile(file);
   const supabase = getSupabaseAdmin();
 
   // 1. 현재 마지막 순서 알아내기 (metadata->>'usage' = 'intro' 중 sort_order 최대값)
@@ -420,6 +429,7 @@ export async function deleteIntroPhoto(id: string) {
 }
 
 export async function updateIntroPhoto(itemId: string, file: File) {
+  validateImageFile(file);
   const supabase = getSupabaseAdmin();
 
   // 1. 기존 에셋 정보 조회 (sort_order 및 이전 파일 경로)
@@ -532,6 +542,7 @@ export async function reorderContactMembers(orderedIds: string[]) {
 }
 
 export async function uploadStaffPhoto(personId: string, file: File) {
+  validateImageFile(file);
   const supabase = getSupabaseAdmin();
   const id = crypto.randomUUID();
   const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
@@ -627,6 +638,7 @@ export async function addStaffMember(name: string, role: string, file: File | nu
 
   // 3. 파일이 있으면 이미지 업로드 및 photo_asset_id 설정
   if (file && file.size > 0) {
+    validateImageFile(file);
     const id = crypto.randomUUID();
     const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
     const path = `people/staff_${newPerson.id}_${id}.${ext}`;

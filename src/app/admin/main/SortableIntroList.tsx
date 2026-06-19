@@ -113,7 +113,7 @@ function IntroPhotoCard({
             ref={fileInputRef}
             name="intro_image"
             type="file"
-            accept="image/*"
+            accept="image/png, image/jpeg, image/webp"
             disabled={submitting}
             className="hidden"
             onChange={handleFileChange}

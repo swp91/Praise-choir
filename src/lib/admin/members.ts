@@ -62,6 +62,12 @@ function safeFileNameSeed(value: string) {
 
 async function uploadMemberPhoto(file: File | null, displayName: string) {
   if (!file) return null;
+
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
+  if (ext === 'gif' || file.type === 'image/gif') {
+    throw new Error('GIF 형식의 이미지는 업로드할 수 없습니다. (PNG, JPG, JPEG, WEBP만 가능)');
+  }
+
   if (!file.type.startsWith('image/')) {
     throw new Error('사진 파일은 이미지 형식이어야 합니다.');
   }

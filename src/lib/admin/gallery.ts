@@ -9,6 +9,13 @@ function must<T>(result: { data: T | null; error: DbError | null }, label: strin
   return result.data as T;
 }
 
+function validateImageFile(file: File) {
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
+  if (ext === 'gif' || file.type === 'image/gif') {
+    throw new Error('GIF 형식의 이미지는 업로드할 수 없습니다. (PNG, JPG, JPEG, WEBP만 가능)');
+  }
+}
+
 type MediaAssetRow = {
   id: string;
   bucket: string;
@@ -88,6 +95,7 @@ export async function getAdminGalleryData(): Promise<AdminGalleryData> {
 }
 
 export async function createGalleryItem(value: GalleryUploadFormValue) {
+  validateImageFile(value.file);
   const supabase = getSupabaseAdmin();
   const id = crypto.randomUUID();
   const path = `gallery/${id}.${fileExtension(value.file)}`;

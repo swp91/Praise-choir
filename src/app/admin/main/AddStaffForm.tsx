@@ -173,7 +173,7 @@ export default function AddStaffForm({ action }: Props) {
           id="staff_photo"
           name="photo"
           type="file"
-          accept="image/*"
+          accept="image/png, image/jpeg, image/webp"
           className="hidden"
           disabled={submitting}
           onChange={handleFileChange}

@@ -50,7 +50,7 @@ export default function PhotoPicker({ defaultPhotoUrl, defaultName, existingPhot
           id="photo_file"
           name="photo_file"
           type="file"
-          accept="image/*"
+          accept="image/png, image/jpeg, image/webp"
           className="sr-only"
           onChange={handleChange}
         />

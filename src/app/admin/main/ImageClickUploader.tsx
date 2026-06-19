@@ -91,7 +91,7 @@ export default function ImageClickUploader({
         id={inputId}
         name={name}
         type="file"
-        accept="image/*"
+        accept="image/png, image/jpeg, image/webp"
         disabled={submitting}
         className="sr-only"
         onChange={handleFileChange}
