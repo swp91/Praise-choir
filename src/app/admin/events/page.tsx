@@ -291,6 +291,9 @@ export default async function AdminEventsPage({ searchParams }: Props) {
             <h1 className="font-ko text-[clamp(26px,4vw,42px)] font-bold leading-tight text-ink">
               일정 관리
             </h1>
+            <p className="mt-3 max-w-2xl font-ko text-[14px] leading-relaxed text-ink-soft">
+              년도를 추가할수있고, 년도마다 일정을 추가, 삭제, 순번을 드래그해서 변경할 수 있습니다.
+            </p>
           </div>
           <div className="flex gap-2">
             <Link
