@@ -15,6 +15,7 @@ export default function AddStaffForm({ action }: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -34,14 +35,48 @@ export default function AddStaffForm({ action }: Props) {
     setSubmitting(true);
   }
 
+  if (!isOpen) {
+    return (
+      <div className="flex justify-start">
+        <button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className="border border-gold-deep bg-cream hover:bg-gold-deep hover:text-cream text-gold-deep px-5 py-2.5 font-ko text-[13px] font-bold transition flex items-center gap-1.5"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          새 스태프 추가하기
+        </button>
+      </div>
+    );
+  }
+
   return (
     <form
       ref={formRef}
       action={action}
       onSubmit={handleSubmit}
-      className="border border-line bg-cream p-4 space-y-5"
+      className="border border-line bg-cream p-5 space-y-5 relative"
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* 접기 버튼 (우측 상단) */}
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen(false);
+          handleRemovePreview();
+          if (formRef.current) formRef.current.reset();
+        }}
+        className="absolute top-4 right-5 text-ink-soft hover:text-ink transition font-ko text-[12px] font-bold flex items-center gap-1"
+        title="접기"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14" />
+        </svg>
+        접기
+      </button>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
         <div>
           <label className={labelClass} htmlFor="new_staff_name">이름</label>
           <input
@@ -145,7 +180,19 @@ export default function AddStaffForm({ action }: Props) {
         />
       </div>
 
-      <div className="flex justify-end pt-2 border-t border-line">
+      <div className="flex justify-end gap-2 pt-2 border-t border-line">
+        <button
+          type="button"
+          onClick={() => {
+            setIsOpen(false);
+            handleRemovePreview();
+            if (formRef.current) formRef.current.reset();
+          }}
+          disabled={submitting}
+          className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold disabled:opacity-55"
+        >
+          취소
+        </button>
         <button
           type="submit"
           disabled={submitting}
