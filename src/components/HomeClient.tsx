@@ -1200,18 +1200,19 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
 
             {/* 중앙 콘텐츠: 올해의 표어 & 소개 브릿지 */}
             <div className="relative z-10 text-center flex flex-col items-center max-w-3xl">
-              <span className="font-en text-[10.5px] tracking-[0.35em] uppercase text-gold mb-4 block font-semibold select-none">
+              <span className="font-en text-[10.5px] tracking-[0.35em] uppercase text-gold mb-6 block font-semibold select-none">
                 — A.D. {home?.year} Annual Theme
               </span>
-              {home?.themeEn && (
-                <p className="font-en text-[11px] md:text-[12px] tracking-[0.12em] text-gold mb-6 italic opacity-85 select-none">
-                  {home?.themeEn}
-                </p>
-              )}
 
               <h2 className="font-ko text-[clamp(30px,4.2vw,56px)] font-bold text-ink leading-[1.36] tracking-wide mb-6 whitespace-pre-line">
                 {home?.themeKo ? `“${home.themeKo}”` : `“오직 하나님을 기뻐함으로\n승리하는 프레이즈”`}
               </h2>
+
+              {home?.themeEn && (
+                <p className="font-en text-[11px] md:text-[12px] tracking-[0.12em] text-gold mb-4 italic opacity-85 select-none">
+                  {home.themeEn}
+                </p>
+              )}
             </div>
           </motion.section>
 
