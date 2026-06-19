@@ -1,36 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎵 광진교회 프레이즈찬양대 공식 홈페이지
 
-## Getting Started
+> **“오직 하나님을 기뻐함으로 찬양하는 프레이즈찬양대”**
+> 
+> 광진교회 프레이즈찬양대의 은혜와 기쁨의 순간들을 나누고, 찬양대원 간의 소통과 예배 준비를 돕기 위해 제작된 공식 홈페이지입니다. 
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ⛪ 찬양대 및 홈페이지 소개
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+프레이즈찬양대 홈페이지는 대원들과 성도님들, 그리고 찬양대에 관심을 가지고 계신 모든 분들을 환영합니다. 컴퓨터(PC) 환경은 물론 스마트폰(모바일)에서도 마치 한 권의 잡지나 성가 책을 넘겨보듯 편리하고 아름답게 이용하실 수 있도록 디자인되었습니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+* **홈페이지 주소**: [https://praisechoir.kr](https://praisechoir.kr)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🗺️ 홈페이지 메뉴 안내 (이렇게 이용해 보세요!)
 
-To learn more about Next.js, take a look at the following resources:
+### 1. 홈 (메인 화면)
+* 올해의 찬양대 표어와 주제를 확인하실 수 있습니다.
+* 지휘자, 반주자님을 비롯해 찬양대의 든든한 버팀목이 되어주시는 임원진(대장, 총무 등) 분들을 소개합니다.
+* 스마트폰에서 화면을 위아래로 가볍게 쓸어 넘기면(스와이프) 각 화면이 한 칸씩 부드럽게 밀려 올라가며 편리하게 감상하실 수 있습니다.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2. 찬양대원 소개 (Members)
+* 소프라노, 알토, 테너, 베이스 및 하기오스 악단까지, 목소리와 악기로 찬양을 완성하는 프레이즈 대원들의 명부입니다.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. 활동 사진 (Gallery)
+* 주일 예배 찬양 모습, 특별 찬양, 수련회, 행사 등 프레이즈 찬양대의 소중한 활동 기록이 담겨 있는 사진첩입니다.
+* 마음에 드는 사진은 다운로드 버튼을 눌러 개인 스마트폰이나 컴퓨터에 자유롭게 저장하실 수 있습니다.
 
-## Deploy on Vercel
+### 4. 일정 안내 (Events)
+* 찬양대 절기 찬양 일정, 칸타타, 야외 예배 등 한 해 동안 진행되는 프레이즈의 공식 일정들을 모아두는 캘린더입니다.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 5. 시간표 및 오시는 길 (Practice)
+* 주일 오전 연습 시간, 찬양 예배 시간 등 찬양대의 세부 연습 일정표입니다.
+* 프레이즈 찬양대실로 찾아오시는 위치 정보(지도 링크)를 확인하실 수 있습니다.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🙋‍♀️ 프레이즈 찬양대 가입 안내
+
+하나님을 사랑하고 찬양하기를 기뻐하는 광진교회 등록 성도라면 누구나 프레이즈 찬양대의 대원이 되실 수 있습니다. 목소리의 높낮이나 악기 연주 실력과 상관없이, 찬양하고자 하는 마음만 있다면 언제든 환영합니다!
+
+* **가입 문의 및 상담**:
+  * **대장**: 박대섭 장로 (010-3720-0889)
+  * 홈페이지 하단(푸터)의 연락처를 통해 편하게 문의 주시면 따뜻하게 안내해 드리겠습니다.
+
+---
+
+## ✍️ 홈페이지 관리 안내 (임원진 및 미디어 담당자용)
+* 사진첩의 새로운 사진 등록, 일정 변경, 대원 정보 관리 등은 별도의 **관리자 전용 대시보드**를 통해 손쉽게 관리할 수 있습니다. 
+* 사진을 올릴 때 용량이 너무 크면 자동으로 최적화(WebP 압축)가 진행되므로 스마트폰으로 찍은 원본 사진도 크기 조절 없이 편하게 업로드하실 수 있습니다.
