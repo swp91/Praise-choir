@@ -1012,8 +1012,8 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 className="absolute inset-0 bg-center bg-cover overflow-hidden"
                 style={{
                   backgroundColor: "#4a3e2e",
-                  backgroundImage: `url('${home.heroBackgroundUrl}')`,
-                  backgroundPosition: home.heroBackgroundPosition,
+                  backgroundImage: `url('${home?.heroBackgroundUrl || '/praise_photo.png'}')`,
+                  backgroundPosition: home?.heroBackgroundPosition || 'center 30%',
                 }}
               >
                 <motion.div
@@ -1032,8 +1032,8 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                   }}
                   className="w-full h-full bg-inherit bg-center bg-cover"
                   style={{
-                    backgroundImage: `url('${home.heroBackgroundUrl}')`,
-                    backgroundPosition: home.heroBackgroundPosition,
+                    backgroundImage: `url('${home?.heroBackgroundUrl || '/praise_photo.png'}')`,
+                    backgroundPosition: home?.heroBackgroundPosition || 'center 30%',
                   }}
                 />
               </motion.div>
@@ -1061,8 +1061,8 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
             <div
               className="absolute inset-0 bg-center bg-cover transition-transform duration-[3s] scale-100"
               style={{
-                backgroundImage: `url('${home.heroBackgroundUrl}')`,
-                backgroundPosition: home.heroBackgroundPosition,
+                backgroundImage: `url('${home?.heroBackgroundUrl || '/praise_photo.png'}')`,
+                backgroundPosition: home?.heroBackgroundPosition || 'center 30%',
               }}
             />
 
@@ -1205,7 +1205,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
               </span>
               {home?.themeEn && (
                 <p className="font-en text-[11px] md:text-[12px] tracking-[0.12em] text-gold mb-6 italic opacity-85 select-none">
-                  {home.themeEn}
+                  {home?.themeEn}
                 </p>
               )}
 
@@ -1451,8 +1451,8 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full justify-center">
-              {home?.contacts && home.contacts.length > 0 ? (
-                home.contacts.map((contact: any, index: number) => (
+              {home?.contacts && home?.contacts.length > 0 ? (
+                home?.contacts.map((contact: any, index: number) => (
                   <div key={index} className="flex-1 flex flex-col items-center p-4 md:p-5 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300">
                     <span className="font-ko text-[10px] md:text-xs text-gold font-semibold uppercase tracking-wider mb-1">
                       {contact.role}
