@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -17,7 +17,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { AdminIntroPhoto } from '@/lib/admin/main';
-import { deleteIntroPhotoAction, reorderIntroPhotosAction } from './actions';
+import { updateIntroPhotoAction, reorderIntroPhotosAction } from './actions';
 
 function IntroPhotoCard({
   photo,
@@ -35,7 +35,28 @@ function IntroPhotoCard({
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const [deleteOpen, setDeleteOpen] = useState(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  }
+
+  function handleCancel() {
+    setPreviewUrl(null);
+    if (formRef.current) formRef.current.reset();
+  }
+
+  function handleSubmit() {
+    setSubmitting(true);
+  }
+
+  const displayUrl = previewUrl || photo.imageUrl;
 
   return (
     <div
@@ -50,63 +71,88 @@ function IntroPhotoCard({
         className="relative flex-1 cursor-grab active:cursor-grabbing overflow-hidden"
       >
         <img
-          src={photo.imageUrl}
+          src={displayUrl}
           alt={photo.title}
-          className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
+          className="w-full h-full object-cover transition duration-300 group-hover:scale-102"
         />
-        <div className="absolute inset-0 bg-ink/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
-          <span className="font-ko text-[12px] font-bold text-cream bg-ink/75 px-3 py-1.5 rounded-full">
-            드래그하여 순서 변경
-          </span>
-        </div>
-        <span className="absolute top-2 left-2 w-6 h-6 rounded-full bg-gold-deep text-cream text-[11px] font-bold flex items-center justify-center shadow-md">
+        
+        {/* 드래그 오버레이 (대기 중이 아닐 때만 노출) */}
+        {!previewUrl && !submitting && (
+          <div className="absolute inset-0 bg-ink/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center pointer-events-none">
+            <span className="font-ko text-[11px] font-bold text-cream bg-ink/75 px-2.5 py-1 rounded-full">
+              드래그하여 순서 변경
+            </span>
+          </div>
+        )}
+
+        {submitting && (
+          <div className="absolute inset-0 bg-ink/50 flex items-center justify-center pointer-events-none">
+            <span className="font-ko text-[11px] font-bold text-cream animate-pulse">
+              변경 적용 중...
+            </span>
+          </div>
+        )}
+
+        {previewUrl && !submitting && (
+          <div className="absolute top-2 right-2 px-2 py-0.5 rounded bg-gold-deep text-cream font-ko text-[9px] font-bold shadow-md">
+            변경 대기 중
+          </div>
+        )}
+
+        <span className="absolute top-2 left-2 w-6 h-6 rounded-full bg-gold-deep text-cream text-[11px] font-bold flex items-center justify-center shadow-md pointer-events-none">
           {index + 1}
         </span>
       </div>
 
-      {/* Card Info & Delete Button */}
-      <div className="border-t border-line px-3 py-2 flex items-center justify-between bg-card-head">
-        <span className="font-en text-[11px] font-bold text-ink-soft truncate max-w-[70%]">
-          {photo.title}
-        </span>
-        <button
-          type="button"
-          onClick={() => setDeleteOpen(true)}
-          className="font-ko text-[11px] font-bold text-red-600 hover:text-red-800 transition"
-        >
-          삭제
-        </button>
-      </div>
+      {/* Card Info & Control Form */}
+      <div className="border-t border-line px-3 py-2 bg-card-head">
+        <form ref={formRef} action={updateIntroPhotoAction} onSubmit={handleSubmit} className="flex flex-col gap-1.5 w-full">
+          <input type="hidden" name="item_id" value={photo.id} />
+          
+          <input
+            ref={fileInputRef}
+            name="intro_image"
+            type="file"
+            accept="image/*"
+            disabled={submitting}
+            className="hidden"
+            onChange={handleFileChange}
+          />
 
-      {/* Delete Confirmation Modal */}
-      {deleteOpen && (
-        <div className="fixed inset-0 z-[1100] flex items-center justify-center bg-ink/60 px-5 pointer-events-auto">
-          <section className="w-full max-w-[360px] border border-line bg-cream p-5 shadow-2xl">
-            <h3 className="font-ko text-[16px] font-bold text-ink mb-2">사진을 삭제할까요?</h3>
-            <p className="font-ko text-[13px] text-ink-soft leading-relaxed mb-5">
-              인트로 몬타주 목록에서 이 사진을 완전히 삭제합니다. 이 작업은 되돌릴 수 없습니다.
-            </p>
-            <div className="flex justify-end gap-2">
+          {!previewUrl ? (
+            <div className="flex items-center justify-between w-full">
+              <span className="font-en text-[11px] font-bold text-ink-soft truncate max-w-[60%]">
+                {photo.title}
+              </span>
               <button
                 type="button"
-                onClick={() => setDeleteOpen(false)}
-                className="border border-line bg-card px-3.5 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
+                onClick={() => fileInputRef.current?.click()}
+                className="font-ko text-[11px] font-bold text-gold-deep hover:text-ink transition"
+              >
+                사진 변경
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-end gap-1.5 w-full">
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={submitting}
+                className="border border-line bg-card px-2 py-1 font-ko text-[10px] text-ink transition hover:border-gold disabled:opacity-55"
               >
                 취소
               </button>
-              <form action={deleteIntroPhotoAction}>
-                <input type="hidden" name="id" value={photo.id} />
-                <button
-                  type="submit"
-                  className="border border-red-700 bg-red-700 px-4 py-2 font-ko text-[12px] font-bold text-white transition hover:bg-red-800"
-                >
-                  삭제
-                </button>
-              </form>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="border border-gold-deep bg-gold-deep px-2.5 py-1 font-ko text-[10px] font-bold text-cream transition hover:bg-ink disabled:opacity-55"
+              >
+                변경 적용
+              </button>
             </div>
-          </section>
-        </div>
-      )}
+          )}
+        </form>
+      </div>
     </div>
   );
 }

@@ -237,6 +237,12 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
 
   const slideItems = [...conductorSlides, ...partSlides];
 
+  // 인트로 이미지 배열 추출 (DB에 등록된 사진이 없으면 기본 5장 사용, 최대 5장 고정)
+  const introPhotos = home?.introImages && home.introImages.length > 0
+    ? home.introImages.slice(0, 5)
+    : ["/intro_1.webp", "/intro_2.webp", "/intro_3.webp", "/intro_4.webp", "/intro_5.webp"];
+  const numImages = introPhotos.length;
+
   // A. 인트로 애니메이션 제어용 상태 (Shed.design 영감 시네마틱 개방)
   const [isIntroActive, setIsIntroActive] = useState(() => {
     if (typeof window !== "undefined") {
@@ -245,28 +251,31 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
     }
     return true;
   });
-  const [montageIndex, setMontageIndex] = useState(0); // 0 ~ 7 (7단계가 최종 팽창)
+  const [montageIndex, setMontageIndex] = useState(0); // 0 ~ (numImages + 2) 단계
   const [activeCardIndex, setActiveCardIndex] = useState(-1); // -1: Slogan, 0: Navy, 1~5: Parts
   const [isAutoAdvancingFinalStep, setIsAutoAdvancingFinalStep] =
     useState(false);
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
 
-  // B. 점진적 가속 몽타주 플래시 타이머 (컬러 4단계 + 사진 2단계 + 최종 팽창)
+  // B. 점진적 가속 몽타주 플래시 타이머 (등록된 사진 수에 맞게 동적 구성)
   useEffect(() => {
     if (!isIntroActive) return;
 
     // 각 단계를 시작하기 전에 기다릴 대기 시간(delay) 정의
     // 이전 단계가 시작되고 이 대기시간이 지나면 다음 단계가 작동합니다.
-    const steps = [
-      { index: 1, delay: 0 }, // 1단계: 다크잉크 (#2a2620)
-      { index: 2, delay: 500 }, // 2단계: 차콜 브라운 (#4a3e2e)
-      { index: 3, delay: 450 }, // 3단계: 딥골드 (#8a6f2f)
-      { index: 4, delay: 400 }, // 4단계: 실버골드 (#d4c4a0)
-      { index: 5, delay: 350 }, // 5단계: 중간 대원 사진 (/intro_5.webp) 낙하 시작
-      { index: 6, delay: 300 }, // 6단계: 최종 히어로 사진 낙하 시작
-      { index: 7, delay: 1100 + 500 }, // 7단계: 팽창 시작! (1.1초 동안 완전히 내려와 안착하고, 500ms 동안 감상 후 팽창)
-    ];
+    const steps: { index: number; delay: number }[] = [];
+    steps.push({ index: 1, delay: 0 }); // 1단계는 즉시 실행
+    
+    let currentDelay = 500;
+    for (let i = 2; i <= numImages + 1; i++) {
+      steps.push({ index: i, delay: currentDelay });
+      // 단계가 지날수록 딜레이를 50ms씩 줄여 점점 가속되는 연출 구현 (최소 250ms)
+      currentDelay = Math.max(250, currentDelay - 50);
+    }
+    
+    // 최종 팽창 시작 (1100ms 낙하 + 500ms 감상 대기)
+    steps.push({ index: numImages + 2, delay: 1100 + 500 });
 
     const timers: NodeJS.Timeout[] = [];
 
@@ -286,14 +295,14 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
     return () => {
       timers.forEach((t) => clearTimeout(t));
     };
-  }, [isIntroActive]);
+  }, [isIntroActive, numImages]);
 
-  // 텍스트가 화면에 보이는 팽창 시작 시점(montageIndex 7)에 맞춰 헤더 메뉴바를 동시에 렌더링하도록 신호 발송
+  // 텍스트가 화면에 보이는 팽창 시작 시점(montageIndex = numImages + 2)에 맞춰 헤더 메뉴바를 동시에 렌더링하도록 신호 발송
   useEffect(() => {
-    if (montageIndex === 7 || !isIntroActive) {
+    if (montageIndex === numImages + 2 || !isIntroActive) {
       window.dispatchEvent(new CustomEvent("header-expand"));
     }
-  }, [montageIndex, isIntroActive]);
+  }, [montageIndex, isIntroActive, numImages]);
 
   // C. 인트로 중 바디 스크롤 차단 및 해제 로직
   useEffect(() => {
@@ -909,7 +918,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 borderRadius: "0px",
               }}
               animate={
-                montageIndex === 7
+                montageIndex === numImages + 2
                   ? {
                       width: "100vw",
                       height: "100vh",
@@ -927,7 +936,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
               }}
               onAnimationComplete={(definition) => {
                 if (
-                  montageIndex === 7 &&
+                  montageIndex === numImages + 2 &&
                   typeof definition === "object" &&
                   definition !== null &&
                   "width" in definition &&
@@ -944,70 +953,32 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
               }}
               className="relative overflow-hidden flex items-center justify-center bg-transparent"
             >
-              {/* 1단계: intro_1.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
-              <motion.div
-                initial={{ y: "-100%" }}
-                animate={montageIndex >= 1 ? { y: 0 } : { y: "-100%" }}
-                transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-                className="absolute inset-0 bg-center bg-cover overflow-hidden"
-                style={{
-                  backgroundColor: "#2a2620",
-                  backgroundImage: `url('${home?.introImages?.[0] || '/intro_1.webp'}')`,
-                }}
-              />
+              {/* 등록된 인트로 사진 리스트를 동적으로 매핑하여 렌더링 */}
+              {introPhotos.map((imgUrl, idx) => {
+                const stepNum = idx + 1;
+                // 각 슬라이드 배경에 어울리는 분위기 톤 색상 지정
+                const bgColors = ["#2a2620", "#4a3e2e", "#8a6f2f", "#d4c4a0", "#4a3e2e"];
+                const bgColor = bgColors[idx % bgColors.length];
 
-              {/* 2단계: intro_2.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
-              <motion.div
-                initial={{ y: "-100%" }}
-                animate={montageIndex >= 2 ? { y: 0 } : { y: "-100%" }}
-                transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-                className="absolute inset-0 bg-center bg-cover overflow-hidden"
-                style={{
-                  backgroundColor: "#4a3e2e",
-                  backgroundImage: `url('${home?.introImages?.[1] || '/intro_2.webp'}')`,
-                }}
-              />
+                return (
+                  <motion.div
+                    key={`intro-photo-${idx}`}
+                    initial={{ y: "-100%" }}
+                    animate={montageIndex >= stepNum ? { y: 0 } : { y: "-100%" }}
+                    transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
+                    className="absolute inset-0 bg-center bg-cover overflow-hidden"
+                    style={{
+                      backgroundColor: bgColor,
+                      backgroundImage: `url('${imgUrl}')`,
+                    }}
+                  />
+                );
+              })}
 
-              {/* 3단계: intro_3.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
+              {/* 최종 히어로 사진 레이어 */}
               <motion.div
                 initial={{ y: "-100%" }}
-                animate={montageIndex >= 3 ? { y: 0 } : { y: "-100%" }}
-                transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-                className="absolute inset-0 bg-center bg-cover overflow-hidden"
-                style={{
-                  backgroundColor: "#8a6f2f",
-                  backgroundImage: `url('${home?.introImages?.[2] || '/intro_3.webp'}')`,
-                }}
-              />
-
-              {/* 4단계: intro_4.webp (1.1초 동안 위에서 아래로 처음에 뜸들이다 빠르게 가속 낙하) */}
-              <motion.div
-                initial={{ y: "-100%" }}
-                animate={montageIndex >= 4 ? { y: 0 } : { y: "-100%" }}
-                transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-                className="absolute inset-0 bg-center bg-cover overflow-hidden"
-                style={{
-                  backgroundColor: "#d4c4a0",
-                  backgroundImage: `url('${home?.introImages?.[3] || '/intro_4.webp'}')`,
-                }}
-              />
-
-              {/* 5단계: 중간 대원 사진 레이어 (intro_5.webp) */}
-              <motion.div
-                initial={{ y: "-100%" }}
-                animate={montageIndex >= 5 ? { y: 0 } : { y: "-100%" }}
-                transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
-                className="absolute inset-0 bg-center bg-cover overflow-hidden"
-                style={{
-                  backgroundColor: "#4a3e2e",
-                  backgroundImage: `url('${home?.introImages?.[4] || '/intro_5.webp'}')`,
-                }}
-              />
-
-              {/* 6단계: 최종 히어로 사진 레이어 */}
-              <motion.div
-                initial={{ y: "-100%" }}
-                animate={montageIndex >= 6 ? { y: 0 } : { y: "-100%" }}
+                animate={montageIndex >= numImages + 1 ? { y: 0 } : { y: "-100%" }}
                 transition={{ duration: 1.1, ease: [0.6, 0, 0.8, 0.05] }}
                 className="absolute inset-0 bg-center bg-cover overflow-hidden"
                 style={{
@@ -1019,16 +990,16 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 <motion.div
                   initial={{ scale: 1.15 }}
                   animate={
-                    montageIndex === 7
+                    montageIndex === numImages + 2
                       ? { scale: 1.0 }
-                      : montageIndex >= 6
+                      : montageIndex >= numImages + 1
                         ? { scale: 1.0 }
                         : { scale: 1.15 }
                   }
                   transition={{
-                    duration: montageIndex === 7 ? 0.95 : 1.1,
-                    ease: montageIndex === 7 ? [0.16, 1, 0.3, 1] : "easeOut",
-                    delay: montageIndex === 7 ? 0 : 0.05,
+                    duration: montageIndex === numImages + 2 ? 0.95 : 1.1,
+                    ease: montageIndex === numImages + 2 ? [0.16, 1, 0.3, 1] : "easeOut",
+                    delay: montageIndex === numImages + 2 ? 0 : 0.05,
                   }}
                   className="w-full h-full bg-inherit bg-center bg-cover"
                   style={{
