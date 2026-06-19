@@ -37,7 +37,7 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/80 to-transparent px-3 pb-3 pt-12">
           <h3 className="font-ko text-[13px] font-bold leading-snug text-cream">{item.title}</h3>
         </div>
-        <div className="absolute left-2 top-2 flex gap-2 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
+        <div className="absolute left-2 top-2 flex gap-2">
           <button
             type="button"
             {...attributes}
@@ -48,7 +48,7 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
             {index + 1}
           </button>
         </div>
-        <div className="absolute right-2 top-2 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
+        <div className="absolute right-2 top-2">
           <DeleteGalleryItemButton id={item.id} title={item.title} />
         </div>
       </div>
