@@ -48,6 +48,9 @@ export const metadata: Metadata = {
     description: '오직 하나님을 기뻐함으로 찬양하는 광진교회 프레이즈찬양대 2026 공식 홈페이지입니다.',
     images: ['https://praisechoir.kr/praise_photo.png'],
   },
+  verification: {
+    google: 'Vh7a3Esa_YA3KgTf0gpYkZkVOm2x_AQHOGK2YVv8NBo',
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
