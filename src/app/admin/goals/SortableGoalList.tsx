@@ -175,7 +175,7 @@ export default function SortableGoalList({ goals: initialGoals, actions }: Props
           ))}
           {goals.length === 0 && (
             <p className="px-4 py-10 text-center font-ko text-[13px] text-ink-soft">
-              등록된 목표가 없습니다.
+              등록된 비전이 없습니다.
             </p>
           )}
         </div>

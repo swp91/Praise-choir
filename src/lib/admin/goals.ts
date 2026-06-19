@@ -38,13 +38,13 @@ export async function getAdminGoalsData(): Promise<AdminGoalsData> {
   ]);
 
   const profile = profileResult.data;
-  const goals = must<Record<string, unknown>[]>(goalsResult, '목표 조회 실패') ?? [];
+  const goals = must<Record<string, unknown>[]>(goalsResult, '비전 조회 실패') ?? [];
 
   return {
     configured: true,
     year: currentYear,
     themeKo: profile ? String(profile.theme_ko) : '',
-    goalTitleKo: profile ? String(profile.goal_title_ko) : '일곱 가지 목표',
+    goalTitleKo: profile ? String(profile.goal_title_ko) : '비전',
     goals: goals.map((g) => ({
       id: String(g.id),
       year: Number(g.year),
@@ -68,7 +68,7 @@ export async function createGoal(text: string, year: number) {
 
   must(
     await supabase.from('goal_items').insert({ year, text: text.trim(), sort_order: nextOrder, is_active: true }),
-    '목표 추가 실패',
+    '비전 추가 실패',
   );
 }
 
@@ -76,7 +76,7 @@ export async function updateGoalText(id: string, text: string) {
   const supabase = getSupabaseAdmin();
   must(
     await supabase.from('goal_items').update({ text: text.trim() }).eq('id', id),
-    '목표 수정 실패',
+    '비전 수정 실패',
   );
 }
 
@@ -84,7 +84,7 @@ export async function setGoalActive(id: string, active: boolean) {
   const supabase = getSupabaseAdmin();
   must(
     await supabase.from('goal_items').update({ is_active: active }).eq('id', id),
-    '목표 상태 변경 실패',
+    '비전 상태 변경 실패',
   );
 }
 
@@ -101,7 +101,7 @@ export async function deleteGoal(id: string) {
   const supabase = getSupabaseAdmin();
   must(
     await supabase.from('goal_items').delete().eq('id', id),
-    '목표 삭제 실패',
+    '비전 삭제 실패',
   );
 }
 

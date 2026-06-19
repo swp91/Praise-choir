@@ -35,10 +35,10 @@ export default async function AdminGoalsPage() {
               Praise Choir Admin
             </p>
             <h1 className="font-ko text-[clamp(26px,4vw,42px)] font-bold leading-tight text-ink">
-              표어, 목표관리
+              표어, 비전관리
             </h1>
             <p className="mt-3 font-ko text-[14px] leading-relaxed text-ink-soft">
-              연도별 표어와 목표 항목을 관리합니다.
+              연도별 표어와 비전 항목을 관리합니다.
             </p>
           </div>
           <Link
@@ -62,7 +62,7 @@ export default async function AdminGoalsPage() {
             />
           </section>
 
-          {/* 목표 목록 */}
+          {/* 비전 목록 */}
           <section className="border border-line bg-card">
             <div className="border-b border-line bg-card-head px-5 py-4 flex items-center justify-between">
               <div>
@@ -85,14 +85,14 @@ export default async function AdminGoalsPage() {
             )}
           </section>
 
-          {/* 목표 추가 */}
+          {/* 비전 추가 */}
           <section className="border border-line bg-card">
             <div className="border-b border-line bg-card-head px-5 py-4">
-              <h2 className="font-ko text-[18px] font-bold text-ink">목표 추가</h2>
+              <h2 className="font-ko text-[18px] font-bold text-ink">비전 추가</h2>
             </div>
             <form action={createGoalAction} className="px-5 py-5">
               <input type="hidden" name="year" value={data.year} />
-              <label className={labelClass} htmlFor="new_goal_text">목표 내용</label>
+              <label className={labelClass} htmlFor="new_goal_text">비전 내용</label>
               <textarea
                 id="new_goal_text"
                 name="text"
@@ -106,7 +106,7 @@ export default async function AdminGoalsPage() {
                   type="submit"
                   className="border border-gold-deep bg-gold-deep px-5 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
                 >
-                  + 목표 추가
+                  + 비전 추가
                 </button>
               </div>
             </form>

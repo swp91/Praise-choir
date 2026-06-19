@@ -31,7 +31,7 @@ export default function DeleteGoalButton({ id, text }: Props) {
           >
             <div className="border-b border-line bg-card-head px-5 py-4">
               <h2 id="delete-goal-title" className="font-ko text-[18px] font-bold text-ink">
-                목표를 삭제할까요?
+                비전을 삭제할까요?
               </h2>
             </div>
             <div className="px-5 py-5">

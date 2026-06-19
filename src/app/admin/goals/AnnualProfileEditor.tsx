@@ -24,7 +24,7 @@ export default function AnnualProfileEditor({ year, themeKo, goalTitleKo }: Prop
           <p className="font-ko text-[18px] font-bold leading-relaxed text-ink">{themeKo || '—'}</p>
         </div>
         <div>
-          <p className={labelClass}>목표 섹션 제목</p>
+          <p className={labelClass}>비전 섹션 제목</p>
           <p className="font-ko text-[16px] font-bold text-ink">{goalTitleKo || '—'}</p>
         </div>
         <div className="flex justify-end">
@@ -61,13 +61,13 @@ export default function AnnualProfileEditor({ year, themeKo, goalTitleKo }: Prop
         />
       </div>
       <div>
-        <label className={labelClass} htmlFor="goal_title_ko">목표 섹션 제목</label>
+        <label className={labelClass} htmlFor="goal_title_ko">비전 섹션 제목</label>
         <input
           id="goal_title_ko"
           name="goal_title_ko"
           className={inputClass}
           defaultValue={goalTitleKo}
-          placeholder="예: 일곱 가지 목표, 다섯 가지 목표"
+          placeholder="예: 비전, 5대 비전"
           required
         />
       </div>
