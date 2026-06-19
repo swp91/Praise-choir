@@ -8,7 +8,7 @@ import {
   AnimatePresence,
   useSpring,
 } from "framer-motion";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 import type { Conductor, Officer } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
@@ -151,6 +151,14 @@ interface Bubble {
   duration: number;
 }
 
+const DEFAULT_INTRO_PHOTOS = [
+  "/intro_1.webp",
+  "/intro_2.webp",
+  "/intro_3.webp",
+  "/intro_4.webp",
+  "/intro_5.webp",
+];
+
 const FALLBACK_IMAGES = [
   "/intro_1.webp",
   "/intro_2.webp",
@@ -238,9 +246,12 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
   const slideItems = [...conductorSlides, ...partSlides];
 
   // 인트로 이미지 배열 추출 (DB에 등록된 사진이 없으면 기본 5장 사용, 최대 5장 고정)
-  const introPhotos = home?.introImages && home.introImages.length > 0
-    ? home.introImages.slice(0, 5)
-    : ["/intro_1.webp", "/intro_2.webp", "/intro_3.webp", "/intro_4.webp", "/intro_5.webp"];
+  // useMemo를 통해 렌더링 간 무한 참조 변경 및 useEffect 무한 재실행 버그 방지
+  const introPhotos = useMemo(() => {
+    return home?.introImages && home.introImages.length > 0
+      ? home.introImages.slice(0, 5)
+      : DEFAULT_INTRO_PHOTOS;
+  }, [home?.introImages]);
   const numImages = introPhotos.length;
 
   // A. 인트로 애니메이션 제어용 상태 (Shed.design 영감 시네마틱 개방)
@@ -340,7 +351,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
     return () => {
       timers.forEach((t) => clearTimeout(t));
     };
-  }, [isIntroActive, numImages]);
+  }, [isIntroActive, numImages, introImagesLoaded]);
 
   // 텍스트가 화면에 보이는 팽창 시작 시점(montageIndex = numImages + 2)에 맞춰 헤더 메뉴바를 동시에 렌더링하도록 신호 발송
   useEffect(() => {
