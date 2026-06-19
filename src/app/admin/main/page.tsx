@@ -43,10 +43,10 @@ export default async function AdminMainPage({ searchParams }: Props) {
   const data = await getAdminMainData();
 
   const tabClass = (tab: string) =>
-    `px-4 py-3 font-ko text-[14px] font-bold border-b-2 transition ${
+    `px-3.5 py-2 md:px-4 md:py-3 font-ko text-[13px] md:text-[14px] font-bold transition rounded-full md:rounded-none md:border-b-2 ${
       activeTab === tab
-        ? 'border-gold-deep text-gold-deep'
-        : 'border-transparent text-ink-mute hover:text-ink hover:border-line'
+        ? 'bg-gold-deep text-cream md:bg-transparent md:border-gold-deep md:text-gold-deep'
+        : 'bg-card text-ink-soft border border-line-soft md:bg-transparent md:border-transparent md:text-ink-mute hover:text-ink hover:border-line'
     }`;
 
   return (
@@ -74,8 +74,8 @@ export default async function AdminMainPage({ searchParams }: Props) {
 
         <AdminNotification />
 
-        {/* 탭 네비게이션 */}
-        <div className="mt-6 flex border-b border-line overflow-x-auto whitespace-nowrap scrollbar-none">
+        {/* 탭 네비게이션 (모바일 알약형 랩핑 & 데스크톱 라인형 하이브리드 구조) */}
+        <div className="mt-6 flex flex-wrap md:flex-nowrap gap-2 md:gap-0 border-b-0 md:border-b md:border-line overflow-x-auto whitespace-nowrap scrollbar-none">
           <Link href="/admin/main?tab=slogan" className={tabClass('slogan')}>
             슬로건 & 히어로
           </Link>
