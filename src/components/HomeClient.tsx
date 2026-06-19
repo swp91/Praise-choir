@@ -1625,14 +1625,34 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
             </div>
 
             {/* Bottom Content: Infinitely Looping Address Marquee */}
-            <div className="relative w-[calc(100%+64px)] mx-[-32px] mb-[-24px] md:mb-[-32px] overflow-hidden bg-[#141210] py-3.5 md:py-4 border-t border-white/5">
+            <div className="relative w-[calc(100%+64px)] mx-[-32px] mb-[-24px] md:mb-[-32px] overflow-hidden bg-[#141210] py-3.5 md:py-4 border-t border-white/5 flex">
+              {/* Track 1 */}
               <div
-                className="flex whitespace-nowrap animate-marquee"
-                style={{ animationDuration: "15s" }}
+                className="flex shrink-0 whitespace-nowrap animate-marquee-full min-w-full"
+                style={{ animationDuration: "30s" }}
               >
-                {Array.from({ length: 20 }).map((_, i) => (
+                {Array.from({ length: 12 }).map((_, i) => (
                   <span
                     key={i}
+                    className="font-ko text-[12px] md:text-[13.5px] tracking-[0.06em] text-cream/85 pr-12 flex items-center shrink-0"
+                  >
+                    <span className="text-gold font-bold mr-2">
+                      찾아오시는길:
+                    </span>
+                    <span>경기도 시흥시 정왕산길로 58 광진교회 시흥성전</span>
+                    <span className="text-gold/45 ml-10 select-none">✦</span>
+                  </span>
+                ))}
+              </div>
+              {/* Track 2 (Duplicate for seamless loop) */}
+              <div
+                className="flex shrink-0 whitespace-nowrap animate-marquee-full min-w-full"
+                aria-hidden="true"
+                style={{ animationDuration: "30s" }}
+              >
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <span
+                    key={`dup-${i}`}
                     className="font-ko text-[12px] md:text-[13.5px] tracking-[0.06em] text-cream/85 pr-12 flex items-center shrink-0"
                   >
                     <span className="text-gold font-bold mr-2">
