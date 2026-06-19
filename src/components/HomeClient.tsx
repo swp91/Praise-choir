@@ -592,11 +592,8 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
   useEffect(() => {
     if (isIntroActive) return;
 
-    const startFinalSequence = (event: Event) => {
-      if (scrollY.get() > window.innerHeight * 0.08 || isAutoAdvancingFinalStep)
-        return;
-
-      event.preventDefault();
+    const scrollToTarget = (targetY: number, customDuration?: number) => {
+      if (isAutoAdvancingFinalStep) return;
       setIsAutoAdvancingFinalStep(true);
 
       if (autoScrollFrameRef.current !== null) {
@@ -604,50 +601,12 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
       }
 
       const startY = window.scrollY;
-      const targetY = window.innerHeight;
       const distance = targetY - startY;
-      const duration = 1800;
-      const startedAt = performance.now();
-      const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
+      const vh = window.innerHeight;
 
-      const animateScroll = (now: number) => {
-        const elapsed = now - startedAt;
-        const progress = Math.min(elapsed / duration, 1);
-        const currentY = startY + distance * easeInOutSine(progress);
-        window.scrollTo(0, currentY);
-
-        if (progress < 1) {
-          autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
-          return;
-        }
-
-        autoScrollFrameRef.current = null;
-        window.scrollTo(0, targetY);
-        setIsAutoAdvancingFinalStep(false);
-      };
-
-      autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
-    };
-
-    const startReverseSequence = (event: Event) => {
-      if (
-        scrollY.get() < window.innerHeight * 0.1 ||
-        scrollY.get() > window.innerHeight * 1.05 ||
-        isAutoAdvancingFinalStep
-      )
-        return;
-
-      event.preventDefault();
-      setIsAutoAdvancingFinalStep(true);
-
-      if (autoScrollFrameRef.current !== null) {
-        cancelAnimationFrame(autoScrollFrameRef.current);
-      }
-
-      const startY = window.scrollY;
-      const targetY = 0;
-      const distance = targetY - startY;
-      const duration = 1800;
+      // Hero 스냅(0 <-> 1vh)은 원본의 장엄한 느낌(1.8초)을 유지하고, 나머지 섹션은 1.0초로 부드럽게 스냅
+      const isHeroTransition = (targetY === 0 && startY <= vh * 1.05) || (targetY === vh && startY <= vh * 0.1);
+      const duration = customDuration ?? (isHeroTransition ? 1800 : 1000);
       const startedAt = performance.now();
       const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
 
@@ -676,10 +635,20 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
         return;
       }
 
+      const vh = window.innerHeight;
+      const currentScroll = window.scrollY;
+
+      // 데스크톱 마우스 휠은 기존과 동일하게 영웅 섹션(0 <-> 1vh) snap만 지원하고, 이하 구간은 자연스러운 부드러운 스크롤 제공
       if (event.deltaY > 20) {
-        startFinalSequence(event);
+        if (currentScroll <= vh * 0.08) {
+          event.preventDefault();
+          scrollToTarget(vh, 1800);
+        }
       } else if (event.deltaY < -20) {
-        startReverseSequence(event);
+        if (currentScroll >= vh * 0.1 && currentScroll <= vh * 1.05) {
+          event.preventDefault();
+          scrollToTarget(0, 1800);
+        }
       }
     };
 
@@ -697,13 +666,41 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
       if (startY === null) return;
 
       const currentY = event.touches[0]?.clientY ?? startY;
-      const diff = startY - currentY;
+      const diff = startY - currentY; // 양수: 아래로 스크롤(화면 올림), 음수: 위로 스크롤(화면 내림)
 
-      if (diff > 30) {
-        startFinalSequence(event);
-        touchStartYRef.current = null;
-      } else if (diff < -30) {
-        startReverseSequence(event);
+      if (Math.abs(diff) > 30) {
+        const vh = window.innerHeight;
+        const currentScroll = window.scrollY;
+
+        // 스티키 래퍼(4.9vh) 이후의 일반 영역(시간표 세부 정보 & 푸터)에서는 브라우저 기본 스크롤 허용
+        if (currentScroll > 4.9 * vh + 10) {
+          // 단, 일반 영역의 최상단에서 위로 스크롤하여 경계를 다시 넘어갈 때 이전 스티키 섹션(3.6vh)으로 스냅
+          if (diff < -30 && currentScroll < 4.9 * vh + 120) {
+            event.preventDefault();
+            scrollToTarget(3.6 * vh);
+            touchStartYRef.current = null;
+          }
+          return;
+        }
+
+        // 스티키 구간 내부에서는 터치 스와이프 발생 시 터치 기본 스크롤 동작을 차단하고 1개 섹션씩 스냅 이동
+        event.preventDefault();
+        const snapPoints = [0, 1.0 * vh, 2.3 * vh, 3.6 * vh, 4.9 * vh];
+
+        if (diff > 30) {
+          // 아래로 스크롤 (다음 섹션으로 스냅)
+          const target = snapPoints.find((p) => p > currentScroll + 15);
+          if (target !== undefined) {
+            scrollToTarget(target);
+          }
+        } else if (diff < -30) {
+          // 위로 스크롤 (이전 섹션으로 스냅)
+          const reversedPoints = [...snapPoints].reverse();
+          const target = reversedPoints.find((p) => p < currentScroll - 15);
+          if (target !== undefined) {
+            scrollToTarget(target);
+          }
+        }
         touchStartYRef.current = null;
       }
     };
