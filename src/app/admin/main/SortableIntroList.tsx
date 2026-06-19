@@ -179,6 +179,13 @@ export default function SortableIntroList({ photos: initialPhotos }: Props) {
     setSaving(true);
     try {
       await reorderIntroPhotosAction(reordered.map((p) => p.id));
+      window.dispatchEvent(new CustomEvent('admin-toast', {
+        detail: { type: 'success', message: '인트로 오프닝 사진 순서가 성공적으로 변경되었습니다.' }
+      }));
+    } catch (err: any) {
+      window.dispatchEvent(new CustomEvent('admin-toast', {
+        detail: { type: 'error', message: err.message ?? '순서 변경 중 오류가 발생했습니다.' }
+      }));
     } finally {
       setSaving(false);
     }

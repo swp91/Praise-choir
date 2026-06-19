@@ -128,6 +128,13 @@ export default function SortableContactList({ contacts: initialContacts }: Props
     setSaving(true);
     try {
       await reorderContactsAction(reordered.map((c) => c.id));
+      window.dispatchEvent(new CustomEvent('admin-toast', {
+        detail: { type: 'success', message: '문의 담당자 순서가 성공적으로 변경되었습니다.' }
+      }));
+    } catch (err: any) {
+      window.dispatchEvent(new CustomEvent('admin-toast', {
+        detail: { type: 'error', message: err.message ?? '순서 변경 중 오류가 발생했습니다.' }
+      }));
     } finally {
       setSaving(false);
     }
