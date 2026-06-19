@@ -125,6 +125,9 @@ export async function getHomeData() {
     eventsCount,
     goals,
     featuredRows,
+    introAlbumResult,
+    contactsResult,
+    allPeopleResult,
   ] = await Promise.all([
     must<AnnualProfileRow>(
       supabase
@@ -158,9 +161,12 @@ export async function getHomeData() {
         .order('sort_order'),
       'home featured people',
     ),
+    supabase.from('gallery_albums').select('id').eq('key', 'intro').maybeSingle(),
+    supabase.from('leadership_assignments').select('*').eq('group_key', 'music_ministry').order('sort_order'),
+    supabase.from('people').select('*'),
   ]);
 
-  const personIds = featuredRows.map((row) => row.person_id).filter(Boolean);
+  const personIds = featuredRows.map((row: any) => row.person_id).filter(Boolean);
 
   const [people, media] = await Promise.all([
     personIds.length
@@ -171,14 +177,59 @@ export async function getHomeData() {
 
   const peopleById = new Map(people.map((person) => [person.id, person]));
   const mediaById = new Map(media.map((asset: MediaAsset) => [asset.id, asset]));
+  const allPeopleById = new Map((allPeopleResult.data as PersonRow[] || []).map((person) => [person.id, person]));
+
+  // 1. 인트로 이미지 로드
+  let introImages: string[] = [];
+  if (introAlbumResult.data) {
+    const introItems = await must<any[]>(
+      supabase
+        .from('gallery_items')
+        .select('media_asset_id')
+        .eq('album_id', introAlbumResult.data.id)
+        .order('sort_order'),
+      'intro gallery items'
+    );
+    introImages = introItems
+      .map((item) => mediaUrl(mediaById.get(item.media_asset_id)))
+      .filter((url): url is string => !!url);
+  }
+
+  // 2. 시간표 & 섬김 배경 로드
+  const servantsBgAsset = media.find((m: any) => m.metadata?.usage === 'servants_bg');
+  const practiceBgAsset = media.find((m: any) => m.metadata?.usage === 'practice_bg');
+
+  // 3. 파트별 카드 이미지 맵 구성
+  const sectionPhotos: Record<string, string> = {};
+  media.forEach((m: any) => {
+    if (m.metadata?.usage === 'section_bg' && m.metadata?.section_key) {
+      const url = mediaUrl(m);
+      if (url) sectionPhotos[m.metadata.section_key] = url;
+    }
+  });
+
+  // 4. 문의 연락처 대원 로드
+  const contacts = (contactsResult.data || []).map((r: any) => {
+    const person = r.person_id ? allPeopleById.get(r.person_id) : null;
+    return {
+      role: r.role_text,
+      name: person?.display_name ?? r.external_name ?? '',
+      phone: person?.phone_label ?? '',
+    };
+  });
 
   return {
     year,
     themeKo: annualProfile.theme_ko,
-    themeEn: annualProfile.theme_en,
+    themeEn: annualProfile.theme_en || '',
     heroBackgroundUrl: mediaUrl(mediaById.get(annualProfile.hero_background_asset_id ?? '')) ?? '/praise_photo.png',
     heroBackgroundPosition: annualProfile.hero_background_position,
     goalsList: (goals as { text: string }[]).map((g) => g.text),
+    introImages,
+    servantsBackgroundUrl: mediaUrl(servantsBgAsset) ?? '/praise_02.webp',
+    practiceBackgroundUrl: mediaUrl(practiceBgAsset) ?? '/praise_03.webp',
+    sectionPhotos,
+    contacts,
     stats: {
       people: peopleCount.length,
       sections: sectionsCount.length,
@@ -186,7 +237,7 @@ export async function getHomeData() {
       goals: goals.length,
       goalsRoman: toRoman(goals.length),
     },
-    featured: featuredRows.map((row) => {
+    featured: featuredRows.map((row: any) => {
       const person = peopleById.get(row.person_id);
       return {
         name: person?.display_name ?? '',

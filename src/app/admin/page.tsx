@@ -12,8 +12,9 @@ type AdminSection = {
 const ADMIN_SECTIONS: AdminSection[] = [
   {
     title: '메인 관리',
-    description: '표어, 배경 사진, 대표 사진, 연도별 통계를 관리합니다.',
-    status: '준비 중',
+    description: '메인페이지의 구성을 관리합니다',
+    status: '관리하기',
+    href: '/admin/main',
   },
   {
     title: '대원 관리',
@@ -23,25 +24,25 @@ const ADMIN_SECTIONS: AdminSection[] = [
   },
   {
     title: '임원 관리',
-    description: '지휘, 반주, 편곡, 총무, 파트장 등 섬김 직무를 관리합니다.',
+    description: '임원 멤버를 관리합니다.',
     status: '관리하기',
     href: '/admin/leaders',
   },
   {
-    title: '표어, 목표관리',
-    description: '연도별 큰 제목과 일곱 가지 목표 항목을 관리합니다.',
+    title: '표어, 비전관리',
+    description: '성가대의 한해 표어와 비전등을 관리합니다',
     status: '관리하기',
     href: '/admin/goals',
   },
   {
     title: '일정 관리',
-    description: '연도별 일정과 보고 일정을 추가, 수정, 삭제합니다.',
+    description: '연도별로 일정을 관리합니다.',
     status: '관리하기',
     href: '/admin/events',
   },
   {
     title: '갤러리 관리',
-    description: 'Supabase Storage에 사진을 한 장씩 업로드하고 공개 갤러리 순서를 관리합니다.',
+    description: '갤러리 사진을 관리합니다.',
     status: '관리하기',
     href: '/admin/gallery',
   },
@@ -113,11 +114,10 @@ function Dashboard() {
               Praise Choir Admin
             </p>
             <h1 className="font-ko text-[clamp(26px,4vw,42px)] font-bold leading-tight text-ink">
-              관리자 대시보드
+              프레이즈 관리
             </h1>
             <p className="mt-3 max-w-2xl font-ko text-[14px] leading-relaxed text-ink-soft">
-              Supabase에 저장된 성가대 정보를 관리하는 공간입니다. 지금은 기능별 입구를 먼저 만들고,
-              다음 단계부터 실제 추가, 수정, 삭제 화면을 순서대로 연결합니다.
+              프레이즈 홈페이지를 관리하는 관리자 페이지 입니다.
             </p>
           </div>
 

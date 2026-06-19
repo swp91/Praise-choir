@@ -231,7 +231,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
     key: `part-${step.key}`,
     title: step.title,
     tagline: step.tagline,
-    photo: step.photo,
+    photo: home?.sectionPhotos?.[step.key] || step.photo,
     isStaff: false,
   }));
 
@@ -952,7 +952,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 className="absolute inset-0 bg-center bg-cover overflow-hidden"
                 style={{
                   backgroundColor: "#2a2620",
-                  backgroundImage: "url('/intro_1.webp')",
+                  backgroundImage: `url('${home?.introImages?.[0] || '/intro_1.webp'}')`,
                 }}
               />
 
@@ -964,7 +964,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 className="absolute inset-0 bg-center bg-cover overflow-hidden"
                 style={{
                   backgroundColor: "#4a3e2e",
-                  backgroundImage: "url('/intro_2.webp')",
+                  backgroundImage: `url('${home?.introImages?.[1] || '/intro_2.webp'}')`,
                 }}
               />
 
@@ -976,7 +976,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 className="absolute inset-0 bg-center bg-cover overflow-hidden"
                 style={{
                   backgroundColor: "#8a6f2f",
-                  backgroundImage: "url('/intro_3.webp')",
+                  backgroundImage: `url('${home?.introImages?.[2] || '/intro_3.webp'}')`,
                 }}
               />
 
@@ -988,7 +988,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 className="absolute inset-0 bg-center bg-cover overflow-hidden"
                 style={{
                   backgroundColor: "#d4c4a0",
-                  backgroundImage: "url('/intro_4.webp')",
+                  backgroundImage: `url('${home?.introImages?.[3] || '/intro_4.webp'}')`,
                 }}
               />
 
@@ -1000,7 +1000,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 className="absolute inset-0 bg-center bg-cover overflow-hidden"
                 style={{
                   backgroundColor: "#4a3e2e",
-                  backgroundImage: "url('/intro_5.webp')",
+                  backgroundImage: `url('${home?.introImages?.[4] || '/intro_5.webp'}')`,
                 }}
               />
 
@@ -1200,12 +1200,17 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
 
             {/* 중앙 콘텐츠: 올해의 표어 & 소개 브릿지 */}
             <div className="relative z-10 text-center flex flex-col items-center max-w-3xl">
-              <span className="font-en text-[10.5px] tracking-[0.35em] uppercase text-gold mb-6 block font-semibold">
-                — A.D. {home.year} Annual Theme
+              <span className="font-en text-[10.5px] tracking-[0.35em] uppercase text-gold mb-4 block font-semibold select-none">
+                — A.D. {home?.year} Annual Theme
               </span>
+              {home?.themeEn && (
+                <p className="font-en text-[11px] md:text-[12px] tracking-[0.12em] text-gold mb-6 italic opacity-85 select-none">
+                  {home.themeEn}
+                </p>
+              )}
 
-              <h2 className="font-ko text-[clamp(30px,4.2vw,56px)] font-bold text-ink leading-[1.36] tracking-wide mb-6">
-                “오직 하나님을 기뻐함으로 <br /> 승리하는 프레이즈”
+              <h2 className="font-ko text-[clamp(30px,4.2vw,56px)] font-bold text-ink leading-[1.36] tracking-wide mb-6 whitespace-pre-line">
+                {home?.themeKo ? `“${home.themeKo}”` : `“오직 하나님을 기뻐함으로\n승리하는 프레이즈”`}
               </h2>
             </div>
           </motion.section>
@@ -1234,7 +1239,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                   <div
                     className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]"
                     style={{
-                      backgroundImage: "url('/praise_02.webp')",
+                      backgroundImage: `url('${home?.servantsBackgroundUrl || '/praise_02.webp'}')`,
                       WebkitMaskImage:
                         "linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0) 95%)",
                       maskImage:
@@ -1309,7 +1314,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 <div
                   className="absolute inset-0 z-0 bg-center bg-cover bg-no-repeat transition-transform duration-[4s]"
                   style={{
-                    backgroundImage: "url('/praise_03.webp')",
+                    backgroundImage: `url('${home?.practiceBackgroundUrl || '/praise_03.webp'}')`,
                     WebkitMaskImage:
                       "linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 45%, rgba(0, 0, 0, 0) 95%)",
                     maskImage:
@@ -1446,79 +1451,118 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full justify-center">
-              {/* 대장 카드 */}
-              <div className="flex-1 flex flex-col items-center p-4 md:p-5 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300">
-                <span className="font-ko text-[10px] md:text-xs text-gold font-semibold uppercase tracking-wider mb-1">
-                  대장
-                </span>
-                <span className="font-ko text-[16px] md:text-[18px] font-bold text-cream mb-2">
-                  박대섭 장로
-                </span>
-                {/* Desktop/Tablet: Text link */}
-                <a
-                  href="tel:010-3720-0889"
-                  className="hidden sm:inline-block font-sans text-[14px] md:text-[15px] font-semibold tracking-wide text-cream/85 hover:text-gold transition-colors select-text"
-                >
-                  010-3720-0889
-                </a>
+              {home?.contacts && home.contacts.length > 0 ? (
+                home.contacts.map((contact: any, index: number) => (
+                  <div key={index} className="flex-1 flex flex-col items-center p-4 md:p-5 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300">
+                    <span className="font-ko text-[10px] md:text-xs text-gold font-semibold uppercase tracking-wider mb-1">
+                      {contact.role}
+                    </span>
+                    <span className="font-ko text-[16px] md:text-[18px] font-bold text-cream mb-2">
+                      {contact.name}
+                    </span>
+                    {contact.phone ? (
+                      <>
+                        <a
+                          href={`tel:${contact.phone}`}
+                          className="hidden sm:inline-block font-sans text-[14px] md:text-[15px] font-semibold tracking-wide text-cream/85 hover:text-gold transition-colors select-text"
+                        >
+                          {contact.phone}
+                        </a>
+                        <a
+                          href={`tel:${contact.phone}`}
+                          className="flex sm:hidden items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white shadow-sm hover:scale-105 active:scale-95 transition-transform duration-200 mt-1.5"
+                          title="전화 걸기"
+                        >
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            className="w-3.5 h-3.5"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </a>
+                      </>
+                    ) : (
+                      <span className="font-ko text-[12px] text-cream/50 italic">연락처 없음</span>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <>
+                  {/* 대장 카드 (Fallback) */}
+                  <div className="flex-1 flex flex-col items-center p-4 md:p-5 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300">
+                    <span className="font-ko text-[10px] md:text-xs text-gold font-semibold uppercase tracking-wider mb-1">
+                      대장
+                    </span>
+                    <span className="font-ko text-[16px] md:text-[18px] font-bold text-cream mb-2">
+                      박대섭 장로
+                    </span>
+                    <a
+                      href="tel:010-3720-0889"
+                      className="hidden sm:inline-block font-sans text-[14px] md:text-[15px] font-semibold tracking-wide text-cream/85 hover:text-gold transition-colors select-text"
+                    >
+                      010-3720-0889
+                    </a>
+                    <a
+                      href="tel:010-3720-0889"
+                      className="flex sm:hidden items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white shadow-sm hover:scale-105 active:scale-95 transition-transform duration-200 mt-1.5"
+                      title="전화 걸기"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-3.5 h-3.5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </a>
+                  </div>
 
-                {/* Mobile: Green circular phone icon */}
-                <a
-                  href="tel:010-3720-0889"
-                  className="flex sm:hidden items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white shadow-sm hover:scale-105 active:scale-95 transition-transform duration-200 mt-1.5"
-                  title="전화 걸기"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-3.5 h-3.5"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
-              </div>
-
-              {/* 총무 카드 */}
-              <div className="flex-1 flex flex-col items-center p-4 md:p-5 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300">
-                <span className="font-ko text-[10px] md:text-xs text-gold font-semibold uppercase tracking-wider mb-1">
-                  총무
-                </span>
-                <span className="font-ko text-[16px] md:text-[18px] font-bold text-cream mb-2">
-                  김성만 집사
-                </span>
-                {/* Desktop/Tablet: Text link */}
-                <a
-                  href="tel:010-6225-4138"
-                  className="hidden sm:inline-block font-sans text-[14px] md:text-[15px] font-semibold tracking-wide text-cream/85 hover:text-gold transition-colors select-text"
-                >
-                  010-6225-4138
-                </a>
-
-                {/* Mobile: Green circular phone icon */}
-                <a
-                  href="tel:010-6225-4138"
-                  className="flex sm:hidden items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white shadow-sm hover:scale-105 active:scale-95 transition-transform duration-200 mt-1.5"
-                  title="전화 걸기"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="w-3.5 h-3.5"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </a>
-              </div>
+                  {/* 총무 카드 (Fallback) */}
+                  <div className="flex-1 flex flex-col items-center p-4 md:p-5 rounded-xl border border-white/5 bg-white/[0.01] hover:bg-white/[0.03] transition-all duration-300">
+                    <span className="font-ko text-[10px] md:text-xs text-gold font-semibold uppercase tracking-wider mb-1">
+                      총무
+                    </span>
+                    <span className="font-ko text-[16px] md:text-[18px] font-bold text-cream mb-2">
+                      김성만 집사
+                    </span>
+                    <a
+                      href="tel:010-6225-4138"
+                      className="hidden sm:inline-block font-sans text-[14px] md:text-[15px] font-semibold tracking-wide text-cream/85 hover:text-gold transition-colors select-text"
+                    >
+                      010-6225-4138
+                    </a>
+                    <a
+                      href="tel:010-6225-4138"
+                      className="flex sm:hidden items-center justify-center w-7 h-7 rounded-full bg-emerald-500 text-white shadow-sm hover:scale-105 active:scale-95 transition-transform duration-200 mt-1.5"
+                      title="전화 걸기"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        className="w-3.5 h-3.5"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </a>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
