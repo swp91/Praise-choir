@@ -47,8 +47,8 @@
 }
 
 @layer utilities {
-  .animate-marquee          { animation: marquee          38s linear infinite; }
-  .animate-marquee-rev      { animation: marquee-rev      30s linear infinite; }
+  .animate-marquee          { animation: marquee          38s linear infinite; width: max-content; }
+  .animate-marquee-rev      { animation: marquee-rev      30s linear infinite; width: max-content; }
   .animate-marquee-servants  { animation: marquee-servants 18s linear infinite; }
   .animate-gonfalon-sway    { animation: gonfalon-sway    1.2s ease-in-out both; }
   .animate-text-shine       { animation: textShine        8s linear infinite; }
