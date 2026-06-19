@@ -13,6 +13,7 @@ import {
 } from './actions';
 import SortableIntroList from './SortableIntroList';
 import SortableContactList from './SortableContactList';
+import ImageClickUploader from './ImageClickUploader';
 
 type Props = {
   searchParams?: Promise<{
@@ -145,47 +146,17 @@ export default async function AdminMainPage({ searchParams }: Props) {
                 <div className="border-b border-line bg-card-head px-5 py-4">
                   <h2 className="font-ko text-[18px] font-bold text-ink">메인 히어로 이미지</h2>
                 </div>
-                <div className="px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className={labelClass}>현재 배경 이미지</label>
-                    {data.heroBackgroundUrl ? (
-                      <div className="border border-line bg-cream p-2">
-                        <img
-                          src={data.heroBackgroundUrl}
-                          alt="Hero Background"
-                          className="w-full max-h-56 object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="border border-dashed border-line bg-cream py-16 text-center font-ko text-[13px] text-ink-soft">
-                        등록된 히어로 이미지가 없습니다.
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <form action={uploadHeroImageAction} className="space-y-4">
-                      <label className={labelClass} htmlFor="hero_image">
-                        새 배경 이미지 업로드
-                      </label>
-                      <input
-                        id="hero_image"
-                        name="hero_image"
-                        type="file"
-                        accept="image/*"
-                        required
-                        className="w-full font-ko text-[13px] text-ink border border-line bg-cream p-2"
-                      />
-                      <p className="font-ko text-[11px] text-ink-mute">
-                        초대형 몬타주 완성 후 마지막에 대문으로 나오는 웅장한 가로형 메인 배경 사진입니다.
-                      </p>
-                      <button
-                        type="submit"
-                        className="w-full border border-gold-deep bg-gold-deep py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
-                      >
-                        배경 이미지 변경
-                      </button>
-                    </form>
-                  </div>
+                <div className="px-5 py-5 space-y-4">
+                  <p className="font-ko text-[13px] text-ink-soft">
+                    아래 이미지를 클릭하시면 컴퓨터의 새 사진으로 즉시 변경됩니다. (초대형 몬타주 시퀀스 완료 후 맨 마지막에 등장하는 웅장한 가로형 메인 대문 사진입니다.)
+                  </p>
+                  <ImageClickUploader
+                    action={uploadHeroImageAction}
+                    currentImageUrl={data.heroBackgroundUrl}
+                    name="hero_image"
+                    label="히어로 메인 배경 사진"
+                    aspectRatioClass="aspect-[21/9]"
+                  />
                 </div>
               </section>
             </div>
@@ -238,36 +209,15 @@ export default async function AdminMainPage({ searchParams }: Props) {
                   <div className="border-b border-line bg-card-head px-5 py-3">
                     <h2 className="font-ko text-[16px] font-bold text-ink">{part.title} 카드 이미지</h2>
                   </div>
-                  <div className="px-5 py-4 space-y-4">
-                    {part.imageUrl ? (
-                      <div className="border border-line bg-cream p-1.5 aspect-[4/3] overflow-hidden">
-                        <img
-                          src={part.imageUrl}
-                          alt={part.title}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="border border-dashed border-line bg-cream aspect-[4/3] flex items-center justify-center font-ko text-[12px] text-ink-soft">
-                        등록된 대표 사진이 없습니다.
-                      </div>
-                    )}
-                    <form action={uploadPartPhotoAction} className="space-y-2">
-                      <input type="hidden" name="section_key" value={part.key} />
-                      <input
-                        name="section_image"
-                        type="file"
-                        accept="image/*"
-                        required
-                        className="w-full font-ko text-[12px] text-ink border border-line bg-cream p-1.5"
-                      />
-                      <button
-                        type="submit"
-                        className="w-full border border-gold-deep bg-gold-deep py-2 font-ko text-[12px] font-bold text-cream transition hover:bg-ink"
-                      >
-                        {part.title} 사진 교체
-                      </button>
-                    </form>
+                  <div className="px-5 py-4">
+                    <ImageClickUploader
+                      action={uploadPartPhotoAction}
+                      currentImageUrl={part.imageUrl}
+                      name="section_image"
+                      label={`${part.title} 사진`}
+                      aspectRatioClass="aspect-[4/3]"
+                      hiddenFields={[{ name: 'section_key', value: part.key }]}
+                    />
                   </div>
                 </section>
               ))}
@@ -284,47 +234,17 @@ export default async function AdminMainPage({ searchParams }: Props) {
                     '섬기는 사람들' 섹션 배경
                   </h2>
                 </div>
-                <div className="px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className={labelClass}>현재 배경 이미지</label>
-                    {data.servantsBackgroundUrl ? (
-                      <div className="border border-line bg-cream p-2">
-                        <img
-                          src={data.servantsBackgroundUrl}
-                          alt="Servants Background"
-                          className="w-full max-h-56 object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="border border-dashed border-line bg-cream py-16 text-center font-ko text-[13px] text-ink-soft">
-                        등록된 배경 이미지가 없습니다.
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <form action={uploadServantsBgAction} className="space-y-4">
-                      <label className={labelClass} htmlFor="servants_bg">
-                        새 배경 이미지 업로드
-                      </label>
-                      <input
-                        id="servants_bg"
-                        name="servants_bg"
-                        type="file"
-                        accept="image/*"
-                        required
-                        className="w-full font-ko text-[13px] text-ink border border-line bg-cream p-2"
-                      />
-                      <p className="font-ko text-[11px] text-ink-mute">
-                        홈페이지 스크롤 시 어둡게 덮이면서 카드 롤러 뒤로 나타나는 어두운 톤의 가로형 사진입니다.
-                      </p>
-                      <button
-                        type="submit"
-                        className="w-full border border-gold-deep bg-gold-deep py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
-                      >
-                        배경 이미지 변경
-                      </button>
-                    </form>
-                  </div>
+                <div className="px-5 py-5 space-y-4">
+                  <p className="font-ko text-[13px] text-ink-soft">
+                    아래 이미지를 클릭하여 변경할 수 있습니다. (메인 스크롤 시 섬김의 손길들 카드 롤러 뒤편에 노출되는 어두운 무드 톤의 배경 사진입니다.)
+                  </p>
+                  <ImageClickUploader
+                    action={uploadServantsBgAction}
+                    currentImageUrl={data.servantsBackgroundUrl}
+                    name="servants_bg"
+                    label="섬기는 사람들 섹션 배경 사진"
+                    aspectRatioClass="aspect-[21/9]"
+                  />
                 </div>
               </section>
 
@@ -335,47 +255,17 @@ export default async function AdminMainPage({ searchParams }: Props) {
                     '예배/연습 시간표' 섹션 배경
                   </h2>
                 </div>
-                <div className="px-5 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className={labelClass}>현재 배경 이미지</label>
-                    {data.practiceBackgroundUrl ? (
-                      <div className="border border-line bg-cream p-2">
-                        <img
-                          src={data.practiceBackgroundUrl}
-                          alt="Practice Background"
-                          className="w-full max-h-56 object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <div className="border border-dashed border-line bg-cream py-16 text-center font-ko text-[13px] text-ink-soft">
-                        등록된 배경 이미지가 없습니다.
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <form action={uploadPracticeBgAction} className="space-y-4">
-                      <label className={labelClass} htmlFor="practice_bg">
-                        새 배경 이미지 업로드
-                      </label>
-                      <input
-                        id="practice_bg"
-                        name="practice_bg"
-                        type="file"
-                        accept="image/*"
-                        required
-                        className="w-full font-ko text-[13px] text-ink border border-line bg-cream p-2"
-                      />
-                      <p className="font-ko text-[11px] text-ink-mute">
-                        홈페이지 하단 연습 시간표 카드가 올라오기 전, 뒤에서 나타나는 성가대 단체/연습용 가로형 사진입니다.
-                      </p>
-                      <button
-                        type="submit"
-                        className="w-full border border-gold-deep bg-gold-deep py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
-                      >
-                        배경 이미지 변경
-                      </button>
-                    </form>
-                  </div>
+                <div className="px-5 py-5 space-y-4">
+                  <p className="font-ko text-[13px] text-ink-soft">
+                    아래 이미지를 클릭하여 변경할 수 있습니다. (예배 및 연습 시간표 세부 레이아웃 뒤편에 은은하게 비치는 가로형 단체/연습 배경 사진입니다.)
+                  </p>
+                  <ImageClickUploader
+                    action={uploadPracticeBgAction}
+                    currentImageUrl={data.practiceBackgroundUrl}
+                    name="practice_bg"
+                    label="예배/연습 시간표 섹션 배경 사진"
+                    aspectRatioClass="aspect-[21/9]"
+                  />
                 </div>
               </section>
             </div>
