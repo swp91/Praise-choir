@@ -274,9 +274,9 @@ export default function Header() {
       {/* 1. 우측 상단 플로팅 글래스모피즘 햄버거 버튼 (원형) */}
       {isHeaderReady && (
         <motion.header
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, y: -80 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
           style={{ transformOrigin: 'center' }}
           className={`fixed z-[999] w-12.5 h-12.5 transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300 rounded-full flex items-center justify-center border border-line-soft/20 shadow-[0_8px_24px_rgba(42,38,32,0.04)] right-4 md:right-8 lg:right-12 top-2.5 ${
             isScrolled
