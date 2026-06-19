@@ -15,10 +15,12 @@ export type AdminIntroPhoto = {
   sortOrder: number;
 };
 
-export type AdminPartPhoto = {
+export type AdminSlidePhoto = {
   key: string;
+  type: 'part' | 'staff';
   title: string;
-  mediaAssetId: string | null;
+  role: string;
+  targetId: string;
   imageUrl: string | null;
 };
 
@@ -44,7 +46,7 @@ export type AdminMainData = {
   practiceBackgroundAssetId: string | null;
   practiceBackgroundUrl: string | null;
   introPhotos: AdminIntroPhoto[];
-  partPhotos: AdminPartPhoto[];
+  slidePhotos: AdminSlidePhoto[];
   contacts: AdminContactPerson[];
   peopleList: { id: string; name: string; phone: string }[];
 };
@@ -74,7 +76,7 @@ export async function getAdminMainData(): Promise<AdminMainData> {
       practiceBackgroundAssetId: null,
       practiceBackgroundUrl: null,
       introPhotos: [],
-      partPhotos: [],
+      slidePhotos: [],
       contacts: [],
       peopleList: [],
     };
@@ -129,26 +131,74 @@ export async function getAdminMainData(): Promise<AdminMainData> {
   const servantsBgAsset = mediaRows.find((m) => m.metadata?.usage === 'servants_bg');
   const practiceBgAsset = mediaRows.find((m) => m.metadata?.usage === 'practice_bg');
 
+  // 5.5. 지휘자/반주자/편곡자 (staff 섹션 멤버) 정보 및 사진 조회
+  let staffPhotos: AdminSlidePhoto[] = [];
+  const staffSectionResult = await supabase
+    .from('sections')
+    .select('id')
+    .eq('key', 'staff')
+    .maybeSingle();
+  const staffSection = staffSectionResult.data;
+
+  if (staffSection) {
+    const staffMembershipsResult = await supabase
+      .from('section_memberships')
+      .select('person_id, role_text')
+      .eq('section_id', staffSection.id)
+      .eq('is_active', true)
+      .order('sort_order');
+    const staffMemberships = staffMembershipsResult.data || [];
+    const staffPeopleIds = staffMemberships.map((m) => m.person_id).filter(Boolean);
+
+    if (staffPeopleIds.length > 0) {
+      const staffPeopleResult = await supabase
+        .from('people')
+        .select('id, display_name, photo_asset_id')
+        .in('id', staffPeopleIds);
+      const staffPeople = staffPeopleResult.data || [];
+      const staffPeopleMap = new Map(staffPeople.map((p) => [p.id, p]));
+
+      staffPhotos = staffMemberships.flatMap((m) => {
+        const person = staffPeopleMap.get(m.person_id);
+        if (!person) return [];
+        const asset = person.photo_asset_id ? mediaById.get(person.photo_asset_id) : null;
+        return [{
+          key: `staff-${person.id}`,
+          type: 'staff',
+          title: person.display_name,
+          role: m.role_text ?? '',
+          targetId: person.id,
+          imageUrl: mediaUrl(asset?.path) ?? null,
+        } satisfies AdminSlidePhoto];
+      });
+    }
+  }
+
   // 6. 파트별 대표 이미지 조회 (media_assets metadata.usage = 'section_bg')
   const sectionKeys = ['soprano1', 'soprano2', 'alto', 'tenor', 'bass', 'ensemble'];
-  const partPhotos: AdminPartPhoto[] = sectionKeys.map((key) => {
+  const partPhotos: AdminSlidePhoto[] = sectionKeys.map((key) => {
     const asset = mediaRows.find((m) => m.metadata?.usage === 'section_bg' && m.metadata?.section_key === key);
     let title = '';
+    let role = '';
     switch (key) {
-      case 'soprano1': title = '소프라노 1'; break;
-      case 'soprano2': title = '소프라노 2'; break;
-      case 'alto': title = '알토'; break;
-      case 'tenor': title = '테너'; break;
-      case 'bass': title = '베이스'; break;
-      case 'ensemble': title = '하기오스 악단'; break;
+      case 'soprano1': title = '소프라노 1'; role = 'SOPRANO 1'; break;
+      case 'soprano2': title = '소프라노 2'; role = 'SOPRANO 2'; break;
+      case 'alto': title = '알토'; role = 'ALTO'; break;
+      case 'tenor': title = '테너'; role = 'TENOR'; break;
+      case 'bass': title = '베이스'; role = 'BASS'; break;
+      case 'ensemble': title = '하기오스 악단'; role = 'HAGIOS ENSEMBLE'; break;
     }
     return {
-      key,
+      key: `part-${key}`,
+      type: 'part',
       title,
-      mediaAssetId: asset?.id ?? null,
+      role,
+      targetId: key,
       imageUrl: mediaUrl(asset?.path) ?? null,
     };
   });
+
+  const slidePhotos = [...staffPhotos, ...partPhotos];
 
   // 7. 문의 대상 임원진 조회 (leadership_assignments group_key = 'music_ministry')
   const contactsResult = await supabase
@@ -190,7 +240,7 @@ export async function getAdminMainData(): Promise<AdminMainData> {
     practiceBackgroundAssetId: practiceBgAsset?.id ?? null,
     practiceBackgroundUrl: mediaUrl(practiceBgAsset?.path),
     introPhotos,
-    partPhotos,
+    slidePhotos,
     contacts,
     peopleList: peopleRows.map((p) => ({
       id: p.id,
@@ -407,6 +457,72 @@ export async function deleteIntroPhoto(id: string) {
   await supabase.from('media_assets').delete().eq('id', item.media_asset_id);
 }
 
+export async function updateIntroPhoto(itemId: string, file: File) {
+  const supabase = getSupabaseAdmin();
+  const id = crypto.randomUUID();
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
+  const path = `gallery/intro_update_${id}.${ext}`;
+  const bytes = await file.arrayBuffer();
+
+  // 1. Storage 업로드
+  must(
+    await supabase.storage.from(bucketName).upload(path, bytes, {
+      contentType: file.type || 'image/webp',
+    }),
+    'intro photo update storage upload',
+  );
+
+  // 2. media_assets 등록
+  const asset = must<{ id: string }>(
+    await supabase
+      .from('media_assets')
+      .insert({
+        bucket: bucketName,
+        path,
+        alt_text: 'Intro Photo Updated',
+        source: 'supabase',
+        is_public: true,
+        metadata: { usage: 'intro' },
+      })
+      .select('id')
+      .single(),
+    'intro update media db insert',
+  );
+
+  // 3. 기존 gallery_items의 media_asset_id 조회
+  const oldItem = must<{ media_asset_id: string }>(
+    await supabase
+      .from('gallery_items')
+      .select('media_asset_id')
+      .eq('id', itemId)
+      .single(),
+    'old intro item lookup',
+  );
+
+  // 4. gallery_items의 media_asset_id 교체
+  must(
+    await supabase
+      .from('gallery_items')
+      .update({ media_asset_id: asset.id })
+      .eq('id', itemId),
+    'intro gallery item update',
+  );
+
+  // 5. 이전 media_asset 제거
+  if (oldItem && oldItem.media_asset_id) {
+    const oldAssetResult = await supabase
+      .from('media_assets')
+      .select('bucket, path')
+      .eq('id', oldItem.media_asset_id)
+      .maybeSingle();
+    const oldAsset = oldAssetResult.data;
+    if (oldAsset) {
+      await supabase.storage.from(oldAsset.bucket).remove([oldAsset.path]);
+      await supabase.from('media_assets').delete().eq('id', oldItem.media_asset_id);
+    }
+  }
+}
+
 export async function reorderIntroPhotos(orderedIds: string[]) {
   const supabase = getSupabaseAdmin();
   await Promise.all(
@@ -461,5 +577,257 @@ export async function reorderContactMembers(orderedIds: string[]) {
         .eq('id', id)
         .eq('group_key', 'music_ministry')
     )
+  );
+}
+
+export async function uploadStaffPhoto(personId: string, file: File) {
+  const supabase = getSupabaseAdmin();
+  const id = crypto.randomUUID();
+  const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
+  const path = `people/staff_${personId}_${id}.${ext}`;
+  const bytes = await file.arrayBuffer();
+
+  // 1. Storage 업로드
+  must(
+    await supabase.storage.from(bucketName).upload(path, bytes, {
+      contentType: file.type || 'image/webp',
+      upsert: true,
+    }),
+    'staff image storage upload',
+  );
+
+  // 2. media_assets 등록
+  const asset = must<{ id: string }>(
+    await supabase
+      .from('media_assets')
+      .insert({
+        bucket: bucketName,
+        path,
+        alt_text: 'Staff Photo',
+        source: 'supabase',
+        is_public: true,
+        metadata: { usage: 'staff_photo', person_id: personId },
+      })
+      .select('id')
+      .single(),
+    'staff media db insert',
+  );
+
+  // 3. 기존 person의 photo_asset_id 조회
+  const person = must<{ photo_asset_id: string | null }>(
+    await supabase
+      .from('people')
+      .select('photo_asset_id')
+      .eq('id', personId)
+      .single(),
+    'staff person lookup',
+  );
+
+  // 4. people 테이블의 photo_asset_id 업데이트
+  must(
+    await supabase
+      .from('people')
+      .update({ photo_asset_id: asset.id })
+      .eq('id', personId),
+    'staff person photo_asset_id update',
+  );
+
+  // 5. 이전 에셋 제거
+  if (person?.photo_asset_id) {
+    const oldAssetResult = await supabase
+      .from('media_assets')
+      .select('bucket, path')
+      .eq('id', person.photo_asset_id)
+      .maybeSingle();
+    const oldAsset = oldAssetResult.data;
+    if (oldAsset) {
+      await supabase.storage.from(oldAsset.bucket).remove([oldAsset.path]);
+      await supabase.from('media_assets').delete().eq('id', person.photo_asset_id);
+    }
+  }
+
+  return asset.id;
+}
+
+export async function addStaffMember(name: string, role: string, file: File | null) {
+  const supabase = getSupabaseAdmin();
+  
+  // 1. staff 섹션 조회
+  const staffSectionResult = await supabase
+    .from('sections')
+    .select('id')
+    .eq('key', 'staff')
+    .maybeSingle();
+  const staffSection = staffSectionResult.data;
+  if (!staffSection) throw new Error('스태프 섹션(staff)이 존재하지 않습니다.');
+
+  // 2. people 테이블에 새 사람 등록
+  const newPerson = must<{ id: string }>(
+    await supabase
+      .from('people')
+      .insert({
+        display_name: name.trim(),
+        is_active: true,
+      })
+      .select('id')
+      .single(),
+    'staff person insert',
+  );
+
+  // 3. 파일이 있으면 이미지 업로드 및 photo_asset_id 설정
+  if (file && file.size > 0) {
+    const id = crypto.randomUUID();
+    const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
+    const path = `people/staff_${newPerson.id}_${id}.${ext}`;
+    const bytes = await file.arrayBuffer();
+
+    // Storage 업로드
+    must(
+      await supabase.storage.from(bucketName).upload(path, bytes, {
+        contentType: file.type || 'image/webp',
+        upsert: true,
+      }),
+      'staff image upload on create',
+    );
+
+    // media_assets 등록
+    const asset = must<{ id: string }>(
+      await supabase
+        .from('media_assets')
+        .insert({
+          bucket: bucketName,
+          path,
+          alt_text: 'Staff Photo',
+          source: 'supabase',
+          is_public: true,
+          metadata: { usage: 'staff_photo', person_id: newPerson.id },
+        })
+        .select('id')
+        .single(),
+      'staff media insert on create',
+    );
+
+    // people 업데이트
+    must(
+      await supabase
+        .from('people')
+        .update({ photo_asset_id: asset.id })
+        .eq('id', newPerson.id),
+      'staff person photo_asset_id set',
+    );
+  }
+
+  // 4. 멤버십 목록 조회하여 sort_order 구하기
+  const maxOrderResult = await supabase
+    .from('section_memberships')
+    .select('sort_order')
+    .eq('section_id', staffSection.id)
+    .order('sort_order', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const nextOrder = Number(maxOrderResult.data?.sort_order ?? -1) + 1;
+
+  // 5. section_memberships에 멤버십 등록
+  must(
+    await supabase
+      .from('section_memberships')
+      .insert({
+        section_id: staffSection.id,
+        person_id: newPerson.id,
+        role_text: role.trim(),
+        sort_order: nextOrder,
+        is_active: true,
+      }),
+    'staff membership insert',
+  );
+}
+
+export async function deleteStaffMember(personId: string) {
+  const supabase = getSupabaseAdmin();
+  
+  // 1. staff 섹션 조회
+  const staffSectionResult = await supabase
+    .from('sections')
+    .select('id')
+    .eq('key', 'staff')
+    .maybeSingle();
+  const staffSection = staffSectionResult.data;
+  if (!staffSection) throw new Error('스태프 섹션(staff)이 존재하지 않습니다.');
+
+  // 2. 멤버십 삭제
+  must(
+    await supabase
+      .from('section_memberships')
+      .delete()
+      .eq('section_id', staffSection.id)
+      .eq('person_id', personId),
+    'staff membership delete',
+  );
+
+  // 3. 기존 이미지 에셋 및 Storage 파일 조회 후 삭제
+  const person = await supabase
+    .from('people')
+    .select('photo_asset_id')
+    .eq('id', personId)
+    .maybeSingle();
+  const photoAssetId = person.data?.photo_asset_id;
+
+  if (photoAssetId) {
+    const assetResult = await supabase
+      .from('media_assets')
+      .select('bucket, path')
+      .eq('id', photoAssetId)
+      .maybeSingle();
+    const asset = assetResult.data;
+    if (asset) {
+      await supabase.storage.from(asset.bucket).remove([asset.path]);
+      await supabase.from('media_assets').delete().eq('id', photoAssetId);
+    }
+  }
+
+  // 4. people 테이블에서 삭제 시도 (참조 에러가 나면 비활성화 처리)
+  const { error: deleteError } = await supabase
+    .from('people')
+    .delete()
+    .eq('id', personId);
+
+  if (deleteError) {
+    console.warn('Failed to delete person, fall back to deactivation:', deleteError.message);
+    await supabase
+      .from('people')
+      .update({ is_active: false })
+      .eq('id', personId);
+  }
+}
+
+export async function updateStaffMember(personId: string, name: string, role: string) {
+  const supabase = getSupabaseAdmin();
+
+  // 1. staff 섹션 조회
+  const staffSectionResult = await supabase
+    .from('sections')
+    .select('id')
+    .eq('key', 'staff')
+    .maybeSingle();
+  const staffSection = staffSectionResult.data;
+  if (!staffSection) throw new Error('스태프 섹션(staff)이 존재하지 않습니다.');
+
+  // 2. 이름 수정
+  must(
+    await supabase
+      .from('people')
+      .update({ display_name: name.trim() })
+      .eq('id', personId),
+    'staff person name update',
+  );
+
+  // 3. 역할 수정
+  must(
+    await supabase
+      .from('section_memberships')
+      .update({ role_text: role.trim() })
+      .eq('section_id', staffSection.id)
+      .eq('person_id', personId),
+    'staff membership role update',
   );
 }
