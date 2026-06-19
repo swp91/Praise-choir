@@ -44,7 +44,7 @@ export async function updateSloganAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main');
+  redirect(`/admin/main?success=${encodeURIComponent('슬로건이 성공적으로 변경되었습니다.')}`);
 }
 
 export async function uploadHeroImageAction(formData: FormData) {
@@ -59,7 +59,7 @@ export async function uploadHeroImageAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main');
+  redirect(`/admin/main?success=${encodeURIComponent('히어로 이미지가 업로드되었습니다.')}`);
 }
 
 export async function uploadServantsBgAction(formData: FormData) {
@@ -74,7 +74,7 @@ export async function uploadServantsBgAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main');
+  redirect(`/admin/main?success=${encodeURIComponent('섬기는 사람들 섹션 배경이 업로드되었습니다.')}`);
 }
 
 export async function uploadPracticeBgAction(formData: FormData) {
@@ -89,7 +89,7 @@ export async function uploadPracticeBgAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main');
+  redirect(`/admin/main?success=${encodeURIComponent('연습 시간표 섹션 배경이 업로드되었습니다.')}`);
 }
 
 export async function uploadPartPhotoAction(formData: FormData) {
@@ -106,7 +106,7 @@ export async function uploadPartPhotoAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main');
+  redirect(`/admin/main?success=${encodeURIComponent('파트 사진이 성공적으로 업로드되었습니다.')}`);
 }
 
 export async function uploadSlidePhotoAction(formData: FormData) {
@@ -129,7 +129,7 @@ export async function uploadSlidePhotoAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main');
+  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('슬라이드 사진이 성공적으로 변경되었습니다.')}`);
 }
 
 export async function uploadIntroPhotoAction(formData: FormData) {
@@ -144,7 +144,7 @@ export async function uploadIntroPhotoAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main');
+  redirect(`/admin/main?tab=intro&success=${encodeURIComponent('인트로 오프닝 사진이 성공적으로 추가되었습니다.')}`);
 }
 
 export async function deleteIntroPhotoAction(formData: FormData) {
@@ -159,7 +159,7 @@ export async function deleteIntroPhotoAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main');
+  redirect(`/admin/main?tab=intro&success=${encodeURIComponent('인트로 오프닝 사진이 성공적으로 삭제되었습니다.')}`);
 }
 
 export async function updateIntroPhotoAction(formData: FormData) {
@@ -176,7 +176,7 @@ export async function updateIntroPhotoAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main');
+  redirect(`/admin/main?tab=intro&success=${encodeURIComponent('인트로 오프닝 사진이 성공적으로 변경되었습니다.')}`);
 }
 
 export async function reorderIntroPhotosAction(orderedIds: string[]) {
@@ -187,11 +187,12 @@ export async function reorderIntroPhotosAction(orderedIds: string[]) {
 
 export async function addContactAction(formData: FormData) {
   await requireAdmin();
-  const personId = String(formData.get('person_id') ?? '');
-  const roleText = String(formData.get('role_text') ?? '');
+  const officerSelect = String(formData.get('officer_select') ?? '');
 
-  if (!personId) errorRedirect('담당할 대원을 선택하세요.');
-  if (!roleText.trim()) errorRedirect('직무명(역할)을 입력하세요.');
+  if (!officerSelect) errorRedirect('담당할 임원을 선택하세요.');
+
+  const [personId, roleText] = officerSelect.split('|');
+  if (!personId || !roleText) errorRedirect('올바르지 않은 임원 정보입니다.');
 
   try {
     await addContactMember(personId, roleText);
@@ -200,7 +201,7 @@ export async function addContactAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main?tab=contacts');
+  redirect(`/admin/main?tab=contacts&success=${encodeURIComponent('문의 담당자가 성공적으로 추가되었습니다.')}`);
 }
 
 export async function deleteContactAction(formData: FormData) {
@@ -215,7 +216,7 @@ export async function deleteContactAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main?tab=contacts');
+  redirect(`/admin/main?tab=contacts&success=${encodeURIComponent('문의 담당자가 성공적으로 삭제되었습니다.')}`);
 }
 
 export async function reorderContactsAction(orderedIds: string[]) {
@@ -240,7 +241,7 @@ export async function addStaffMemberAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main?tab=parts');
+  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('새로운 스태프가 성공적으로 추가되었습니다.')}`);
 }
 
 export async function deleteStaffMemberAction(formData: FormData) {
@@ -255,7 +256,7 @@ export async function deleteStaffMemberAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main?tab=parts');
+  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('스태프가 성공적으로 삭제되었습니다.')}`);
 }
 
 export async function updateStaffMemberAction(formData: FormData) {
@@ -275,5 +276,5 @@ export async function updateStaffMemberAction(formData: FormData) {
   }
 
   revalidateMain();
-  redirect('/admin/main?tab=parts');
+  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('스태프 정보가 성공적으로 수정되었습니다.')}`);
 }

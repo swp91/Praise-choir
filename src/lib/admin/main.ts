@@ -48,7 +48,7 @@ export type AdminMainData = {
   introPhotos: AdminIntroPhoto[];
   slidePhotos: AdminSlidePhoto[];
   contacts: AdminContactPerson[];
-  peopleList: { id: string; name: string; phone: string }[];
+  officersList: { personId: string; name: string; role: string; phone: string }[];
 };
 
 const bucketName = 'public-media';
@@ -78,7 +78,7 @@ export async function getAdminMainData(): Promise<AdminMainData> {
       introPhotos: [],
       slidePhotos: [],
       contacts: [],
-      peopleList: [],
+      officersList: [],
     };
   }
 
@@ -208,10 +208,18 @@ export async function getAdminMainData(): Promise<AdminMainData> {
     .order('sort_order');
   const contactRows = must<any[]>(contactsResult, 'contacts query');
 
-  // 8. 드롭다운용 전체 대원 리스트
+  // 8. 드롭다운용 전체 대원 리스트 및 임원진 목록 조회
   const peopleResult = await supabase.from('people').select('id,display_name,phone_label').eq('is_active', true);
   const peopleRows = must<any[]>(peopleResult, 'people list query');
   const peopleById = new Map(peopleRows.map((p) => [p.id, p]));
+
+  const officersResult = await supabase
+    .from('leadership_assignments')
+    .select('*')
+    .eq('group_key', 'officers')
+    .eq('is_active', true)
+    .order('sort_order');
+  const officerRows = must<any[]>(officersResult, 'officers list query');
 
   const contacts: AdminContactPerson[] = contactRows.map((r) => {
     const person = r.person_id ? peopleById.get(r.person_id) : null;
@@ -224,6 +232,18 @@ export async function getAdminMainData(): Promise<AdminMainData> {
       sortOrder: Number(r.sort_order ?? 0),
     };
   });
+
+  const officersList = officerRows
+    .filter((r) => !!r.person_id)
+    .map((r) => {
+      const person = peopleById.get(r.person_id);
+      return {
+        personId: r.person_id as string,
+        name: person?.display_name ?? r.external_name ?? '',
+        role: r.role_text,
+        phone: person?.phone_label ?? '',
+      };
+    });
 
   const heroAsset = profile?.hero_background_asset_id ? mediaById.get(profile.hero_background_asset_id) : null;
 
@@ -242,11 +262,7 @@ export async function getAdminMainData(): Promise<AdminMainData> {
     introPhotos,
     slidePhotos,
     contacts,
-    peopleList: peopleRows.map((p) => ({
-      id: p.id,
-      name: p.display_name,
-      phone: p.phone_label ?? '',
-    })),
+    officersList,
   };
 }
 

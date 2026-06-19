@@ -20,6 +20,7 @@ import SortableContactList from './SortableContactList';
 import ImageClickUploader from './ImageClickUploader';
 import StaffSlideCard from './StaffSlideCard';
 import AddStaffForm from './AddStaffForm';
+import AdminNotification from './AdminNotification';
 
 type Props = {
   searchParams?: Promise<{
@@ -71,11 +72,7 @@ export default async function AdminMainPage({ searchParams }: Props) {
           </Link>
         </header>
 
-        {errorMsg && (
-          <div className="mt-4 border border-red-200 bg-red-50 p-4 font-ko text-[13px] text-red-700">
-            {errorMsg}
-          </div>
-        )}
+        <AdminNotification />
 
         {/* 탭 네비게이션 */}
         <div className="mt-6 flex border-b border-line overflow-x-auto whitespace-nowrap scrollbar-none">
@@ -310,33 +307,19 @@ export default async function AdminMainPage({ searchParams }: Props) {
                   <form action={addContactAction} className="border border-line bg-cream p-4 rounded-lg space-y-4">
                     <h3 className="font-ko text-[14px] font-bold text-ink">새 문의 담당자 추가</h3>
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-4">
                       <div>
-                        <label className={labelClass} htmlFor="person_id">
-                          임원 대원 선택
+                        <label className={labelClass} htmlFor="officer_select">
+                          임원진 선택
                         </label>
-                        <select id="person_id" name="person_id" className={inputClass} required>
-                          <option value="">-- 대원 선택 --</option>
-                          {data.peopleList.map((p) => (
-                            <option key={p.id} value={p.id}>
-                              {p.name} ({p.phone || '전화번호 없음'})
+                        <select id="officer_select" name="officer_select" className={inputClass} required>
+                          <option value="">-- 임원 선택 --</option>
+                          {data.officersList.map((o) => (
+                            <option key={`${o.personId}-${o.role}`} value={`${o.personId}|${o.role}`}>
+                              {o.name} - {o.role} {o.phone ? `(${o.phone})` : ''}
                             </option>
                           ))}
                         </select>
-                      </div>
-
-                      <div>
-                        <label className={labelClass} htmlFor="role_text">
-                          직무명 (역할)
-                        </label>
-                        <input
-                          id="role_text"
-                          name="role_text"
-                          type="text"
-                          className={inputClass}
-                          placeholder="예: 대장, 총무, 회계, 부총무 등"
-                          required
-                        />
                       </div>
                     </div>
 
