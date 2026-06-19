@@ -1629,7 +1629,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
               {/* Track 1 */}
               <div
                 className="flex shrink-0 whitespace-nowrap animate-marquee-full min-w-full"
-                style={{ animationDuration: "30s" }}
+                style={{ animationDuration: "50s" }}
               >
                 {Array.from({ length: 12 }).map((_, i) => (
                   <span
@@ -1648,7 +1648,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
               <div
                 className="flex shrink-0 whitespace-nowrap animate-marquee-full min-w-full"
                 aria-hidden="true"
-                style={{ animationDuration: "30s" }}
+                style={{ animationDuration: "50s" }}
               >
                 {Array.from({ length: 12 }).map((_, i) => (
                   <span
