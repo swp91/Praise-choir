@@ -8,12 +8,18 @@ import {
   uploadServantsBgAction,
   uploadPracticeBgAction,
   uploadPartPhotoAction,
+  uploadSlidePhotoAction,
   addContactAction,
   uploadIntroPhotoAction,
+  addStaffMemberAction,
+  deleteStaffMemberAction,
+  updateStaffMemberAction,
 } from './actions';
 import SortableIntroList from './SortableIntroList';
 import SortableContactList from './SortableContactList';
 import ImageClickUploader from './ImageClickUploader';
+import StaffSlideCard from './StaffSlideCard';
+import AddStaffForm from './AddStaffForm';
 
 type Props = {
   searchParams?: Promise<{
@@ -80,7 +86,7 @@ export default async function AdminMainPage({ searchParams }: Props) {
             인트로 사진
           </Link>
           <Link href="/admin/main?tab=parts" className={tabClass('parts')}>
-            파트별 사진
+            슬라이드 사진
           </Link>
           <Link href="/admin/main?tab=bgs" className={tabClass('bgs')}>
             섹션 배경
@@ -147,9 +153,6 @@ export default async function AdminMainPage({ searchParams }: Props) {
                   <h2 className="font-ko text-[18px] font-bold text-ink">메인 히어로 이미지</h2>
                 </div>
                 <div className="px-5 py-5 space-y-4">
-                  <p className="font-ko text-[13px] text-ink-soft">
-                    아래 이미지를 클릭하시면 컴퓨터의 새 사진으로 즉시 변경됩니다. (초대형 몬타주 시퀀스 완료 후 맨 마지막에 등장하는 웅장한 가로형 메인 대문 사진입니다.)
-                  </p>
                   <ImageClickUploader
                     action={uploadHeroImageAction}
                     currentImageUrl={data.heroBackgroundUrl}
@@ -170,30 +173,18 @@ export default async function AdminMainPage({ searchParams }: Props) {
                   <h2 className="font-ko text-[18px] font-bold text-ink">인트로 몬타주 사진</h2>
                 </div>
                 <div className="px-5 py-5">
-                  <form action={uploadIntroPhotoAction} className="mb-8 border border-line bg-cream p-4">
-                    <label className={labelClass} htmlFor="intro_image">
-                      새 인트로 사진 추가
-                    </label>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                      <input
-                        id="intro_image"
-                        name="intro_image"
-                        type="file"
-                        accept="image/*"
-                        required
-                        className="flex-1 font-ko text-[13px] text-ink border border-line bg-card p-2"
-                      />
-                      <button
-                        type="submit"
-                        className="border border-gold-deep bg-gold-deep px-5 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
-                      >
-                        + 사진 추가
-                      </button>
-                    </div>
-                    <p className="mt-2 font-ko text-[11px] text-ink-mute">
-                      인트로 오프닝 시 화면에 차례대로 번쩍이며 확대되는 6개 내외의 사진들입니다.
-                    </p>
-                  </form>
+                  <div className="mb-6 p-4 border border-line bg-cream font-ko text-[13px] text-ink-soft leading-relaxed">
+                    <p className="font-bold text-gold-deep mb-1">💡 안내 사항</p>
+                    인트로 오프닝 시 화면에 차례대로 내려오는 사진입니다. 개수가 5장으로 고정되어 있으므로 새 사진 추가나 삭제는 불가능합니다.
+                    <br />
+                    각 사진 카드의 <strong className="text-ink">'사진 변경'</strong> 버튼을 눌러 이미지를 개별 교체하거나, 사진을 드래그하여 노출 순서를 바꿀 수 있습니다.
+                  </div>
+
+                  <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-line pb-3">
+                    <span className="font-ko text-[13px] font-bold text-ink-soft">
+                      등록된 사진: {data.introPhotos.length} / 5 장
+                    </span>
+                  </div>
 
                   <SortableIntroList photos={data.introPhotos} />
                 </div>
@@ -201,26 +192,57 @@ export default async function AdminMainPage({ searchParams }: Props) {
             </div>
           )}
 
-          {/* ==================== 3. 파트별 사진 관리 ==================== */}
+          {/* ==================== 3. 슬라이드 사진 관리 ==================== */}
           {activeTab === 'parts' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {data.partPhotos.map((part) => (
-                <section key={part.key} className="border border-line bg-card">
-                  <div className="border-b border-line bg-card-head px-5 py-3">
-                    <h2 className="font-ko text-[16px] font-bold text-ink">{part.title} 카드 이미지</h2>
-                  </div>
-                  <div className="px-5 py-4">
-                    <ImageClickUploader
-                      action={uploadPartPhotoAction}
-                      currentImageUrl={part.imageUrl}
-                      name="section_image"
-                      label={`${part.title} 사진`}
-                      aspectRatioClass="aspect-[4/3]"
-                      hiddenFields={[{ name: 'section_key', value: part.key }]}
+            <div className="space-y-6">
+              {/* 스태프 멤버 추가 폼 */}
+              <section className="border border-line bg-card">
+                <div className="border-b border-line bg-card-head px-5 py-4">
+                  <h2 className="font-ko text-[18px] font-bold text-ink">새 스태프 추가 (지휘자, 반주자, 편곡자 등)</h2>
+                </div>
+                <div className="px-5 py-5">
+                  <AddStaffForm action={addStaffMemberAction} />
+                </div>
+              </section>
+
+              {/* 슬라이드 카드 목록 */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {data.slidePhotos.map((slide) => 
+                  slide.type === 'staff' ? (
+                    <StaffSlideCard
+                      key={slide.key}
+                      slide={slide}
+                      updateAction={updateStaffMemberAction}
+                      deleteAction={deleteStaffMemberAction}
+                      uploadSlidePhotoAction={uploadSlidePhotoAction}
                     />
-                  </div>
-                </section>
-              ))}
+                  ) : (
+                    <section key={slide.key} className="border border-line bg-card flex flex-col justify-between">
+                      <div>
+                        <div className="border-b border-line bg-card-head px-5 py-3 flex items-center justify-between">
+                          <h2 className="font-ko text-[16px] font-bold text-ink">{slide.title} 슬라이드 사진</h2>
+                          <span className="font-en text-[11px] px-2 py-0.5 rounded bg-gold-deep/10 text-gold-deep font-semibold">
+                            파트
+                          </span>
+                        </div>
+                        <div className="px-5 py-4">
+                          <ImageClickUploader
+                            action={uploadSlidePhotoAction}
+                            currentImageUrl={slide.imageUrl}
+                            name="slide_image"
+                            label={`${slide.title} 슬라이드 사진`}
+                            aspectRatioClass="aspect-[4/3]"
+                            hiddenFields={[
+                              { name: 'slide_type', value: slide.type },
+                              { name: 'target_id', value: slide.targetId },
+                            ]}
+                          />
+                        </div>
+                      </div>
+                    </section>
+                  )
+                )}
+              </div>
             </div>
           )}
 
@@ -236,7 +258,7 @@ export default async function AdminMainPage({ searchParams }: Props) {
                 </div>
                 <div className="px-5 py-5 space-y-4">
                   <p className="font-ko text-[13px] text-ink-soft">
-                    아래 이미지를 클릭하여 변경할 수 있습니다. (메인 스크롤 시 섬김의 손길들 카드 롤러 뒤편에 노출되는 어두운 무드 톤의 배경 사진입니다.)
+                    아래 이미지를 클릭하여 변경할 수 있습니다.
                   </p>
                   <ImageClickUploader
                     action={uploadServantsBgAction}
@@ -257,7 +279,7 @@ export default async function AdminMainPage({ searchParams }: Props) {
                 </div>
                 <div className="px-5 py-5 space-y-4">
                   <p className="font-ko text-[13px] text-ink-soft">
-                    아래 이미지를 클릭하여 변경할 수 있습니다. (예배 및 연습 시간표 세부 레이아웃 뒤편에 은은하게 비치는 가로형 단체/연습 배경 사진입니다.)
+                    아래 이미지를 클릭하여 변경할 수 있습니다.
                   </p>
                   <ImageClickUploader
                     action={uploadPracticeBgAction}
