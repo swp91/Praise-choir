@@ -97,35 +97,21 @@ export async function getAdminMainData(): Promise<AdminMainData> {
   const mediaRows = must<any[]>(mediaResult, 'media assets query');
   const mediaById = new Map(mediaRows.map((m) => [m.id, m]));
 
-  // 3. 인트로 앨범 ID 조회
-  const albumResult = await supabase
-    .from('gallery_albums')
-    .select('id')
-    .eq('key', 'intro')
-    .maybeSingle();
-  const introAlbum = albumResult.data;
-
-  // 4. 인트로 갤러리 이미지 조회
-  let introPhotos: AdminIntroPhoto[] = [];
-  if (introAlbum) {
-    const introPhotosResult = await supabase
-      .from('gallery_items')
-      .select('*')
-      .eq('album_id', introAlbum.id)
-      .order('sort_order')
-      .order('created_at');
-    const rows = must<any[]>(introPhotosResult, 'intro photos query');
-    introPhotos = rows.map((r) => {
-      const asset = mediaById.get(r.media_asset_id);
-      return {
-        id: r.id,
-        title: r.title,
-        mediaAssetId: r.media_asset_id,
-        imageUrl: mediaUrl(asset?.path) ?? '',
-        sortOrder: Number(r.sort_order ?? 0),
-      };
-    });
-  }
+  // 3. 인트로 이미지 로드 (media_assets metadata.usage가 'intro'인 자산 추출 및 정렬)
+  const introPhotos: AdminIntroPhoto[] = mediaRows
+    .filter((m) => m.metadata?.usage === 'intro')
+    .sort((a, b) => {
+      const orderA = Number(a.metadata?.sort_order ?? 0);
+      const orderB = Number(b.metadata?.sort_order ?? 0);
+      return orderA - orderB;
+    })
+    .map((m) => ({
+      id: m.id,
+      title: m.alt_text || 'Intro Photo',
+      mediaAssetId: m.id,
+      imageUrl: mediaUrl(m.path) ?? '',
+      sortOrder: Number(m.metadata?.sort_order ?? 0),
+    }));
 
   // 5. '섬기는 사람들' 및 '시간표' 배경 조회 (media_assets metadata.usage 검색)
   const servantsBgAsset = mediaRows.find((m) => m.metadata?.usage === 'servants_bg');
@@ -377,12 +363,28 @@ export async function uploadSpecialImage(
 
 export async function uploadIntroPhoto(file: File) {
   const supabase = getSupabaseAdmin();
+
+  // 1. 현재 마지막 순서 알아내기 (metadata->>'usage' = 'intro' 중 sort_order 최대값)
+  const { data: introAssets } = await supabase
+    .from('media_assets')
+    .select('metadata')
+    .eq('metadata->>usage', 'intro');
+
+  let maxOrder = -1;
+  if (introAssets && introAssets.length > 0) {
+    introAssets.forEach((asset: any) => {
+      const order = Number(asset.metadata?.sort_order ?? -1);
+      if (order > maxOrder) maxOrder = order;
+    });
+  }
+  const nextOrder = maxOrder + 1;
+
   const id = crypto.randomUUID();
   const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
   const path = `gallery/intro_${id}.${ext}`;
   const bytes = await file.arrayBuffer();
 
-  // 1. Storage 업로드
+  // 2. Storage 업로드
   must(
     await supabase.storage.from(bucketName).upload(path, bytes, {
       contentType: file.type || 'image/webp',
@@ -390,97 +392,50 @@ export async function uploadIntroPhoto(file: File) {
     'intro photo storage upload',
   );
 
-  // 2. media_assets 등록
-  const asset = must<{ id: string }>(
+  // 3. media_assets 등록 (metadata에 sort_order 기입)
+  must(
     await supabase
       .from('media_assets')
       .insert({
         bucket: bucketName,
         path,
-        alt_text: 'Intro Photo',
+        alt_text: `Intro ${nextOrder + 1}`,
         source: 'supabase',
         is_public: true,
-        metadata: { usage: 'intro' },
-      })
-      .select('id')
-      .single(),
+        metadata: { usage: 'intro', sort_order: String(nextOrder) },
+      }),
     'intro media db insert',
-  );
-
-  // 3. 인트로 앨범 ID 조회
-  const albumResult = await supabase
-    .from('gallery_albums')
-    .select('id')
-    .eq('key', 'intro')
-    .maybeSingle();
-  let introAlbumId = albumResult.data?.id;
-
-  if (!introAlbumId) {
-    const newAlbum = must<{ id: string }>(
-      await supabase
-        .from('gallery_albums')
-        .insert({
-          key: 'intro',
-          label_ko: '인트로',
-          label_en: 'Intro',
-          sort_order: 10,
-          is_active: true,
-        })
-        .select('id')
-        .single(),
-      'intro album creation',
-    );
-    introAlbumId = newAlbum.id;
-  }
-
-  // 4. gallery_items 등록 (마지막 순서로)
-  const maxResult = await supabase
-    .from('gallery_items')
-    .select('sort_order')
-    .eq('album_id', introAlbumId)
-    .order('sort_order', { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const nextOrder = Number(maxResult.data?.sort_order ?? -1) + 1;
-
-  must(
-    await supabase.from('gallery_items').insert({
-      album_id: introAlbumId,
-      media_asset_id: asset.id,
-      title: `Intro ${nextOrder + 1}`,
-      sort_order: nextOrder,
-      is_published: true,
-    }),
-    'intro gallery item insert',
   );
 }
 
 export async function deleteIntroPhoto(id: string) {
   const supabase = getSupabaseAdmin();
-  const item = must<{ media_asset_id: string }>(
-    await supabase.from('gallery_items').select('media_asset_id').eq('id', id).single(),
-    'intro item lookup',
-  );
-
-  must(await supabase.from('gallery_items').delete().eq('id', id), 'intro item delete');
-
   const asset = must<{ bucket: string; path: string }>(
-    await supabase.from('media_assets').select('bucket,path').eq('id', item.media_asset_id).single(),
+    await supabase.from('media_assets').select('bucket,path').eq('id', id).single(),
     'intro asset lookup',
   );
 
   await supabase.storage.from(asset.bucket).remove([asset.path]);
-  await supabase.from('media_assets').delete().eq('id', item.media_asset_id);
+  must(await supabase.from('media_assets').delete().eq('id', id), 'intro asset delete');
 }
 
 export async function updateIntroPhoto(itemId: string, file: File) {
   const supabase = getSupabaseAdmin();
+
+  // 1. 기존 에셋 정보 조회 (sort_order 및 이전 파일 경로)
+  const oldAsset = must<{ metadata: any; bucket: string; path: string }>(
+    await supabase.from('media_assets').select('metadata,bucket,path').eq('id', itemId).single(),
+    'old intro asset lookup',
+  );
+
+  const sortOrder = oldAsset.metadata?.sort_order ?? '0';
+
   const id = crypto.randomUUID();
   const ext = file.name.split('.').pop()?.toLowerCase() || 'webp';
   const path = `gallery/intro_update_${id}.${ext}`;
   const bytes = await file.arrayBuffer();
 
-  // 1. Storage 업로드
+  // 2. Storage 업로드
   must(
     await supabase.storage.from(bucketName).upload(path, bytes, {
       contentType: file.type || 'image/webp',
@@ -488,8 +443,8 @@ export async function updateIntroPhoto(itemId: string, file: File) {
     'intro photo update storage upload',
   );
 
-  // 2. media_assets 등록
-  const asset = must<{ id: string }>(
+  // 3. 새 media_assets 등록 (기존 sort_order 적용)
+  must(
     await supabase
       .from('media_assets')
       .insert({
@@ -498,53 +453,33 @@ export async function updateIntroPhoto(itemId: string, file: File) {
         alt_text: 'Intro Photo Updated',
         source: 'supabase',
         is_public: true,
-        metadata: { usage: 'intro' },
-      })
-      .select('id')
-      .single(),
+        metadata: { usage: 'intro', sort_order: String(sortOrder) },
+      }),
     'intro update media db insert',
   );
 
-  // 3. 기존 gallery_items의 media_asset_id 조회
-  const oldItem = must<{ media_asset_id: string }>(
-    await supabase
-      .from('gallery_items')
-      .select('media_asset_id')
-      .eq('id', itemId)
-      .single(),
-    'old intro item lookup',
-  );
-
-  // 4. gallery_items의 media_asset_id 교체
-  must(
-    await supabase
-      .from('gallery_items')
-      .update({ media_asset_id: asset.id })
-      .eq('id', itemId),
-    'intro gallery item update',
-  );
-
-  // 5. 이전 media_asset 제거
-  if (oldItem && oldItem.media_asset_id) {
-    const oldAssetResult = await supabase
-      .from('media_assets')
-      .select('bucket, path')
-      .eq('id', oldItem.media_asset_id)
-      .maybeSingle();
-    const oldAsset = oldAssetResult.data;
-    if (oldAsset) {
-      await supabase.storage.from(oldAsset.bucket).remove([oldAsset.path]);
-      await supabase.from('media_assets').delete().eq('id', oldItem.media_asset_id);
-    }
-  }
+  // 4. 이전 Storage 파일 및 media_assets 행 제거
+  await supabase.storage.from(oldAsset.bucket).remove([oldAsset.path]);
+  must(await supabase.from('media_assets').delete().eq('id', itemId), 'old intro asset delete');
 }
 
 export async function reorderIntroPhotos(orderedIds: string[]) {
   const supabase = getSupabaseAdmin();
   await Promise.all(
-    orderedIds.map((id, index) =>
-      supabase.from('gallery_items').update({ sort_order: index }).eq('id', id)
-    )
+    orderedIds.map(async (id, index) => {
+      const { data: asset } = await supabase
+        .from('media_assets')
+        .select('metadata')
+        .eq('id', id)
+        .single();
+
+      const newMeta = { ...(asset?.metadata || {}), sort_order: String(index) };
+
+      await supabase
+        .from('media_assets')
+        .update({ metadata: newMeta })
+        .eq('id', id);
+    })
   );
 }
 

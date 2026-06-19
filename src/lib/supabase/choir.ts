@@ -125,7 +125,6 @@ export async function getHomeData() {
     eventsCount,
     goals,
     featuredRows,
-    introAlbumResult,
     contactsResult,
     allPeopleResult,
   ] = await Promise.all([
@@ -161,7 +160,6 @@ export async function getHomeData() {
         .order('sort_order'),
       'home featured people',
     ),
-    supabase.from('gallery_albums').select('id').eq('key', 'intro').maybeSingle(),
     supabase.from('leadership_assignments').select('*').eq('group_key', 'music_ministry').order('sort_order'),
     supabase.from('people').select('*'),
   ]);
@@ -179,21 +177,16 @@ export async function getHomeData() {
   const mediaById = new Map(media.map((asset: MediaAsset) => [asset.id, asset]));
   const allPeopleById = new Map((allPeopleResult.data as PersonRow[] || []).map((person) => [person.id, person]));
 
-  // 1. 인트로 이미지 로드
-  let introImages: string[] = [];
-  if (introAlbumResult.data) {
-    const introItems = await must<any[]>(
-      supabase
-        .from('gallery_items')
-        .select('media_asset_id')
-        .eq('album_id', introAlbumResult.data.id)
-        .order('sort_order'),
-      'intro gallery items'
-    );
-    introImages = introItems
-      .map((item) => mediaUrl(mediaById.get(item.media_asset_id)))
-      .filter((url): url is string => !!url);
-  }
+  // 1. 인트로 이미지 로드 (media_assets metadata.usage가 'intro'인 자산 추출 및 정렬)
+  const introImages = media
+    .filter((m: any) => m.metadata?.usage === 'intro')
+    .sort((a: any, b: any) => {
+      const orderA = Number(a.metadata?.sort_order ?? 0);
+      const orderB = Number(b.metadata?.sort_order ?? 0);
+      return orderA - orderB;
+    })
+    .map((m: any) => mediaUrl(m))
+    .filter((url): url is string => !!url);
 
   // 2. 시간표 & 섬김 배경 로드
   const servantsBgAsset = media.find((m: any) => m.metadata?.usage === 'servants_bg');
