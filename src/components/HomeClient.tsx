@@ -1013,7 +1013,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 style={{
                   backgroundColor: "#4a3e2e",
                   backgroundImage: `url('${home?.heroBackgroundUrl || '/praise_photo.png'}')`,
-                  backgroundPosition: home?.heroBackgroundPosition || 'center 30%',
+                  backgroundPosition: 'center 30%',
                 }}
               >
                 <motion.div
@@ -1033,7 +1033,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                   className="w-full h-full bg-inherit bg-center bg-cover"
                   style={{
                     backgroundImage: `url('${home?.heroBackgroundUrl || '/praise_photo.png'}')`,
-                    backgroundPosition: home?.heroBackgroundPosition || 'center 30%',
+                    backgroundPosition: 'center 30%',
                   }}
                 />
               </motion.div>
@@ -1062,7 +1062,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
               className="absolute inset-0 bg-center bg-cover transition-transform duration-[3s] scale-100"
               style={{
                 backgroundImage: `url('${home?.heroBackgroundUrl || '/praise_photo.png'}')`,
-                backgroundPosition: home?.heroBackgroundPosition || 'center 30%',
+                backgroundPosition: 'center 30%',
               }}
             />
 

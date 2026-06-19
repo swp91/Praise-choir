@@ -31,10 +31,9 @@ export async function updateSloganAction(formData: FormData) {
   await requireAdmin();
   const themeKo = String(formData.get('theme_ko') ?? '');
   const themeEn = String(formData.get('theme_en') ?? '');
-  const heroPosition = String(formData.get('hero_position') ?? 'center 30%');
 
   try {
-    await updateSlogans(themeKo, themeEn, heroPosition);
+    await updateSlogans(themeKo, themeEn, 'center 30%');
   } catch (err: any) {
     errorRedirect(err.message ?? '슬로건 업데이트 실패');
   }

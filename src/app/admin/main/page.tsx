@@ -129,22 +129,6 @@ export default async function AdminMainPage({ searchParams }: Props) {
                       placeholder="예: Rejoicing in the Lord, We Triumph"
                     />
                   </div>
-                  <div>
-                    <label className={labelClass} htmlFor="hero_position">
-                      히어로 배경 노출 위치 (background-position)
-                    </label>
-                    <input
-                      id="hero_position"
-                      name="hero_position"
-                      type="text"
-                      className={inputClass}
-                      defaultValue={data.heroBackgroundPosition}
-                      placeholder="예: center 30%, center, top"
-                    />
-                    <p className="mt-1 font-ko text-[11px] text-ink-mute">
-                      메인 사진의 노출될 중심축 비율을 CSS 형식으로 입력합니다 (기본값: center 30%).
-                    </p>
-                  </div>
                   <div className="flex justify-end">
                     <button
                       type="submit"
