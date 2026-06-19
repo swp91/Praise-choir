@@ -1,10 +1,7 @@
-import type { Metadata } from "next";
 import { getHomeData, getMembersData, getLeadersData, getPracticeData } from "@/lib/supabase/choir";
 import { imageUrl } from "@/lib/media";
 import HomeClient from "@/components/HomeClient";
 import { QueryClient, dehydrate, HydrationBoundary } from "@tanstack/react-query";
-
-export const metadata: Metadata = { title: "Overview · 프레이즈찬양대" };
 
 export default async function HomePage() {
   const queryClient = new QueryClient();

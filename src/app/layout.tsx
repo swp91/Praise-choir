@@ -21,8 +21,33 @@ const notoSerifKR = Noto_Serif_KR({
 });
 
 export const metadata: Metadata = {
-  title: '프레이즈찬양대 · 2026',
-  description: '프레이즈찬양대 2026 조직과 일정을 소개합니다.',
+  title: '프레이즈찬양대',
+  description: '오직 하나님을 기뻐함으로 찬양하는 광진교회 프레이즈찬양대 2026 공식 홈페이지입니다.',
+  keywords: ['광진교회', '프레이즈찬양대', '찬양대', '광진교회 찬양대', '프레이즈', '교회 성가대'],
+  authors: [{ name: '광진교회 프레이즈찬양대' }],
+  metadataBase: new URL('https://praisechoir.kr'),
+  openGraph: {
+    title: '광진교회 프레이즈찬양대 · 2026',
+    description: '오직 하나님을 기뻐함으로 찬양하는 광진교회 프레이즈찬양대 2026 공식 홈페이지입니다.',
+    url: 'https://praisechoir.kr',
+    siteName: '광진교회 프레이즈찬양대',
+    locale: 'ko_KR',
+    type: 'website',
+    images: [
+      {
+        url: 'https://praisechoir.kr/praise_photo.png',
+        width: 1200,
+        height: 630,
+        alt: '광진교회 프레이즈찬양대 대표 이미지',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '광진교회 프레이즈찬양대 · 2026',
+    description: '오직 하나님을 기뻐함으로 찬양하는 광진교회 프레이즈찬양대 2026 공식 홈페이지입니다.',
+    images: ['https://praisechoir.kr/praise_photo.png'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

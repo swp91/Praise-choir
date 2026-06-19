@@ -1,11 +1,8 @@
-import type { Metadata } from 'next';
 import HeroBlock from '@/components/HeroBlock';
 import SectionCap from '@/components/SectionCap';
 import Gallery from '@/components/Gallery';
 import { getGalleryData } from '@/lib/supabase/choir';
 import { QueryClient, dehydrate, HydrationBoundary } from '@tanstack/react-query';
-
-export const metadata: Metadata = { title: 'Gallery · 프레이즈찬양대' };
 
 export default async function GalleryPage() {
   const queryClient = new QueryClient();
@@ -16,7 +13,7 @@ export default async function GalleryPage() {
   });
 
   return (
-    <main className="main-content h-screen overflow-hidden p-0 max-[880px]:min-h-screen max-[880px]:h-auto max-[880px]:overflow-visible">
+    <main className="main-content h-[100dvh] overflow-hidden p-0 max-[880px]:min-h-[100dvh] max-[880px]:h-auto max-[880px]:overflow-visible">
       <div className="min-[881px]:hidden">
         <HeroBlock
           eyebrow="Photo Gallery"

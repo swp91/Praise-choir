@@ -172,7 +172,7 @@ export default function LeadersGalleryClient() {
   return (
     <main
       data-page-style="facil-officers"
-      className="relative h-screen w-screen overflow-hidden bg-[#fdf9f0] text-[#171717] selection:bg-[#b89a5a] selection:text-[#fdf9f0]"
+      className="relative h-[100dvh] w-screen overflow-hidden bg-[#fdf9f0] text-[#171717] selection:bg-[#b89a5a] selection:text-[#fdf9f0]"
     >
       <style jsx global>{`
         body.leaders-facil-page {

@@ -154,7 +154,7 @@ export default function EventsSplitClient() {
   };
 
   return (
-    <main className="w-screen h-screen overflow-hidden bg-[#fdf9f0] text-[#2a2620] relative select-none font-ko">
+    <main className="w-screen h-[100dvh] overflow-hidden bg-[#fdf9f0] text-[#2a2620] relative select-none font-ko">
       {/* Background Watermark */}
       <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden opacity-[0.02]">
         <div className="font-en text-[22vw] font-bold uppercase tracking-[0.15em] text-[#8a6f2f] italic select-none">

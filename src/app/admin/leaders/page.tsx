@@ -91,12 +91,6 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
           </div>
           <div className="flex gap-2">
             <Link
-              href="/leaders"
-              className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
-            >
-              홈페이지 보기
-            </Link>
-            <Link
               href="/admin"
               className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
             >
