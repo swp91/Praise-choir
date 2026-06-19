@@ -4,14 +4,10 @@ import { isAdminAuthenticated } from '@/lib/admin/auth';
 import { getAdminLeadershipData, type AdminLeaderPersonOption } from '@/lib/admin/leadership';
 import {
   createOfficerAction,
-  reorderMusicStaffAction,
   reorderOfficersAction,
-  setMusicStaffActiveAction,
   setOfficerActiveAction,
-  updateMusicStaffAction,
   updateOfficerAction,
 } from './actions';
-import SortableMusicStaffTable from './SortableMusicStaffTable';
 import SortableOfficerTable from './SortableOfficerTable';
 
 type Props = {
@@ -72,11 +68,6 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
   const params = await searchParams;
   const data = await getAdminLeadershipData();
 
-  const staffActions = {
-    reorder: reorderMusicStaffAction,
-    setActive: setMusicStaffActiveAction,
-    update: updateMusicStaffAction,
-  };
   const officerActions = {
     reorder: reorderOfficersAction,
     setActive: setOfficerActiveAction,
@@ -94,6 +85,9 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
             <h1 className="font-ko text-[clamp(26px,4vw,42px)] font-bold leading-tight text-ink">
               임원 관리
             </h1>
+            <p className="mt-3 max-w-2xl font-ko text-[14px] leading-relaxed text-ink-soft">
+              임원을 추가하거나 삭제, 직무를 변경할수 있습니다.
+            </p>
           </div>
           <div className="flex gap-2">
             <Link
@@ -120,17 +114,7 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
             </section>
           ) : null}
 
-          <section id="music-staff" className="scroll-mt-6 border border-line bg-card">
-            <div className="border-b border-line bg-card-head px-5 py-4">
-              <h2 className="font-ko text-[22px] font-bold text-ink">스태프</h2>
-            </div>
-            <SortableMusicStaffTable
-              key={params?.editStaff ?? 'staff'}
-              staff={data.musicStaff}
-              editId={params?.editStaff}
-              actions={staffActions}
-            />
-          </section>
+
 
           <section id="officers" className="scroll-mt-6 border border-line bg-card">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-card-head px-5 py-4">

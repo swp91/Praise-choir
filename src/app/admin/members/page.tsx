@@ -96,6 +96,9 @@ export default async function AdminMembersPage({ searchParams }: Props) {
             <h1 className="font-ko text-[clamp(26px,4vw,42px)] font-bold leading-tight text-ink">
               대원 관리
             </h1>
+            <p className="mt-3 max-w-2xl font-ko text-[14px] leading-relaxed text-ink-soft">
+              대원의 정보를 추가하거나 삭제, 수정할수있으며 상태를 변경할수 있습니다 각 파트별로 사진을 드래그하여 순번을 변경할 수 있습니다.
+            </p>
           </div>
           <div className="flex gap-2">
             <Link
