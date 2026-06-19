@@ -24,8 +24,11 @@ function FadeInImage({ photo, height }: { photo: Photo; height: number }) {
     ? `linear-gradient(135deg, ${photo.palette[0]} 0%, ${photo.palette[1]} 60%, ${photo.palette[2]} 100%)`
     : 'rgba(184, 154, 90, 0.05)';
 
+  // 로딩 전에는 3:2 가로형 비율(height * 1.5)을 임시 너비로 두어 레이아웃 시프트 방지
+  const tempWidth = height * 1.5;
+
   return (
-    <div className="relative overflow-hidden" style={{ height }}>
+    <div className="relative overflow-hidden" style={{ height, width: loaded ? 'auto' : tempWidth }}>
       {!loaded && (
         <div 
           className="absolute inset-0 animate-pulse opacity-30" 
@@ -99,8 +102,14 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       if (!oldSetWidth || isNaN(oldSetWidth)) {
         positionRef.current = -newSetWidth;
       } else {
-        // 이미지 비동기 로딩 등으로 트랙 너비가 늘어날 때, 기존 스크롤 위치 비율을 유지하여 튕김 및 첫 화면 되돌아감 현상 방지
-        positionRef.current = (positionRef.current / oldSetWidth) * newSetWidth;
+        // 비례 곱셈식을 제거하고 절대 스크롤 좌표를 유지합니다.
+        // 바뀐 트랙 크기에 맞춰 무한 루프 범위(-newSetWidth * 2 ~ 0) 내로만 회수합니다.
+        while (positionRef.current < -newSetWidth * 2) {
+          positionRef.current += newSetWidth;
+        }
+        while (positionRef.current > 0) {
+          positionRef.current -= newSetWidth;
+        }
       }
       gsap.set(track, { x: positionRef.current });
     };
@@ -125,8 +134,8 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
       positionRef.current += velocityRef.current;
       velocityRef.current *= 0.8;
 
-      if (positionRef.current < -setWidth * 2) positionRef.current += setWidth;
-      if (positionRef.current > 0) positionRef.current -= setWidth;
+      while (positionRef.current < -setWidth * 2) positionRef.current += setWidth;
+      while (positionRef.current > 0) positionRef.current -= setWidth;
 
       const lean = gsap.utils.clamp(-14, 14, velocityRef.current * 0.32);
       gsap.set(track, { x: positionRef.current });

@@ -78,6 +78,9 @@ export default async function AdminGalleryPage({ searchParams }: Props) {
             <h1 className="font-ko text-[clamp(26px,4vw,42px)] font-bold leading-tight text-ink">
               갤러리 관리
             </h1>
+            <p className="mt-3 max-w-2xl font-ko text-[14px] leading-relaxed text-ink-soft">
+              갤러리에 사진을 추가하거나 삭제, 순번을 드래그해서 변경할수 있습니다.
+            </p>
           </div>
           <div className="flex gap-2">
             <Link
