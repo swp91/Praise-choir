@@ -237,11 +237,11 @@ export async function addStaffMemberAction(formData: FormData) {
   try {
     await addStaffMember(name, role, file);
   } catch (err: any) {
-    errorRedirect(err.message ?? '지휘·반주자 추가 실패');
+    errorRedirect(err.message ?? '디렉터 추가 실패');
   }
 
   revalidateMain();
-  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('새로운 지휘·반주자가 성공적으로 추가되었습니다.')}`);
+  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('새로운 디렉터가 성공적으로 추가되었습니다.')}`);
 }
 
 export async function deleteStaffMemberAction(formData: FormData) {
@@ -252,11 +252,11 @@ export async function deleteStaffMemberAction(formData: FormData) {
   try {
     await deleteStaffMember(personId);
   } catch (err: any) {
-    errorRedirect(err.message ?? '지휘·반주자 삭제 실패');
+    errorRedirect(err.message ?? '디렉터 삭제 실패');
   }
 
   revalidateMain();
-  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('지휘·반주자가 성공적으로 삭제되었습니다.')}`);
+  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('디렉터가 성공적으로 삭제되었습니다.')}`);
 }
 
 export async function updateStaffMemberAction(formData: FormData) {
@@ -265,16 +265,16 @@ export async function updateStaffMemberAction(formData: FormData) {
   const name = String(formData.get('name') ?? '');
   const role = String(formData.get('role') ?? '');
 
-  if (!personId) errorRedirect('올바르지 않은 지휘·반주자 지정입니다.');
+  if (!personId) errorRedirect('올바르지 않은 디렉터 지정입니다.');
   if (!name) errorRedirect('이름은 비워둘 수 없습니다.');
   if (!role) errorRedirect('역할은 비워둘 수 없습니다.');
 
   try {
     await updateStaffMember(personId, name, role);
   } catch (err: any) {
-    errorRedirect(err.message ?? '지휘·반주자 정보 수정 실패');
+    errorRedirect(err.message ?? '디렉터 정보 수정 실패');
   }
 
   revalidateMain();
-  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('지휘·반주자 정보가 성공적으로 수정되었습니다.')}`);
+  redirect(`/admin/main?tab=parts&success=${encodeURIComponent('디렉터 정보가 성공적으로 수정되었습니다.')}`);
 }

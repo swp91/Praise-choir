@@ -114,7 +114,7 @@ export default function MemberGrid() {
   const parts: PartData[] = [
     {
       key: 'staff',
-      name: staff?.name || '지휘·반주자',
+      name: staff?.name || '디렉터',
       nameEn: staff?.nameEn || 'Directors',
       leader: staff?.leader || '',
       members: staff?.members || [],

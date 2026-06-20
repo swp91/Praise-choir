@@ -17,7 +17,7 @@ export default function StaffSlideCard({
   uploadSlidePhotoAction,
 }: Props) {
   function handleDeleteSubmit(e: React.FormEvent<HTMLFormElement>) {
-    if (!confirm(`'${slide.title}' 지휘·반주자를 슬라이드와 대원 명단에서 정말로 제거할까요?`)) {
+    if (!confirm(`'${slide.title}' 디렉터를 슬라이드와 대원 명단에서 정말로 제거할까요?`)) {
       e.preventDefault();
     }
   }
@@ -26,9 +26,9 @@ export default function StaffSlideCard({
     <section className="border border-line bg-card flex flex-col justify-between">
       <div>
         <div className="border-b border-line bg-card-head px-5 py-3 flex items-center justify-between">
-          <h2 className="font-ko text-[16px] font-bold text-ink">지휘·반주자 슬라이드</h2>
+          <h2 className="font-ko text-[16px] font-bold text-ink">디렉터 슬라이드</h2>
           <span className="font-en text-[11px] px-2 py-0.5 rounded bg-gold-deep/10 text-gold-deep font-semibold">
-            지휘·반주자
+            디렉터
           </span>
         </div>
 
@@ -84,7 +84,7 @@ export default function StaffSlideCard({
         </div>
       </div>
 
-      {/* 지휘·반주자 삭제 버튼 */}
+      {/* 디렉터 삭제 버튼 */}
       <div className="px-5 py-3 border-t border-line bg-card-head flex justify-end">
         <form action={deleteAction} onSubmit={handleDeleteSubmit}>
           <input type="hidden" name="person_id" value={slide.targetId} />
@@ -92,7 +92,7 @@ export default function StaffSlideCard({
             type="submit"
             className="font-ko text-[12px] font-bold text-red-600 hover:text-red-800 transition"
           >
-            지휘·반주자 삭제
+            디렉터 삭제
           </button>
         </form>
       </div>
