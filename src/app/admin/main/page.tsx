@@ -66,7 +66,7 @@ export default async function AdminMainPage({ searchParams }: Props) {
           </div>
           <Link
             href="/admin"
-            className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
+            className="w-fit border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
           >
             대시보드로
           </Link>
