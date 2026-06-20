@@ -56,7 +56,7 @@ function safeFileNameSeed(value: string) {
   return value
     .trim()
     .toLowerCase()
-    .replace(/[^a-z0-9가-힣_-]+/g, '-')
+    .replace(/[^a-z0-9_-]+/g, '-')
     .replace(/^-+|-+$/g, '') || 'member';
 }
 
