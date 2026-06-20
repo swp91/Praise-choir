@@ -4,8 +4,6 @@ import { isAdminAuthenticated } from '@/lib/admin/auth';
 import { getAdminMembersData, type AdminMember, type AdminMemberOption } from '@/lib/admin/members';
 import { updateMemberAction, reorderSectionMembersAction, setMemberActiveAction } from './actions';
 import { MemberForm } from './MemberForm';
-import ToggleActiveButton from './ToggleActiveButton';
-import DeleteMemberButton from './DeleteMemberButton';
 import SortableMemberTable from './SortableMemberTable';
 
 type Props = {
@@ -153,88 +151,13 @@ export default async function AdminMembersPage({ searchParams }: Props) {
               />
             </div>
 
-            {activeSection ? (
-              <SortableMemberTable
-                key={activeSection}
-                members={visibleMembers}
-                sectionId={activeSection}
-                reorderAction={reorderSectionMembersAction}
-                toggleAction={setMemberActiveAction}
-              />
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[920px] border-collapse">
-                  <thead>
-                    <tr className="border-b border-line-soft bg-cream/70 text-left">
-                      <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">이름</th>
-                      <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">파트</th>
-                      <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">역할/악기</th>
-                      <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">생일</th>
-                      <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">전화번호</th>
-                      <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">상태</th>
-                      <th className="px-4 py-3 font-ko text-[12px] text-ink-mute">관리</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {visibleMembers.map((member) => (
-                      <tr key={member.id} className="border-b border-line-soft last:border-b-0">
-                        <td className="px-4 py-2 font-ko text-[13px] font-bold text-ink">
-                          <div className="flex items-center gap-3">
-                            {member.photoUrl ? (
-                              <img
-                                src={member.photoUrl}
-                                alt={member.displayName}
-                                className="h-9 w-9 shrink-0 rounded-full object-cover"
-                              />
-                            ) : (
-                              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-line font-ko text-[13px] text-ink-mute">
-                                {member.displayName.charAt(0)}
-                              </span>
-                            )}
-                            {member.displayName}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 font-ko text-[13px] text-ink-soft">{member.sectionName}</td>
-                        <td className="px-4 py-3 font-ko text-[13px] text-ink-soft">
-                          {[member.roleText, member.instrumentName].filter(Boolean).join(' / ') || '-'}
-                        </td>
-                        <td className="px-4 py-3 font-ko text-[13px] text-ink-soft">
-                          {member.showBirth ? member.birthLabel ?? '-' : '비공개'}
-                        </td>
-                        <td className="px-4 py-3 font-ko text-[13px] text-ink-soft">
-                          {member.showPhone ? member.phoneLabel ?? '-' : '비공개'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <ToggleActiveButton
-                            id={member.id}
-                            isActive={member.isActive}
-                            action={setMemberActiveAction}
-                          />
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex gap-2">
-                            <Link
-                              href={`/admin/members?edit=${member.id}`}
-                              className="border border-line bg-cream px-3 py-2 font-ko text-[12px] text-ink transition hover:border-gold"
-                            >
-                              수정
-                            </Link>
-                            <DeleteMemberButton id={member.id} name={member.displayName} />
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {!visibleMembers.length ? (
-                      <tr>
-                        <td colSpan={7} className="px-4 py-10 text-center font-ko text-[13px] text-ink-soft">
-                          표시할 대원 데이터가 없습니다.
-                        </td>
-                      </tr>
-                    ) : null}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            <SortableMemberTable
+              key={activeSection ?? 'all'}
+              members={visibleMembers}
+              sectionId={activeSection}
+              reorderAction={activeSection ? reorderSectionMembersAction : undefined}
+              toggleAction={setMemberActiveAction}
+            />
           </section>
         </div>
       </div>
