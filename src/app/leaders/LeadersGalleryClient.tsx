@@ -295,19 +295,19 @@ export default function LeadersGalleryClient() {
                 )}
 
                 <div
-                  className={`absolute top-1/2 flex -translate-y-1/2 items-center justify-between gap-3 max-[720px]:left-[-24px] max-[720px]:w-[calc(100%+48px)] ${
+                  className={`absolute top-1/2 flex -translate-y-1/2 items-center justify-between gap-3 max-[720px]:left-[-44px] max-[720px]:w-[calc(100%+88px)] ${
                     labelReverse ? 'left-[-40px] w-[calc(100%+80px)] flex-row-reverse' : 'left-[-56px] w-[calc(100%+96px)]'
                   }`}
                 >
                   <span
                     data-testid="officer-role-label"
-                    className="max-w-[46%] bg-[#f5eed9]/95 px-3 py-2 font-ko text-[16px] font-black leading-none text-[#8a6f2f] shadow-[0_8px_16px_rgba(42,38,32,0.08)] ring-1 ring-[#b89a5a]/25 sm:text-[20px]"
+                    className="max-w-[46%] bg-[#f5eed9]/95 px-3 py-2 max-[720px]:px-2.5 max-[720px]:py-1.5 font-ko text-[14px] font-black leading-none text-[#8a6f2f] shadow-[0_8px_16px_rgba(42,38,32,0.08)] ring-1 ring-[#b89a5a]/25 sm:text-[20px]"
                   >
                     {officer.role}
                   </span>
                   <span
                     data-testid="officer-name-label"
-                    className="max-w-[52%] bg-[#fdf9f0]/95 px-3 py-1.5 font-ko text-[13px] font-bold leading-none text-[#2a2620] shadow-[0_8px_16px_rgba(42,38,32,0.08)] ring-1 ring-[#b89a5a]/20 sm:text-[16px]"
+                    className="max-w-[52%] bg-[#fdf9f0]/95 px-3 py-1.5 max-[720px]:px-2.5 max-[720px]:py-1 font-ko text-[12px] font-bold leading-none text-[#2a2620] shadow-[0_8px_16px_rgba(42,38,32,0.08)] ring-1 ring-[#b89a5a]/20 sm:text-[16px]"
                   >
                     {officer.name}
                   </span>
