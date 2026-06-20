@@ -372,7 +372,7 @@ export default function MemberGrid() {
 };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden font-ko">
+    <div className="relative w-full h-screen overflow-hidden font-ko">
       {/* 1. Main Grid View */}
       <div className={`grid grid-cols-2 grid-rows-3 md:grid-cols-3 md:grid-rows-2 w-full h-full ${isTransitioning ? 'pointer-events-none' : ''}`}>
         {parts.map((part) => {
@@ -384,7 +384,7 @@ export default function MemberGrid() {
               key={part.key}
               layoutId={`panel-${part.key}`}
               onClick={() => handleExpand(part.key)}
-              className="relative flex flex-col justify-between p-6 md:p-10 cursor-pointer select-none group overflow-hidden"
+              className="relative flex flex-col justify-between px-4 py-5 md:p-10 cursor-pointer select-none group overflow-hidden"
               style={{ backgroundColor: ptDesign.bg, color: ptDesign.text }}
               transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
             >
