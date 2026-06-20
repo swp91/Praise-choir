@@ -171,7 +171,7 @@ function MemberCard({
   toggleAction: ToggleAction;
 }) {
   return (
-    <div id={`member-${member.id}`} className="scroll-mt-4 border-b border-line-soft px-4 py-4 last:border-b-0">
+    <div id={`member-${member.id}`} className="scroll-mt-4 border border-line-soft bg-card px-4 py-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           {member.photoUrl ? (
@@ -338,7 +338,7 @@ export default function SortableMemberTable({ members, sectionId, reorderAction,
       </div>
 
       {/* 모바일 카드 뷰 */}
-      <div className="min-[900px]:hidden">
+      <div className="min-[900px]:hidden space-y-4 p-4">
         {items.map((member) => (
           <MemberCard
             key={member.id}
