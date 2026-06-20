@@ -388,13 +388,10 @@ export default function MemberGrid() {
               style={{ backgroundColor: ptDesign.bg, color: ptDesign.text }}
               transition={{ duration: 1.0, ease: [0.16, 1, 0.3, 1] }}
             >
-              {/* Top Row: Korean Tagline & Number */}
+              {/* Top Row: Korean Tagline */}
               <div className="flex justify-between items-start z-10">
                 <span className="font-ko text-[12px] tracking-[0.1em] font-bold opacity-75">
                   {part.name}
-                </span>
-                <span className="font-en text-[12px] md:text-[14px] font-semibold opacity-30 italic">
-                  {ptDesign.number}
                 </span>
               </div>
 
