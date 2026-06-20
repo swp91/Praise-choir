@@ -36,6 +36,15 @@ type Props = {
 };
 
 const PART_DESIGNS = {
+  staff: {
+    bg: '#352E27', // Warm Charcoal
+    text: '#F5EED9', // Cream
+    titleClass: 'text-gold',
+    poem: '찬양의 모든 순간을 아름답게 빚어가는 섬김',
+    desc: '지휘, 반주, 편곡 및 운영진이 한마음으로 예배와 성가대를 위해 헌신합니다.',
+    tagline: 'STAFF',
+    number: '01',
+  },
   soprano: {
     bg: '#F5EED9', // Linen/Beige
     text: '#2A2620', // Ink
@@ -43,7 +52,7 @@ const PART_DESIGNS = {
     poem: '가장 높은 곳에서 빛나는 천사의 목소리',
     desc: '맑고 투명한 천상의 고음으로 프레이즈 찬양의 선율을 이끕니다.',
     tagline: 'SOPRANO',
-    number: '01',
+    number: '02',
   },
   alto: {
     bg: '#B45A3F', // Terracotta/Brick Red
@@ -52,7 +61,7 @@ const PART_DESIGNS = {
     poem: '찬양의 기둥이 되는 깊고 따뜻한 울림',
     desc: '묵묵하고 포근한 중저음으로 하모니의 풍성함을 더해줍니다.',
     tagline: 'ALTO',
-    number: '02',
+    number: '03',
   },
   tenor: {
     bg: '#FFFFFF', // Pure White
@@ -61,7 +70,7 @@ const PART_DESIGNS = {
     poem: '하늘을 향해 높이 뻗어가는 화려한 선율',
     desc: '시원하고 당찬 미성으로 찬양에 밝은 에너지를 부여합니다.',
     tagline: 'TENOR',
-    number: '03',
+    number: '04',
   },
   bass: {
     bg: '#4E7088', // Slate Blue
@@ -70,7 +79,7 @@ const PART_DESIGNS = {
     poem: '모든 소리를 든든하게 받쳐주는 찬양의 기초',
     desc: '중후하고 깊은 저음으로 화성의 중심을 단단히 잡아줍니다.',
     tagline: 'BASS',
-    number: '04',
+    number: '05',
   },
   band: {
     bg: '#D6C7DE', // Pastel Violet
@@ -79,15 +88,6 @@ const PART_DESIGNS = {
     poem: '아름다운 악기 소리로 찬양을 완성하는 하기오스',
     desc: '현악과 관악의 조화로 성가를 더욱 입체적이고 아름답게 꾸밉니다.',
     tagline: 'HAGIOS ENSEMBLE',
-    number: '05',
-  },
-  staff: {
-    bg: '#352E27', // Warm Charcoal
-    text: '#F5EED9', // Cream
-    titleClass: 'text-gold',
-    poem: '찬양의 모든 순간을 아름답게 빚어가는 섬김',
-    desc: '지휘, 반주, 편곡 및 운영진이 한마음으로 예배와 성가대를 위해 헌신합니다.',
-    tagline: 'STAFF',
     number: '06',
   },
 } as const;
@@ -113,6 +113,13 @@ export default function MemberGrid() {
   ];
 
   const parts: PartData[] = [
+    {
+      key: 'staff',
+      name: staff?.name || '스태프',
+      nameEn: staff?.nameEn || 'Staff',
+      leader: staff?.leader || '',
+      members: staff?.members || [],
+    },
     {
       key: 'soprano',
       name: '소프라노',
@@ -147,13 +154,6 @@ export default function MemberGrid() {
       nameEn: 'Hagios Ensemble',
       leader: band?.leader || '',
       members: band?.members || [],
-    },
-    {
-      key: 'staff',
-      name: staff?.name || '스태프',
-      nameEn: staff?.nameEn || 'Staff',
-      leader: staff?.leader || '',
-      members: staff?.members || [],
     },
   ];
 
