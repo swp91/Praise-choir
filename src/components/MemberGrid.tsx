@@ -398,7 +398,7 @@ export default function MemberGrid() {
               {/* Middle Row: Massive English Typography & Poetic Statement */}
               <div className="my-auto z-10 flex flex-col gap-1.5">
                 <span className={`font-en font-light leading-none tracking-[0.08em] uppercase font-serif select-none mb-1 ${
-                  ptDesign.tagline.length > 8
+                  ptDesign.tagline.length > 10
                     ? 'text-[clamp(1.3rem,4.2vw,2.4rem)]'
                     : 'text-[clamp(1.8rem,5.2vw,3.6rem)]'
                 }`}>
