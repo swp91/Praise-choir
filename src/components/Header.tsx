@@ -324,7 +324,7 @@ export default function Header() {
           ref={overlayRef}
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[998] flex flex-col justify-center items-start pl-10 md:pl-28 lg:pl-36 overflow-hidden bg-cream/98"
+          className="fixed inset-0 z-[998] flex flex-col justify-center items-start pl-8 md:pl-28 lg:pl-36 overflow-hidden bg-cream/98"
         >
           {/* 장식용 은은한 성가대 배경 워터마크 */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-max text-center pointer-events-none select-none opacity-[0.02] z-0 font-en font-bold italic tracking-[0.2em] text-[16vw] uppercase leading-none">
@@ -354,7 +354,7 @@ export default function Header() {
                       onMouseEnter={handleMouseEnter}
                       onMouseLeave={handleMouseLeave}
                       data-active={active}
-                      className="menu-item group select-none bg-transparent border-0 p-0 text-left cursor-pointer whitespace-nowrap font-en text-[clamp(28px,4.8vw,54px)] uppercase tracking-[0.04em] relative z-10"
+                      className="menu-item group select-none bg-transparent border-0 p-0 text-left cursor-pointer whitespace-nowrap font-en text-[clamp(22px,5.5vw,54px)] uppercase tracking-[0.04em] relative z-10"
                     >
                       <div className="flex flex-col md:flex-row md:items-baseline gap-0.5 md:gap-5">
                         <div className="flex items-baseline gap-2.5 md:gap-3.5">
