@@ -30,8 +30,8 @@ export async function createMemberAction(formData: FormData) {
 
   try {
     await createMember(parsed.value);
-  } catch {
-    errorRedirect('대원을 등록하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
+  } catch (err: any) {
+    errorRedirect(`대원을 등록하지 못했습니다. (${err.message ?? '이유 알 수 없음'})`);
   }
 
   revalidatePath('/members');
@@ -50,8 +50,8 @@ export async function updateMemberAction(formData: FormData) {
 
   try {
     await updateMember(id, parsed.value);
-  } catch {
-    errorRedirect('대원 정보를 수정하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
+  } catch (err: any) {
+    errorRedirect(`대원 정보를 수정하지 못했습니다. (${err.message ?? '이유 알 수 없음'})`);
   }
 
   revalidatePath('/members');
@@ -81,8 +81,8 @@ export async function deleteMemberAction(formData: FormData) {
 
   try {
     await deleteMember(id);
-  } catch {
-    errorRedirect('대원을 삭제하지 못했습니다. Supabase 관리자 키 설정을 확인해 주세요.');
+  } catch (err: any) {
+    errorRedirect(`대원을 삭제하지 못했습니다. (${err.message ?? '이유 알 수 없음'})`);
   }
 
   revalidatePath('/members');
