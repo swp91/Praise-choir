@@ -42,7 +42,7 @@ const PART_DESIGNS = {
     titleClass: 'text-gold',
     poem: '찬양의 모든 순간을 아름답게 빚어가는 섬김',
     desc: '지휘, 반주, 편곡 및 운영진이 한마음으로 예배와 성가대를 위해 헌신합니다.',
-    tagline: 'STAFF',
+    tagline: 'DIRECTORS',
     number: '01',
   },
   soprano: {
@@ -88,7 +88,6 @@ const PART_DESIGNS = {
     poem: '아름다운 악기 소리로 찬양을 완성하는 하기오스',
     desc: '현악과 관악의 조화로 성가를 더욱 입체적이고 아름답게 꾸밉니다.',
     tagline: 'HAGIOS ENSEMBLE',
-    number: '06',
   },
 } as const;
 
@@ -115,8 +114,8 @@ export default function MemberGrid() {
   const parts: PartData[] = [
     {
       key: 'staff',
-      name: staff?.name || '스태프',
-      nameEn: staff?.nameEn || 'Staff',
+      name: staff?.name || '지휘·반주자',
+      nameEn: staff?.nameEn || 'Directors',
       leader: staff?.leader || '',
       members: staff?.members || [],
     },
@@ -155,6 +154,7 @@ export default function MemberGrid() {
       leader: band?.leader || '',
       members: band?.members || [],
     },
+
   ];
 
   const [expandedPart, setExpandedPart] = useState<string | null>(null);

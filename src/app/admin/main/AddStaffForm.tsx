@@ -55,7 +55,7 @@ export default function AddStaffForm({ action }: Props) {
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
           </svg>
-          새 스태프 추가하기
+          새 지휘·반주자 추가하기
         </button>
       </div>
     );
@@ -220,7 +220,7 @@ export default function AddStaffForm({ action }: Props) {
           disabled={submitting || isCompressing}
           className="border border-gold-deep bg-gold-deep px-5 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink disabled:opacity-55"
         >
-          {submitting ? '등록 중...' : '+ 스태프 추가'}
+          {submitting ? '등록 중...' : '+ 지휘·반주자 추가'}
         </button>
       </div>
     </form>

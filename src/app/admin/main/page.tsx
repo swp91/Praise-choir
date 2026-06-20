@@ -192,10 +192,10 @@ export default async function AdminMainPage({ searchParams }: Props) {
           {/* ==================== 3. 슬라이드 사진 관리 ==================== */}
           {activeTab === 'parts' && (
             <div className="space-y-6">
-              {/* 스태프 멤버 추가 폼 */}
+              {/* 지휘/반주자 멤버 추가 폼 */}
               <section className="border border-line bg-card">
                 <div className="border-b border-line bg-card-head px-5 py-4">
-                  <h2 className="font-ko text-[18px] font-bold text-ink">새 스태프 추가 (지휘자, 반주자, 편곡자 등)</h2>
+                  <h2 className="font-ko text-[18px] font-bold text-ink">새 지휘·반주자 추가 (지휘자, 반주자, 편곡자 등)</h2>
                 </div>
                 <div className="px-5 py-5">
                   <AddStaffForm action={addStaffMemberAction} />
