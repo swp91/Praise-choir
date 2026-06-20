@@ -9,6 +9,7 @@ import {
   updateOfficerAction,
 } from './actions';
 import SortableOfficerTable from './SortableOfficerTable';
+import AdminNotification from '../main/AdminNotification';
 
 type Props = {
   searchParams?: Promise<{
@@ -76,6 +77,7 @@ export default async function AdminLeadersPage({ searchParams }: Props) {
 
   return (
     <main className="min-h-screen bg-cream px-5 py-8 min-[881px]:px-10">
+      <AdminNotification />
       <div className="mx-auto max-w-7xl">
         <header className="flex flex-col gap-5 border-b border-line pb-6 min-[760px]:flex-row min-[760px]:items-end min-[760px]:justify-between">
           <div>

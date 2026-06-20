@@ -43,7 +43,7 @@ export async function updateMusicStaffAction(formData: FormData) {
   }
 
   revalidateLeadership();
-  redirect(`/admin/leaders#staff-${parsed.id}`);
+  redirect('/admin/leaders?success=' + encodeURIComponent('스태프 정보가 성공적으로 저장되었습니다.') + '#staff-' + parsed.id);
 }
 
 export async function setMusicStaffActiveAction(id: string, active: boolean) {
@@ -72,7 +72,7 @@ export async function createOfficerAction(formData: FormData) {
   }
 
   revalidateLeadership();
-  redirect('/admin/leaders#officers');
+  redirect('/admin/leaders?success=' + encodeURIComponent('임원이 성공적으로 추가되었습니다.') + '#officers');
 }
 
 export async function updateOfficerAction(formData: FormData) {
@@ -89,7 +89,7 @@ export async function updateOfficerAction(formData: FormData) {
   }
 
   revalidateLeadership();
-  redirect(`/admin/leaders#officer-${parsed.id}`);
+  redirect('/admin/leaders?success=' + encodeURIComponent('임원 정보가 성공적으로 수정되었습니다.') + '#officer-' + parsed.id);
 }
 
 export async function setOfficerActiveAction(id: string, active: boolean) {
@@ -116,5 +116,5 @@ export async function deleteOfficerAction(formData: FormData) {
   }
 
   revalidateLeadership();
-  redirect('/admin/leaders#officers');
+  redirect('/admin/leaders?success=' + encodeURIComponent('임원이 성공적으로 해제되었습니다.') + '#officers');
 }

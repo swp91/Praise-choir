@@ -5,6 +5,7 @@ import { getAdminMembersData, type AdminMember, type AdminMemberOption } from '@
 import { updateMemberAction, reorderSectionMembersAction, setMemberActiveAction } from './actions';
 import { MemberForm } from './MemberForm';
 import SortableMemberTable from './SortableMemberTable';
+import AdminNotification from '../main/AdminNotification';
 
 type Props = {
   searchParams?: Promise<{
@@ -85,6 +86,7 @@ export default async function AdminMembersPage({ searchParams }: Props) {
 
   return (
     <main className="min-h-screen bg-cream px-5 py-8 min-[881px]:px-10">
+      <AdminNotification />
       <div className="mx-auto max-w-7xl">
         <header className="flex flex-col gap-5 border-b border-line pb-6 min-[760px]:flex-row min-[760px]:items-end min-[760px]:justify-between">
           <div>

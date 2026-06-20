@@ -36,7 +36,7 @@ export async function createMemberAction(formData: FormData) {
 
   revalidatePath('/members');
   revalidatePath('/admin/members');
-  redirect('/admin/members');
+  redirect('/admin/members?success=' + encodeURIComponent('대원이 성공적으로 등록되었습니다.'));
 }
 
 export async function updateMemberAction(formData: FormData) {
@@ -56,7 +56,7 @@ export async function updateMemberAction(formData: FormData) {
 
   revalidatePath('/members');
   revalidatePath('/admin/members');
-  redirect('/admin/members');
+  redirect('/admin/members?success=' + encodeURIComponent('대원 정보가 성공적으로 수정되었습니다.'));
 }
 
 export async function setMemberActiveAction(id: string, active: boolean) {
@@ -87,5 +87,5 @@ export async function deleteMemberAction(formData: FormData) {
 
   revalidatePath('/members');
   revalidatePath('/admin/members');
-  redirect('/admin/members');
+  redirect('/admin/members?success=' + encodeURIComponent('대원이 성공적으로 삭제되었습니다.'));
 }
