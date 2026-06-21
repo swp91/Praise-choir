@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -60,6 +60,10 @@ export default function SortableGalleryGrid({ items: initialItems, reorderAction
   const [items, setItems] = useState(initialItems);
   const [saving, setSaving] = useState(false);
   const sensors = useSensors(useSensor(PointerSensor));
+
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;

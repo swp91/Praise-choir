@@ -26,6 +26,7 @@ export default function DeleteGalleryItemButton({ id, title }: Props) {
       const res = await deleteGalleryItemAction(formData);
       if (res.success) {
         setStep('success');
+        router.refresh();
       } else {
         setErrorMessage(res.error || '사진을 삭제하지 못했습니다.');
         setStep('error');
@@ -35,8 +36,6 @@ export default function DeleteGalleryItemButton({ id, title }: Props) {
 
   function handleCloseSuccess() {
     setStep('idle');
-    // 목록 새로고침
-    router.refresh();
   }
 
   return (
