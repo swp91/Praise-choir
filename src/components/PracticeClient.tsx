@@ -766,10 +766,10 @@ export default function PracticeClient() {
       {/* ==========================================
           [모바일 세로형 북플립 뷰] max-width: 880px
          ========================================== */}
-      <div className="min-[881px]:hidden flex flex-col items-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 pt-3 pb-[72px]">
+      <div className="min-[881px]:hidden flex flex-col items-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 pt-[68px] pb-[56px]">
         
         {/* Book Wrapper */}
-        <div className="relative w-full max-w-[350px] h-[78dvh] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
+        <div className="relative w-full max-w-[350px] h-[74dvh] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
           
 
 
