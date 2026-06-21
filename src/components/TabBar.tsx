@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { HomeIcon, UsersIcon, StarIcon, ClockIcon, CalendarIcon, ImageIcon } from './icons';
+import { HomeIcon, UsersIcon, StarIcon, ClockIcon, CalendarIcon, ImageIcon, CogIcon } from './icons';
 import { usePageTransition } from '@/lib/transition';
 
 const TABS = [
@@ -11,6 +11,7 @@ const TABS = [
   { key: 'practice', href: '/practice', ko: '연습',   Icon: ClockIcon },
   { key: 'events',   href: '/events',   ko: '일정',   Icon: CalendarIcon },
   { key: 'gallery',  href: '/gallery',  ko: '갤러리', Icon: ImageIcon },
+  { key: 'admin',    href: '/admin',    ko: '관리',   Icon: CogIcon },
 ] as const;
 
 export default function TabBar() {

@@ -13,6 +13,7 @@ const PAGES = [
   { key: 'practice', href: '/practice', en: 'Schedule & Vision', ko: '연습 및 비전', num: '04' },
   { key: 'events',   href: '/events',   en: 'Calendar',     ko: '일정',   num: '05' },
   { key: 'gallery',  href: '/gallery',  en: 'Gallery',      ko: '갤러리', num: '06' },
+  { key: 'admin',    href: '/admin',    en: 'Console',      ko: '관리',   num: '07' },
 ] as const;
 
 export default function Header() {
