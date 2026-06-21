@@ -766,10 +766,10 @@ export default function PracticeClient() {
       {/* ==========================================
           [모바일 세로형 북플립 뷰] max-width: 880px
          ========================================== */}
-      <div className="min-[881px]:hidden flex flex-col items-center justify-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 py-3">
+      <div className="min-[881px]:hidden flex flex-col items-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 pt-3 pb-[72px]">
         
         {/* Book Wrapper */}
-        <div className="relative w-full max-w-[350px] h-[72dvh] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
+        <div className="relative w-full max-w-[350px] h-[78dvh] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
           
 
 
@@ -937,7 +937,7 @@ export default function PracticeClient() {
         </div>
 
         {/* Bottom Spread Dots */}
-        <div className="flex items-center gap-2 mt-6 relative z-20">
+        <div className="flex items-center gap-2 mt-auto relative z-20">
           {Array.from({ length: totalSpreads }).map((_, idx) => (
             <button
               key={idx}
