@@ -2,9 +2,9 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
 import { getAdminGalleryData } from '@/lib/admin/gallery';
-import { createGalleryItemAction, reorderGalleryItemsAction } from './actions';
-import GalleryPhotoPicker from './GalleryPhotoPicker';
+import { reorderGalleryItemsAction } from './actions';
 import SortableGalleryGrid from './SortableGalleryGrid';
+import UploadForm from './UploadForm';
 
 type Props = {
   searchParams?: Promise<{
@@ -12,8 +12,6 @@ type Props = {
   }>;
 };
 
-const inputClass =
-  'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep';
 const labelClass = 'block font-ko text-[12px] font-bold text-ink mb-1.5';
 
 function ErrorMessage({ error }: { error?: string }) {
@@ -22,42 +20,6 @@ function ErrorMessage({ error }: { error?: string }) {
     <div className="border border-red-200 bg-red-50 px-4 py-3 font-ko text-[13px] text-red-800">
       {error}
     </div>
-  );
-}
-
-function UploadForm() {
-  return (
-    <section className="border border-line bg-card">
-      <div className="border-b border-line bg-card-head px-5 py-4">
-        <h2 className="font-ko text-[18px] font-bold text-ink">사진 등록</h2>
-      </div>
-      <form action={createGalleryItemAction} className="grid gap-5 px-5 py-5 min-[860px]:grid-cols-[minmax(280px,420px)_1fr]">
-        <GalleryPhotoPicker />
-        <div className="flex flex-col justify-between gap-4">
-          <div>
-            <label className={labelClass} htmlFor="title">사진 제목</label>
-            <input
-              id="title"
-              name="title"
-              className={inputClass}
-              placeholder="예: 2026 부활절 찬양"
-              required
-            />
-            <p className="mt-2 font-ko text-[12px] leading-relaxed text-ink-soft">
-              사진은 한 번에 1장씩 등록합니다. 설명 없이 제목만 공개 갤러리에 표시됩니다.
-            </p>
-          </div>
-          <div className="flex justify-end">
-            <button
-              type="submit"
-              className="border border-gold-deep bg-gold-deep px-5 py-2.5 font-ko text-[13px] font-bold text-cream transition hover:bg-ink"
-            >
-              사진 등록
-            </button>
-          </div>
-        </div>
-      </form>
-    </section>
   );
 }
 

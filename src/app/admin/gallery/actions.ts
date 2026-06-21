@@ -20,19 +20,24 @@ function revalidateGallery() {
   revalidatePath('/');
 }
 
-export async function createGalleryItemAction(formData: FormData) {
-  await requireAdmin();
-  const parsed = parseGalleryUploadForm(formData);
-  if (!parsed.ok) errorRedirect(parsed.errors.join(' '));
-
+export async function createGalleryItemAction(formData: FormData): Promise<{ success: boolean; error?: string }> {
   try {
-    await createGalleryItem(parsed.value);
-  } catch {
-    errorRedirect('사진을 등록하지 못했습니다. Supabase Storage와 관리자 키 설정을 확인해 주세요.');
-  }
+    await requireAdmin();
+    const parsed = parseGalleryUploadForm(formData);
+    if (!parsed.ok) {
+      return { success: false, error: parsed.errors.join(' ') };
+    }
 
-  revalidateGallery();
-  redirect('/admin/gallery');
+    await createGalleryItem(parsed.value);
+    revalidateGallery();
+    return { success: true };
+  } catch (error) {
+    console.error('Error creating gallery item:', error);
+    return {
+      success: false,
+      error: '사진을 등록하지 못했습니다. Supabase Storage와 관리자 키 설정을 확인해 주세요.',
+    };
+  }
 }
 
 export async function reorderGalleryItemsAction(orderedIds: string[]) {
@@ -41,17 +46,22 @@ export async function reorderGalleryItemsAction(orderedIds: string[]) {
   revalidateGallery();
 }
 
-export async function deleteGalleryItemAction(formData: FormData) {
-  await requireAdmin();
-  const id = String(formData.get('id') ?? '');
-  if (!id) errorRedirect('삭제할 사진을 찾지 못했습니다.');
-
+export async function deleteGalleryItemAction(formData: FormData): Promise<{ success: boolean; error?: string }> {
   try {
-    await deleteGalleryItem(id);
-  } catch {
-    errorRedirect('사진을 삭제하지 못했습니다. Supabase Storage와 관리자 키 설정을 확인해 주세요.');
-  }
+    await requireAdmin();
+    const id = String(formData.get('id') ?? '');
+    if (!id) {
+      return { success: false, error: '삭제할 사진을 찾지 못했습니다.' };
+    }
 
-  revalidateGallery();
-  redirect('/admin/gallery');
+    await deleteGalleryItem(id);
+    revalidateGallery();
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting gallery item:', error);
+    return {
+      success: false,
+      error: '사진을 삭제하지 못했습니다. Supabase Storage와 관리자 키 설정을 확인해 주세요.',
+    };
+  }
 }
