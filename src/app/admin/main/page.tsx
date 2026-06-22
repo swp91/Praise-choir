@@ -172,14 +172,14 @@ export default async function AdminMainPage({ searchParams }: Props) {
                 <div className="px-5 py-5">
                   <div className="mb-6 p-4 border border-line bg-cream font-ko text-[13px] text-ink-soft leading-relaxed">
                     <p className="font-bold text-gold-deep mb-1">💡 안내 사항</p>
-                    인트로 오프닝 시 화면에 차례대로 내려오는 사진입니다. 개수가 5장으로 고정되어 있으므로 새 사진 추가나 삭제는 불가능합니다.
+                    인트로 오프닝 시 화면에 차례대로 내려오는 사진입니다. 개수가 6장으로 고정되어 있으므로 새 사진 추가나 삭제는 불가능합니다.
                     <br />
                     각 사진 카드의 <strong className="text-ink">'사진 변경'</strong> 버튼을 눌러 이미지를 개별 교체하거나, 사진을 드래그하여 노출 순서를 바꿀 수 있습니다.
                   </div>
 
                   <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-line pb-3">
                     <span className="font-ko text-[13px] font-bold text-ink-soft">
-                      등록된 사진: {data.introPhotos.length} / 5 장
+                      등록된 사진: {data.introPhotos.length} / 6 장
                     </span>
                   </div>
 

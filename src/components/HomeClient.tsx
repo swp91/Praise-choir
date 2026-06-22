@@ -157,6 +157,7 @@ const DEFAULT_INTRO_PHOTOS = [
   "/intro_3.webp",
   "/intro_4.webp",
   "/intro_5.webp",
+  "/ensemble.webp",
 ];
 
 const FALLBACK_IMAGES = [
@@ -249,7 +250,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
   // useMemo를 통해 렌더링 간 무한 참조 변경 및 useEffect 무한 재실행 버그 방지
   const introPhotos = useMemo(() => {
     return home?.introImages && home.introImages.length > 0
-      ? home.introImages.slice(0, 5)
+      ? home.introImages.slice(0, 6)
       : DEFAULT_INTRO_PHOTOS;
   }, [home?.introImages]);
   const numImages = introPhotos.length;
@@ -334,11 +335,8 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
     const steps: { index: number; delay: number }[] = [];
     steps.push({ index: 1, delay: 0 }); // 1단계는 즉시 실행
     
-    let currentDelay = 500;
     for (let i = 2; i <= numImages + 1; i++) {
-      steps.push({ index: i, delay: currentDelay });
-      // 단계가 지날수록 딜레이를 50ms씩 줄여 점점 가속되는 연출 구현 (최소 250ms)
-      currentDelay = Math.max(250, currentDelay - 50);
+      steps.push({ index: i, delay: 500 });
     }
     
     // 최종 팽창 시작 (1100ms 낙하 + 500ms 감상 대기)
