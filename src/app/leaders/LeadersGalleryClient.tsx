@@ -56,8 +56,7 @@ function buildCards(items: Officer[]): StreamCard[] {
 }
 
 function getFrameStyle(officer: Officer, virtualIndex: number, appearanceCycle: number): FrameStyle {
-  if (officer.name.includes('\uC9C4\uC21C\uC5F0')) return 'portrait';
-  return (virtualIndex + appearanceCycle) % 2 === 0 ? 'portrait' : 'landscape';
+  return 'portrait';
 }
 
 function getRoleAdjustedLane(officer: Officer, baseLane: number, _laneCount: number) {
