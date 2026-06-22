@@ -60,33 +60,46 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
   );
 }
 
+class CustomMouseSensor extends MouseSensor {
+  static activators = [
+    {
+      eventName: 'onMouseDown' as const,
+      handler: ({ nativeEvent }: { nativeEvent: MouseEvent }) => {
+        const target = nativeEvent.target as HTMLElement;
+        if (target.closest('.no-drag') || target.closest('button') || target.closest('[role="button"]')) {
+          return false;
+        }
+        return true;
+      },
+    },
+  ];
+}
+
+class CustomTouchSensor extends TouchSensor {
+  static activators = [
+    {
+      eventName: 'onTouchStart' as const,
+      handler: ({ nativeEvent }: { nativeEvent: TouchEvent }) => {
+        const target = nativeEvent.target as HTMLElement;
+        if (target.closest('.no-drag') || target.closest('button') || target.closest('[role="button"]')) {
+          return false;
+        }
+        return true;
+      },
+    },
+  ];
+}
+
 export default function SortableGalleryGrid({ items: initialItems, reorderAction }: Props) {
   const [items, setItems] = useState(initialItems);
   const [saving, setSaving] = useState(false);
   const sensors = useSensors(
-    useSensor(MouseSensor, {
-      activationConstraint: {
-        predicate: (event) => {
-          const target = event.target as HTMLElement;
-          if (target.closest('.no-drag') || target.closest('button') || target.closest('[role="button"]')) {
-            return false;
-          }
-          return true;
-        }
-      }
-    }),
-    useSensor(TouchSensor, {
+    useSensor(CustomMouseSensor),
+    useSensor(CustomTouchSensor, {
       activationConstraint: {
         delay: 200,
         tolerance: 5,
-        predicate: (event) => {
-          const target = event.target as HTMLElement;
-          if (target.closest('.no-drag') || target.closest('button') || target.closest('[role="button"]')) {
-            return false;
-          }
-          return true;
-        }
-      }
+      },
     })
   );
 
