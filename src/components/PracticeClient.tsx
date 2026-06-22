@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { PracticeSlot } from '@/lib/types';
 import { useQuery } from '@tanstack/react-query';
 import { getPracticeData } from '@/lib/supabase/choir';
