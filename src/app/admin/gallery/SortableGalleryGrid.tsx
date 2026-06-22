@@ -33,23 +33,21 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
 
   return (
     <article ref={setNodeRef} style={style} className="mb-3 break-inside-avoid">
-      <div className="group relative overflow-hidden border border-line bg-card">
-        <img src={item.imageUrl} alt={item.title} className="block h-auto w-full" />
-        <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/80 to-transparent px-3 pb-3 pt-12">
+      <div 
+        {...attributes}
+        {...listeners}
+        className="group relative overflow-hidden border border-line bg-card cursor-grab active:cursor-grabbing touch-none select-none"
+      >
+        <img src={item.imageUrl} alt={item.title} className="block h-auto w-full pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/80 to-transparent px-3 pb-3 pt-12 pointer-events-none">
           <h3 className="font-ko text-[13px] font-bold leading-snug text-cream">{item.title}</h3>
         </div>
-        <div className="absolute left-2 top-2 flex gap-2">
-          <button
-            type="button"
-            {...attributes}
-            {...listeners}
-            className="cursor-grab border border-white/70 bg-cream/95 px-2 py-1 font-en text-[11px] font-bold text-ink active:cursor-grabbing touch-none select-none"
-            aria-label={`${item.title} 순서 변경`}
-          >
+        <div className="absolute left-2 top-2 flex gap-2 pointer-events-none">
+          <span className="border border-white/70 bg-cream/95 px-2 py-1 font-en text-[11px] font-bold text-ink">
             {index + 1}
-          </button>
+          </span>
         </div>
-        <div className="absolute right-2 top-2">
+        <div className="absolute right-2 top-2 z-10" onClick={(e) => e.stopPropagation()}>
           <DeleteGalleryItemButton id={item.id} title={item.title} />
         </div>
       </div>
