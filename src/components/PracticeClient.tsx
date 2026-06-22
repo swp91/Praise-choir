@@ -189,8 +189,8 @@ export default function PracticeClient() {
     const parts = goal.split(/(찬양을 통해)/);
     return (
       <div className={`flex gap-3.5 items-start py-2.5 ${showBorder ? 'border-b border-line-soft last:border-b-0' : ''}`}>
-        <div className="font-en italic text-[26px] text-gold/90 leading-none font-semibold mt-0.5">{toRoman(index + 1)}</div>
-        <div className="font-ko text-[16px] leading-relaxed text-ink font-medium">
+        <div className="font-en italic text-[24px] text-gold/90 leading-none font-semibold mt-0.5">{toRoman(index + 1)}</div>
+        <div className="font-ko text-[14px] leading-relaxed text-ink font-medium">
           {parts.map((p, pIdx) => p === '찬양을 통해' ? <b key={pIdx} className="text-gold-deep font-bold">{p}</b> : p)}
         </div>
       </div>
@@ -367,11 +367,11 @@ export default function PracticeClient() {
                     <span className={`inline-block font-en text-[9px] tracking-[0.08em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/50 bg-gold/5 font-semibold' : 'text-ink-mute border border-line/50 font-medium'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[16.5px] font-extrabold leading-tight text-ink">{slot.label}</div>
+                    <div className="font-ko text-[14.5px] font-extrabold leading-tight text-ink">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[15px] text-right shrink-0">
+                  <div className="font-en text-[13px] text-right shrink-0">
                     <span className="font-bold block text-ink">{formatTime(slot.time)}</span>
-                    <span className="font-ko text-[11px] text-ink-mute block mt-0.5">{slot.time}</span>
+                    <span className="font-ko text-[9px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
@@ -396,11 +396,11 @@ export default function PracticeClient() {
                     <span className={`inline-block font-en text-[9px] tracking-[0.08em] uppercase px-1.5 py-0.5 mb-1 ${isWorship ? 'text-gold-deep border border-gold/50 bg-gold/5 font-semibold' : 'text-ink-mute border border-line/50 font-medium'}`}>
                       {TAG_EN[slot.tag]}
                     </span>
-                    <div className="font-ko text-[16.5px] font-extrabold leading-tight text-ink">{slot.label}</div>
+                    <div className="font-ko text-[14.5px] font-extrabold leading-tight text-ink">{slot.label}</div>
                   </div>
-                  <div className="font-en text-[15px] text-right shrink-0">
+                  <div className="font-en text-[13px] text-right shrink-0">
                     <span className="font-bold block text-ink">{formatTime(slot.time)}</span>
-                    <span className="font-ko text-[11px] text-ink-mute block mt-0.5">{slot.time}</span>
+                    <span className="font-ko text-[9px] text-ink-mute block mt-0.5">{slot.time}</span>
                   </div>
                 </div>
               );
