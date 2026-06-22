@@ -20,6 +20,7 @@ type Props = {
     addYear?: string;
     addEvent?: string;
     error?: string;
+    success?: string;
   }>;
 };
 
@@ -35,6 +36,31 @@ function ErrorMessage({ error }: { error?: string }) {
   return (
     <div className="border border-red-200 bg-red-50 px-4 py-3 font-ko text-[13px] text-red-800">
       {error}
+    </div>
+  );
+}
+
+function SuccessMessage({ success }: { success?: string }) {
+  if (!success) return null;
+
+  let message = '';
+  if (success === 'updated') {
+    message = '일정 수정이 완료되었습니다.';
+  } else if (success === 'created') {
+    message = '일정이 추가되었습니다.';
+  } else if (success === 'deleted') {
+    message = '일정이 삭제되었습니다.';
+  } else if (success === 'year_created') {
+    message = '연도가 추가되었습니다.';
+  } else if (success === 'year_deleted') {
+    message = '연도가 삭제되었습니다.';
+  } else {
+    return null;
+  }
+
+  return (
+    <div className="border border-green-200 bg-green-50 px-4 py-3 font-ko text-[13px] text-green-800">
+      {message}
     </div>
   );
 }
@@ -318,6 +344,7 @@ export default async function AdminEventsPage({ searchParams }: Props) {
         </header>
 
         <div className="mt-6 space-y-4">
+          <SuccessMessage success={params?.success} />
           <ErrorMessage error={params?.error} />
 
           {!data.configured ? (

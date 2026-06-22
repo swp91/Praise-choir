@@ -29,6 +29,12 @@ function errorRedirect(error: string, year?: number): never {
   redirect(`${path}${separator}error=${encodeURIComponent(error)}`);
 }
 
+function successRedirect(success: string, year?: number): never {
+  const path = eventsPath(year);
+  const separator = path.includes('?') ? '&' : '?';
+  redirect(`${path}${separator}success=${encodeURIComponent(success)}`);
+}
+
 function revalidateEvents() {
   revalidatePath('/events');
   revalidatePath('/admin/events');
@@ -47,7 +53,7 @@ export async function createEventYearAction(formData: FormData) {
   }
 
   revalidateEvents();
-  redirect(eventsPath(parsed.value.year));
+  successRedirect('year_created', parsed.value.year);
 }
 
 export async function deleteEventYearAction(formData: FormData) {
@@ -62,7 +68,7 @@ export async function deleteEventYearAction(formData: FormData) {
   }
 
   revalidateEvents();
-  redirect('/admin/events');
+  successRedirect('year_deleted');
 }
 
 export async function createEventAction(formData: FormData) {
@@ -78,7 +84,7 @@ export async function createEventAction(formData: FormData) {
   }
 
   revalidateEvents();
-  redirect(eventsPath(parsed.value.year));
+  successRedirect('created', parsed.value.year);
 }
 
 export async function updateEventAction(formData: FormData) {
@@ -96,7 +102,7 @@ export async function updateEventAction(formData: FormData) {
   }
 
   revalidateEvents();
-  redirect(eventsPath(parsed.value.year));
+  successRedirect('updated', parsed.value.year);
 }
 
 export async function setEventPublishedAction(id: string, published: boolean) {
@@ -130,5 +136,5 @@ export async function deleteEventAction(formData: FormData) {
   }
 
   revalidateEvents();
-  redirect(eventsPath(year));
+  successRedirect('deleted', year);
 }
