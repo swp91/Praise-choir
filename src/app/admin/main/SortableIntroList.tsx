@@ -4,7 +4,8 @@ import { useRef, useState } from 'react';
 import {
   DndContext,
   closestCenter,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -77,7 +78,7 @@ function IntroPhotoCard({
       <div 
         {...attributes} 
         {...listeners} 
-        className="relative flex-1 cursor-grab active:cursor-grabbing overflow-hidden"
+        className="relative flex-1 cursor-grab active:cursor-grabbing overflow-hidden touch-none select-none"
       >
         <img
           src={displayUrl}
@@ -187,7 +188,15 @@ export default function SortableIntroList({ photos: initialPhotos }: Props) {
   const [photos, setPhotos] = useState(initialPhotos);
   const [saving, setSaving] = useState(false);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    })
+  );
 
   async function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;

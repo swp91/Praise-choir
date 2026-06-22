@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import {
   DndContext,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
@@ -68,7 +69,7 @@ function EventRow({
         type="button"
         {...attributes}
         {...listeners}
-        className="mt-1 cursor-grab border border-line bg-cream px-2 py-1 font-ko text-[12px] font-bold text-ink-mute active:cursor-grabbing"
+        className="mt-1 cursor-grab border border-line bg-cream px-2 py-1 font-ko text-[12px] font-bold text-ink-mute active:cursor-grabbing touch-none select-none"
         aria-label={`${event.title} 순서 변경`}
       >
         {index + 1}
@@ -126,7 +127,15 @@ function EventRow({
 export default function SortableEventList({ events: initialEvents, year, actions }: Props) {
   const [events, setEvents] = useState(initialEvents);
   const [saving, setSaving] = useState(false);
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    })
+  );
 
   useEffect(() => {
     setEvents(initialEvents);

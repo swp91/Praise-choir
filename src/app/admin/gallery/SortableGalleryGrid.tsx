@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import {
   DndContext,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   closestCenter,
   useSensor,
   useSensors,
@@ -42,7 +43,7 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
             type="button"
             {...attributes}
             {...listeners}
-            className="cursor-grab border border-white/70 bg-cream/95 px-2 py-1 font-en text-[11px] font-bold text-ink active:cursor-grabbing"
+            className="cursor-grab border border-white/70 bg-cream/95 px-2 py-1 font-en text-[11px] font-bold text-ink active:cursor-grabbing touch-none select-none"
             aria-label={`${item.title} 순서 변경`}
           >
             {index + 1}
@@ -59,7 +60,15 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
 export default function SortableGalleryGrid({ items: initialItems, reorderAction }: Props) {
   const [items, setItems] = useState(initialItems);
   const [saving, setSaving] = useState(false);
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
+      },
+    })
+  );
 
   useEffect(() => {
     setItems(initialItems);
