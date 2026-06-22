@@ -230,9 +230,6 @@ export default function PracticeClient() {
             })}
           </div>
         </div>
-        <div className="font-en text-[10px] text-ink-mute tracking-widest text-left mt-4 border-t border-line-soft pt-3">
-          I / VIII · Morning Schedules
-        </div>
       </div>
       
       <div className="w-1/2 h-full px-12 xl:px-16 py-10 xl:py-14 flex flex-col justify-between">
@@ -261,9 +258,6 @@ export default function PracticeClient() {
             })}
           </div>
         </div>
-        <div className="font-en text-[10px] text-ink-mute tracking-widest text-right mt-4 border-t border-line-soft pt-3">
-          II / VIII · Evening Schedules
-        </div>
       </div>
     </div>
   );
@@ -291,10 +285,6 @@ export default function PracticeClient() {
         )}
       </div>
 
-      <div className="flex justify-between font-en text-[10px] text-ink-mute tracking-widest border-t border-line-soft pt-3">
-        <span>III / VIII · Motto</span>
-        <span>IV / VIII · Motto</span>
-      </div>
     </div>
   );
 
@@ -323,10 +313,6 @@ export default function PracticeClient() {
         </div>
       </div>
 
-      <div className="flex justify-between font-en text-[10px] text-ink-mute tracking-widest border-t border-line-soft pt-3">
-        <span>V / VIII · VISION</span>
-        <span>VI / VIII · VISION</span>
-      </div>
     </div>
   );
 
@@ -355,10 +341,6 @@ export default function PracticeClient() {
         </div>
       </div>
 
-      <div className="flex justify-between font-en text-[10px] text-ink-mute tracking-widest border-t border-line-soft pt-3">
-        <span>VII / VIII · VISION</span>
-        <span>VIII / VIII · VISION</span>
-      </div>
     </div>
   );
 
@@ -396,9 +378,6 @@ export default function PracticeClient() {
             })}
           </div>
         </div>
-        <div className="font-en text-[10px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
-          I / VIII · Morning
-        </div>
       </div>
       
       {/* Bottom Half: Evening Schedules */}
@@ -428,9 +407,6 @@ export default function PracticeClient() {
             })}
           </div>
         </div>
-        <div className="font-en text-[10px] text-ink-mute tracking-widest text-right pt-1 border-t border-line-soft">
-          II / VIII · Evening
-        </div>
       </div>
     </div>
   );
@@ -449,9 +425,6 @@ export default function PracticeClient() {
           <p className="font-ko font-extrabold text-[22px] leading-snug text-ink tracking-[0.02em] break-keep px-2">
             {data.themeKo}
           </p>
-        </div>
-        <div className="font-en text-[10px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
-          III / VIII · Motto
         </div>
       </div>
 
@@ -473,9 +446,6 @@ export default function PracticeClient() {
             </p>
           )}
         </div>
-        <div className="font-en text-[11px] text-ink-mute tracking-widest text-right pt-1 border-t border-line-soft">
-          IV / VIII · Motto
-        </div>
       </div>
     </div>
   );
@@ -495,9 +465,6 @@ export default function PracticeClient() {
             {renderMobileGoalItem(data.goals[1], 1, false)}
           </div>
         </div>
-        <div className="font-en text-[11px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
-          V / VIII · VISION
-        </div>
       </div>
 
       {/* Bottom Half: Goals 3-4 */}
@@ -511,9 +478,6 @@ export default function PracticeClient() {
             {renderMobileGoalItem(data.goals[2], 2, true)}
             {renderMobileGoalItem(data.goals[3], 3, false)}
           </div>
-        </div>
-        <div className="font-en text-[8px] text-ink-mute tracking-widest text-right pt-1.5 border-t border-line-soft">
-          VI / VIII · VISION
         </div>
       </div>
     </div>
@@ -534,9 +498,6 @@ export default function PracticeClient() {
             {renderMobileGoalItem(data.goals[5], 5, false)}
           </div>
         </div>
-        <div className="font-en text-[10px] text-ink-mute tracking-widest text-left pt-1 border-t border-line-soft">
-          VII / VIII · VISION
-        </div>
       </div>
 
       {/* Bottom Half: Goal 7 & Logo */}
@@ -555,9 +516,6 @@ export default function PracticeClient() {
               </div>
             )}
           </div>
-        </div>
-        <div className="font-en text-[10px] text-ink-mute tracking-widest text-right pt-1 border-t border-line-soft">
-          VIII / VIII · VISION
         </div>
       </div>
     </div>
