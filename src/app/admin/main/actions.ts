@@ -170,7 +170,11 @@ export async function updateIntroPhotoAction(formData: FormData) {
   if (!file || file.size === 0) errorRedirect('업로드할 이미지 파일을 선택하세요.');
 
   try {
-    await updateIntroPhoto(itemId, file);
+    if (itemId === 'temp-ensemble-id') {
+      await uploadIntroPhoto(file);
+    } else {
+      await updateIntroPhoto(itemId, file);
+    }
   } catch (err: any) {
     errorRedirect(err.message ?? '인트로 이미지 변경 실패');
   }

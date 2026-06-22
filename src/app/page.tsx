@@ -58,9 +58,16 @@ export default async function HomePage() {
 
   const preloadPhotos = Array.from(preloadSet).filter(Boolean);
 
-  const introPhotos = home?.introImages && home.introImages.length > 0
-    ? home.introImages.slice(0, 6)
-    : ["/intro_1.webp", "/intro_2.webp", "/intro_3.webp", "/intro_4.webp", "/intro_5.webp", "/ensemble.webp"];
+  let introPhotos: string[] = [];
+  if (home?.introImages && home.introImages.length > 0) {
+    const dbPhotos = [...home.introImages];
+    if (dbPhotos.length <= 5) {
+      dbPhotos.splice(5, 0, "/ensemble.webp");
+    }
+    introPhotos = dbPhotos.slice(0, 6);
+  } else {
+    introPhotos = ["/intro_1.webp", "/intro_2.webp", "/intro_3.webp", "/intro_4.webp", "/intro_5.webp", "/ensemble.webp"];
+  }
   const heroBackgroundUrl = home?.heroBackgroundUrl || '/praise_photo.png';
 
   return (

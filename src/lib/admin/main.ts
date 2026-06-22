@@ -120,6 +120,17 @@ export async function getAdminMainData(): Promise<AdminMainData> {
       sortOrder: Number(m.metadata?.sort_order ?? 0),
     }));
 
+  // 만약 인트로 사진이 5장만 존재하면 6번째로 임시 ensemble 사진을 추가해 6장으로 렌더링되게 함
+  if (introPhotos.length === 5) {
+    introPhotos.push({
+      id: 'temp-ensemble-id',
+      title: 'Intro Photo 6 (Hagios Ensemble)',
+      mediaAssetId: 'temp-ensemble-id',
+      imageUrl: '/ensemble.webp',
+      sortOrder: 5,
+    });
+  }
+
   // 5. '섬기는 사람들' 및 '시간표' 배경 조회 (media_assets metadata.usage 검색)
   const servantsBgAsset = mediaRows.find((m) => m.metadata?.usage === 'servants_bg');
   const practiceBgAsset = mediaRows.find((m) => m.metadata?.usage === 'practice_bg');

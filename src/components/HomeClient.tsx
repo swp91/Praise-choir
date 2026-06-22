@@ -249,9 +249,14 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
   // 인트로 이미지 배열 추출 (DB에 등록된 사진이 없으면 기본 5장 사용, 최대 5장 고정)
   // useMemo를 통해 렌더링 간 무한 참조 변경 및 useEffect 무한 재실행 버그 방지
   const introPhotos = useMemo(() => {
-    return home?.introImages && home.introImages.length > 0
-      ? home.introImages.slice(0, 6)
-      : DEFAULT_INTRO_PHOTOS;
+    if (home?.introImages && home.introImages.length > 0) {
+      const dbPhotos = [...home.introImages];
+      if (dbPhotos.length <= 5) {
+        dbPhotos.splice(5, 0, "/ensemble.webp");
+      }
+      return dbPhotos.slice(0, 6);
+    }
+    return DEFAULT_INTRO_PHOTOS;
   }, [home?.introImages]);
   const numImages = introPhotos.length;
 
