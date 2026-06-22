@@ -13,7 +13,8 @@ const PAGES = [
   { key: 'practice', href: '/practice', en: 'Schedule & Vision', ko: '연습 및 비전', num: '04' },
   { key: 'events',   href: '/events',   en: 'Calendar',     ko: '일정',   num: '05' },
   { key: 'gallery',  href: '/gallery',  en: 'Gallery',      ko: '갤러리', num: '06' },
-  { key: 'admin',    href: '/admin',    en: 'Console',      ko: '관리',   num: '07' },
+  { key: 'archive',  href: '/archive',  en: 'Archive',      ko: '아카이브', num: '07' },
+  { key: 'admin',    href: '/admin',    en: 'Console',      ko: '관리',   num: '08' },
 ] as const;
 
 export default function Header() {
@@ -325,7 +326,7 @@ export default function Header() {
           ref={overlayRef}
           role="dialog"
           aria-modal="true"
-          className="fixed inset-0 z-[998] flex flex-col justify-center items-start pl-8 md:pl-28 lg:pl-36 overflow-hidden bg-cream/98"
+          className="fixed inset-0 z-[998] flex flex-col justify-start md:justify-center items-start pl-8 md:pl-28 lg:pl-36 overflow-y-auto py-24 md:py-8 bg-cream/98 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {/* 장식용 은은한 성가대 배경 워터마크 */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-max text-center pointer-events-none select-none opacity-[0.02] z-0 font-en font-bold italic tracking-[0.2em] text-[16vw] uppercase leading-none">
@@ -334,7 +335,7 @@ export default function Header() {
             GLORIA
           </div>
 
-          <nav className="relative z-10 w-full pr-12">
+          <nav className="relative z-10 w-full pr-12 my-auto md:my-0">
             <ul className="flex flex-col gap-3 md:gap-4">
               {PAGES.map((p) => {
                 const active = isActive(p.href);

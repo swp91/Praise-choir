@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
-import { getWorshipVideos, type WorshipVideo } from '@/lib/worship-archive';
-import WorshipArchiveAdminClient from './WorshipArchiveAdminClient';
+import { getPraiseVideos, type PraiseVideo } from '@/lib/praise-archive';
+import ArchiveAdminClient from './ArchiveAdminClient';
 
 type Props = {
   searchParams?: Promise<{
@@ -19,17 +19,17 @@ function ErrorMessage({ error }: { error?: string }) {
   );
 }
 
-export default async function AdminWorshipArchivePage({ searchParams }: Props) {
+export default async function AdminArchivePage({ searchParams }: Props) {
   if (!(await isAdminAuthenticated())) redirect('/admin');
 
   const params = await searchParams;
-  let items: WorshipVideo[] = [];
+  let items: PraiseVideo[] = [];
   let dbConfigured = true;
 
   try {
-    items = await getWorshipVideos();
+    items = await getPraiseVideos();
   } catch (error) {
-    console.error('Failed to get worship videos in page:', error);
+    console.error('Failed to get praise videos in page:', error);
     dbConfigured = false;
   }
 
@@ -51,7 +51,7 @@ export default async function AdminWorshipArchivePage({ searchParams }: Props) {
           </div>
           <div className="flex gap-2">
             <Link
-              href="/worship-archive"
+              href="/archive"
               className="border border-line bg-card px-4 py-2.5 font-ko text-[13px] text-ink transition hover:border-gold"
             >
               아카이브 보기
@@ -70,12 +70,12 @@ export default async function AdminWorshipArchivePage({ searchParams }: Props) {
 
           {!dbConfigured ? (
             <section className="border border-red-200 bg-red-50 px-5 py-4 font-ko text-[13px] leading-relaxed text-red-800">
-              찬양 아카이브 데이터베이스를 불러오지 못했습니다. `worship_videos` 테이블이 생성되었는지 확인해 주세요.
+              찬양 아카이브 데이터베이스를 불러오지 못했습니다. `praise_videos` 테이블이 생성되었는지 확인해 주세요.
             </section>
           ) : null}
 
           {dbConfigured ? (
-            <WorshipArchiveAdminClient initialItems={items} />
+            <ArchiveAdminClient initialItems={items} />
           ) : (
             <p className="font-ko text-[13px] text-red-700">
               Supabase 데이터베이스 연동 에러가 있습니다. 관리자 설정을 점검해 주세요.

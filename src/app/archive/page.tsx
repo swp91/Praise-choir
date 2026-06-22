@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import { getWorshipVideos, type WorshipVideo } from '@/lib/worship-archive';
-import WorshipArchiveClient from './WorshipArchiveClient';
+import { getPraiseVideos, type PraiseVideo } from '@/lib/praise-archive';
+import ArchiveClient from './ArchiveClient';
 
 export const metadata: Metadata = {
   title: '찬양 아카이브 | 찬양대',
@@ -11,14 +11,14 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function WorshipArchivePage() {
-  let videos: WorshipVideo[] = [];
+export default async function ArchivePage() {
+  let videos: PraiseVideo[] = [];
   let dbConfigured = true;
 
   try {
-    videos = await getWorshipVideos();
+    videos = await getPraiseVideos();
   } catch (error) {
-    console.error('Failed to load worship videos in user archive page:', error);
+    console.error('Failed to load praise videos in user archive page:', error);
     dbConfigured = false;
   }
 
@@ -43,5 +43,5 @@ export default async function WorshipArchivePage() {
     );
   }
 
-  return <WorshipArchiveClient videos={videos} />;
+  return <ArchiveClient videos={videos} />;
 }

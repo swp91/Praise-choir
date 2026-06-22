@@ -46,6 +46,12 @@ const ADMIN_SECTIONS: AdminSection[] = [
     status: '관리하기',
     href: '/admin/gallery',
   },
+  {
+    title: '아카이브 관리',
+    description: '매주 올라오는 찬양 영상과 가사를 아카이브에 등록하고 편집합니다.',
+    status: '관리하기',
+    href: '/admin/archive',
+  },
 ];
 
 type Props = {

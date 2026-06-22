@@ -1,16 +1,16 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import type { WorshipVideo } from '@/lib/worship-archive';
+import type { PraiseVideo } from '@/lib/praise-archive';
 import {
-  createWorshipVideoAction,
-  updateWorshipVideoAction,
-  deleteWorshipVideoAction,
+  createPraiseVideoAction,
+  updatePraiseVideoAction,
+  deletePraiseVideoAction,
 } from './actions';
 
 type Props = {
-  initialItems: WorshipVideo[];
+  initialItems: PraiseVideo[];
 };
 
 const inputClass =
@@ -19,10 +19,27 @@ const textareaClass =
   'w-full border border-line bg-cream px-3 py-2.5 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep h-32 disabled:opacity-60';
 const labelClass = 'block font-ko text-[12px] font-bold text-ink mb-1.5';
 
-export default function WorshipArchiveAdminClient({ initialItems }: Props) {
+export default function ArchiveAdminClient({ initialItems }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [editingItem, setEditingItem] = useState<WorshipVideo | null>(null);
+  const [editingItem, setEditingItem] = useState<PraiseVideo | null>(null);
+  
+  // Search query state
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredItems = useMemo<PraiseVideo[]>(() => {
+    const query = searchQuery.toLowerCase().trim();
+    if (query === '') return initialItems;
+    return initialItems.filter((item) => item.title.toLowerCase().includes(query));
+  }, [initialItems, searchQuery]);
+
+  const formRef = useRef<HTMLElement>(null);
+
+  // Handle start editing and scroll to form
+  function handleEditStart(video: PraiseVideo) {
+    setEditingItem(video);
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   // Modal notification state
   const [notification, setNotification] = useState<{
@@ -36,7 +53,7 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
   });
 
   // Deletion confirmation modal state
-  const [deleteConfirm, setDeleteConfirm] = useState<WorshipVideo | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<PraiseVideo | null>(null);
 
   // Reset form or cancel editing
   function handleCancel() {
@@ -52,9 +69,9 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
       let res;
       if (editingItem) {
         formData.append('id', editingItem.id);
-        res = await updateWorshipVideoAction(formData);
+        res = await updatePraiseVideoAction(formData);
       } else {
-        res = await createWorshipVideoAction(formData);
+        res = await createPraiseVideoAction(formData);
       }
 
       if (res.success) {
@@ -78,12 +95,12 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
     });
   }
 
-  async function handleDeleteConfirm(video: WorshipVideo) {
+  async function handleDeleteConfirm(video: PraiseVideo) {
     const formData = new FormData();
     formData.append('id', video.id);
 
     startTransition(async () => {
-      const deleteRes = await deleteWorshipVideoAction(formData);
+      const deleteRes = await deletePraiseVideoAction(formData);
 
       setDeleteConfirm(null);
       if (deleteRes.success) {
@@ -106,7 +123,7 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
   return (
     <div className="mt-6 space-y-6">
       {/* 1. 등록 / 수정 폼 */}
-      <section className="border border-line bg-card">
+      <section ref={formRef} className="border border-line bg-card">
         <div className="border-b border-line bg-card-head px-5 py-4 flex items-center justify-between">
           <h2 className="font-ko text-[18px] font-bold text-ink">
             {editingItem ? '찬양 영상 수정' : '찬양 영상 등록'}
@@ -124,17 +141,17 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
         <form onSubmit={handleSubmit} className="p-5 space-y-4">
           <div className="grid gap-4 min-[760px]:grid-cols-3">
             <div>
-              <label className={labelClass} htmlFor="worshipDate">
+              <label className={labelClass} htmlFor="praiseDate">
                 찬양 일자 (주일) *
               </label>
               <input
                 type="date"
-                id="worshipDate"
-                name="worshipDate"
+                id="praiseDate"
+                name="praiseDate"
                 className={inputClass}
                 required
                 disabled={isPending}
-                defaultValue={editingItem?.worshipDate || ''}
+                defaultValue={editingItem?.praiseDate || ''}
               />
             </div>
             <div className="min-[760px]:col-span-2">
@@ -154,36 +171,20 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
             </div>
           </div>
 
-          <div className="grid gap-4 min-[760px]:grid-cols-3">
-            <div className="min-[760px]:col-span-2">
-              <label className={labelClass} htmlFor="youtubeUrl">
-                유튜브 URL *
-              </label>
-              <input
-                type="url"
-                id="youtubeUrl"
-                name="youtubeUrl"
-                placeholder="예: https://www.youtube.com/watch?v=..."
-                className={inputClass}
-                required
-                disabled={isPending}
-                defaultValue={editingItem?.youtubeUrl || ''}
-              />
-            </div>
-            <div>
-              <label className={labelClass} htmlFor="composer">
-                작곡/작사자
-              </label>
-              <input
-                type="text"
-                id="composer"
-                name="composer"
-                placeholder="예: 손경민"
-                className={inputClass}
-                disabled={isPending}
-                defaultValue={editingItem?.composer || ''}
-              />
-            </div>
+          <div>
+            <label className={labelClass} htmlFor="youtubeUrl">
+              유튜브 URL *
+            </label>
+            <input
+              type="url"
+              id="youtubeUrl"
+              name="youtubeUrl"
+              placeholder="예: https://www.youtube.com/watch?v=..."
+              className={inputClass}
+              required
+              disabled={isPending}
+              defaultValue={editingItem?.youtubeUrl || ''}
+            />
           </div>
 
           <div>
@@ -219,11 +220,58 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
 
       {/* 2. 등록된 영상 목록 리스트 */}
       <section className="border border-line bg-card">
-        <div className="flex items-center justify-between border-b border-line bg-card-head px-5 py-4">
-          <h2 className="font-ko text-[18px] font-bold text-ink">아카이브 등록 목록</h2>
-          <span className="font-en text-[12px] italic text-gold-deep">
-            {initialItems.length} videos
-          </span>
+        <div className="flex flex-col gap-4 border-b border-line bg-card-head px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+          <div className="flex items-baseline gap-2">
+            <h2 className="font-ko text-[18px] font-bold text-ink">아카이브 등록 목록</h2>
+            <span className="font-en text-[11px] italic text-gold-deep">
+              {searchQuery.trim() !== '' ? `${filteredItems.length} / ${initialItems.length} filtered` : `${initialItems.length} videos`}
+            </span>
+          </div>
+
+          <div className="relative w-full sm:w-[240px] shrink-0">
+            <input
+              type="text"
+              placeholder="곡 제목 검색..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full border border-line bg-cream pl-8 pr-7 py-1.5 font-ko text-[12px] text-ink outline-none transition focus:border-gold-deep"
+            />
+            <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-soft pointer-events-none">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+                className="w-3.5 h-3.5"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.637 10.637z"
+                />
+              </svg>
+            </div>
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink transition bg-transparent border-none p-0 cursor-pointer"
+                aria-label="검색어 초기화"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2.5"
+                  stroke="currentColor"
+                  className="w-3 h-3"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left font-ko text-[13px]">
@@ -231,23 +279,22 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
               <tr>
                 <th className="px-5 py-3 w-[120px]">찬양 일자</th>
                 <th className="px-5 py-3">곡 제목</th>
-                <th className="px-5 py-3 w-[120px]">작곡/작사</th>
                 <th className="px-5 py-3 w-[100px] text-center">가사 여부</th>
                 <th className="px-5 py-3 w-[150px] text-right">관리</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line bg-card">
-              {initialItems.length === 0 ? (
+              {filteredItems.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-5 py-10 text-center text-ink-soft">
-                    등록된 찬양 영상이 없습니다.
+                  <td colSpan={4} className="px-5 py-10 text-center text-ink-soft">
+                    {searchQuery.trim() !== '' ? '검색 결과에 맞는 찬양 영상이 없습니다.' : '등록된 찬양 영상이 없습니다.'}
                   </td>
                 </tr>
               ) : (
-                initialItems.map((item) => (
+                filteredItems.map((item) => (
                   <tr key={item.id} className="hover:bg-cream/40 transition">
                     <td className="px-5 py-3.5 whitespace-nowrap text-ink-soft">
-                      {item.worshipDate}
+                      {item.praiseDate}
                     </td>
                     <td className="px-5 py-3.5 font-bold text-ink">
                       <div className="flex flex-col gap-1">
@@ -264,7 +311,6 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
                         )}
                       </div>
                     </td>
-                    <td className="px-5 py-3.5 text-ink-soft">{item.composer || '-'}</td>
                     <td className="px-5 py-3.5 text-center">
                       {item.lyrics ? (
                         <span className="text-green-700 bg-green-50 px-2 py-0.5 border border-green-150 rounded-sm text-[11px] font-bold">
@@ -280,7 +326,7 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
                       <div className="flex justify-end gap-2">
                         <button
                           type="button"
-                          onClick={() => setEditingItem(item)}
+                          onClick={() => handleEditStart(item)}
                           disabled={isPending}
                           className="border border-line bg-card px-3 py-1.5 text-ink transition hover:border-gold hover:text-gold-deep cursor-pointer text-[12px]"
                         >
@@ -352,7 +398,7 @@ export default function WorshipArchiveAdminClient({ initialItems }: Props) {
             </div>
             <div className="px-5 py-5">
               <p className="font-ko text-[14px] leading-relaxed text-ink-soft">
-                정말로 <span className="font-bold text-ink">&ldquo;{deleteConfirm.title}&rdquo;</span> (찬양일: {deleteConfirm.worshipDate}) 영상을 아카이브에서 삭제하시겠습니까?
+                정말로 <span className="font-bold text-ink">&ldquo;{deleteConfirm.title}&rdquo;</span> (찬양일: {deleteConfirm.praiseDate}) 영상을 아카이브에서 삭제하시겠습니까?
               </p>
               <div className="mt-6 flex justify-end gap-2">
                 <button

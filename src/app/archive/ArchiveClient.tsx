@@ -1,20 +1,20 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import type { WorshipVideo } from '@/lib/worship-archive';
+import type { PraiseVideo } from '@/lib/praise-archive';
 
 type Props = {
-  videos: WorshipVideo[];
+  videos: PraiseVideo[];
 };
 
-export default function WorshipArchiveClient({ videos }: Props) {
+export default function ArchiveClient({ videos }: Props) {
   // 1. Group videos by Year and Month
   const groupedData = useMemo(() => {
-    const result: Record<number, Record<number, WorshipVideo[]>> = {};
+    const result: Record<number, Record<number, PraiseVideo[]>> = {};
 
     videos.forEach((video) => {
-      // video.worshipDate is formatted as YYYY-MM-DD
-      const dateParts = video.worshipDate.split('-');
+      // video.praiseDate is formatted as YYYY-MM-DD
+      const dateParts = video.praiseDate.split('-');
       const year = parseInt(dateParts[0], 10);
       const month = parseInt(dateParts[1], 10);
 
@@ -77,34 +77,44 @@ export default function WorshipArchiveClient({ videos }: Props) {
   }
 
   // Generate and download lyrics as a text file
-  function handleDownloadLyrics(video: WorshipVideo) {
+  function handleDownloadLyrics(video: PraiseVideo) {
     if (!video.lyrics) return;
 
-    const formattedContent = `[찬양 아카이브 가사]\n곡명: ${video.title}\n찬양 일자: ${video.worshipDate}\n작곡/작사: ${video.composer || '미상'}\n\n========================================\n\n${video.lyrics}`;
+    const formattedContent = `[찬양 아카이브 가사]\n곡명: ${video.title}\n찬양 일자: ${video.praiseDate}\n\n========================================\n\n${video.lyrics}`;
     
     const blob = new Blob([formattedContent], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `${video.worshipDate}_${video.title}_가사.txt`;
+    link.download = `${video.praiseDate}_${video.title}_가사.txt`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }
 
-  // Get active videos based on filters
+  // 3. Search query state
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Get active videos based on filters and search query
   const activeVideos = useMemo(() => {
+    if (searchQuery.trim() !== '') {
+      const query = searchQuery.toLowerCase().trim();
+      return videos
+        .filter((video) => video.title.toLowerCase().includes(query))
+        .sort((a, b) => new Date(b.praiseDate).getTime() - new Date(a.praiseDate).getTime());
+    }
+
     if (activeYear && activeMonth && groupedData[activeYear]?.[activeMonth]) {
       return groupedData[activeYear][activeMonth].sort(
-        (a, b) => new Date(b.worshipDate).getTime() - new Date(a.worshipDate).getTime()
+        (a, b) => new Date(b.praiseDate).getTime() - new Date(a.praiseDate).getTime()
       );
     }
     return [];
-  }, [activeYear, activeMonth, groupedData]);
+  }, [activeYear, activeMonth, groupedData, searchQuery, videos]);
 
   // Format date helper (e.g. 2026-06-22 -> 06월 22일 주일)
-  function formatWorshipDate(dateStr: string) {
+  function formatPraiseDate(dateStr: string) {
     const parts = dateStr.split('-');
     if (parts.length < 3) return dateStr;
     return `${parts[1]}월 ${parts[2]}일 주일`;
@@ -189,12 +199,67 @@ export default function WorshipArchiveClient({ videos }: Props) {
 
         {/* Right Side: Video List (Grouped with clear date titles) */}
         <section className="flex-1 flex flex-col gap-6">
-          <div className="flex items-center justify-between border-b border-line pb-3">
-            <h3 className="font-ko text-[16px] font-bold text-ink flex items-center gap-2">
-              <span className="font-en text-[18px] text-gold-deep">{activeYear}</span>년
-              <span className="font-en text-[18px] text-gold-deep">{activeMonth}</span>월 찬양 영상
+          <div className="flex flex-col gap-4 border-b border-line pb-4 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+            <h3 className="font-ko text-[16px] font-bold text-ink flex flex-wrap items-center gap-2">
+              {searchQuery.trim() !== '' ? (
+                <>
+                  <span className="text-gold-deep">&ldquo;{searchQuery}&rdquo;</span> 검색 결과
+                </>
+              ) : (
+                <>
+                  <span className="font-en text-[18px] text-gold-deep">{activeYear}</span>년
+                  <span className="font-en text-[18px] text-gold-deep">{activeMonth}</span>월 찬양 영상
+                </>
+              )}
+              <span className="font-ko text-[12px] font-normal text-ink-soft ml-2">
+                (총 {activeVideos.length}개)
+              </span>
             </h3>
-            <span className="font-ko text-[12px] text-ink-soft">총 {activeVideos.length}개 영상</span>
+            
+            <div className="relative w-full sm:w-[280px] shrink-0">
+              <input
+                type="text"
+                placeholder="곡 제목으로 검색..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full border border-line bg-card pl-9 pr-8 py-2 font-ko text-[13px] text-ink outline-none transition focus:border-gold-deep"
+              />
+              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-soft pointer-events-none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth="2"
+                  stroke="currentColor"
+                  className="w-4 h-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.637 10.637z"
+                  />
+                </svg>
+              </div>
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink transition cursor-pointer bg-transparent border-none p-0"
+                  aria-label="검색어 초기화"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="2.5"
+                    stroke="currentColor"
+                    className="w-3.5 h-3.5"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
 
           {activeVideos.length === 0 ? (
@@ -218,7 +283,7 @@ export default function WorshipArchiveClient({ videos }: Props) {
                           <>
                             {/* Standard YouTube mqdefault thumbnail */}
                             <img
-                              src={`https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`}
+                               src={`https://img.youtube.com/vi/${video.youtubeId}/mqdefault.jpg`}
                               alt={video.title}
                               className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
                             />
@@ -252,16 +317,11 @@ export default function WorshipArchiveClient({ videos }: Props) {
                       <div className="flex-1 p-5 flex flex-col justify-between gap-4">
                         <div className="space-y-1">
                           <div className="font-ko text-[12px] font-bold text-gold-deep">
-                            {formatWorshipDate(video.worshipDate)}
+                            {formatPraiseDate(video.praiseDate)}
                           </div>
                           <h4 className="font-ko text-[18px] font-bold text-ink leading-snug">
                             {video.title}
                           </h4>
-                          {video.composer && (
-                            <p className="font-ko text-[13px] text-ink-soft">
-                              작곡/작사: {video.composer}
-                            </p>
-                          )}
                         </div>
 
                         {/* Expand/Download Controls */}
@@ -352,7 +412,7 @@ export default function WorshipArchiveClient({ videos }: Props) {
             <div className="w-full aspect-[16/9] bg-black shadow-2xl border border-white/10">
               <iframe
                 src={`https://www.youtube.com/embed/${activePlayVideoId}?autoplay=1&rel=0`}
-                title="Worship Video Player"
+                title="Praise Video Player"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
                 className="w-full h-full"
