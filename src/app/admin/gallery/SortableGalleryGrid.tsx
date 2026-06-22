@@ -32,11 +32,12 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
   const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.55 : 1 };
 
   return (
-    <article ref={setNodeRef} style={style} className="mb-3 break-inside-avoid">
+    <article ref={setNodeRef} style={style} className="mb-3 break-inside-avoid relative group">
+      {/* 1. 드래그 가능 영역 */}
       <div 
         {...attributes}
         {...listeners}
-        className="group relative overflow-hidden border border-line bg-card cursor-grab active:cursor-grabbing touch-none select-none"
+        className="relative overflow-hidden border border-line bg-card cursor-grab active:cursor-grabbing touch-none select-none"
       >
         <img src={item.imageUrl} alt={item.title} className="block h-auto w-full pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-ink/80 to-transparent px-3 pb-3 pt-12 pointer-events-none">
@@ -47,55 +48,22 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
             {index + 1}
           </span>
         </div>
-        <div 
-          className="absolute right-2 top-2 z-10 no-drag" 
-          onClick={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-        >
-          <DeleteGalleryItemButton id={item.id} title={item.title} />
-        </div>
+      </div>
+
+      {/* 2. 드래그 불가능 독립 영역 (우측 상단 삭제 버튼) */}
+      <div className="absolute right-2 top-2 z-10">
+        <DeleteGalleryItemButton id={item.id} title={item.title} />
       </div>
     </article>
   );
-}
-
-class CustomMouseSensor extends MouseSensor {
-  static activators = [
-    {
-      eventName: 'onMouseDown' as const,
-      handler: ({ nativeEvent }: { nativeEvent: MouseEvent }) => {
-        const target = nativeEvent.target as HTMLElement;
-        if (target.closest('.no-drag') || target.closest('button') || target.closest('[role="button"]')) {
-          return false;
-        }
-        return true;
-      },
-    },
-  ];
-}
-
-class CustomTouchSensor extends TouchSensor {
-  static activators = [
-    {
-      eventName: 'onTouchStart' as const,
-      handler: ({ nativeEvent }: { nativeEvent: TouchEvent }) => {
-        const target = nativeEvent.target as HTMLElement;
-        if (target.closest('.no-drag') || target.closest('button') || target.closest('[role="button"]')) {
-          return false;
-        }
-        return true;
-      },
-    },
-  ];
 }
 
 export default function SortableGalleryGrid({ items: initialItems, reorderAction }: Props) {
   const [items, setItems] = useState(initialItems);
   const [saving, setSaving] = useState(false);
   const sensors = useSensors(
-    useSensor(CustomMouseSensor),
-    useSensor(CustomTouchSensor, {
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
       activationConstraint: {
         delay: 200,
         tolerance: 5,
