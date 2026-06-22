@@ -727,7 +727,7 @@ export default function PracticeClient() {
       <div className="min-[881px]:hidden flex flex-col items-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 pt-[68px] pb-[56px]">
         
         {/* Book Wrapper */}
-        <div className="relative w-full max-w-[350px] h-[74dvh] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff]">
+        <div className="relative w-full max-w-[350px] h-[74dvh] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff] mb-6">
           
 
 
@@ -895,7 +895,7 @@ export default function PracticeClient() {
         </div>
 
         {/* Bottom Spread Dots */}
-        <div className="flex items-center gap-2 mt-auto relative z-20">
+        <div className="flex items-center gap-2 relative z-20">
           {Array.from({ length: totalSpreads }).map((_, idx) => (
             <button
               key={idx}
