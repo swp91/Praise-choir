@@ -276,9 +276,9 @@ export default function ArchiveClient({ videos }: Props) {
                     key={video.id}
                     className="border border-line bg-card hover:shadow-md transition duration-200"
                   >
-                    <div className="flex flex-col sm:flex-row min-h-[170px]">
+                    <div className="flex flex-col sm:flex-row sm:min-h-[146px]">
                       {/* Thumbnail section */}
-                      <div className="relative w-full sm:w-[260px] aspect-[16/9] sm:aspect-auto bg-[#171717] overflow-hidden shrink-0 group">
+                      <div className="relative w-full sm:w-[260px] aspect-[16/9] sm:h-[146px] bg-[#171717] overflow-hidden shrink-0 group">
                         {video.youtubeId ? (
                           <>
                             {/* Standard YouTube mqdefault thumbnail */}
