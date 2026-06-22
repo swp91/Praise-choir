@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: '/admin/',
     },
-    sitemap: 'https://praisechoir.kr/sitemap.xml',
+    sitemap: 'https://www.praisechoir.kr/sitemap.xml',
   };
 }

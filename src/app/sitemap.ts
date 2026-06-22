@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://praisechoir.kr';
+  const baseUrl = 'https://www.praisechoir.kr';
   
   const routes = [
     '',
