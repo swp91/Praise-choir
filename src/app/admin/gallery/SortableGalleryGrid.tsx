@@ -48,7 +48,7 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
           </span>
         </div>
         <div 
-          className="absolute right-2 top-2 z-10" 
+          className="absolute right-2 top-2 z-10 no-drag" 
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
@@ -64,12 +64,29 @@ export default function SortableGalleryGrid({ items: initialItems, reorderAction
   const [items, setItems] = useState(initialItems);
   const [saving, setSaving] = useState(false);
   const sensors = useSensors(
-    useSensor(MouseSensor),
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        predicate: (event) => {
+          const target = event.target as HTMLElement;
+          if (target.closest('.no-drag') || target.closest('button') || target.closest('[role="button"]')) {
+            return false;
+          }
+          return true;
+        }
+      }
+    }),
     useSensor(TouchSensor, {
       activationConstraint: {
         delay: 200,
         tolerance: 5,
-      },
+        predicate: (event) => {
+          const target = event.target as HTMLElement;
+          if (target.closest('.no-drag') || target.closest('button') || target.closest('[role="button"]')) {
+            return false;
+          }
+          return true;
+        }
+      }
     })
   );
 
