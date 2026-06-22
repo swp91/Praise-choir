@@ -162,6 +162,56 @@ export default function PracticeClient() {
     }
   };
 
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const handleDesktopTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) {
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    }
+  };
+
+  const handleDesktopTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    if (touch) {
+      const deltaX = touchStartRef.current.x - touch.clientX;
+      const deltaY = touchStartRef.current.y - touch.clientY;
+      if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+        if (deltaX > 0) {
+          if (activeSpread < totalSpreads - 1) handleSpreadChange(activeSpread + 1);
+        } else {
+          if (activeSpread > 0) handleSpreadChange(activeSpread - 1);
+        }
+      }
+    }
+    touchStartRef.current = null;
+  };
+
+  const handleMobileTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (touch) {
+      touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+    }
+  };
+
+  const handleMobileTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const touch = e.changedTouches[0];
+    if (touch) {
+      const deltaX = touchStartRef.current.x - touch.clientX;
+      const deltaY = touchStartRef.current.y - touch.clientY;
+      if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 50) {
+        if (deltaY > 0) {
+          if (activeSpread < totalSpreads - 1) handleSpreadChange(activeSpread + 1);
+        } else {
+          if (activeSpread > 0) handleSpreadChange(activeSpread - 1);
+        }
+      }
+    }
+    touchStartRef.current = null;
+  };
+
   if (!data) return null;
 
   // 일정 그룹화
@@ -543,7 +593,11 @@ export default function PracticeClient() {
       <div className="hidden min-[881px]:flex flex-col items-center justify-center flex-1 w-full max-w-6xl mx-auto px-4 relative z-10">
         
         {/* Book Wrapper (화면 크기에 따라 유연하게 웅장해지는 스케일 업) */}
-        <div className="relative w-full max-w-[1020px] xl:max-w-[1240px] h-[480px] xl:h-[580px] flex items-center justify-center rounded-2xl shadow-[0_28px_90px_rgba(42,38,32,0.16)] bg-[#ffffff] transition-all duration-300">
+        <div 
+          className="relative w-full max-w-[1020px] xl:max-w-[1240px] h-[480px] xl:h-[580px] flex items-center justify-center rounded-2xl shadow-[0_28px_90px_rgba(42,38,32,0.16)] bg-[#ffffff] transition-all duration-300"
+          onTouchStart={handleDesktopTouchStart}
+          onTouchEnd={handleDesktopTouchEnd}
+        >
           
 
 
@@ -727,7 +781,11 @@ export default function PracticeClient() {
       <div className="min-[881px]:hidden flex flex-col items-center flex-1 w-full max-w-md mx-auto px-6 relative z-10 pt-[68px] pb-[56px]">
         
         {/* Book Wrapper */}
-        <div className="relative w-full max-w-[350px] h-[74dvh] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff] mb-6">
+        <div 
+          className="relative w-full max-w-[350px] h-[74dvh] flex flex-col items-center justify-center rounded-2xl shadow-[0_20px_60px_rgba(42,38,32,0.14)] bg-[#ffffff] mb-6"
+          onTouchStart={handleMobileTouchStart}
+          onTouchEnd={handleMobileTouchEnd}
+        >
           
 
 
