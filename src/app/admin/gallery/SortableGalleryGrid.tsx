@@ -47,7 +47,12 @@ function GalleryCard({ item, index }: { item: AdminGalleryItem; index: number })
             {index + 1}
           </span>
         </div>
-        <div className="absolute right-2 top-2 z-10" onClick={(e) => e.stopPropagation()}>
+        <div 
+          className="absolute right-2 top-2 z-10" 
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+        >
           <DeleteGalleryItemButton id={item.id} title={item.title} />
         </div>
       </div>
