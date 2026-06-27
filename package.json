@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "app:build": "npm run build && npx cap sync",
+    "app:build": "node scripts/build-app.js && npx cap sync",
     "app:sync": "npx cap sync",
     "app:open:android": "npx cap open android",
     "app:open:ios": "npx cap open ios"
