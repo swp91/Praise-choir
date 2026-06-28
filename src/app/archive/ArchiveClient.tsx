@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import type { PraiseVideo } from '@/lib/praise-archive';
 
 type Props = {
@@ -59,6 +59,7 @@ export default function ArchiveClient({ videos }: Props) {
 
   // Active YouTube video ID to play in modal
   const [activePlayVideoId, setActivePlayVideoId] = useState<string | null>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // 유튜브 모달 열릴 때 브라우저 히스토리에 해시(#play)를 추가하여
   // 안드로이드 하드웨어 뒤로가기 버튼 클릭 시 앱이 종료되지 않고 모달만 닫히도록 제어
@@ -69,7 +70,7 @@ export default function ArchiveClient({ videos }: Props) {
       
       const handleHashChange = () => {
         if (window.location.hash !== '#play') {
-          setActivePlayVideoId(null);
+          handleCloseVideo();
         }
       };
       
@@ -77,6 +78,12 @@ export default function ArchiveClient({ videos }: Props) {
       return () => {
         document.body.style.overflow = '';
         window.removeEventListener('hashchange', handleHashChange);
+        
+        // 모달 닫힐 때 전체화면 상태면 해제
+        const exitFS = document.exitFullscreen || (document as any).webkitExitFullscreen;
+        if (exitFS && (document.fullscreenElement || (document as any).webkitFullscreenElement)) {
+          exitFS.call(document).catch(() => {});
+        }
       };
     } else {
       document.body.style.overflow = '';
@@ -85,6 +92,41 @@ export default function ArchiveClient({ videos }: Props) {
       }
     }
   }, [activePlayVideoId]);
+
+  // 클릭 동작의 연속선상에서 직접 전체화면을 호출하여 브라우저 보안 규정을 통과시킵니다.
+  const handlePlayVideo = (youtubeId: string) => {
+    setActivePlayVideoId(youtubeId);
+    
+    setTimeout(() => {
+      const iframe = iframeRef.current;
+      if (iframe) {
+        const requestFS = 
+          iframe.requestFullscreen || 
+          (iframe as any).webkitRequestFullscreen || 
+          (iframe as any).mozRequestFullScreen || 
+          (iframe as any).msRequestFullscreen;
+        
+        if (requestFS) {
+          requestFS.call(iframe).catch((err) => {
+            console.warn('Auto-fullscreen blocked or not supported:', err);
+          });
+        }
+      }
+    }, 80);
+  };
+
+  const handleCloseVideo = () => {
+    setActivePlayVideoId(null);
+    const exitFS = 
+      document.exitFullscreen || 
+      (document as any).webkitExitFullscreen || 
+      (document as any).mozCancelFullScreen || 
+      (document as any).msExitFullscreen;
+    
+    if (exitFS && (document.fullscreenElement || (document as any).webkitFullscreenElement)) {
+      exitFS.call(document).catch((err) => console.warn(err));
+    }
+  };
 
   // Handle year click: switch year and activate the latest month of that year
   function handleYearSelect(year: number) {
@@ -316,7 +358,7 @@ export default function ArchiveClient({ videos }: Props) {
                             {/* Hover Overlay Play Icon */}
                             <button
                               type="button"
-                              onClick={() => setActivePlayVideoId(video.youtubeId)}
+                              onClick={() => handlePlayVideo(video.youtubeId!)}
                               className="absolute inset-0 flex items-center justify-center bg-ink/40 group-hover:bg-ink/55 transition cursor-pointer"
                               aria-label="찬양 영상 재생"
                             >
@@ -418,7 +460,7 @@ export default function ArchiveClient({ videos }: Props) {
             {/* Close Button */}
             <button
               type="button"
-              onClick={() => setActivePlayVideoId(null)}
+              onClick={handleCloseVideo}
               className="absolute right-4 top-4 md:right-0 md:top-[-44px] text-[#fdf9f0] hover:text-gold-deep transition duration-150 flex items-center gap-1 cursor-pointer z-50 bg-black/40 px-3 py-1.5 rounded-full md:bg-transparent md:p-0"
             >
               <svg
@@ -437,6 +479,7 @@ export default function ArchiveClient({ videos }: Props) {
             {/* Video Player 16:9 Responsive Embed */}
             <div className="w-full aspect-[16/9] bg-black shadow-2xl md:border md:border-white/10">
               <iframe
+                ref={iframeRef}
                 src={`https://www.youtube.com/embed/${activePlayVideoId}?autoplay=1&rel=0`}
                 title="Praise Video Player"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
