@@ -3,6 +3,16 @@ apply plugin: 'com.android.application'
 android {
     namespace = "com.praise.choir"
     compileSdk = rootProject.ext.compileSdkVersion
+
+    signingConfigs {
+        release {
+            storeFile file('praise-choir-key.jks')
+            storePassword 'praise2026!'
+            keyAlias 'praise-key-alias'
+            keyPassword 'praise2026!'
+        }
+    }
+
     defaultConfig {
         applicationId "com.praise.choir"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -20,6 +30,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
