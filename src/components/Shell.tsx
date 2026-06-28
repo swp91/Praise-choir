@@ -22,6 +22,33 @@ function PageMountReporter({ children }: { children: React.ReactNode }) {
 export default function Shell({ children }: Props) {
   const pathname = usePathname();
 
+  useEffect(() => {
+    const isApp = process.env.NEXT_PUBLIC_BUILD_TARGET === 'app';
+    if (!isApp) return;
+
+    let activeListener: any = null;
+
+    import('@capacitor/app').then(({ App }) => {
+      App.addListener('backButton', (event) => {
+        if (event.canGoBack) {
+          window.history.back();
+        } else {
+          App.exitApp();
+        }
+      }).then((l) => {
+        activeListener = l;
+      });
+    }).catch((err) => {
+      console.error('Failed to load Capacitor App plugin', err);
+    });
+
+    return () => {
+      if (activeListener) {
+        activeListener.remove();
+      }
+    };
+  }, []);
+
   if (pathname.startsWith('/admin')) {
     return <>{children}</>;
   }

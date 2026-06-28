@@ -4,6 +4,8 @@ import { usePathname } from 'next/navigation';
 import Crest from './Crest';
 import { usePageTransition } from '@/lib/transition';
 
+const isAppBuild = process.env.NEXT_PUBLIC_BUILD_TARGET === 'app';
+
 const PAGES = [
   { key: 'home',     href: '/',         en: 'Overview',     ko: '메인',   num: '01' },
   { key: 'members',  href: '/members',  en: 'Choristers',   ko: '대원',   num: '02' },
@@ -12,8 +14,8 @@ const PAGES = [
   { key: 'events',   href: '/events',   en: 'Calendar',     ko: '일정',   num: '05' },
   { key: 'gallery',  href: '/gallery',  en: 'Gallery',      ko: '갤러리', num: '06' },
   { key: 'archive',  href: '/archive',  en: 'Archive',      ko: '아카이브', num: '07' },
-  { key: 'admin',    href: '/admin',    en: 'Console',      ko: '관리',   num: '08' },
-] as const;
+  ...(isAppBuild ? [] : [{ key: 'admin',    href: '/admin',    en: 'Console',      ko: '관리',   num: '08' }]),
+];
 
 export default function Sidebar() {
   const path = usePathname();

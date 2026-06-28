@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import type { PraiseVideo } from '@/lib/praise-archive';
 
 type Props = {
@@ -59,6 +59,32 @@ export default function ArchiveClient({ videos }: Props) {
 
   // Active YouTube video ID to play in modal
   const [activePlayVideoId, setActivePlayVideoId] = useState<string | null>(null);
+
+  // 유튜브 모달 열릴 때 브라우저 히스토리에 해시(#play)를 추가하여
+  // 안드로이드 하드웨어 뒤로가기 버튼 클릭 시 앱이 종료되지 않고 모달만 닫히도록 제어
+  useEffect(() => {
+    if (activePlayVideoId) {
+      document.body.style.overflow = 'hidden';
+      window.location.hash = 'play';
+      
+      const handleHashChange = () => {
+        if (window.location.hash !== '#play') {
+          setActivePlayVideoId(null);
+        }
+      };
+      
+      window.addEventListener('hashchange', handleHashChange);
+      return () => {
+        document.body.style.overflow = '';
+        window.removeEventListener('hashchange', handleHashChange);
+      };
+    } else {
+      document.body.style.overflow = '';
+      if (window.location.hash === '#play') {
+        window.history.back();
+      }
+    }
+  }, [activePlayVideoId]);
 
   // Handle year click: switch year and activate the latest month of that year
   function handleYearSelect(year: number) {
@@ -387,13 +413,13 @@ export default function ArchiveClient({ videos }: Props) {
 
       {/* 4. Cinematic YouTube Play Modal */}
       {activePlayVideoId && (
-        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-ink/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
-          <div className="relative w-full max-w-[1000px] flex flex-col gap-4">
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black md:bg-black/95 md:backdrop-blur-md p-0 md:p-4 animate-in fade-in duration-300">
+          <div className="relative w-full h-full md:h-auto md:max-w-[1000px] flex flex-col justify-center md:justify-start gap-4">
             {/* Close Button */}
             <button
               type="button"
               onClick={() => setActivePlayVideoId(null)}
-              className="absolute right-0 top-[-44px] text-[#fdf9f0] hover:text-gold-deep transition duration-150 flex items-center gap-1 cursor-pointer"
+              className="absolute right-4 top-4 md:right-0 md:top-[-44px] text-[#fdf9f0] hover:text-gold-deep transition duration-150 flex items-center gap-1 cursor-pointer z-50 bg-black/40 px-3 py-1.5 rounded-full md:bg-transparent md:p-0"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -409,7 +435,7 @@ export default function ArchiveClient({ videos }: Props) {
             </button>
 
             {/* Video Player 16:9 Responsive Embed */}
-            <div className="w-full aspect-[16/9] bg-black shadow-2xl border border-white/10">
+            <div className="w-full aspect-[16/9] bg-black shadow-2xl md:border md:border-white/10">
               <iframe
                 src={`https://www.youtube.com/embed/${activePlayVideoId}?autoplay=1&rel=0`}
                 title="Praise Video Player"

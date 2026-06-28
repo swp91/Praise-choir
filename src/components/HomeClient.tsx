@@ -1,5 +1,7 @@
 "use client";
 
+const isAppBuild = process.env.NEXT_PUBLIC_BUILD_TARGET === 'app';
+
 import {
   motion,
   useScroll,
@@ -275,6 +277,9 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
     useState(false);
   const touchStartYRef = useRef<number | null>(null);
   const autoScrollFrameRef = useRef<number | null>(null);
+  const isScrollingRef = useRef(false);
+  const isTouchActiveRef = useRef(false);
+  const hasSnappedThisTouchRef = useRef(false);
 
   // 최초 마운트 시 브라우저 자동 스크롤 복원 비활성화 (새로고침 시 스크롤 덜컹거림 버그 방지)
   useEffect(() => {
@@ -296,7 +301,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
 
     const heroBgUrl = home?.heroBackgroundUrl || '/praise_photo.png';
     const rawUrls = [...introPhotos, heroBgUrl];
-    const urls = rawUrls.map((url) => `/_next/image?url=${encodeURIComponent(url)}&w=1080&q=75`);
+    const urls = rawUrls.map((url) => isAppBuild ? url : `/_next/image?url=${encodeURIComponent(url)}&w=1080&q=75`);
     let loadedCount = 0;
     const totalToLoad = urls.length;
     let resolved = false;
@@ -596,7 +601,8 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
     if (isIntroActive) return;
 
     const scrollToTarget = (targetY: number, customDuration?: number) => {
-      if (isAutoAdvancingFinalStep) return;
+      if (isScrollingRef.current || isAutoAdvancingFinalStep) return;
+      isScrollingRef.current = true;
       setIsAutoAdvancingFinalStep(true);
 
       if (autoScrollFrameRef.current !== null) {
@@ -627,13 +633,14 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
         autoScrollFrameRef.current = null;
         window.scrollTo(0, targetY);
         setIsAutoAdvancingFinalStep(false);
+        isScrollingRef.current = false;
       };
 
       autoScrollFrameRef.current = requestAnimationFrame(animateScroll);
     };
 
     const handleWheel = (event: WheelEvent) => {
-      if (isAutoAdvancingFinalStep) {
+      if (isScrollingRef.current || isAutoAdvancingFinalStep) {
         event.preventDefault();
         return;
       }
@@ -657,6 +664,8 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
 
     const handleTouchStart = (event: TouchEvent) => {
       touchStartYRef.current = event.touches[0]?.clientY ?? null;
+      isTouchActiveRef.current = true;
+      hasSnappedThisTouchRef.current = false;
     };
 
     const handleTouchMove = (event: TouchEvent) => {
@@ -666,34 +675,48 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
       }
 
       const startY = touchStartYRef.current;
-      if (startY === null) return;
+      if (startY === null || !isTouchActiveRef.current) return;
 
       const currentY = event.touches[0]?.clientY ?? startY;
       const diff = startY - currentY; // 양수: 아래로 스크롤(화면 올림), 음수: 위로 스크롤(화면 내림)
 
-      if (Math.abs(diff) > 30) {
-        const vh = window.innerHeight;
-        const currentScroll = window.scrollY;
+      const vh = window.innerHeight;
+      const currentScroll = window.scrollY;
 
-        // 스티키 래퍼(4.9vh) 이후의 일반 영역(시간표 세부 정보 & 푸터)에서는 브라우저 기본 스크롤 허용
-        if (currentScroll > 4.9 * vh + 10) {
-          // 단, 일반 영역의 최상단에서 위로 스크롤하여 경계를 다시 넘어갈 때 이전 스티키 섹션(3.6vh)으로 스냅
-          if (diff < -30 && currentScroll < 4.9 * vh + 120) {
-            event.preventDefault();
+      // 스티키 래퍼(4.9vh) 이후의 일반 영역(시간표 세부 정보 & 푸터)에서는 브라우저 기본 스크롤 허용
+      if (currentScroll > 4.9 * vh + 10) {
+        // 단, 일반 영역의 최상단에서 위로 스크롤하여 경계를 다시 넘어갈 때 이전 스티키 섹션(3.6vh)으로 스냅
+        if (diff < -30 && currentScroll < 4.9 * vh + 120) {
+          event.preventDefault();
+          if (!hasSnappedThisTouchRef.current && !isScrollingRef.current) {
+            hasSnappedThisTouchRef.current = true;
             scrollToTarget(3.6 * vh);
-            touchStartYRef.current = null;
           }
-          return;
         }
+        return;
+      }
 
-        // 스티키 구간 내부에서는 터치 스와이프 발생 시 터치 기본 스크롤 동작을 차단하고 1개 섹션씩 스냅 이동
-        event.preventDefault();
+      // 스티키 구간 내부에서는 터치 스와이프 발생 시 터치 기본 스크롤 동작을 100% 차단
+      // 단, 마지막 스냅 포인트(4.9vh)에 도달한 상태에서 아래로 더 스크롤하려는 경우(diff > 0),
+      // 일반 영역으로 자연스럽게 흘러갈 수 있도록 예외 처리합니다.
+      if (currentScroll >= 4.9 * vh - 10 && diff > 0) {
+        return;
+      }
+
+      event.preventDefault();
+
+      if (isScrollingRef.current || hasSnappedThisTouchRef.current) {
+        return;
+      }
+
+      if (Math.abs(diff) > 30) {
         const snapPoints = [0, 1.0 * vh, 2.3 * vh, 3.6 * vh, 4.9 * vh];
 
         if (diff > 30) {
           // 아래로 스크롤 (다음 섹션으로 스냅)
           const target = snapPoints.find((p) => p > currentScroll + 15);
           if (target !== undefined) {
+            hasSnappedThisTouchRef.current = true;
             scrollToTarget(target);
           }
         } else if (diff < -30) {
@@ -701,21 +724,31 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
           const reversedPoints = [...snapPoints].reverse();
           const target = reversedPoints.find((p) => p < currentScroll - 15);
           if (target !== undefined) {
+            hasSnappedThisTouchRef.current = true;
             scrollToTarget(target);
           }
         }
-        touchStartYRef.current = null;
       }
+    };
+
+    const handleTouchEnd = () => {
+      touchStartYRef.current = null;
+      isTouchActiveRef.current = false;
+      hasSnappedThisTouchRef.current = false;
     };
 
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("touchstart", handleTouchStart, { passive: true });
     window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", handleTouchEnd, { passive: true });
 
     return () => {
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchcancel", handleTouchEnd);
     };
   }, [isAutoAdvancingFinalStep, isIntroActive, scrollY]);
 
@@ -1036,7 +1069,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                     className="absolute inset-0 bg-center bg-cover overflow-hidden"
                     style={{
                       backgroundColor: bgColor,
-                      backgroundImage: `url('/_next/image?url=${encodeURIComponent(imgUrl)}&w=1080&q=75')`,
+                      backgroundImage: `url(${isAppBuild ? imgUrl : `/_next/image?url=${encodeURIComponent(imgUrl)}&w=1080&q=75`})`,
                     }}
                   />
                 );
@@ -1050,7 +1083,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                 className="absolute inset-0 bg-center bg-cover overflow-hidden"
                 style={{
                   backgroundColor: "#4a3e2e",
-                  backgroundImage: `url('/_next/image?url=${encodeURIComponent(home?.heroBackgroundUrl || '/praise_photo.png')}&w=1080&q=75')`,
+                  backgroundImage: `url(${isAppBuild ? (home?.heroBackgroundUrl || '/praise_photo.png') : `/_next/image?url=${encodeURIComponent(home?.heroBackgroundUrl || '/praise_photo.png')}&w=1080&q=75`})`,
                   backgroundPosition: 'center 30%',
                 }}
               >
@@ -1070,7 +1103,7 @@ export default function HomeClient({ preloadPhotos = [] }: Props) {
                   }}
                   className="w-full h-full bg-inherit bg-center bg-cover"
                   style={{
-                    backgroundImage: `url('/_next/image?url=${encodeURIComponent(home?.heroBackgroundUrl || '/praise_photo.png')}&w=1080&q=75')`,
+                    backgroundImage: `url(${isAppBuild ? (home?.heroBackgroundUrl || '/praise_photo.png') : `/_next/image?url=${encodeURIComponent(home?.heroBackgroundUrl || '/praise_photo.png')}&w=1080&q=75`})`,
                     backgroundPosition: 'center 30%',
                   }}
                 />
