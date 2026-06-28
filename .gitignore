@@ -52,3 +52,6 @@ next-env.d.ts
 /.mcp.json
 /.superpowers/
 /.agents/
+
+# Keystores (Android Release Signing Keys)
+*.jks

@@ -158,17 +158,39 @@ export default function Gallery() {
               <h3 id="gallery-modal-title" className="font-ko text-[18px] md:text-[20px] font-bold mb-1 text-ink">{active.title}</h3>
               <p className="font-en italic text-gold-deep text-[13px] mb-4">{active.date}</p>
               <div className="flex gap-3 justify-center items-center">
-                {active.downloadUrl ? (
-                  <a
-                    href={active.downloadUrl}
-                    className="border border-line bg-card px-4 py-2 font-ko text-[13px] font-bold text-ink transition active:bg-neutral-100 hover:border-gold flex items-center gap-1.5 shadow-xs"
-                    onClick={e => e.stopPropagation()}
+                {active.url ? (
+                  <button
+                    type="button"
+                    onClick={e => {
+                      e.stopPropagation();
+                      const url = active.url!;
+                      const ext = url.split(/[#?]/)[0].split('.').pop() || 'jpg';
+                      const filename = `${active.title.trim().replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ') || 'image'}.${ext}`;
+                      
+                      fetch(url)
+                        .then(res => res.blob())
+                        .then(blob => {
+                          const blobUrl = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = blobUrl;
+                          a.download = filename;
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          URL.revokeObjectURL(blobUrl);
+                        })
+                        .catch(err => {
+                          console.error(err);
+                          window.open(url, '_blank');
+                        });
+                    }}
+                    className="border border-line bg-card px-4 py-2 font-ko text-[13px] font-bold text-ink transition active:bg-neutral-100 hover:border-gold flex items-center gap-1.5 shadow-xs cursor-pointer"
                   >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.0} stroke="currentColor" className="w-4 h-4 text-gold-deep">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                     </svg>
                     다운로드
-                  </a>
+                  </button>
                 ) : null}
                 <button
                   type="button"

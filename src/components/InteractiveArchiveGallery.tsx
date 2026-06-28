@@ -387,14 +387,36 @@ export default function InteractiveArchiveGallery({ photos }: Props) {
           onClick={() => closePhoto()}
         >
           <div ref={controlsRef} className="absolute right-8 top-8 z-20 flex gap-2 opacity-0">
-            {active.photo.downloadUrl ? (
-              <a
-                href={active.photo.downloadUrl}
-                className="border border-line bg-card px-3 py-2 font-en text-[14px] text-ink transition hover:border-gold"
-                onClick={(event) => event.stopPropagation()}
+            {active.photo.url ? (
+              <button
+                type="button"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  const url = active.photo.url!;
+                  const ext = url.split(/[#?]/)[0].split('.').pop() || 'jpg';
+                  const filename = `${active.photo.title.trim().replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, ' ') || 'image'}.${ext}`;
+                  
+                  fetch(url)
+                    .then(res => res.blob())
+                    .then(blob => {
+                      const blobUrl = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = blobUrl;
+                      a.download = filename;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(blobUrl);
+                    })
+                    .catch(err => {
+                      console.error(err);
+                      window.open(url, '_blank');
+                    });
+                }}
+                className="border border-line bg-card px-3 py-2 font-en text-[14px] text-ink transition hover:border-gold cursor-pointer"
               >
                 Download
-              </a>
+              </button>
             ) : null}
             <button
               type="button"
